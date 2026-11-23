@@ -1,15 +1,14 @@
 /**
- * Mobile-First Bottom Thumb Dock & PWA Install Controller (v8.1)
- * - Fixed ergonomic bottom bar on screens <= 768px with safe-area-inset-bottom
- * - 1-tap Vertical/Horizontal Neck flip, Compartment triggers & Header Menu access
- * - Captures `beforeinstallprompt` for native PWA installation
+ * Mobile-First 4-Button Thumb Action Bar & PWA Install Controller (v8.2)
+ * Directly inspired by Oud Visualizer's clean 4-action mobile bar:
+ *   ▶ Tocar  |  🎛 Escala  |  🧭 Estúdio  |  ☰ Opções
  */
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
+import { toggleScalePlayback } from './deckPanelsView.js';
 
 let deferredInstallPrompt = null;
 let installReady = false;
-let mobileActiveTab = 'neck';
 
 export function isPwaInstallAvailable() {
   return installReady;
@@ -46,17 +45,35 @@ export function renderMobileBottomNav(state) {
   const nav = document.getElementById('mobileBottomNav');
   if (!nav) return;
 
-  const isVert = state.fretOrientation === 'vertical';
   const items = [
-    { id: 'neck',   icon: '🎸', label: t(state.lang, 'mobNavNeck') },
-    { id: 'setup',  icon: '🎛', label: t(state.lang, 'mobNavScale') },
-    { id: 'orient', icon: isVert ? '↔' : '↕', label: isVert ? t(state.lang, 'orientHorizShort') : t(state.lang, 'orientVertShort') },
-    { id: 'studio', icon: '🧭', label: t(state.lang, 'mobNavStudio') },
-    { id: 'menu',   icon: '☰',  label: t(state.lang, 'headerMenuBtn') }
+    {
+      id: 'play',
+      icon: state.isPlayingScale ? '■' : '▶',
+      label: state.isPlayingScale ? t(state.lang, 'mobNavStop') : t(state.lang, 'mobNavPlay'),
+      active: Boolean(state.isPlayingScale)
+    },
+    {
+      id: 'setup',
+      icon: '🎛',
+      label: t(state.lang, 'mobNavScale'),
+      active: state.deckCompartment === 'setup'
+    },
+    {
+      id: 'studio',
+      icon: '🧭',
+      label: t(state.lang, 'mobNavStudio'),
+      active: Boolean(state.workspaceOpen)
+    },
+    {
+      id: 'menu',
+      icon: '☰',
+      label: t(state.lang, 'headerMenuBtn'),
+      active: Boolean(state.headerMenuOpen || state.themeDrawerOpen || state.snapshotsOpen)
+    }
   ];
 
   nav.innerHTML = items.map((it) => `
-    <button type="button" class="mob-nav-btn ${mobileActiveTab === it.id ? 'is-active' : ''}" data-mob-nav="${it.id}">
+    <button type="button" class="mob-nav-btn ${it.active ? 'is-active' : ''}" data-mob-nav="${it.id}">
       <span class="mob-nav-icon">${it.icon}</span>
       <span class="mob-nav-label">${it.label}</span>
     </button>
@@ -67,40 +84,40 @@ export function renderMobileBottomNav(state) {
     if (!btn) return;
     const id = btn.dataset.mobNav;
     const st = getState();
-    mobileActiveTab = id;
 
-    if (id === 'neck') {
-      document.querySelector('.fretboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (id === 'play') {
+      toggleScalePlayback(st);
     } else if (id === 'setup') {
+      const opening = st.deckCompartment !== 'setup';
       setState({
-        deckCompartment: st.deckCompartment === 'setup' ? null : 'setup',
+        deckCompartment: opening ? 'setup' : null,
         headerMenuOpen: false,
         themeDrawerOpen: false,
         snapshotsOpen: false
       });
-      requestAnimationFrame(() => {
-        document.querySelector('.deck-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    } else if (id === 'orient') {
-      const nextOrient = st.fretOrientation === 'vertical' ? 'horizontal' : 'vertical';
-      setState({ fretOrientation: nextOrient });
-      requestAnimationFrame(() => {
-        document.querySelector('.fretboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      if (opening) {
+        requestAnimationFrame(() => {
+          document.querySelector('.deck-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
     } else if (id === 'studio') {
-      if (!st.workspaceOpen) setState({ workspaceOpen: true });
-      requestAnimationFrame(() => {
-        document.getElementById('labTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      const opening = !st.workspaceOpen;
+      setState({ workspaceOpen: opening });
+      if (opening) {
+        requestAnimationFrame(() => {
+          document.getElementById('labTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
     } else if (id === 'menu') {
+      const opening = !st.headerMenuOpen;
       setState({
-        headerMenuOpen: !st.headerMenuOpen,
+        headerMenuOpen: opening,
         themeDrawerOpen: false,
         snapshotsOpen: false
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (opening) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
-
-    renderMobileBottomNav(getState());
   };
 }

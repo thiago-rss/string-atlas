@@ -22,6 +22,8 @@ import { t } from '../core/i18n.js';
 import {
   getActiveScale,
   getActiveTuning,
+  getEffectiveFretZoom,
+  getEffectiveOrientation,
   getFilteredScales,
   getState,
   scaleIsMicrotonal,
@@ -261,7 +263,8 @@ export function renderDeckPanel(state) {
       </div>
     `;
   } else if (openComp === 'neck') {
-    const maxFrets = state.fretZoom === 12 ? 12 : 22;
+    const effZoom = getEffectiveFretZoom(state);
+    const maxFrets = effZoom === 12 ? 12 : 22;
     const endFret = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
 
     compartmentDrawerHtml = `
@@ -275,9 +278,10 @@ export function renderDeckPanel(state) {
           <div class="control-group">
             <span class="control-label">${t(state.lang, 'orientLabel')}</span>
             <div class="pill-row">
-              <button type="button" class="btn-pill ${state.fretOrientation === 'horizontal' ? 'active' : ''}" data-action="setOrientation" data-val="horizontal">${t(state.lang, 'orientHoriz')}</button>
-              <button type="button" class="btn-pill ${state.fretOrientation === 'vertical' ? 'active' : ''}" data-action="setOrientation" data-val="vertical">${t(state.lang, 'orientVert')}</button>
-              <button type="button" class="btn-mini ${state.fretZoom === 12 ? 'active-mini' : ''}" data-action="toggleZoom">🔍 ${state.fretZoom === 12 ? '0–12' : '0–22'}</button>
+              <button type="button" class="btn-pill ${state.fretOrientationMode === 'auto' ? 'active' : ''}" data-action="setOrientation" data-val="auto">${t(state.lang, 'orientAuto')}</button>
+              <button type="button" class="btn-pill ${state.fretOrientationMode === 'horizontal' ? 'active' : ''}" data-action="setOrientation" data-val="horizontal">${t(state.lang, 'orientHoriz')}</button>
+              <button type="button" class="btn-pill ${state.fretOrientationMode === 'vertical' ? 'active' : ''}" data-action="setOrientation" data-val="vertical">${t(state.lang, 'orientVert')}</button>
+              <button type="button" class="btn-mini ${effZoom === 12 ? 'active-mini' : ''}" data-action="toggleZoom">🔍 ${effZoom === 12 ? '0–12' : '0–22'}</button>
               <button type="button" class="btn-mini ${state.leftHanded ? 'active-mini' : ''}" data-action="toggleLeftHand">⇄ ${t(state.lang, 'leftHandShort')}</button>
             </div>
           </div>
@@ -441,44 +445,52 @@ export function renderDeckPanel(state) {
     `;
   }
 
-  const orientSym = state.fretOrientation === 'vertical' ? '↕' : '↔';
+  const effOrient = getEffectiveOrientation(state);
+  const orientSym = effOrient === 'vertical' ? '↕' : '↔';
   const microBadgeTxt = state.microMode === 'bend' ? 'Bend' : (state.microMode === 'slide' ? 'Slide' : '24');
   const filterActiveDot = (state.category !== 'all' || state.temperamentFilter !== 'all' || Boolean(state.scaleSearch)) ? '<span class="dock-dot"></span>' : '';
+  const audioLiveDot = (state.droneOn || state.isPlayingScale) ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : '';
 
   panel.innerHTML = `
-    <!-- Pure Single-Line Compartment Rail (Oud Visualizer style — zero exposed Control Matrix!) -->
-    <div class="compartment-rail-bar">
-      <div class="compartment-dock rail-dock" role="toolbar" aria-label="Studio Compartments">
-        <button type="button" class="dock-btn ${openComp === 'setup' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="setup">
-          <span>🎛 ${t(state.lang, 'dockSetup')}</span>
-          <span class="dock-meta">${rootName} · ${activeTuning.short}</span>
-          ${filterActiveDot}
-        </button>
+    <!-- Symmetric 4-Compartment Studio Rail (Oud Visualizer pattern — zero persistent Drone/Control clutter) -->
+    <div class="compartment-dock rail-grid-4" role="toolbar" aria-label="Studio Compartments">
+      <button type="button" class="dock-btn ${openComp === 'setup' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="setup">
+        <span class="dock-btn-main">
+          <span class="dock-icon" aria-hidden="true">🎛</span>
+          <span class="dock-label-full">${t(state.lang, 'dockSetup')}</span>
+          <span class="dock-label-short">${t(state.lang, 'dockSetupShort')}</span>
+        </span>
+        <span class="dock-meta">${rootName} · ${activeTuning.short}</span>
+        ${filterActiveDot}
+      </button>
 
-        <button type="button" class="dock-btn ${openComp === 'neck' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="neck">
-          <span>🎸 ${t(state.lang, 'dockNeck')}</span>
-          <span class="dock-meta">${orientSym} · ${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
-        </button>
+      <button type="button" class="dock-btn ${openComp === 'neck' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="neck">
+        <span class="dock-btn-main">
+          <span class="dock-icon" aria-hidden="true">🎸</span>
+          <span class="dock-label-full">${t(state.lang, 'dockNeck')}</span>
+          <span class="dock-label-short">${t(state.lang, 'dockNeckShort')}</span>
+        </span>
+        <span class="dock-meta">${orientSym} · ${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
+      </button>
 
-        <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
-          <span>🔊 ${t(state.lang, 'dockAudio')}</span>
-          <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
-        </button>
+      <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
+        <span class="dock-btn-main">
+          <span class="dock-icon" aria-hidden="true">🔊</span>
+          <span class="dock-label-full">${t(state.lang, 'dockAudio')}</span>
+          <span class="dock-label-short">${t(state.lang, 'dockAudioShort')}</span>
+        </span>
+        <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
+        ${audioLiveDot}
+      </button>
 
-        <button type="button" class="dock-btn ${state.notationOpen ? 'is-pinned' : ''}" data-action="toggleNotation">
-          <span>🎼 ${t(state.lang, 'dockNotation')}</span>
-          <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
-        </button>
-      </div>
-
-      <div class="rail-quick-audio">
-        <button type="button" class="btn-primary rail-play-btn" data-action="playScale" title="${t(state.lang, 'playScale')}">
-          ${state.isPlayingScale ? '■' : '▶'}
-        </button>
-        <button type="button" class="btn-pill ${state.droneOn ? 'active-teal' : ''}" data-action="toggleDrone">
-          ${state.droneOn ? '◉ Drone' : '○ Drone'}
-        </button>
-      </div>
+      <button type="button" class="dock-btn ${state.notationOpen ? 'is-pinned' : ''}" data-action="toggleNotation">
+        <span class="dock-btn-main">
+          <span class="dock-icon" aria-hidden="true">🎼</span>
+          <span class="dock-label-full">${t(state.lang, 'dockNotation')}</span>
+          <span class="dock-label-short">${t(state.lang, 'dockNotationShort')}</span>
+        </span>
+        <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
+      </button>
     </div>
 
     ${compartmentDrawerHtml}
@@ -607,22 +619,23 @@ export function renderDeckPanel(state) {
     } else if (action === 'quickTuning') {
       applyTuningById(btn.dataset.id);
     } else if (action === 'setOrientation') {
-      setState({ fretOrientation: btn.dataset.val });
+      setState({ fretOrientationMode: btn.dataset.val, fretZoomOverride: null });
     } else if (action === 'toggleZoom') {
-      const nextZoom = st.fretZoom === 12 ? 22 : 12;
+      const curZoom = getEffectiveFretZoom(st);
+      const nextZoom = curZoom === 12 ? 22 : 12;
       const clampedStart = Math.min(st.fretWindowStart, Math.max(0, nextZoom - st.fretWindowSpan));
-      setState({ fretZoom: nextZoom, fretWindowStart: clampedStart });
+      setState({ fretZoomOverride: nextZoom, fretWindowStart: clampedStart });
     } else if (action === 'toggleLeftHand') {
       setState({ leftHanded: !st.leftHanded });
     } else if (action === 'fwToggle') {
       setState({ fretWindowOn: !st.fretWindowOn });
     } else if (action === 'fwShift') {
-      const curMax = st.fretZoom === 12 ? 12 : 22;
+      const curMax = getEffectiveFretZoom(st);
       const d = Number(btn.dataset.delta);
       const maxStart = Math.max(0, curMax - st.fretWindowSpan);
       setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
     } else if (action === 'fwSpan') {
-      const curMax = st.fretZoom === 12 ? 12 : 22;
+      const curMax = getEffectiveFretZoom(st);
       const sp = Number(btn.dataset.val);
       const maxStart = Math.max(0, curMax - sp);
       setState({ fretWindowSpan: sp, fretWindowStart: Math.min(st.fretWindowStart, maxStart) });

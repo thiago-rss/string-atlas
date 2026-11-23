@@ -9,11 +9,11 @@ import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v81';
+const STORAGE_KEY = 'string_atlas_prefs_v82';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v8') || localStorage.getItem('string_atlas_prefs_v78') || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v81') || localStorage.getItem('string_atlas_prefs_v8') || localStorage.getItem('string_atlas_prefs_v78') || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -31,14 +31,33 @@ function savePrefs(state) {
         tonePreset: state.tonePreset,
         completedLessons: state.completedLessons,
         earStats: state.earStats,
-        leftHanded: state.leftHanded,
-        fretZoom: state.fretZoom,
-        fretOrientation: state.fretOrientation
+        leftHanded: state.leftHanded
       })
     );
   } catch {
     // Ignore storage errors
   }
+}
+
+
+export function isMobilePortraitViewport() {
+  if (typeof window === 'undefined') return false;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  return w <= 768 && h >= w * 0.92;
+}
+
+export function getEffectiveOrientation(st = state) {
+  if (st.fretOrientationMode === 'vertical') return 'vertical';
+  if (st.fretOrientationMode === 'horizontal') return 'horizontal';
+  return isMobilePortraitViewport() ? 'vertical' : 'horizontal';
+}
+
+export function getEffectiveFretZoom(st = state) {
+  if (st.fretZoomOverride === 12 || st.fretZoomOverride === 22) {
+    return st.fretZoomOverride;
+  }
+  return getEffectiveOrientation(st) === 'vertical' ? 12 : 22;
 }
 
 const saved = loadSavedPrefs();
@@ -76,7 +95,7 @@ const state = {
   themeDrawerOpen: false,
   deckCompartment: null, // null | 'setup' | 'neck' | 'audio'
   notationOpen: false,
-  workspaceOpen: true,
+  workspaceOpen: false,
   zenMode: false,
   paletteOpen: false,
   paletteQuery: '',
@@ -107,8 +126,9 @@ const state = {
   fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
   fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
   leftHanded: Boolean(saved.leftHanded),
-  fretZoom: saved.fretZoom ? (saved.fretZoom === 12 ? 12 : 22) : (typeof window !== 'undefined' && window.innerWidth <= 768 ? 12 : 22),
-  fretOrientation: (saved.fretOrientation === 'vertical' || saved.fretOrientation === 'horizontal') ? saved.fretOrientation : (typeof window !== 'undefined' && window.innerWidth <= 768 ? 'vertical' : 'horizontal'),
+  fretOrientationMode: 'auto', // 'auto' | 'vertical' | 'horizontal'
+  fretZoomOverride: null,      // null (auto: 12 vertical / 22 horizontal) | 12 | 22
+  viewportTick: 0,
 
   // Audio state
   droneOn: false,
@@ -400,7 +420,7 @@ export function setState(patch) {
   if ('snapshots' in patch) {
     saveSnapshots(state.snapshots);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretZoom' in patch || 'fretOrientation' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch) {
     savePrefs(state);
   }
 

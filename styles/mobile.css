@@ -1,6 +1,69 @@
 /* =========================================================================
- * String Atlas v8.0 — Scala (.scl) Microtonal Lab & Native Mobile PWA UI
+ * String Atlas v8.2 — Scala Lab, Symmetric Compartment Grids & Mobile PWA
  * ========================================================================= */
+
+/* --- Symmetric 4-Column Studio Compartment Rails (Desktop & Mobile) --- */
+.compartment-dock.rail-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  width: 100%;
+}
+
+.compartment-dock.rail-grid-4 .dock-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+  padding: 8px 12px;
+  gap: 6px;
+}
+
+.dock-btn-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dock-icon {
+  flex-shrink: 0;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.dock-label-full {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dock-label-short {
+  display: none;
+}
+
+/* Symmetric 4-Column Studio Zone Rail below Fretboard */
+.zone-pills-group.zone-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  flex: 1;
+  width: 100%;
+}
+
+.zone-pills-group.zone-grid-4 .zone-tab-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 9px 10px;
+}
+
+.zone-label-short {
+  display: none;
+}
 
 /* --- Scala (.scl) Microtonal Frontier Lab --- */
 .scala-top-bar {
@@ -138,29 +201,34 @@
   flex-shrink: 0;
 }
 
-/* =========================================================================
- * NATIVE MOBILE PWA EXPERIENCE (<= 768px)
- * - Fixed Bottom Thumb Navigation Dock with iOS safe-area insets
- * - 44px touch targets, clean single-column flow, zero horizontal page overflow
- * ========================================================================= */
-.mobile-bottom-nav {
-  display: none;
+/* Vertical Fretboard Layout (Desktop Centered) */
+.fretboard-scroll.is-vertical {
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 10px 4px;
 }
 
+.fretboard-svg.is-vertical-svg {
+  min-width: 0 !important;
+  width: 100%;
+  max-width: 390px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Mobile-only elements hidden on desktop */
+.mobile-bottom-nav,
 .mobile-swipe-hint {
   display: none;
 }
 
-.btn-pwa-install {
-  border-color: var(--accent-live);
-  color: var(--accent-live);
-  font-weight: 700;
-}
-
-.btn-pwa-install[hidden] {
-  display: none !important;
-}
-
+/* =========================================================================
+ * NATIVE MOBILE PWA LAYOUT (<= 768px)
+ * Proportional typography, zero horizontal jitter, symmetric 4-col rails,
+ * clean auto-vertical fretboard & Oud-style 4-button bottom bar.
+ * ========================================================================= */
 @media (max-width: 768px) {
   html {
     -webkit-text-size-adjust: 100%;
@@ -174,161 +242,265 @@
   }
 
   .app-shell {
-    padding: 8px 10px calc(84px + env(safe-area-inset-bottom, 0px));
-    gap: 10px;
+    padding: 6px 10px calc(76px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
   }
 
+  .workspace {
+    gap: 8px;
+  }
+
+  /* Subtle compact top artwork */
   .theme-ornament-bar {
-    min-height: 26px;
+    min-height: 22px;
+    margin-bottom: -4px;
   }
 
   .ornament-art-svg {
-    height: 26px;
+    height: 22px;
   }
 
+  /* Crisp single-row proportional Topbar */
   .topbar {
-    padding: 10px 12px;
-    gap: 10px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 11px;
+    gap: 8px;
+  }
+
+  .brand {
+    gap: 9px;
+    min-width: 0;
   }
 
   .brand-medallion,
   .brand-medallion svg {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 
   .brand-title {
-    font-size: 1.18rem !important;
+    font-size: 1.12rem !important;
+    line-height: 1.1;
   }
 
   .brand-subtitle {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
   }
 
-  /* Compact, scrollable topbar actions on mobile */
   .topbar-actions {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .topbar-actions::-webkit-scrollbar {
-    display: none;
-  }
-
-  .topbar-actions > * {
+    width: auto;
     flex-shrink: 0;
+    gap: 6px;
   }
 
-  #btnCmdPalette,
-  #btnShortcutsHelp,
-  #tuningSummaryBadge {
+  .topbar-actions .pill-badge {
+    font-size: 0.66rem;
+    padding: 3px 7px;
+  }
+
+  /* Perfectly Aligned 4-Column Deck Compartment Rail on Mobile */
+  .deck-shell .deck-panel {
+    padding: 7px;
+  }
+
+  .compartment-dock.rail-grid-4 {
+    gap: 5px;
+  }
+
+  .compartment-dock.rail-grid-4 .dock-btn {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 7px 4px !important;
+    min-height: 48px;
+    gap: 2px;
+    clip-path: none !important;
+  }
+
+  .dock-btn-main {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dock-icon {
+    font-size: 1rem;
+  }
+
+  .dock-label-full,
+  .compartment-dock.rail-grid-4 .dock-meta {
     display: none;
   }
 
-  /* Touch-friendly 40-44px minimum target heights */
-  select,
-  .search-input,
-  .btn-primary,
-  .btn-ghost,
-  .dock-btn,
-  .zone-tab-btn {
-    min-height: 40px;
+  .dock-label-short {
+    display: inline;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.1;
   }
 
-  .deck-shell .deck-panel {
-    padding: 13px 12px;
-  }
-
+  /* Proportional Fretboard Stage */
   .fretboard-panel {
-    padding: 14px 10px 12px;
-    margin-top: 2px;
+    padding: 12px 10px 10px;
+    margin-top: 0;
   }
 
   .fretboard-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .fretboard-title-group {
+    min-width: 0;
+    flex: 1;
+    gap: 2px;
   }
 
   .stage-title {
-    font-size: 1.05rem;
+    font-size: 0.98rem !important;
+    line-height: 1.2;
+    margin: 0;
   }
 
-  .fretboard-scroll {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    padding: 8px 4px;
+  #activeFormulaTag {
+    font-size: 0.68rem;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .fretboard-svg {
-    min-width: 820px;
+  .fretboard-sub-legend {
+    gap: 6px 10px;
+    font-size: 0.68rem;
+    margin-bottom: 6px;
   }
 
   .mobile-swipe-hint {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: var(--text-muted);
-    margin: 2px 0 6px;
+    margin: 0 0 4px;
     font-family: var(--font-mono, ui-monospace, monospace);
   }
 
-  /* Horizontal single-row Compartment Dock & Workspace Zones on Mobile */
-  .compartment-dock,
-  .zone-pills-group,
+  .fretboard-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding: 6px 2px;
+  }
+
+  .fretboard-scroll:not(.is-vertical) .fretboard-svg {
+    min-width: 780px;
+  }
+
+  .fretboard-scroll.is-vertical {
+    padding: 4px 0;
+  }
+
+  .fretboard-svg.is-vertical-svg {
+    max-width: 360px;
+  }
+
+  .inspector-strip {
+    padding: 7px 9px;
+    font-size: 0.74rem;
+    gap: 6px 10px;
+  }
+
+  /* Symmetric 4-Column Studio Zones Rail below Fretboard */
+  .zone-primary-bar {
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+
+  .zone-pills-group.zone-grid-4 {
+    gap: 5px;
+  }
+
+  .zone-pills-group.zone-grid-4 .zone-tab-btn {
+    flex-direction: column;
+    padding: 8px 4px !important;
+    min-height: 48px;
+    gap: 2px;
+    font-size: 0.7rem !important;
+    clip-path: none !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  .zone-label-full {
+    display: none;
+  }
+
+  .zone-label-short {
+    display: inline;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
   .zone-subtools-bar {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    padding: 6px;
   }
 
-  .compartment-dock::-webkit-scrollbar,
-  .zone-pills-group::-webkit-scrollbar,
   .zone-subtools-bar::-webkit-scrollbar {
     display: none;
   }
 
-  .compartment-dock > *,
-  .zone-pills-group > *,
   .zone-subtools-bar > * {
     flex-shrink: 0;
+    white-space: nowrap;
   }
 
-  .zone-collapse-btn {
-    display: none;
+  .setup-inside-row,
+  .header-menu-grid,
+  .scala-degrees-grid {
+    grid-template-columns: 1fr;
   }
 
-  /* Float Global Audio Dock cleanly ABOVE the Mobile Bottom Nav */
+  select,
+  .search-input {
+    min-height: 40px;
+    font-size: 0.88rem;
+  }
+
+  /* Float Global Audio Dock cleanly ABOVE the Mobile Bottom Bar */
   .audio-transport-dock {
     left: 10px;
     right: 10px;
-    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 
   .transport-dock-inner {
     justify-content: space-between;
   }
 
-  /* Fixed Native Mobile Bottom Thumb Dock */
+  /* Clean Oud-Visualizer-Style 4-Button Mobile Bottom Action Bar */
   .mobile-bottom-nav {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 1100;
-    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
     background: var(--bg-panel);
     border-top: 1.5px solid var(--border-strong);
-    box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }
@@ -340,7 +512,7 @@
     justify-content: center;
     gap: 2px;
     min-height: 46px;
-    border: none;
+    border: 1px solid transparent;
     background: transparent;
     color: var(--text-secondary);
     border-radius: var(--radius-sm);
@@ -350,41 +522,26 @@
 
   .mob-nav-btn.is-active {
     color: var(--accent-root);
-    background: rgba(229, 169, 85, 0.12);
+    background: rgba(229, 169, 85, 0.14);
+    border-color: rgba(229, 169, 85, 0.32);
   }
 
   .mob-nav-icon {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
     line-height: 1;
   }
 
   .mob-nav-label {
-    font-size: 0.66rem;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.02em;
   }
 
-  .app-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    font-size: 0.72rem;
-  }
-
-  /* Hide Bottom Nav cleanly in Zen Mode */
-  body[data-zen="true"] .mobile-bottom-nav {
-    display: none !important;
-  }
-
-  body[data-zen="true"] .app-shell {
-    padding-bottom: 16px;
-  }
-}
-
-/* Keep small phones (< 480px) crisp by hiding large outer corner finials that crowd padding */
-@media (max-width: 480px) {
+  /* Hide verbose outer ornaments on compact mobile widths so padding stays proportional */
   .corner-finial,
-  .stage-crown-crest {
+  .stage-crown-crest,
+  .footer-ornament-bar,
+  .app-footer {
     display: none !important;
   }
 
@@ -393,39 +550,18 @@
     border-left-width: 4px;
     border-right-width: 4px;
   }
-}
 
-@media (max-width: 768px) {
-  .topbar {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
+  [data-theme="rock70s"] .compartment-dock.rail-grid-4,
+  [data-theme="rock70s"] .zone-pills-group.zone-grid-4 {
+    padding: 4px;
+    gap: 4px;
   }
 
-  .topbar-actions {
-    width: auto;
-    justify-content: flex-end;
+  body[data-zen="true"] .mobile-bottom-nav {
+    display: none !important;
   }
 
-  .compartment-rail-bar {
-    gap: 6px;
-  }
-
-  .rail-quick-audio {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .fretboard-scroll.is-vertical {
-    padding: 6px 2px;
-  }
-
-  .fretboard-svg.is-vertical-svg {
-    max-width: 100%;
-  }
-
-  .header-menu-grid {
-    grid-template-columns: 1fr;
+  body[data-zen="true"] .app-shell {
+    padding-bottom: 14px;
   }
 }

@@ -1,8 +1,14 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v7.4 (Modular Studio Compartments)
+ * String Atlas — Modal Guitar Lab Bootstrap v8.2
+ * Pure Oud-Visualizer Compartment Ergonomics + Automatic Responsive Vertical Mobile Fretboard
  */
 import { t } from './core/i18n.js';
-import { getState, setState, subscribe } from './state/store.js';
+import {
+  getEffectiveOrientation,
+  getState,
+  setState,
+  subscribe
+} from './state/store.js';
 import { synthEngine } from './audio/synthEngine.js';
 import {
   renderDeckPanel,
@@ -57,6 +63,8 @@ const WORKSPACE_ZONES = [
     id: 'explore',
     icon: '🧭',
     labelKey: 'zoneExplore',
+    shortPt: 'Teoria',
+    shortEn: 'Theory',
     tools: [
       { id: 'radar', labelKey: 'tabRadar' },
       { id: 'scala', labelKey: 'tabScala' },
@@ -68,6 +76,8 @@ const WORKSPACE_ZONES = [
     id: 'jam',
     icon: '▶',
     labelKey: 'zoneJam',
+    shortPt: 'Jam',
+    shortEn: 'Jam',
     tools: [
       { id: 'vamp', labelKey: 'tabVamp' },
       { id: 'etude', labelKey: 'tabEtude' },
@@ -78,6 +88,8 @@ const WORKSPACE_ZONES = [
     id: 'practice',
     icon: '🎧',
     labelKey: 'zonePractice',
+    shortPt: 'Estudo',
+    shortEn: 'Study',
     tools: [
       { id: 'study', labelKey: 'tabStudyGuide' },
       { id: 'line', labelKey: 'tabLineMode' },
@@ -88,6 +100,8 @@ const WORKSPACE_ZONES = [
     id: 'luthier',
     icon: '🔧',
     labelKey: 'zoneLuthier',
+    shortPt: 'Tensão',
+    shortEn: 'Tension',
     tools: [
       { id: 'tension', labelKey: 'tabTension' }
     ]
@@ -108,7 +122,6 @@ const TAB_TO_SECTION_ID = {
   dossier: 'tabDossier'
 };
 
-// Remember last visited tool inside each compartment zone for effortless switching
 const lastToolByZone = {
   explore: 'radar',
   jam: 'vamp',
@@ -137,9 +150,6 @@ function applyStaticI18nAndTheme(state) {
     el.textContent = t(state.lang, key);
   });
 
-  const btnLang = document.getElementById('btnLangToggle');
-  if (btnLang) btnLang.textContent = state.lang === 'en' ? 'EN · PT' : 'PT · EN';
-
   updateThemeHeaderButton(state);
 }
 
@@ -147,6 +157,7 @@ function renderLabTabs(state) {
   const nav = document.getElementById('labTabs');
   if (!nav) return;
 
+  const isEn = state.lang === 'en';
   const activeZone = findZoneForTab(state.activeTab);
   lastToolByZone[activeZone.id] = state.activeTab;
 
@@ -155,8 +166,9 @@ function renderLabTabs(state) {
     const hasLive = z.tools.some((tool) => isToolLive(state, tool.id));
     return `
       <button type="button" class="zone-tab-btn ${isSelected ? 'is-active' : ''}" data-zone="${z.id}">
-        <span class="zone-icon">${z.icon}</span>
-        <span>${t(state.lang, z.labelKey)}</span>
+        <span class="zone-icon" aria-hidden="true">${z.icon}</span>
+        <span class="zone-label-full">${t(state.lang, z.labelKey)}</span>
+        <span class="zone-label-short">${isEn ? z.shortEn : z.shortPt}</span>
         ${hasLive ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : ''}
       </button>
     `;
@@ -181,10 +193,12 @@ function renderLabTabs(state) {
 
   nav.innerHTML = `
     <div class="zone-primary-bar">
-      <div class="zone-pills-group">${zoneBtnsHtml}</div>
-      <button type="button" class="btn-mini zone-collapse-btn" data-ws-toggle="1">
-        ${state.workspaceOpen ? t(state.lang, 'wsCollapse') : t(state.lang, 'wsExpand')}
-      </button>
+      <div class="zone-pills-group zone-grid-4">${zoneBtnsHtml}</div>
+      ${state.workspaceOpen ? `
+        <button type="button" class="btn-mini zone-collapse-btn" data-ws-toggle="1" title="${t(state.lang, 'wsCollapse')}">
+          ✕
+        </button>
+      ` : ''}
     </div>
     ${subToolsHtml}
   `;
@@ -192,7 +206,7 @@ function renderLabTabs(state) {
   nav.onclick = (e) => {
     const toggleBtn = e.target.closest('button[data-ws-toggle]');
     if (toggleBtn) {
-      setState({ workspaceOpen: !getState().workspaceOpen });
+      setState({ workspaceOpen: false });
       return;
     }
 
@@ -202,8 +216,8 @@ function renderLabTabs(state) {
       const st = getState();
       const targetTab = lastToolByZone[zId] || WORKSPACE_ZONES.find((z) => z.id === zId)?.tools[0]?.id || 'radar';
       if (st.workspaceOpen && findZoneForTab(st.activeTab).id === zId) {
-        // Clicking the already-active zone gently toggles collapse if desired? No, keep predictable: ensure open.
-        setState({ workspaceOpen: true });
+        // Pure toggle compartment: clicking active zone collapses cleanly
+        setState({ workspaceOpen: false });
       } else {
         setState({ activeTab: targetTab, workspaceOpen: true });
       }
@@ -265,8 +279,12 @@ function renderAll(state, patch = null) {
       renderFretboard(state);
       return;
     }
-    if (keys.length === 1 && keys[0] === 'deckCompartment') {
+    if (keys.every((k) => k === 'deckCompartment' || k === 'headerMenuOpen' || k === 'themeDrawerOpen' || k === 'snapshotsOpen')) {
       renderDeckPanel(state);
+      renderHeaderMenuDrawer(state);
+      renderThemeDrawer(state);
+      renderSnapshotsDrawer(state);
+      renderMobileBottomNav(state);
       return;
     }
     if (keys.length === 1 && keys[0] === 'notationOpen') {
@@ -276,6 +294,7 @@ function renderAll(state, patch = null) {
     }
     if (keys.every((k) => k === 'activeTab' || k === 'workspaceOpen')) {
       renderLabTabs(state);
+      renderMobileBottomNav(state);
       return;
     }
     if (keys.length === 1 && keys[0] === 'zenMode') {
@@ -294,11 +313,11 @@ function renderAll(state, patch = null) {
       renderShortcutsModal(state);
       return;
     }
-    if (keys.every((k) => ['headerMenuOpen', 'pwaInstallable'].includes(k))) {
+    if (keys.length === 1 && keys[0] === 'pwaInstallable') {
       renderHeaderMenuDrawer(state);
       return;
     }
-    if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoom', 'fretOrientation'].includes(k))) {
+    if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoomOverride', 'fretOrientationMode', 'viewportTick'].includes(k))) {
       renderFretboard(state);
       renderDeckPanel(state);
       renderZenBar(state);
@@ -308,9 +327,9 @@ function renderAll(state, patch = null) {
     if (keys.every((k) => ['theme', 'themeDrawerOpen', 'headerMenuOpen', 'snapshotsOpen'].includes(k))) {
       document.documentElement.setAttribute('data-theme', state.theme);
       renderHeaderMenuDrawer(state);
-      renderHeaderMenuDrawer(state);
-  renderThemeDrawer(state);
+      renderThemeDrawer(state);
       renderSnapshotsDrawer(state);
+      renderMobileBottomNav(state);
       if ('theme' in patch) {
         renderFretboard(state);
       }
@@ -320,7 +339,6 @@ function renderAll(state, patch = null) {
       renderSnapshotsDrawer(state);
       return;
     }
-
     if (keys.every((k) => ['studyModuleFilter', 'studyStatusFilter', 'openDossierLessonId', 'completedLessons'].includes(k))) {
       renderStudyGuideView(state);
       return;
@@ -340,7 +358,6 @@ function renderAll(state, patch = null) {
     }
     if (keys.every((k) => ['radarPivotFilter', 'radarCompareScaleId', 'radarCompareRootQ', 'radarOverlayOnNeck'].includes(k))) {
       renderRadarView(state);
-  renderScalaView(state);
       renderFretboard(state);
       return;
     }
@@ -372,6 +389,34 @@ function renderAll(state, patch = null) {
   renderMobileBottomNav(state);
 }
 
+/**
+ * Live Responsive Viewport Watcher:
+ * Automatically flips the fretboard between Vertical (mobile portrait) and Horizontal (desktop/landscape)
+ * whenever the viewport resizes, rotates, or switches into mobile DevTools mode!
+ */
+function bindResponsiveViewportListener() {
+  let lastEffective = getEffectiveOrientation(getState());
+  let timer = null;
+
+  const checkOrientation = () => {
+    const st = getState();
+    if (st.fretOrientationMode !== 'auto') return;
+    const nextEffective = getEffectiveOrientation(st);
+    if (nextEffective !== lastEffective) {
+      lastEffective = nextEffective;
+      setState({ viewportTick: st.viewportTick + 1 });
+    }
+  };
+
+  window.addEventListener('resize', () => {
+    clearTimeout(timer);
+    timer = setTimeout(checkOrientation, 90);
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(checkOrientation, 120);
+  });
+}
+
 function bindGlobalControls() {
   document.getElementById('btnHeaderMenu')?.addEventListener('click', () => {
     const st = getState();
@@ -382,36 +427,9 @@ function bindGlobalControls() {
     });
   });
 
-  document.getElementById('btnLangToggle')?.addEventListener('click', () => {
-    const st = getState();
-    setState({ lang: st.lang === 'pt' ? 'en' : 'pt' });
-  });
-
-  document.getElementById('btnThemeToggle')?.addEventListener('click', () => {
-    const st = getState();
-    setState({ themeDrawerOpen: !st.themeDrawerOpen, snapshotsOpen: false });
-  });
-
-  document.getElementById('btnZenToggle')?.addEventListener('click', () => {
-    setState({ zenMode: !getState().zenMode });
-  });
-
-  document.getElementById('btnCmdPalette')?.addEventListener('click', () => {
-    setState({ paletteOpen: !getState().paletteOpen, shortcutsOpen: false });
-  });
-
-  document.getElementById('btnShortcutsHelp')?.addEventListener('click', () => {
-    setState({ shortcutsOpen: !getState().shortcutsOpen, paletteOpen: false });
-  });
-
-  document.getElementById('btnSnapshotsToggle')?.addEventListener('click', () => {
-    setState({ snapshotsOpen: !getState().snapshotsOpen, themeDrawerOpen: false });
-  });
-
   window.addEventListener('keydown', (ev) => {
     const st = getState();
 
-    // Global Cmd+K / Ctrl+K opens Command Palette even when focused inside inputs!
     if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') {
       ev.preventDefault();
       setState({ paletteOpen: !st.paletteOpen, shortcutsOpen: false });
@@ -504,6 +522,7 @@ function boot() {
   });
   subscribe(renderAll);
   bindGlobalControls();
+  bindResponsiveViewportListener();
   initMobilePwaInstall();
   renderAll(initial);
   registerServiceWorker();

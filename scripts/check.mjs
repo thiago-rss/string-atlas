@@ -343,4 +343,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.1 integrity checks passed.');
+console.log('\nAll String Atlas v8.2 integrity checks passed.');

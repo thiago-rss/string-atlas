@@ -20,6 +20,8 @@ import { t } from '../core/i18n.js';
 import {
   getActiveScale,
   getActiveVoicing,
+  getEffectiveFretZoom,
+  getEffectiveOrientation,
   getState,
   setState
 } from '../state/store.js';
@@ -31,10 +33,10 @@ const RIGHT_PAD_H = 24;
 const TOP_Y_H = 44;
 const STRING_GAP_H = 36;
 
-const NUT_Y_V = 82;
-const BOTTOM_PAD_V = 34;
-const LEFT_PAD_V = 58;
-const RIGHT_PAD_V = 34;
+const NUT_Y_V = 68;
+const BOTTOM_PAD_V = 28;
+const LEFT_PAD_V = 46;
+const RIGHT_PAD_V = 32;
 
 const INLAY_FRETS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 const INLAY_SET = new Set(INLAY_FRETS);
@@ -59,19 +61,19 @@ function buildFretPositions(startPos, usableSpan, maxFrets) {
 
 const FRET_XS_H22 = buildFretPositions(NUT_X_H, SVG_H_W - NUT_X_H - RIGHT_PAD_H, 22);
 const FRET_XS_H12 = buildFretPositions(NUT_X_H, SVG_H_W - NUT_X_H - RIGHT_PAD_H, 12);
-const FRET_YS_V22 = buildFretPositions(NUT_Y_V, 1140, 22);
-const FRET_YS_V12 = buildFretPositions(NUT_Y_V, 700, 12);
+const FRET_YS_V22 = buildFretPositions(NUT_Y_V, 980, 22);
+const FRET_YS_V12 = buildFretPositions(NUT_Y_V, 556, 12);
 
 /**
  * Unified Dual-Orientation Geometry Provider (Horizontal & Vertical)
  */
 function getBoardLayout(state, numStrings) {
-  const isVertical = state.fretOrientation === 'vertical';
-  const maxFrets = state.fretZoom === 12 ? 12 : 22;
+  const isVertical = getEffectiveOrientation(state) === 'vertical';
+  const maxFrets = getEffectiveFretZoom(state);
   const leftHanded = Boolean(state.leftHanded);
 
   if (isVertical) {
-    const strGap = numStrings <= 6 ? 46 : (numStrings === 7 ? 42 : 38);
+    const strGap = numStrings <= 6 ? 44 : (numStrings === 7 ? 40 : 36);
     const svgW = LEFT_PAD_V + (numStrings - 1) * strGap + RIGHT_PAD_V;
     const fretArr = maxFrets === 12 ? FRET_YS_V12 : FRET_YS_V22;
     const boardLen = fretArr[maxFrets] - NUT_Y_V;
@@ -85,16 +87,16 @@ function getBoardLayout(state, numStrings) {
       return LEFT_PAD_V + col * strGap;
     };
 
-    const fretCenter = (f) => (f === 0 ? NUT_Y_V - 36 : (fretArr[f - 1] + fretArr[f]) / 2);
+    const fretCenter = (f) => (f === 0 ? NUT_Y_V - 30 : (fretArr[f - 1] + fretArr[f]) / 2);
     const fretFloatPos = (pos) => {
-      if (pos <= 0) return NUT_Y_V - 36;
+      if (pos <= 0) return NUT_Y_V - 30;
       const fLow = Math.floor(pos);
       const frac = pos - fLow;
       if (fLow >= maxFrets) return fretArr[maxFrets];
       return fretArr[fLow] + (fretArr[fLow + 1] - fretArr[fLow]) * frac;
     };
     const stepQPos = (stepQ, microMode) => {
-      if (stepQ === 0) return NUT_Y_V - 36;
+      if (stepQ === 0) return NUT_Y_V - 30;
       const isMicro = stepQ % 2 !== 0;
       const fNum = Math.floor(stepQ / 2);
       if (!isMicro) return fretCenter(fNum);
@@ -775,7 +777,7 @@ export function renderFretboard(state) {
       parts.push(`<rect x="${bL}" y="${(fy - 1.3).toFixed(1)}" width="${bW}" height="2.6" rx="1" fill="url(#saFretGrad)"/>`);
 
       const isInlay = INLAY_SET.has(f);
-      parts.push(`<text x="19" y="${(layout.fretCenter(f) + 4).toFixed(1)}" text-anchor="middle" fill="${isInlay ? 'var(--accent-root)' : 'var(--text-muted)'}" font-size="${isInlay ? 11.8 : 10.5}" font-weight="${isInlay ? 700 : 500}" font-family="var(--font-mono, ui-monospace, monospace)">${f}</text>`);
+      parts.push(`<text x="14" y="${(layout.fretCenter(f) + 4).toFixed(1)}" text-anchor="middle" fill="${isInlay ? 'var(--accent-root)' : 'var(--text-muted)'}" font-size="${isInlay ? 11.8 : 10.5}" font-weight="${isInlay ? 700 : 500}" font-family="var(--font-mono, ui-monospace, monospace)">${f}</text>`);
 
       if (state.microMode === 'frets24') {
         const my = (fretArr[f - 1] + fretArr[f]) / 2;
@@ -810,7 +812,7 @@ export function renderFretboard(state) {
       parts.push('</g>');
 
       // String number at top edge of headstock
-      parts.push(`<text x="${sx.toFixed(1)}" y="24" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-weight="600" font-family="var(--font-mono, ui-monospace, monospace)">${guitarStrNum}</text>`);
+      parts.push(`<text x="${sx.toFixed(1)}" y="19" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-weight="600" font-family="var(--font-mono, ui-monospace, monospace)">${guitarStrNum}</text>`);
     }
   } else {
     // HORIZONTAL ARCHITECTURE
@@ -1256,8 +1258,8 @@ function renderMinimalStageControls(state) {
   const bar = document.getElementById('fretWindowControls');
   if (!bar) return;
 
-  const isVert = state.fretOrientation === 'vertical';
-  const maxFrets = state.fretZoom === 12 ? 12 : 22;
+  const isVert = getEffectiveOrientation(state) === 'vertical';
+  const maxFrets = getEffectiveFretZoom(state);
   const endFret = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
 
   bar.innerHTML = `
@@ -1268,7 +1270,7 @@ function renderMinimalStageControls(state) {
         <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= maxFrets ? 'disabled' : ''}>▶</button>
       ` : ''}
       <button type="button" class="btn-mini ${isVert ? 'active-mini' : ''}" data-fw-action="toggleOrient" title="${t(state.lang, 'orientLabel')}">
-        ${isVert ? t(state.lang, 'orientVertShort') : t(state.lang, 'orientHorizShort')} ${isVert ? '↕' : '↔'}
+        ${isVert ? '↕' : '↔'} ${isVert ? t(state.lang, 'orientVertShort') : t(state.lang, 'orientHorizShort')}
       </button>
     </div>
   `;
@@ -1278,10 +1280,11 @@ function renderMinimalStageControls(state) {
     if (!btn) return;
     const act = btn.dataset.fwAction;
     const st = getState();
-    const curMax = st.fretZoom === 12 ? 12 : 22;
+    const curMax = getEffectiveFretZoom(st);
 
     if (act === 'toggleOrient') {
-      setState({ fretOrientation: st.fretOrientation === 'vertical' ? 'horizontal' : 'vertical' });
+      const curOrient = getEffectiveOrientation(st);
+      setState({ fretOrientationMode: curOrient === 'vertical' ? 'horizontal' : 'vertical', fretZoomOverride: null });
     } else if (act === 'shift') {
       const d = Number(btn.dataset.delta);
       const maxStart = Math.max(0, curMax - st.fretWindowSpan);

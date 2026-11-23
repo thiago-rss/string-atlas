@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.1.0: Pure Oud-Visualizer Compartment UI, Collapsible Header Options & Vertical Mobile Fretboard)",
+  "description": "String Atlas — Modal Guitar Lab (v8.2.0: Serene Oud-Visualizer Compartments, Auto-Responsive Vertical Mobile Fretboard & Proportional Mobile Layout)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"
