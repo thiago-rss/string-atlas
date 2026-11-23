@@ -160,6 +160,12 @@ export function renderNotationPanel(state) {
   const panel = document.getElementById('notationPanel');
   if (!panel) return;
 
+  if (!state.notationOpen) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+
   const mode = state.notationMode;
   const numStrings = state.customStringsQ.length;
   const svgH = computeNotationSvgH(numStrings);
@@ -181,6 +187,7 @@ export function renderNotationPanel(state) {
       ${phraseBtns}
       <button type="button" class="btn-mini" data-not-action="exportMidi" ${hasExportable ? '' : 'disabled'}>${t(state.lang, 'exportMidiBtn')}</button>
       <button type="button" class="btn-mini" data-not-action="exportXml" ${hasExportable ? '' : 'disabled'}>${t(state.lang, 'exportXmlBtn')}</button>
+      <button type="button" class="btn-mini" data-not-action="closeNotation" aria-label="Close">✕</button>
     </div>
   `;
 
@@ -329,6 +336,8 @@ export function renderNotationPanel(state) {
       });
     } else if (act === 'undoPhrase') {
       setState({ phraseEvents: state.phraseEvents.slice(0, -1) });
+    } else if (act === 'closeNotation') {
+      setState({ notationOpen: false });
     } else if (act === 'clearPhrase') {
       setState({ phraseEvents: [] });
     } else if (act === 'exportMidi' || act === 'exportXml') {

@@ -1,5 +1,5 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v6.0
+ * String Atlas — Modal Guitar Lab Bootstrap v7.4 (Modular Studio Compartments)
  */
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
@@ -42,6 +42,80 @@ import {
 import { renderTensionView } from './views/tensionView.js';
 import { renderDossierAndOblique } from './views/dossierView.js';
 
+const WORKSPACE_ZONES = [
+  {
+    id: 'explore',
+    icon: '🧭',
+    labelKey: 'zoneExplore',
+    tools: [
+      { id: 'radar', labelKey: 'tabRadar' },
+      { id: 'harmony', labelKey: 'tabHarmony' },
+      { id: 'dossier', labelKey: 'tabDossier' }
+    ]
+  },
+  {
+    id: 'jam',
+    icon: '▶',
+    labelKey: 'zoneJam',
+    tools: [
+      { id: 'vamp', labelKey: 'tabVamp' },
+      { id: 'etude', labelKey: 'tabEtude' },
+      { id: 'rhythm', labelKey: 'tabRhythm' }
+    ]
+  },
+  {
+    id: 'practice',
+    icon: '🎧',
+    labelKey: 'zonePractice',
+    tools: [
+      { id: 'study', labelKey: 'tabStudyGuide' },
+      { id: 'line', labelKey: 'tabLineMode' },
+      { id: 'ear', labelKey: 'tabEarLab' }
+    ]
+  },
+  {
+    id: 'luthier',
+    icon: '🔧',
+    labelKey: 'zoneLuthier',
+    tools: [
+      { id: 'tension', labelKey: 'tabTension' }
+    ]
+  }
+];
+
+const TAB_TO_SECTION_ID = {
+  radar: 'tabRadar',
+  vamp: 'tabVamp',
+  ear: 'tabEarLab',
+  study: 'tabStudyGuide',
+  line: 'tabLineMode',
+  etude: 'tabEtude',
+  harmony: 'tabHarmony',
+  rhythm: 'tabRhythm',
+  tension: 'tabTension',
+  dossier: 'tabDossier'
+};
+
+// Remember last visited tool inside each compartment zone for effortless switching
+const lastToolByZone = {
+  explore: 'radar',
+  jam: 'vamp',
+  practice: 'study',
+  luthier: 'tension'
+};
+
+function findZoneForTab(tabId) {
+  return WORKSPACE_ZONES.find((z) => z.tools.some((tool) => tool.id === tabId)) || WORKSPACE_ZONES[0];
+}
+
+function isToolLive(state, toolId) {
+  if (toolId === 'vamp') return Boolean(state.vampPlaying);
+  if (toolId === 'etude') return Boolean(state.etudePlaying);
+  if (toolId === 'rhythm') return Boolean(state.rhythmPlaying);
+  if (toolId === 'line') return Boolean(state.lineModeRunning);
+  return false;
+}
+
 function applyStaticI18nAndTheme(state) {
   document.documentElement.setAttribute('data-theme', state.theme);
   document.documentElement.lang = state.lang === 'en' ? 'en' : 'pt-BR';
@@ -61,41 +135,81 @@ function renderLabTabs(state) {
   const nav = document.getElementById('labTabs');
   if (!nav) return;
 
-  const tabs = [
-    { id: 'radar', label: t(state.lang, 'tabRadar') },
-    { id: 'vamp', label: t(state.lang, 'tabVamp') },
-    { id: 'ear', label: t(state.lang, 'tabEarLab') },
-    { id: 'study', label: t(state.lang, 'tabStudyGuide') },
-    { id: 'line', label: t(state.lang, 'tabLineMode') },
-    { id: 'etude', label: t(state.lang, 'tabEtude') },
-    { id: 'harmony', label: t(state.lang, 'tabHarmony') },
-    { id: 'rhythm', label: t(state.lang, 'tabRhythm') },
-    { id: 'tension', label: t(state.lang, 'tabTension') },
-    { id: 'dossier', label: t(state.lang, 'tabDossier') }
-  ];
+  const activeZone = findZoneForTab(state.activeTab);
+  lastToolByZone[activeZone.id] = state.activeTab;
 
-  nav.innerHTML = tabs.map((tab) => `
-    <button type="button" class="lab-tab-btn ${state.activeTab === tab.id ? 'is-active' : ''}" data-tab="${tab.id}">
-      ${tab.label}
-    </button>
-  `).join('');
+  const zoneBtnsHtml = WORKSPACE_ZONES.map((z) => {
+    const isSelected = state.workspaceOpen && z.id === activeZone.id;
+    const hasLive = z.tools.some((tool) => isToolLive(state, tool.id));
+    return `
+      <button type="button" class="zone-tab-btn ${isSelected ? 'is-active' : ''}" data-zone="${z.id}">
+        <span class="zone-icon">${z.icon}</span>
+        <span>${t(state.lang, z.labelKey)}</span>
+        ${hasLive ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : ''}
+      </button>
+    `;
+  }).join('');
+
+  const subToolsHtml = state.workspaceOpen && activeZone.tools.length > 1
+    ? `
+      <div class="zone-subtools-bar">
+        ${activeZone.tools.map((tool) => {
+          const isCur = state.activeTab === tool.id;
+          const live = isToolLive(state, tool.id);
+          return `
+            <button type="button" class="subtool-pill ${isCur ? 'is-active' : ''}" data-tab="${tool.id}">
+              <span>${t(state.lang, tool.labelKey)}</span>
+              ${live ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : ''}
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `
+    : '';
+
+  nav.innerHTML = `
+    <div class="zone-primary-bar">
+      <div class="zone-pills-group">${zoneBtnsHtml}</div>
+      <button type="button" class="btn-mini zone-collapse-btn" data-ws-toggle="1">
+        ${state.workspaceOpen ? t(state.lang, 'wsCollapse') : t(state.lang, 'wsExpand')}
+      </button>
+    </div>
+    ${subToolsHtml}
+  `;
 
   nav.onclick = (e) => {
-    const btn = e.target.closest('button[data-tab]');
-    if (!btn) return;
-    setState({ activeTab: btn.dataset.tab });
+    const toggleBtn = e.target.closest('button[data-ws-toggle]');
+    if (toggleBtn) {
+      setState({ workspaceOpen: !getState().workspaceOpen });
+      return;
+    }
+
+    const zoneBtn = e.target.closest('button[data-zone]');
+    if (zoneBtn) {
+      const zId = zoneBtn.dataset.zone;
+      const st = getState();
+      const targetTab = lastToolByZone[zId] || WORKSPACE_ZONES.find((z) => z.id === zId)?.tools[0]?.id || 'radar';
+      if (st.workspaceOpen && findZoneForTab(st.activeTab).id === zId) {
+        // Clicking the already-active zone gently toggles collapse if desired? No, keep predictable: ensure open.
+        setState({ workspaceOpen: true });
+      } else {
+        setState({ activeTab: targetTab, workspaceOpen: true });
+      }
+      return;
+    }
+
+    const toolBtn = e.target.closest('button[data-tab]');
+    if (toolBtn) {
+      setState({ activeTab: toolBtn.dataset.tab, workspaceOpen: true });
+    }
   };
 
-  document.getElementById('tabRadar').hidden = state.activeTab !== 'radar';
-  document.getElementById('tabVamp').hidden = state.activeTab !== 'vamp';
-  document.getElementById('tabEarLab').hidden = state.activeTab !== 'ear';
-  document.getElementById('tabStudyGuide').hidden = state.activeTab !== 'study';
-  document.getElementById('tabLineMode').hidden = state.activeTab !== 'line';
-  document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
-  document.getElementById('tabHarmony').hidden = state.activeTab !== 'harmony';
-  document.getElementById('tabRhythm').hidden = state.activeTab !== 'rhythm';
-  document.getElementById('tabTension').hidden = state.activeTab !== 'tension';
-  document.getElementById('tabDossier').hidden = state.activeTab !== 'dossier';
+  Object.entries(TAB_TO_SECTION_ID).forEach(([tabId, secId]) => {
+    const el = document.getElementById(secId);
+    if (el) {
+      el.hidden = !state.workspaceOpen || state.activeTab !== tabId;
+    }
+  });
 }
 
 const SILENT_SLIDER_KEYS = new Set([
@@ -132,13 +246,23 @@ function renderAll(state, patch = null) {
     if (keys.every((k) => k === 'inspectedNote' || k === 'phraseEvents')) {
       renderInspector(state);
       renderNotationPanel(state);
+      renderDeckPanel(state);
       return;
     }
     if (keys.length === 1 && keys[0] === 'playingPcQ') {
       renderFretboard(state);
       return;
     }
-    if (keys.length === 1 && keys[0] === 'activeTab') {
+    if (keys.length === 1 && keys[0] === 'deckCompartment') {
+      renderDeckPanel(state);
+      return;
+    }
+    if (keys.length === 1 && keys[0] === 'notationOpen') {
+      renderDeckPanel(state);
+      renderNotationPanel(state);
+      return;
+    }
+    if (keys.every((k) => k === 'activeTab' || k === 'workspaceOpen')) {
       renderLabTabs(state);
       return;
     }
@@ -155,8 +279,7 @@ function renderAll(state, patch = null) {
       return;
     }
     if (keys.every((k) => k === 'snapshotsOpen' || k === 'snapshots')) {
-      renderThemeDrawer(state);
-  renderSnapshotsDrawer(state);
+      renderSnapshotsDrawer(state);
       return;
     }
     if (keys.every((k) => k === 'fretWindowOn' || k === 'fretWindowStart' || k === 'fretWindowSpan')) {
@@ -244,7 +367,7 @@ function bindGlobalControls() {
     } else if (key === 'l') {
       if (st.lineModeRunning) stopLineMode();
       else {
-        setState({ activeTab: 'line' });
+        setState({ activeTab: 'line', workspaceOpen: true });
         startLineMode();
       }
     } else if (key === 'd') {

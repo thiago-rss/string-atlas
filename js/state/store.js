@@ -69,6 +69,9 @@ const state = {
     ? hashPayload.th
     : (VALID_THEME_IDS.has(saved.theme) ? saved.theme : 'layl'),
   themeDrawerOpen: false,
+  deckCompartment: null, // null | 'atlas' | 'neck' | 'audio'
+  notationOpen: false,
+  workspaceOpen: true,
   zenMode: false,
   snapshotsOpen: false,
   snapshots: loadSnapshots(),
@@ -357,6 +360,9 @@ const ETUDE_AFFECTING_KEYS = new Set([
 ]);
 
 export function setState(patch) {
+  if ('activeTab' in patch && !('workspaceOpen' in patch)) {
+    state.workspaceOpen = true;
+  }
   Object.assign(state, patch);
 
   const patchKeys = Object.keys(patch);

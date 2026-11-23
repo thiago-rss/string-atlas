@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "7.3.0",
+  "version": "7.4.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v7.3.0: Physical String Tension Calculator for 6/7/8-String & Multi-Scale, 7 Bespoke Studio Designs, 24-TET MIDI/MusicXML)",
+  "description": "String Atlas — Modal Guitar Lab (v7.4.0: Clean Modular Compartments UI, Physical Tension Lab, 7 Bespoke Studio Designs, 6/7/8-String & 24-TET MIDI/MusicXML)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

@@ -175,7 +175,7 @@ body {
   font-variation-settings: "SOFT" 100, "WONK" 1;
 }
 
-[data-theme="rock70s"] .lab-tab-btn.is-active,
+[data-theme="rock70s"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
 [data-theme="rock70s"] .btn-primary {
   background: linear-gradient(180deg, #f7893e 0%, #d45b17 100%);
   color: #160c05;
@@ -290,14 +290,14 @@ body {
   border-bottom: 1px solid rgba(217, 161, 63, 0.2);
 }
 
-[data-theme="doom"] .lab-tab-btn {
+[data-theme="doom"] .zone-tab-btn, [data-theme="doom"] .lab-tab-btn {
   font-family: var(--font-display);
   letter-spacing: 0.07em;
   font-size: 0.78rem;
 }
 
 [data-theme="doom"] .btn-primary,
-[data-theme="doom"] .lab-tab-btn.is-active {
+[data-theme="doom"] .zone-tab-btn.is-active, .lab-tab-btn.is-active {
   background: linear-gradient(180deg, #e0b258 0%, #b37a20 100%);
   color: #0b0704;
 }
@@ -401,13 +401,13 @@ body {
   text-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
 }
 
-[data-theme="djent"] .lab-tab-btn,
+[data-theme="djent"] .zone-tab-btn, .lab-tab-btn,
 [data-theme="djent"] .control-label,
 [data-theme="djent"] .pill-badge {
   font-family: var(--font-display);
 }
 
-[data-theme="djent"] .lab-tab-btn.is-active,
+[data-theme="djent"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
 [data-theme="djent"] .btn-primary {
   box-shadow: 0 0 16px rgba(0, 229, 255, 0.38);
 }
@@ -508,7 +508,7 @@ body {
 }
 
 [data-theme="experimental"] .btn-primary,
-[data-theme="experimental"] .lab-tab-btn.is-active,
+[data-theme="experimental"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
 [data-theme="experimental"] .btn-pill.active,
 [data-theme="experimental"] .btn-pill.active-teal {
   box-shadow: 2.5px 2.5px 0 #141414;
@@ -517,7 +517,7 @@ body {
 [data-theme="experimental"] .btn-ghost,
 [data-theme="experimental"] .btn-pill,
 [data-theme="experimental"] .btn-mini,
-[data-theme="experimental"] .lab-tab-btn,
+[data-theme="experimental"] .zone-tab-btn, .lab-tab-btn,
 [data-theme="experimental"] select,
 [data-theme="experimental"] .search-input {
   border-color: #141414;
@@ -610,7 +610,7 @@ body {
   border-top: 4px solid var(--accent-scale);
 }
 
-[data-theme="brazilian"] .lab-tab-btn.is-active {
+[data-theme="brazilian"] .zone-tab-btn.is-active, .lab-tab-btn.is-active {
   background: linear-gradient(135deg, #0e7c5d 0%, #159972 100%);
   color: #ffffff;
   border-color: #0e7c5d;

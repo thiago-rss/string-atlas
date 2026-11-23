@@ -1,9 +1,11 @@
 /**
- * Top Control Deck v3.1
- * - Organized Category Bar with live counts
- * - Live Scale Search + 12-TET / 24-TET Temperament Filter + Visual Scale Atlas Drawer
- * - Grouped <optgroup> Selectors for Scales (by Subfamily) & Tunings (by Group)
- * - 1-Click Pinned Tuning Bar (incl. E Std, B Std, A Std, Drop B, Drop A, All 4ths, DADGAD)
+ * Modular Studio Command Deck v7.4 (Oud Visualizer Compartment Architecture)
+ * - Ultra-clean Primary Bar: Scale, 24-TET Root, 6/7/8-String Tuning, Quick Play & Drone
+ * - Compact Compartment Dock:
+ *     1. Atlas & Filtros   (Categories, Live Search, 12-TET/24-TET Filter, Visual Scale Atlas)
+ *     2. Braço & Afinação  (Quick Tunings, Microtonal Mode, Label Mode, Voicing/Harmonics, Fine Retuner)
+ *     3. Áudio & FX        (Scale BPM, Drone +5th, Tone Presets, Delay, Tremolo, Volume)
+ *     4. Partitura & Tab   (Independent toggle for Synchronized 24-TET Staff & Tablature)
  */
 import { DB } from '../core/database.js';
 import {
@@ -119,8 +121,7 @@ function buildTuningOptionsHtml(state) {
 }
 
 /**
- * Updates only the scale <select> options, result counter, and open Atlas body in place
- * so typing in #inpScaleSearch never destroys the input or drops keyboard focus.
+ * Updates scale <select>, match counter, and Atlas grid in place without dropping search input focus.
  */
 export function refreshScaleBrowserInPlace(state) {
   const filteredScales = getFilteredScales(state);
@@ -149,168 +150,246 @@ export function renderDeckPanel(state) {
   const filteredScales = getFilteredScales(state);
   const activeScale = getActiveScale();
   const allowedPcs = new Set(activeScale.intervalsQ.map((iv) => mod24(state.rootQ + iv)));
-
-  // Category bar with live counts (respecting temperament filter)
-  const categoryBtns = DB.categories.map((cat) => {
-    const label = isEn ? cat.labelEn : cat.labelPt;
-    const count = DB.scales.filter((s) => {
-      if (cat.id !== 'all' && s.category !== cat.id) return false;
-      const isMicro = scaleIsMicrotonal(s);
-      if (state.temperamentFilter === '24tet' && !isMicro) return false;
-      if (state.temperamentFilter === '12tet' && isMicro) return false;
-      return true;
-    }).length;
-    return `
-      <button type="button" class="btn-pill ${state.category === cat.id ? 'active' : ''}" data-action="category" data-val="${cat.id}">
-        ${label} <span class="cat-count">${count}</span>
-      </button>
-    `;
-  }).join('');
+  const activeStrCount = state.stringCount || state.customStringsQ.length;
+  const openComp = state.deckCompartment; // null | 'atlas' | 'neck' | 'audio'
 
   const scaleOptions = buildScaleSelectOptionsHtml(filteredScales, state);
-
   const rootOptions = NOTE_NAMES_24.map((name, q) => {
     const tag = q % 2 !== 0 ? ' (¼)' : '';
     return `<option value="${q}" ${q === state.rootQ ? 'selected' : ''}>${name}${tag}</option>`;
   }).join('');
-
   const tuningOptions = buildTuningOptionsHtml(state);
-  const activeStrCount = state.stringCount || state.customStringsQ.length;
   const pinnedTunings = DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount);
 
-  const atlasDrawerHtml = state.atlasOpen ? `
-    <div class="atlas-drawer" id="scaleAtlasDrawer">
-      <div class="atlas-drawer-head">
-        <span class="control-label">${t(state.lang, 'atlasTitle')}</span>
-        <button type="button" class="btn-mini" data-action="toggleAtlas">${t(state.lang, 'atlasClose')}</button>
-      </div>
-      <div class="atlas-drawer-body" id="scaleAtlasBody">
-        ${buildScaleAtlasBodyHtml(filteredScales, state)}
-      </div>
-    </div>
-  ` : '';
+  // Build active compartment drawer body (strictly 1 open at a time for a calm, uncluttered screen)
+  let compartmentDrawerHtml = '';
 
-  const fxRackHtml = state.fxOpen ? `
-    <div class="fx-rack-box">
-      <div class="rhythm-track-head" style="margin-bottom:8px;flex-wrap:wrap;gap:8px">
-        <span class="control-label">${t(state.lang, 'fxRackTitle')}</span>
-        <div class="pill-row">
-          ${[
-            { id: 'clean', key: 'fxClean' },
-            { id: 'swell', key: 'fxSwell' },
-            { id: 'crunch', key: 'fxCrunch' },
-            { id: 'fuzz', key: 'fxFuzz' }
-          ].map((tp) => `
-            <button type="button" class="btn-mini ${state.tonePreset === tp.id ? 'active-mini' : ''}" data-action="tonePreset" data-val="${tp.id}">
-              ${t(state.lang, tp.key)}
-            </button>
-          `).join('')}
+  if (openComp === 'atlas') {
+    const categoryBtns = DB.categories.map((cat) => {
+      const label = isEn ? cat.labelEn : cat.labelPt;
+      const count = DB.scales.filter((s) => {
+        if (cat.id !== 'all' && s.category !== cat.id) return false;
+        const isMicro = scaleIsMicrotonal(s);
+        if (state.temperamentFilter === '24tet' && !isMicro) return false;
+        if (state.temperamentFilter === '12tet' && isMicro) return false;
+        return true;
+      }).length;
+      return `
+        <button type="button" class="btn-pill ${state.category === cat.id ? 'active' : ''}" data-action="category" data-val="${cat.id}">
+          ${label} <span class="cat-count">${count}</span>
+        </button>
+      `;
+    }).join('');
+
+    compartmentDrawerHtml = `
+      <div class="deck-compartment-body" id="compAtlas">
+        <div class="compartment-head">
+          <span class="control-label">${t(state.lang, 'compAtlasTitle')}</span>
+          <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+        </div>
+
+        <div class="category-bar">${categoryBtns}</div>
+
+        <div class="filter-toolbar">
+          <div class="search-wrap">
+            <input
+              type="search"
+              id="inpScaleSearch"
+              class="search-input"
+              placeholder="${t(state.lang, 'searchPlaceholder')}"
+              value="${(state.scaleSearch || '').replace(/"/g, '&quot;')}"
+              autocomplete="off"
+            />
+            <span class="mono-tag search-count" id="scaleMatchCount">${filteredScales.length} ${t(state.lang, 'scalesUnit')}</span>
+          </div>
+
+          <div class="pill-row">
+            <button type="button" class="btn-mini ${state.temperamentFilter === 'all' ? 'active-mini' : ''}" data-action="tempFilter" data-val="all">${t(state.lang, 'tempAll')}</button>
+            <button type="button" class="btn-mini ${state.temperamentFilter === '12tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="12tet">${t(state.lang, 'temp12')}</button>
+            <button type="button" class="btn-mini ${state.temperamentFilter === '24tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="24tet">${t(state.lang, 'temp24')}</button>
+          </div>
+        </div>
+
+        <div class="atlas-drawer-body" id="scaleAtlasBody">
+          ${buildScaleAtlasBodyHtml(filteredScales, state)}
         </div>
       </div>
+    `;
+  } else if (openComp === 'neck') {
+    compartmentDrawerHtml = `
+      <div class="deck-compartment-body" id="compNeck">
+        <div class="compartment-head">
+          <span class="control-label">${t(state.lang, 'compNeckTitle')}</span>
+          <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+        </div>
 
-      <div class="fx-sliders-grid">
-        <label class="bpm-control">
-          <span>${t(state.lang, 'fxDelayMix')}</span>
-          <input type="range" id="rngFxDelayMix" min="0" max="0.65" step="0.05" value="${state.delayMix}" />
-          <strong id="valFxDelayMix">${Math.round(state.delayMix * 100)}%</strong>
-        </label>
-
-        <label class="bpm-control">
-          <span>${t(state.lang, 'fxDelayTime')}</span>
-          <input type="range" id="rngFxDelayTime" min="0.12" max="0.68" step="0.02" value="${state.delayTime}" />
-          <strong id="valFxDelayTime">${Math.round(state.delayTime * 1000)}ms</strong>
-        </label>
-
-        <label class="bpm-control">
-          <span>${t(state.lang, 'fxTremDepth')}</span>
-          <input type="range" id="rngFxTremDepth" min="0" max="0.85" step="0.05" value="${state.tremoloDepth}" />
-          <strong id="valFxTremDepth">${Math.round(state.tremoloDepth * 100)}%</strong>
-        </label>
-
-        <label class="bpm-control">
-          <span>${t(state.lang, 'fxTremRate')}</span>
-          <input type="range" id="rngFxTremRate" min="1.5" max="9.0" step="0.3" value="${state.tremoloRate}" />
-          <strong id="valFxTremRate">${state.tremoloRate.toFixed(1)}Hz</strong>
-        </label>
-
-        <label class="bpm-control">
-          <span>${t(state.lang, 'fxMasterVol')}</span>
-          <input type="range" id="rngFxVol" min="0.15" max="1.0" step="0.05" value="${state.masterVolume}" />
-          <strong id="valFxVol">${Math.round(state.masterVolume * 100)}%</strong>
-        </label>
-      </div>
-    </div>
-  ` : '';
-
-  const retunerHtml = state.retunerOpen ? `
-    <div class="retuner-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <span class="control-label">${t(state.lang, 'retunerToggle')}</span>
-        <button type="button" class="btn-mini" data-action="resetTuning">${t(state.lang, 'retunerReset')}</button>
-      </div>
-      <div class="retuner-grid">
-        ${state.customStringsQ.map((sq, idx) => {
-          const guitarStrNum = state.customStringsQ.length - idx;
-          const inScale = allowedPcs.has(mod24(sq));
-          return `
-            <div class="retuner-string ${inScale ? 'in-scale' : ''}">
-              <div class="retuner-string-head">
-                <strong>${t(state.lang, 'inspString')} ${guitarStrNum} · ${qToNoteName(sq, true)}</strong>
-                ${inScale ? `<span style="color:var(--accent-open);font-size:0.72rem">● ${t(state.lang, 'openInScale')}</span>` : ''}
-              </div>
-              <div class="retuner-btns">
-                <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="-2">-1st</button>
-                <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="-1">-¼</button>
-                <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="1">+¼</button>
-                <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="2">+1st</button>
-              </div>
+        <div class="comp-grid">
+          <div class="control-group">
+            <span class="control-label">${t(state.lang, 'microModeLabel')}</span>
+            <div class="pill-row">
+              <button type="button" class="btn-pill ${state.microMode === 'bend' ? 'active' : ''}" data-action="microMode" data-val="bend">${t(state.lang, 'modeBend')}</button>
+              <button type="button" class="btn-pill ${state.microMode === 'slide' ? 'active' : ''}" data-action="microMode" data-val="slide">${t(state.lang, 'modeSlide')}</button>
+              <button type="button" class="btn-pill ${state.microMode === 'frets24' ? 'active' : ''}" data-action="microMode" data-val="frets24">${t(state.lang, 'modeFrets24')}</button>
             </div>
-          `;
-        }).join('')}
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">${t(state.lang, 'labelModeLabel')}</span>
+            <div class="pill-row">
+              <button type="button" class="btn-pill ${state.labelMode === 'note' ? 'active-teal' : ''}" data-action="labelMode" data-val="note">${t(state.lang, 'lblNote')}</button>
+              <button type="button" class="btn-pill ${state.labelMode === 'degree' ? 'active-teal' : ''}" data-action="labelMode" data-val="degree">${t(state.lang, 'lblDegree')}</button>
+              <button type="button" class="btn-pill ${state.labelMode === 'cents' ? 'active-teal' : ''}" data-action="labelMode" data-val="cents">${t(state.lang, 'lblCents')}</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">${t(state.lang, 'compLayersLabel')}</span>
+            <div class="pill-row">
+              <button type="button" class="btn-pill ${state.voicingOverlayOn ? 'active-voicing' : ''}" data-action="toggleVoicingOverlay">
+                ${state.voicingOverlayOn ? t(state.lang, 'voicingOverlayOn') : t(state.lang, 'voicingOverlayOff')}
+              </button>
+              <button type="button" class="btn-pill ${state.harmonicsOn ? 'active-harm' : ''}" data-action="toggleHarmonics">
+                ${state.harmonicsOn ? t(state.lang, 'harmonicsOn') : t(state.lang, 'harmonicsOff')}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-subsection">
+          <div class="compartment-head" style="margin-bottom:6px">
+            <span class="control-label">${t(state.lang, 'quickTuningsLabel')} (${activeStrCount}${t(state.lang, 'strSuffix')})</span>
+            <div class="pill-row">
+              ${[6, 7, 8].map((cnt) => `
+                <button type="button" class="btn-mini ${activeStrCount === cnt ? 'active-mini' : ''}" data-action="setStringCount" data-val="${cnt}">${cnt}${t(state.lang, 'strSuffix')}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="pill-row">
+            ${pinnedTunings.map((tun) => `
+              <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
+                ${tun.short}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="retuner-box" style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <span class="control-label">${t(state.lang, 'retunerToggle')} (${activeStrCount})</span>
+            <button type="button" class="btn-mini" data-action="resetTuning">${t(state.lang, 'retunerReset')}</button>
+          </div>
+          <div class="retuner-grid">
+            ${state.customStringsQ.map((sq, idx) => {
+              const guitarStrNum = state.customStringsQ.length - idx;
+              const inScale = allowedPcs.has(mod24(sq));
+              return `
+                <div class="retuner-string ${inScale ? 'in-scale' : ''}">
+                  <div class="retuner-string-head">
+                    <strong>${t(state.lang, 'inspString')} ${guitarStrNum} · ${qToNoteName(sq, true)}</strong>
+                    ${inScale ? `<span style="color:var(--accent-open);font-size:0.72rem">● ${t(state.lang, 'openInScale')}</span>` : ''}
+                  </div>
+                  <div class="retuner-btns">
+                    <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="-2">-1st</button>
+                    <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="-1">-¼</button>
+                    <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="1">+¼</button>
+                    <button type="button" class="btn-mini" data-action="retune" data-idx="${idx}" data-delta="2">+1st</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
       </div>
-    </div>
-  ` : '';
+    `;
+  } else if (openComp === 'audio') {
+    compartmentDrawerHtml = `
+      <div class="deck-compartment-body" id="compAudio">
+        <div class="compartment-head">
+          <span class="control-label">${t(state.lang, 'compAudioTitle')}</span>
+          <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+        </div>
+
+        <div class="comp-audio-top">
+          <label class="bpm-control">
+            <span>${t(state.lang, 'compScaleBpm')}</span>
+            <input type="range" id="rngBpm" min="48" max="180" step="2" value="${state.bpm}" />
+            <strong id="bpmVal">${state.bpm}</strong>
+          </label>
+
+          <button type="button" class="btn-pill ${state.droneOn ? 'active-teal' : ''}" data-action="toggleDrone">
+            ${state.droneOn ? t(state.lang, 'droneOn') : t(state.lang, 'droneOff')}
+          </button>
+
+          <button type="button" class="btn-pill ${state.droneFifth ? 'active' : ''}" data-action="toggleDroneFifth">
+            ${t(state.lang, 'droneFifth')}
+          </button>
+
+          <div class="pill-row">
+            ${[
+              { id: 'clean', key: 'fxClean' },
+              { id: 'swell', key: 'fxSwell' },
+              { id: 'crunch', key: 'fxCrunch' },
+              { id: 'fuzz', key: 'fxFuzz' }
+            ].map((tp) => `
+              <button type="button" class="btn-mini ${state.tonePreset === tp.id ? 'active-mini' : ''}" data-action="tonePreset" data-val="${tp.id}">
+                ${t(state.lang, tp.key)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="fx-sliders-grid" style="margin-top:10px">
+          <label class="bpm-control">
+            <span>${t(state.lang, 'fxDelayMix')}</span>
+            <input type="range" id="rngFxDelayMix" min="0" max="0.65" step="0.05" value="${state.delayMix}" />
+            <strong id="valFxDelayMix">${Math.round(state.delayMix * 100)}%</strong>
+          </label>
+
+          <label class="bpm-control">
+            <span>${t(state.lang, 'fxDelayTime')}</span>
+            <input type="range" id="rngFxDelayTime" min="0.12" max="0.68" step="0.02" value="${state.delayTime}" />
+            <strong id="valFxDelayTime">${Math.round(state.delayTime * 1000)}ms</strong>
+          </label>
+
+          <label class="bpm-control">
+            <span>${t(state.lang, 'fxTremDepth')}</span>
+            <input type="range" id="rngFxTremDepth" min="0" max="0.85" step="0.05" value="${state.tremoloDepth}" />
+            <strong id="valFxTremDepth">${Math.round(state.tremoloDepth * 100)}%</strong>
+          </label>
+
+          <label class="bpm-control">
+            <span>${t(state.lang, 'fxTremRate')}</span>
+            <input type="range" id="rngFxTremRate" min="1.5" max="9.0" step="0.3" value="${state.tremoloRate}" />
+            <strong id="valFxTremRate">${state.tremoloRate.toFixed(1)}Hz</strong>
+          </label>
+
+          <label class="bpm-control">
+            <span>${t(state.lang, 'fxMasterVol')}</span>
+            <input type="range" id="rngFxVol" min="0.15" max="1.0" step="0.05" value="${state.masterVolume}" />
+            <strong id="valFxVol">${Math.round(state.masterVolume * 100)}%</strong>
+          </label>
+        </div>
+      </div>
+    `;
+  }
+
+  const microBadgeTxt = state.microMode === 'bend' ? 'Bend' : (state.microMode === 'slide' ? 'Slide' : '24-TET');
+  const filterActiveDot = (state.category !== 'all' || state.temperamentFilter !== 'all' || Boolean(state.scaleSearch)) ? '<span class="dock-dot"></span>' : '';
 
   panel.innerHTML = `
-    <div class="category-bar">${categoryBtns}</div>
-
-    <div class="filter-toolbar">
-      <div class="search-wrap">
-        <input
-          type="search"
-          id="inpScaleSearch"
-          class="search-input"
-          placeholder="${t(state.lang, 'searchPlaceholder')}"
-          value="${(state.scaleSearch || '').replace(/"/g, '&quot;')}"
-          autocomplete="off"
-        />
-        <span class="mono-tag search-count" id="scaleMatchCount">${filteredScales.length} ${t(state.lang, 'scalesUnit')}</span>
-      </div>
-
-      <div class="pill-row">
-        <button type="button" class="btn-mini ${state.temperamentFilter === 'all' ? 'active-mini' : ''}" data-action="tempFilter" data-val="all">${t(state.lang, 'tempAll')}</button>
-        <button type="button" class="btn-mini ${state.temperamentFilter === '12tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="12tet">${t(state.lang, 'temp12')}</button>
-        <button type="button" class="btn-mini ${state.temperamentFilter === '24tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="24tet">${t(state.lang, 'temp24')}</button>
-        <button type="button" class="btn-pill ${state.atlasOpen ? 'active-teal' : ''}" data-action="toggleAtlas">
-          ${state.atlasOpen ? t(state.lang, 'atlasClose') : t(state.lang, 'atlasOpen')}
-        </button>
-      </div>
-    </div>
-
-    ${atlasDrawerHtml}
-
-    <div class="deck-grid">
-      <div class="control-group">
+    <!-- Clean Primary Command Bar (always visible, 1 row) -->
+    <div class="command-primary-row">
+      <div class="cmd-field cmd-scale">
         <label class="control-label" for="selScale">${t(state.lang, 'scaleLabel')}</label>
         <select id="selScale">${scaleOptions}</select>
       </div>
 
-      <div class="control-group">
+      <div class="cmd-field cmd-root">
         <label class="control-label" for="selRoot">${t(state.lang, 'rootLabel')}</label>
         <select id="selRoot">${rootOptions}</select>
       </div>
 
-      <div class="control-group">
+      <div class="cmd-field cmd-tuning">
         <div class="tuning-label-row">
           <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
           <div class="pill-row">
@@ -320,84 +399,46 @@ export function renderDeckPanel(state) {
           </div>
         </div>
         <select id="selTuning">${tuningOptions}</select>
-        <div class="quick-tunings-row" aria-label="${t(state.lang, 'quickTuningsLabel')}">
-          ${pinnedTunings.map((tun) => `
-            <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
-              ${tun.short}
-            </button>
-          `).join('')}
-        </div>
       </div>
 
-      <div class="control-group">
-        <span class="control-label">${t(state.lang, 'microModeLabel')}</span>
-        <div class="pill-row">
-          <button type="button" class="btn-pill ${state.microMode === 'bend' ? 'active' : ''}" data-action="microMode" data-val="bend">${t(state.lang, 'modeBend')}</button>
-          <button type="button" class="btn-pill ${state.microMode === 'slide' ? 'active' : ''}" data-action="microMode" data-val="slide">${t(state.lang, 'modeSlide')}</button>
-          <button type="button" class="btn-pill ${state.microMode === 'frets24' ? 'active' : ''}" data-action="microMode" data-val="frets24">${t(state.lang, 'modeFrets24')}</button>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <span class="control-label">${t(state.lang, 'labelModeLabel')}</span>
-        <div class="pill-row">
-          <button type="button" class="btn-pill ${state.labelMode === 'note' ? 'active-teal' : ''}" data-action="labelMode" data-val="note">${t(state.lang, 'lblNote')}</button>
-          <button type="button" class="btn-pill ${state.labelMode === 'degree' ? 'active-teal' : ''}" data-action="labelMode" data-val="degree">${t(state.lang, 'lblDegree')}</button>
-          <button type="button" class="btn-pill ${state.labelMode === 'cents' ? 'active-teal' : ''}" data-action="labelMode" data-val="cents">${t(state.lang, 'lblCents')}</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="audio-bar">
-      <div class="audio-controls-left">
+      <div class="cmd-quick-audio">
         <button type="button" class="btn-primary" data-action="playScale">
           ${state.isPlayingScale ? t(state.lang, 'stopScale') : t(state.lang, 'playScale')}
         </button>
-
-        <label class="bpm-control">
-          <span>BPM</span>
-          <input type="range" id="rngBpm" min="48" max="180" step="2" value="${state.bpm}" />
-          <strong id="bpmVal">${state.bpm}</strong>
-        </label>
-
         <button type="button" class="btn-pill ${state.droneOn ? 'active-teal' : ''}" data-action="toggleDrone">
           ${state.droneOn ? t(state.lang, 'droneOn') : t(state.lang, 'droneOff')}
-        </button>
-
-        <button type="button" class="btn-pill ${state.droneFifth ? 'active' : ''}" data-action="toggleDroneFifth">
-          ${t(state.lang, 'droneFifth')}
-        </button>
-      </div>
-
-      <div class="audio-controls-right">
-        <button type="button" class="btn-pill ${state.voicingOverlayOn ? 'active-voicing' : ''}" data-action="toggleVoicingOverlay">
-          ${state.voicingOverlayOn ? t(state.lang, 'voicingOverlayOn') : t(state.lang, 'voicingOverlayOff')}
-        </button>
-
-        <button type="button" class="btn-pill ${state.harmonicsOn ? 'active-harm' : ''}" data-action="toggleHarmonics">
-          ${state.harmonicsOn ? t(state.lang, 'harmonicsOn') : t(state.lang, 'harmonicsOff')}
-        </button>
-
-        <button type="button" class="btn-pill ${state.fxOpen ? 'active-teal' : ''}" data-action="toggleFx">
-          ${t(state.lang, 'fxToggleBtn')} (${t(state.lang, `fx_${state.tonePreset}`)})
-        </button>
-
-        <button type="button" class="btn-pill ${state.retunerOpen ? 'active' : ''}" data-action="toggleRetuner">
-          ${t(state.lang, 'retunerToggle')}
         </button>
       </div>
     </div>
 
-    ${fxRackHtml}
-    ${retunerHtml}
+    <!-- Clean Deck Compartment Dock -->
+    <div class="compartment-dock" role="toolbar" aria-label="Deck Compartments">
+      <button type="button" class="dock-btn ${openComp === 'atlas' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="atlas">
+        <span>🧭 ${t(state.lang, 'dockAtlas')}</span>
+        <span class="dock-meta">${filteredScales.length}</span>
+        ${filterActiveDot}
+      </button>
+
+      <button type="button" class="dock-btn ${openComp === 'neck' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="neck">
+        <span>🎛 ${t(state.lang, 'dockNeck')}</span>
+        <span class="dock-meta">${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
+      </button>
+
+      <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
+        <span>🔊 ${t(state.lang, 'dockAudio')}</span>
+        <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
+      </button>
+
+      <button type="button" class="dock-btn ${state.notationOpen ? 'is-pinned' : ''}" data-action="toggleNotation">
+        <span>🎼 ${t(state.lang, 'dockNotation')}</span>
+        <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
+      </button>
+    </div>
+
+    ${compartmentDrawerHtml}
   `;
 
-  // Bind live search input cleanly (triggers fast-path in main.js without losing focus)
-  const searchInp = panel.querySelector('#inpScaleSearch');
-  searchInp.oninput = (e) => {
-    setState({ scaleSearch: e.target.value });
-  };
-
+  // Bind primary selectors
   panel.querySelector('#selScale').onchange = (e) => {
     if (!e.target.value) return;
     stopPlaybackIfNeeded();
@@ -416,12 +457,22 @@ export function renderDeckPanel(state) {
     applyTuningById(e.target.value);
   };
 
+  // Optional compartment-specific inputs
+  const searchInp = panel.querySelector('#inpScaleSearch');
+  if (searchInp) {
+    searchInp.oninput = (e) => {
+      setState({ scaleSearch: e.target.value });
+    };
+  }
+
   const bpmSlider = panel.querySelector('#rngBpm');
   const bpmVal = panel.querySelector('#bpmVal');
-  bpmSlider.oninput = (e) => {
-    bpmVal.textContent = e.target.value;
-    setState({ bpm: Number(e.target.value) });
-  };
+  if (bpmSlider) {
+    bpmSlider.oninput = (e) => {
+      if (bpmVal) bpmVal.textContent = e.target.value;
+      setState({ bpm: Number(e.target.value) });
+    };
+  }
 
   const bindFxRange = (id, valId, key, fmt) => {
     const el = panel.querySelector(id);
@@ -440,13 +491,21 @@ export function renderDeckPanel(state) {
   bindFxRange('#rngFxTremRate', '#valFxTremRate', 'tremoloRate', (v) => `${v.toFixed(1)}Hz`);
   bindFxRange('#rngFxVol', '#valFxVol', 'masterVolume', (v) => `${Math.round(v * 100)}%`);
 
+  // Delegated click actions
   panel.onclick = (e) => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
     const action = btn.dataset.action;
     const st = getState();
 
-    if (action === 'category') {
+    if (action === 'toggleCompartment') {
+      const target = btn.dataset.val;
+      setState({ deckCompartment: st.deckCompartment === target ? null : target });
+    } else if (action === 'closeCompartment') {
+      setState({ deckCompartment: null });
+    } else if (action === 'toggleNotation') {
+      setState({ notationOpen: !st.notationOpen });
+    } else if (action === 'category') {
       const cat = btn.dataset.val;
       const nextFiltered = getFilteredScales({ ...st, category: cat });
       const stillVisible = nextFiltered.some((s) => s.id === st.scaleId);
@@ -464,8 +523,6 @@ export function renderDeckPanel(state) {
         customScaleIntervalsQ: null,
         scaleId: stillVisible ? st.scaleId : (nextFiltered[0]?.id || st.scaleId)
       });
-    } else if (action === 'toggleAtlas') {
-      setState({ atlasOpen: !st.atlasOpen });
     } else if (action === 'pickScale') {
       stopPlaybackIfNeeded();
       setState({
@@ -507,17 +564,12 @@ export function renderDeckPanel(state) {
       setState({ voicingOverlayOn: !st.voicingOverlayOn });
     } else if (action === 'toggleHarmonics') {
       setState({ harmonicsOn: !st.harmonicsOn });
-    } else if (action === 'toggleFx') {
-      setState({ fxOpen: !st.fxOpen });
     } else if (action === 'tonePreset') {
       const preset = btn.dataset.val;
       const delayMix = preset === 'swell' ? Math.max(st.delayMix, 0.42) : st.delayMix;
       synthEngine.updateToneFx({ tonePreset: preset, delayMix });
-      // Audition root chord tone so user immediately hears the new amp/FX character
       synthEngine.pluckQ(96 + mod24(st.rootQ), { duration: 1.4, velocity: 0.35 });
       setState({ tonePreset: preset, delayMix });
-    } else if (action === 'toggleRetuner') {
-      setState({ retunerOpen: !st.retunerOpen });
     } else if (action === 'resetTuning') {
       const tun = getActiveTuning();
       setState({ customStringsQ: [...tun.stringsQ] });
@@ -525,7 +577,7 @@ export function renderDeckPanel(state) {
       const idx = Number(btn.dataset.idx);
       const delta = Number(btn.dataset.delta);
       const updated = [...st.customStringsQ];
-      updated[idx] = Math.max(48, Math.min(168, updated[idx] + delta));
+      updated[idx] = Math.max(46, Math.min(168, updated[idx] + delta));
       synthEngine.pluckQ(updated[idx], { duration: 1.2, velocity: 0.34 });
       setState({ customStringsQ: updated });
     }

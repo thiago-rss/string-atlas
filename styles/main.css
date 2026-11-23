@@ -2329,3 +2329,258 @@ body[data-zen="true"] .fretboard-panel {
   background: rgba(224, 108, 117, 0.22);
   color: var(--accent-char);
 }
+
+/* =========================================================================
+ * Phase 7.4 Additions: Clean Modular Compartments (Oud Visualizer Ergonomics)
+ * ========================================================================= */
+
+.deck-panel {
+  padding: 13px 15px;
+}
+
+.command-primary-row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.72fr 1.35fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (max-width: 1020px) {
+  .command-primary-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cmd-quick-audio {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .command-primary-row {
+    grid-template-columns: 1fr;
+  }
+  .cmd-quick-audio {
+    grid-column: span 1;
+  }
+}
+
+.cmd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cmd-quick-audio {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+/* Compartment Dock Strip */
+.compartment-dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease, transform 0.08s ease;
+}
+
+.dock-btn:hover {
+  border-color: var(--border-strong);
+}
+
+.dock-btn.is-open {
+  border-color: var(--accent-root);
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+}
+
+.dock-btn.is-open .dock-meta {
+  background: rgba(0, 0, 0, 0.16);
+  color: var(--accent-root-ink);
+}
+
+.dock-btn.is-pinned {
+  border-color: var(--accent-scale);
+  color: var(--accent-scale);
+}
+
+.dock-meta {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+}
+
+.dock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-micro);
+}
+
+/* Collapsible Compartment Drawer Body */
+.deck-compartment-body {
+  margin-top: 12px;
+  padding: 13px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+}
+
+.compartment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.comp-subsection {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.comp-audio-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Compact Fretboard Legend Strip */
+.fretboard-sub-legend {
+  margin-bottom: 8px;
+}
+
+.notation-panel[hidden] {
+  display: none !important;
+}
+
+/* 2-Tier Grouped Studio Workspace Compartments */
+.workspace-compartments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zone-primary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.zone-pills-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.zone-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.zone-tab-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.zone-tab-btn.is-active {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: var(--accent-root);
+}
+
+.zone-icon {
+  font-size: 0.9rem;
+}
+
+.zone-subtools-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.subtool-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.subtool-pill:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.subtool-pill.is-active {
+  background: var(--bg-elevated);
+  border-color: var(--accent-scale);
+  color: var(--accent-scale);
+}
+
+.live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-live);
+  box-shadow: 0 0 8px var(--accent-live);
+  display: inline-block;
+}
+
+/* Ensure Zen mode hides the new compartment navigation cleanly too */
+body[data-zen="true"] .workspace-compartments {
+  display: none !important;
+}

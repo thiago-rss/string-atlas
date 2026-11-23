@@ -220,7 +220,7 @@ export function renderEtudeView(state) {
     } else if (act === 'jumpStep') {
       jumpToEtudeStep(Number(btn.dataset.idx));
     } else if (act === 'showInTab') {
-      setState({ notationMode: 'etude' });
+      setState({ notationMode: 'etude', notationOpen: true });
       document.getElementById('notationPanel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else if (act === 'copyTab') {
       handleCopyAsciiTab(st, btn);
