@@ -2,6 +2,11 @@
 
 Todas as entregas estruturais do projeto, da fundação 24-TET ao lançamento PWA de produção (`v8.4.0`).
 
+## [8.5.0] — 2026-11-23 · Luthieria Avançada
+### Adicionado
+- **Comparador A/B na Calculadora de Tensão (`js/core/tensionEngine.js`, `js/views/tensionView.js`):** compara dois setups físicos lado a lado (ex.: `A Standard` em `25.5″` vs. `27.0″`, ou dois packs de calibres / Multi-Scale / afinações), com gráfico SVG de barras duplas, diferença corda a corda (`Δ B − A`), **Diagnóstico de Tensor (Truss Rod)**, `Clonar A → B`, `⇄ Trocar A ↔ B`, `Aplicar B no Ativo`, `✦ Balancear B` e `Copiar A/B`.
+- **Scordaturas Salvas (`js/core/customTunings.js`, `js/views/deckPanelsView.js`, `js/views/commandPaletteView.js`, `js/views/snapshotsView.js`):** salve afinações customizadas do *Fine Retuner* ou da *Calculadora de Tensão* (6, 7 ou 8 cordas em 12-TET ou 24-TET) permanentemente no `localStorage`, acessíveis no seletor principal (`✦ Minhas Scordaturas Salvas`), atalhos rápidos, busca `⌘K` e backups `.json`.
+
 ## [8.4.0] — 2026-11-23
 ### Adicionado
 - **Glossário Técnico & Teórico Interativo (`js/core/glossary.js`, `js/views/glossaryView.js`):** 39 termos bilíngues (PT/EN) em 5 categorias com busca instantânea, dicas práticas na guitarra, demonstrações em áudio Web Audio (`100¢` vs `150¢`, `5/4` vs `12-TET`, `53-TET` vs `24-TET`, série harmônica) e atalhos diretos para escalas/módulos.

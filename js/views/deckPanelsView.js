@@ -8,6 +8,7 @@
  *     4. Partitura & Tab    (Independent toggle for Synchronized 24-TET Staff & Tablature)
  */
 import { DB } from '../core/database.js';
+import { createCustomTuning, formatStringsSignature, stringsEqual } from '../core/customTunings.js';
 import { getThemeById } from '../core/themes.js';
 import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import { buildScalaPlayFrequencies, getScalaPresetById, parseSclText } from '../core/scalaEngine.js';
@@ -21,7 +22,9 @@ import {
 import { t } from '../core/i18n.js';
 import {
   getActiveScale,
+  findTuningById,
   getActiveTuning,
+  getAllTunings,
   getEffectiveFretZoom,
   getEffectiveOrientation,
   getFilteredScales,
@@ -113,7 +116,17 @@ function buildScaleAtlasBodyHtml(filteredScales, state) {
 function buildTuningOptionsHtml(state) {
   const isEn = state.lang === 'en';
   const count = state.stringCount || state.customStringsQ.length;
-  return DB.tuningGroups.map((grp) => {
+  const customForCount = (state.customTunings || []).filter((tun) => tun.stringsQ.length === count);
+
+  const customGroupHtml = customForCount.length
+    ? `<optgroup label="✦ ${t(state.lang, 'customTuningsGroup')}">${customForCount.map((tun) => `
+        <option value="${tun.id}" ${tun.id === state.tuningId ? 'selected' : ''}>
+          ✦ ${tun.namePt}
+        </option>
+      `).join('')}</optgroup>`
+    : '';
+
+  const builtInGroupsHtml = DB.tuningGroups.map((grp) => {
     const label = isEn ? grp.labelEn : grp.labelPt;
     const list = DB.tunings.filter((tun) => tun.group === grp.id && tun.stringsQ.length === count);
     if (!list.length) return '';
@@ -124,6 +137,8 @@ function buildTuningOptionsHtml(state) {
     `).join('');
     return `<optgroup label="${label}">${opts}</optgroup>`;
   }).join('');
+
+  return customGroupHtml + builtInGroupsHtml;
 }
 
 /**
@@ -160,6 +175,7 @@ export function renderDeckPanel(state) {
   const activeStrCount = state.stringCount || state.customStringsQ.length;
   const openComp = state.deckCompartment; // null | 'setup' | 'neck' | 'audio'
   const rootName = qToNoteName(state.rootQ, false);
+  const isRetuned = !stringsEqual(state.customStringsQ, activeTuning.stringsQ);
 
   panel.classList.toggle('is-expanded', Boolean(openComp));
 
@@ -173,7 +189,7 @@ export function renderDeckPanel(state) {
       return `<option value="${q}" ${q === state.rootQ ? 'selected' : ''}>${name}${tag}</option>`;
     }).join('');
     const tuningOptions = buildTuningOptionsHtml(state);
-    const pinnedTunings = DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount);
+    const pinnedTunings = [...(state.customTunings || []).filter((tun) => tun.stringsQ.length === activeStrCount), ...DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount)];
 
     const categoryBtns = DB.categories.map((cat) => {
       const label = isEn ? cat.labelEn : cat.labelPt;
@@ -227,7 +243,7 @@ export function renderDeckPanel(state) {
           <div class="pill-row">
             ${pinnedTunings.map((tun) => `
               <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
-                ${tun.short}
+                ${tun.custom ? '✦ ' : ''}${tun.short}
               </button>
             `).join('')}
           </div>
@@ -366,6 +382,36 @@ export function renderDeckPanel(state) {
               `;
             }).join('')}
           </div>
+
+          <!-- Save & Manage Custom Scordaturas (Luthieria Avançada) -->
+          <div class="custom-tuning-save-bar">
+            <input
+              type="text"
+              id="inpCustomTuningName"
+              class="search-input"
+              maxlength="28"
+              placeholder="${t(state.lang, 'customTunPlaceholder')} (${formatStringsSignature(state.customStringsQ)})"
+            />
+            <button type="button" class="btn-primary" data-action="saveCustomTuning">
+              ✦ ${t(state.lang, 'customTunSaveBtn')}
+            </button>
+          </div>
+
+          ${(state.customTunings || []).length ? `
+            <div class="saved-scordaturas-list">
+              <span class="control-label">${t(state.lang, 'customTunSavedList')} (${state.customTunings.length})</span>
+              <div class="saved-scordaturas-chips">
+                ${state.customTunings.map((ct) => `
+                  <div class="saved-tun-chip ${ct.id === state.tuningId ? 'is-active' : ''}">
+                    <button type="button" class="saved-tun-load" data-action="quickTuning" data-id="${ct.id}">
+                      ✦ <strong>${ct.short}</strong> <span class="mono-tag">${ct.stringsQ.length}${t(state.lang, 'strSuffix')} · ${formatStringsSignature(ct.stringsQ)}</span>
+                    </button>
+                    <button type="button" class="btn-mini saved-tun-del" data-action="deleteCustomTuning" data-id="${ct.id}" aria-label="Delete">✕</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -463,7 +509,7 @@ export function renderDeckPanel(state) {
           <span class="dock-label-full">${t(state.lang, 'dockSetup')}</span>
           <span class="dock-label-short">${t(state.lang, 'dockSetupShort')}</span>
         </span>
-        <span class="dock-meta">${rootName} · ${activeTuning.short}</span>
+        <span class="dock-meta">${rootName} · ${activeTuning.custom ? '✦ ' : ''}${activeTuning.short}${isRetuned ? '*' : ''}</span>
         ${filterActiveDot}
       </button>
 
@@ -684,6 +730,28 @@ export function renderDeckPanel(state) {
       synthEngine.updateToneFx({ tonePreset: preset, delayMix });
       synthEngine.pluckQ(96 + mod24(st.rootQ), { duration: 1.4, velocity: 0.35 });
       setState({ tonePreset: preset, delayMix });
+    } else if (action === 'saveCustomTuning') {
+      const inp = panel.querySelector('#inpCustomTuningName');
+      const rawName = (inp?.value || '').trim();
+      const created = createCustomTuning({ name: rawName, stringsQ: st.customStringsQ });
+      if (!created) return;
+      const nextList = [created, ...(st.customTunings || []).filter((x) => x.short.toLowerCase() !== created.short.toLowerCase())].slice(0, 32);
+      setState({
+        customTunings: nextList,
+        tuningId: created.id,
+        stringCount: created.stringsQ.length,
+        customStringsQ: [...created.stringsQ]
+      });
+    } else if (action === 'deleteCustomTuning') {
+      const delId = btn.dataset.id;
+      const nextList = (st.customTunings || []).filter((x) => x.id !== delId);
+      const patch = { customTunings: nextList };
+      if (st.tuningId === delId) {
+        const fallback = DB.tunings.find((x) => x.stringsQ.length === st.stringCount) || DB.tunings[0];
+        patch.tuningId = fallback.id;
+        patch.customStringsQ = [...fallback.stringsQ];
+      }
+      setState(patch);
     } else if (action === 'resetTuning') {
       const tun = getActiveTuning();
       setState({ customStringsQ: [...tun.stringsQ] });
@@ -700,7 +768,7 @@ export function renderDeckPanel(state) {
 
 function applyTuningById(tuningId) {
   stopPlaybackIfNeeded();
-  const tun = DB.tunings.find((item) => item.id === tuningId) || DB.tunings[0];
+  const tun = findTuningById(tuningId) || DB.tunings[0];
   setState({ stringCount: tun.stringsQ.length, tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
 }
 

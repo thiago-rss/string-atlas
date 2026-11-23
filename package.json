@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.4.0",
+  "version": "8.5.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.4.0: 39-Term Interactive Bilingual Glossary, Restructured 4-Level / 9-Chapter / 40-Lesson Curriculum, Mobile Audio Hardening & Vertical Mobile Neck)",
+  "description": "String Atlas — Modal Guitar Lab (v8.5.0: Advanced Luthier — A/B Tension Comparator with Truss-Rod Advisory & Persistent Saved Scordaturas)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

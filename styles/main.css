@@ -3202,3 +3202,101 @@ body[data-zen="true"] .header-menu-drawer {
   line-height: 1.45;
   color: var(--text-primary);
 }
+
+/* =========================================================================
+ * Phase 8.5 Additions: Advanced Luthier (A/B Tension Comparator & Saved Scordaturas)
+ * ========================================================================= */
+
+.custom-tuning-save-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.custom-tuning-save-bar .search-input {
+  flex: 1;
+  min-width: 190px;
+}
+
+.saved-scordaturas-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-scordaturas-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.saved-tun-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px 3px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.saved-tun-chip.is-active {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1px var(--accent-root);
+}
+
+.saved-tun-load {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 2px 0;
+}
+
+.saved-tun-del {
+  padding: 2px 6px;
+  font-size: 0.7rem;
+}
+
+.tension-compare-box {
+  margin-bottom: 14px;
+  padding: 13px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--accent-scale);
+  animation: saCompartmentReveal 0.18s ease-out;
+}
+
+.cmp-delta-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cmp-delta-pill.is-neutral {
+  background: rgba(154, 167, 184, 0.16);
+  color: var(--text-secondary);
+}
+
+.cmp-delta-pill.is-up {
+  background: rgba(229, 169, 85, 0.22);
+  color: var(--accent-root);
+}
+
+.cmp-delta-pill.is-down {
+  background: rgba(76, 201, 176, 0.2);
+  color: var(--accent-scale);
+}

@@ -7,6 +7,7 @@ import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
+import { loadCustomTunings, saveCustomTunings } from '../core/customTunings.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
 const STORAGE_KEY = 'string_atlas_prefs_v82';
@@ -64,7 +65,9 @@ const saved = loadSavedPrefs();
 const hashPayload = typeof window !== 'undefined' ? decodeSessionHash(window.location.hash) : null;
 
 const validScaleIds = new Set(DB.scales.map((s) => s.id));
-const validTuningIds = new Set(DB.tunings.map((t) => t.id));
+const initialCustomTunings = loadCustomTunings();
+const allInitialTunings = [...DB.tunings, ...initialCustomTunings];
+const validTuningIds = new Set(allInitialTunings.map((t) => t.id));
 const validChordIds = new Set(DB.chords.map((c) => c.id));
 const validRhythmIds = new Set(DB.rhythms.map((r) => r.id));
 const validVampIds = new Set(VAMP_PRESETS.map((v) => v.id));
@@ -72,7 +75,7 @@ const validVampIds = new Set(VAMP_PRESETS.map((v) => v.id));
 const resolvedTuningId = (hashPayload && validTuningIds.has(hashPayload.t))
   ? hashPayload.t
   : (validTuningIds.has(saved.tuningId) ? saved.tuningId : DB.tunings[0].id);
-const initialTuning = DB.tunings.find((t) => t.id === resolvedTuningId) || DB.tunings[0];
+const initialTuning = allInitialTunings.find((t) => t.id === resolvedTuningId) || DB.tunings[0];
 
 const resolvedRhythmId = (hashPayload && validRhythmIds.has(hashPayload.ry))
   ? hashPayload.ry
@@ -113,6 +116,7 @@ const state = {
   customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
+  customTunings: initialCustomTunings,
   stringCount: initialTuning.stringsQ.length,
   tuningId: initialTuning.id,
   customStringsQ: [...initialTuning.stringsQ],
@@ -256,6 +260,19 @@ const state = {
   tensionTargetLbs: 16.5,
   tensionPackId: initialGaugePack.id,
   tensionGauges: initialGaugePack.strings.map((x) => ({ ...x })),
+  tensionCompareOn: false,
+  tensionCompareB: {
+    label: 'Setup B',
+    tuningId: initialTuning.id,
+    stringsQ: [...initialTuning.stringsQ],
+    scalePresetId: initialTuning.stringsQ.length === 8 ? 'ms_255_280' : (initialTuning.stringsQ.length === 7 ? 'ms_255_270' : '27_0'),
+    scaleTrebleIn: initialTuning.stringsQ.length === 8 ? 25.5 : (initialTuning.stringsQ.length === 7 ? 25.5 : 27.0),
+    scaleBassIn: initialTuning.stringsQ.length === 8 ? 28.0 : (initialTuning.stringsQ.length === 7 ? 27.0 : 27.0),
+    multiScale: initialTuning.stringsQ.length >= 7,
+    materialId: 'nickel_plated',
+    packId: initialGaugePack.id,
+    gauges: initialGaugePack.strings.map((x) => ({ ...x }))
+  },
 
   // Oblique Lab
   obliqueIndex: 0
@@ -331,8 +348,16 @@ export function getActiveScale() {
   return DB.scales.find((s) => s.id === state.scaleId) || DB.scales[0];
 }
 
-export function getActiveTuning() {
-  return DB.tunings.find((t) => t.id === state.tuningId) || DB.tunings[0];
+export function getAllTunings(st = state) {
+  return [...DB.tunings, ...(st.customTunings || [])];
+}
+
+export function findTuningById(id, st = state) {
+  return getAllTunings(st).find((t) => t.id === id) || null;
+}
+
+export function getActiveTuning(st = state) {
+  return findTuningById(st.tuningId, st) || DB.tunings[0];
 }
 
 function recomputeVoicings() {
@@ -425,6 +450,9 @@ export function setState(patch) {
 
   if ('snapshots' in patch) {
     saveSnapshots(state.snapshots);
+  }
+  if ('customTunings' in patch) {
+    saveCustomTunings(state.customTunings);
   }
   if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch) {
     savePrefs(state);

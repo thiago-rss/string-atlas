@@ -8,7 +8,8 @@ import { execSync } from 'node:child_process';
 import { DB } from '../js/core/database.js';
 import { THEMES } from '../js/core/themes.js';
 import { getThemeBackdropWatermarkSvg, getThemeBrandMedallionSvg, getThemeCornerFiligreeSvg, getThemeFooterOrnamentSvg, getThemeHeaderBannerSvg, getThemePanelCrownSvg } from '../js/core/themeGraphics.js';
-import { calculateSetTension, getDefaultPackForCount, recommendBalancedGauges } from '../js/core/tensionEngine.js';
+import { calculateSetTension, classifyTrussRodDelta, compareTensionSetups, getDefaultPackForCount, recommendBalancedGauges } from '../js/core/tensionEngine.js';
+import { createCustomTuning, sanitizeCustomTuning } from '../js/core/customTunings.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
 import { VAMP_PRESETS, buildVampFromCurrentLab } from '../js/core/vampEngine.js';
@@ -49,6 +50,7 @@ const jsFiles = [
   'js/core/i18n.js',
   'js/core/themes.js',
   'js/core/themeGraphics.js',
+  'js/core/customTunings.js',
   'js/core/tensionEngine.js',
   'js/core/voicingEngine.js',
   'js/core/etudeGenerator.js',
@@ -375,6 +377,27 @@ STUDY_LESSONS.forEach((l, idx) => {
 });
 ok(`Validated ${GLOSSARY_TERMS.length} bilingual glossary terms & 4-level progressive curriculum (${STUDY_MODULES.length} chapters, ${STUDY_LESSONS.length} sequential lessons)`);
 
+// 5h. Unit-test Advanced Luthier (A/B Tension Comparator, Truss-Rod Advisory & Saved Scordaturas)
+const aStdPack = getDefaultPackForCount(6, 'a_standard');
+const cmpAB = compareTensionSetups(
+  { stringsQ: aStdTun.stringsQ, gauges: aStdPack.strings, scaleTrebleIn: 25.5, scaleBassIn: 25.5, multiScale: false },
+  { stringsQ: aStdTun.stringsQ, gauges: aStdPack.strings, scaleTrebleIn: 27.0, scaleBassIn: 27.0, multiScale: false }
+);
+if (cmpAB.deltaTotalLbs <= 8 || cmpAB.rows.length !== 6) {
+  fail(`Expected A Std 27.0" vs 25.5" to increase total tension > 8 lbs, got ${cmpAB.deltaTotalLbs.toFixed(1)} lbs`);
+}
+if (classifyTrussRodDelta(3.2) !== 'minimal' || classifyTrussRodDelta(12.0) !== 'slight' || classifyTrussRodDelta(-22.5) !== 'significant') {
+  fail('classifyTrussRodDelta thresholds mismatch');
+}
+const customScord = createCustomTuning({ name: 'Syrian Oud Bridge', stringsQ: [72, 82, 90, 100, 110, 120] });
+if (!customScord || !customScord.custom || customScord.stringsQ.length !== 6 || !customScord.id.startsWith('custom_tun_')) {
+  fail('createCustomTuning failed for 6-string custom scordatura');
+}
+if (sanitizeCustomTuning({ stringsQ: [80, 90] }) !== null) {
+  fail('sanitizeCustomTuning should reject invalid < 6 string arrays');
+}
+ok(`Unit-tested Advanced Luthier (A/B Comparator Δ=+${cmpAB.deltaTotalLbs.toFixed(1)} lbs for 25.5"→27.0", Truss Advisory & Saved Scordaturas)`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -389,4 +412,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.4 integrity checks passed.');
+console.log('\nAll String Atlas v8.5 integrity checks passed.');

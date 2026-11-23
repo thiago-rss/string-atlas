@@ -431,3 +431,58 @@ export function recommendBalancedGauges({
 
   return result;
 }
+
+/**
+ * Classifies total neck-load delta (lbs) into practical luthier truss-rod guidance.
+ */
+export function classifyTrussRodDelta(deltaTotalLbs) {
+  const absDelta = Math.abs(deltaTotalLbs);
+  if (absDelta < 7.5) return 'minimal';     // Usually no truss-rod turn needed
+  if (absDelta < 18.0) return 'slight';     // Possible 1/8 to 1/4 turn check
+  return 'significant';                     // Truss rod + intonation setup recommended
+}
+
+/**
+ * Side-by-Side A/B Physical Tension Comparator.
+ * Compares Setup A (active instrument) vs Setup B (reference/target scale, gauge pack, alloy, or tuning).
+ */
+export function compareTensionSetups(setupA, setupB) {
+  const calcA = calculateSetTension(setupA);
+  const calcB = calculateSetTension(setupB);
+
+  const deltaTotalLbs = calcB.totalLbs - calcA.totalLbs;
+  const deltaTotalKg = deltaTotalLbs * LBS_TO_KG;
+  const deltaTotalPct = calcA.totalLbs > 0 ? (deltaTotalLbs / calcA.totalLbs) * 100 : 0;
+  const deltaAvgLbs = calcB.avgLbs - calcA.avgLbs;
+  const deltaBalance = calcB.balanceScore - calcA.balanceScore;
+  const trussAdvisory = classifyTrussRodDelta(deltaTotalLbs);
+
+  const maxCount = Math.max(calcA.displayRows.length, calcB.displayRows.length);
+  const rows = [];
+
+  for (let i = 0; i < maxCount; i += 1) {
+    const rowA = calcA.displayRows[i] || null;
+    const rowB = calcB.displayRows[i] || null;
+    const deltaLbs = (rowA && rowB) ? (rowB.lbs - rowA.lbs) : null;
+    rows.push({
+      guitarStr: i + 1,
+      rowA,
+      rowB,
+      deltaLbs,
+      deltaKg: deltaLbs !== null ? deltaLbs * LBS_TO_KG : null
+    });
+  }
+
+  return {
+    calcA,
+    calcB,
+    rows,
+    deltaTotalLbs,
+    deltaTotalKg,
+    deltaTotalPct,
+    deltaAvgLbs,
+    deltaAvgKg: deltaAvgLbs * LBS_TO_KG,
+    deltaBalance,
+    trussAdvisory
+  };
+}

@@ -12,7 +12,7 @@ import { STUDY_LESSONS } from '../core/studyGuide.js';
 import { SCALA_PRESETS } from '../core/scalaEngine.js';
 import { GLOSSARY_TERMS } from '../core/glossary.js';
 import { t } from '../core/i18n.js';
-import { getState, setState } from '../state/store.js';
+import { findTuningById, getAllTunings, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 import { rhythmEngine } from '../audio/rhythmEngine.js';
 import { stopEtudePlayback } from './etudeView.js';
@@ -38,7 +38,7 @@ const TOOL_COMMANDS = [
 /**
  * Builds a unified searchable command index across the entire String Atlas studio.
  */
-export function buildCommandIndex(lang = 'pt') {
+export function buildCommandIndex(lang = 'pt', customTunings = []) {
   const isEn = lang === 'en';
   const items = [];
 
@@ -70,13 +70,13 @@ export function buildCommandIndex(lang = 'pt') {
     });
   });
 
-  // 3. Tunings (39 across 6/7/8 strings)
-  DB.tunings.forEach((tun) => {
+  // 3. Tunings (39 built-in + saved custom scordaturas)
+  [...customTunings, ...DB.tunings].forEach((tun) => {
     items.push({
       uid: `tuning:${tun.id}`,
       type: 'tuning',
       badge: `${tun.stringsQ.length}${t(lang, 'strSuffix')}`,
-      icon: '🎸',
+      icon: tun.custom ? '✦' : '🎸',
       title: isEn ? tun.nameEn : tun.namePt,
       sub: tun.short,
       search: `${tun.namePt} ${tun.nameEn} ${tun.short} ${tun.stringsQ.length}c tuning afinacao`.toLowerCase(),
@@ -159,20 +159,22 @@ export function buildCommandIndex(lang = 'pt') {
 }
 
 let paletteHighlightIdx = 0;
-let cachedIndexLang = null;
+let cachedIndexKey = null;
 let cachedIndex = [];
 
-function getIndex(lang) {
-  if (cachedIndexLang !== lang) {
-    cachedIndex = buildCommandIndex(lang);
-    cachedIndexLang = lang;
+function getIndex(state) {
+  const customKey = (state.customTunings || []).map((c) => `${c.id}:${c.short}`).join('|');
+  const key = `${state.lang}::${customKey}`;
+  if (cachedIndexKey !== key) {
+    cachedIndex = buildCommandIndex(state.lang, state.customTunings || []);
+    cachedIndexKey = key;
   }
   return cachedIndex;
 }
 
 function getFilteredCommands(state) {
   const q = (state.paletteQuery || '').trim().toLowerCase();
-  const idx = getIndex(state.lang);
+  const idx = getIndex(state);
   if (!q) {
     // Curated quick launch defaults when search is empty
     return idx.filter((it) => it.type === 'tool' || it.type === 'theme').slice(0, 14);
@@ -198,7 +200,7 @@ export function executeCommandItem(item) {
   }
 
   if (item.type === 'tuning') {
-    const tun = DB.tunings.find((x) => x.id === item.payload.tuningId);
+    const tun = findTuningById(item.payload.tuningId);
     if (!tun) return;
     setState({
       stringCount: tun.stringsQ.length,

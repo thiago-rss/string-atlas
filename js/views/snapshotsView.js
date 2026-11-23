@@ -7,7 +7,8 @@ import { qToNoteName } from '../core/theory24.js';
 import { encodeSessionHash, extractShareablePayload } from '../core/sessionCodec.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { t } from '../core/i18n.js';
-import { getActiveScale, getActiveTuning, getEffectiveFretZoom, getEffectiveOrientation, getState, setState } from '../state/store.js';
+import { sanitizeCustomTuning } from '../core/customTunings.js';
+import { findTuningById, getActiveScale, getActiveTuning, getEffectiveFretZoom, getEffectiveOrientation, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 import { toggleVampPlayback, stopVampPlayback } from './vampView.js';
 
@@ -99,9 +100,10 @@ export function renderSnapshotsDrawer(state) {
     } else if (act === 'exportBackup') {
       const bundle = {
         app: 'string-atlas',
-        version: '6.0.0',
+        version: '8.5.0',
         exportedAt: new Date().toISOString(),
         snapshots: st.snapshots || [],
+        customTunings: st.customTunings || [],
         completedLessons: st.completedLessons || [],
         earStats: st.earStats || { correct: 0, total: 0, streak: 0, bestStreak: 0 }
       };
@@ -136,6 +138,7 @@ export function renderSnapshotsDrawer(state) {
           const parsed = JSON.parse(String(reader.result || '{}'));
           const patch = {};
           if (Array.isArray(parsed.snapshots)) patch.snapshots = parsed.snapshots.slice(0, 24);
+          if (Array.isArray(parsed.customTunings)) patch.customTunings = parsed.customTunings.map((item, idx) => sanitizeCustomTuning(item, idx)).filter(Boolean).slice(0, 32);
           if (Array.isArray(parsed.completedLessons)) patch.completedLessons = parsed.completedLessons;
           if (parsed.earStats && typeof parsed.earStats === 'object') patch.earStats = parsed.earStats;
           setState(patch);
@@ -153,7 +156,7 @@ function applySnapshotPayload(p) {
   synthEngine.stopScaleSequence();
   synthEngine.stopEtudeSequencer();
 
-  const tun = DB.tunings.find((x) => x.id === p.t) || DB.tunings[0];
+  const tun = findTuningById(p.t) || DB.tunings[0];
   const rhy = DB.rhythms.find((x) => x.id === p.ry) || DB.rhythms[0];
   const vp = VAMP_PRESETS.find((x) => x.id === p.vp) || VAMP_PRESETS[0];
 
