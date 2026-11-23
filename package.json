@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.3.0",
+  "version": "8.4.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.3.0: Mobile/iOS/Bluetooth Audio Hardening, Multi-Channel Interface Ch1/Ch2/L+R & Anti-Burst Sequencer Recovery)",
+  "description": "String Atlas — Modal Guitar Lab (v8.4.0: 39-Term Interactive Bilingual Glossary, Restructured 4-Level / 9-Chapter / 40-Lesson Curriculum, Mobile Audio Hardening & Vertical Mobile Neck)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

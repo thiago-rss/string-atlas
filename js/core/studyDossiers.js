@@ -1,5 +1,5 @@
 /**
- * Complete Bilingual Study Dossiers v8.0 (32 Matching Entries for STUDY_LESSONS)
+ * Complete Bilingual Study Dossiers v8.4 (40 Matching Entries for STUDY_LESSONS)
  */
 
 export const STUDY_DOSSIERS = {
@@ -674,5 +674,173 @@ export const STUDY_DOSSIERS = {
     "experimentPt": "Experimente a Paleta de Comandos (⌘K) para saltar de Athar Kurd para qualquer outra escala ou design sem tirar a mão da guitarra.",
     "experimentEn": "Use the Command Palette (⌘K) to jump from Athar Kurd to any other scale, tuning, or visual world in seconds.",
     "repertoire": "Farid al-Atrash · Marcel Khalife · String Atlas Complete Studio"
+  },
+  "sg_00a_modal_vs_tonal": {
+    "tagsPt": [
+      "Nível 1",
+      "Modalismo",
+      "Drone"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "Modal",
+      "Drone"
+    ],
+    "structurePt": "O modo Dórico (1 · 2 · ♭3 · 4 · 5 · 6 · ♭7) difere do menor natural (Eólio) por apenas uma nota: a 6ª maior (Si natural em Ré). Esse único grau ilumina toda a escala.",
+    "structureEn": "Dorian (1 · 2 · ♭3 · 4 · 5 · 6 · ♭7) differs from natural minor (Aeolian) by a single pitch: the major 6th (B natural in D), brightening the entire minor field.",
+    "temperamentPt": "100% 12-TET em E Standard — foco total na escuta intervalar sobre o bordão (Drone).",
+    "temperamentEn": "Pure 12-TET in E Standard — pure focus on interval color over a sustained Drone.",
+    "pitfallPt": "Armadilha comum: subir e descer a escala rápido sem parar sobre a 6ª maior para realmente ouvir sua relação com a tônica.",
+    "pitfallEn": "Common pitfall: running up and down quickly without resting on the major 6th long enough to feel its gravity against the tonic.",
+    "experimentPt": "Improvise usando apenas 4 notas (Ré, Fá, Lá, Si) na região média do braço sobre o Drone.",
+    "experimentEn": "Improvise using just 4 notes (D, F, A, B) in the middle register over the Drone.",
+    "repertoire": "Miles Davis — So What · Santana — Oye Como Va · Carlos Santana / Grant Green"
+  },
+  "sg_00b_phrygian_lydian_poles": {
+    "tagsPt": [
+      "Nível 1",
+      "Frígio ♭2",
+      "Lídio ♯4"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "Phrygian ♭2",
+      "Lydian ♯4"
+    ],
+    "structurePt": "Na ordem de brilho modal (Lídio → Jônio → Mixolídio → Dórico → Eólio → Frígio → Lócrio), Lídio e Frígio representam os dois grandes polos expressivos estáveis com 5ª justa.",
+    "structureEn": "Along the modal brightness spectrum, Lydian (♯4) and Phrygian (♭2) represent the two sharpest stable poles that still retain a perfect 5th.",
+    "temperamentPt": "12-TET nativo; a proximidade de semitom 1–♭2 no Frígio cria tensão imediata mesmo com som limpo.",
+    "temperamentEn": "Native 12-TET; Phrygian’s 1–♭2 semitone rub creates immediate drama even on a clean tone.",
+    "pitfallPt": "Armadilha comum: pensar em 'Mi Frígio é a escala de Dó Maior' e acabar resolvendo na nota Dó em vez de Mi.",
+    "pitfallEn": "Common pitfall: thinking 'E Phrygian is C Major' and accidentally resolving phrases onto C instead of E.",
+    "experimentPt": "Crie um riff de 2 compassos alternando a 6ª corda solta (Mi) com Fá (casa 1) e Sol (casa 3).",
+    "experimentEn": "Craft a 2-bar riff alternating open 6th-string E against F (fret 1) and G (fret 3).",
+    "repertoire": "Metallica — Wherever I May Roam · Joe Satriani — Flying in a Blue Dream · Paco de Lucía"
+  },
+  "sg_00c_closed_shapes_pent": {
+    "tagsPt": [
+      "Nível 1",
+      "Forma Fechada",
+      "In-Sen"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "Closed Shape",
+      "In-Sen"
+    ],
+    "structurePt": "Escala In-Sen (1 · ♭2 · 4 · 5 · ♭7): pentatônica semitonal japonesa que troca a ♭3 da pentatônica menor pela ♭2, gerando amplo salto expressivo até a 4ª justa.",
+    "structureEn": "In-Sen (1 · ♭2 · 4 · 5 · ♭7): hemitonic Japanese pentatonic swapping minor pentatonic’s ♭3 for ♭2, creating a striking leap up to the 4th.",
+    "temperamentPt": "12-TET padrão; a ausência de 3ª torna a escala ambígua e excelente para sobreposições modais.",
+    "temperamentEn": "Standard 12-TET; omitting the 3rd makes In-Sen ambiguous and wonderfully adaptable over modal vamps.",
+    "pitfallPt": "Armadilha comum: deslizar a mão para fora da janela fechada em vez de enxergar todas as notas nas 6 cordas dentro de 5 casas.",
+    "pitfallEn": "Common pitfall: drifting out of the closed window instead of mapping all 6 strings inside a compact 5-fret span.",
+    "experimentPt": "Mova a Janela Fechada +2 casas e transponha o mesmo desenho de In-Sen para Si sem mudar um dedo.",
+    "experimentEn": "Shift the Closed Window +2 frets and transpose the exact same In-Sen shape to B without changing a finger.",
+    "repertoire": "Toru Takemitsu · Marty Friedman · Allan Holdsworth · Boris"
+  },
+  "sg_00d_cents_intervals_ear": {
+    "tagsPt": [
+      "Nível 1",
+      "Cents (¢)",
+      "Harmônicos"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "Cents (¢)",
+      "Harmonics"
+    ],
+    "structurePt": "Cada semitom equivale a 100¢ (oitava = 1200¢). Entender cents permite comparar qualquer escala do mundo, microtons 24-TET (50¢) e harmônicos naturais.",
+    "structureEn": "Every semitone spans 100¢ (octave = 1200¢). Thinking in cents lets you compare every world tuning, 24-TET quarter-tones (50¢), and natural harmonics.",
+    "temperamentPt": "Harmônicos naturais obedecem à Entonação Justa: 3º parcial = +2¢ (5ª justa), 5º parcial = −14¢ (3ª maior pura), 7º parcial = −31¢ (7ª harmônica).",
+    "temperamentEn": "Natural harmonics follow Just Intonation: 3rd partial = +2¢ (pure 5th), 5th partial = −14¢ (pure major 3rd), 7th partial = −31¢.",
+    "pitfallPt": "Armadilha comum: pressionar a corda até o traste ao tentar soar um harmônico — apenas encoste levemente o dedo sobre o ponto nodal e solte logo após palhetar.",
+    "pitfallEn": "Common pitfall: pressing the string down to the wood for a harmonic — lightly touch the nodal point and lift immediately after plucking.",
+    "experimentPt": "Alterne harmônicos nas casas 12, 7 e 5 com notas presas em Dó Lídio para sentir o brilho vítreo dos parciais.",
+    "experimentEn": "Weave 12th-, 7th-, and 5th-fret harmonics into fretted C Lydian melodies to hear pure overtone shimmer.",
+    "repertoire": "Jaco Pastorius · Lenny Breau · Quinteto Armorial · Brian Eno"
+  },
+  "sg_00e_harmonic_minor_hijaz": {
+    "tagsPt": [
+      "Nível 1",
+      "Ponte 12-TET",
+      "Jins Hijaz"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "12-TET Bridge",
+      "Jins Hijaz"
+    ],
+    "structurePt": "5º modo da Menor Harmônica (1 · ♭2 · 3 · 4 · 5 · ♭6 · ♭7). O salto de 3 casas entre ♭2 e 3ª maior forma o tetracorde Hijaz em versão 12-TET.",
+    "structureEn": "5th mode of Harmonic Minor (1 · ♭2 · 3 · 4 · 5 · ♭6 · ♭7). The 3-fret leap between ♭2 and major 3rd forms the 12-TET Hijaz tetrachord.",
+    "temperamentPt": "100% 12-TET; ponte perfeita antes de aprender a 6ª neutra (6½♭) do Maqam Hijaz tradicional no Nível 2.",
+    "temperamentEn": "Pure 12-TET; the ideal stepping stone before adding the neutral 6th (6½♭) of traditional Maqam Hijaz in Level 2.",
+    "pitfallPt": "Armadilha comum: tocar apenas o trecho grave e esquecer de ligar o 4º grau (Lá) à ♭6 (Dó) e ♭7 (Ré).",
+    "pitfallEn": "Common pitfall: camping on the bottom 4 notes and neglecting how the 4th degree (A) links smoothly to ♭6 (C) and ♭7 (D).",
+    "experimentPt": "Alterne o acorde Mi maior (E) com Fá maior (F) deslizando a mesma forma 1 casa acima sobre o braço.",
+    "experimentEn": "Alternate E major and F major by sliding the exact same chord grip 1 fret up and back.",
+    "repertoire": "Paco de Lucía · Klezmer Freygish · Opeth · Yngwie Malmsteen"
+  },
+  "sg_00f_maqam_kurd_nahawand": {
+    "tagsPt": [
+      "Nível 1",
+      "Maqam 12-TET",
+      "Maqsum"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "12-TET Maqam",
+      "Maqsum"
+    ],
+    "structurePt": "Maqam Kurd empilha Jins Kurd na tônica (D–E♭–F–G) + Jins Nahawand na 4ª justa (G–A–B♭–C–D). A arquitetura de Ajnas cria centros melódicos claros sem harmonia funcional.",
+    "structureEn": "Maqam Kurd stacks Jins Kurd on the tonic (D–E♭–F–G) + Jins Nahawand on the 4th (G–A–B♭–C–D), building clear melodic phrasing without functional chords.",
+    "temperamentPt": "100% 12-TET — ideal para absorver o vocabulário árabe (Qarar, Ghammaz, Iqa’) antes de introduzir micro-bends.",
+    "temperamentEn": "Pure 12-TET — ideal for absorbing Arabic vocabulary (Qarar, Ghammaz, Iqa’) before introducing micro-bends.",
+    "pitfallPt": "Armadilha comum: ignorar o pulso do Dum no Iqa’ Maqsum (tempos 1 e 3) e tocar desconectado da percussão.",
+    "pitfallEn": "Common pitfall: ignoring Maqsum’s Dum accents (beats 1 and 3) and floating off the rhythmic pocket.",
+    "experimentPt": "Toque uma frase de 2 compassos terminando no Ghammaz (Sol) e responda nos próximos 2 compassos resolvendo no Qarar (Ré).",
+    "experimentEn": "Play a 2-bar question ending on the Ghammaz (G) and answer over the next 2 bars resolving home to the Qarar (D).",
+    "repertoire": "Fairuz — Habaytak Bissayf · Le Trio Joubran · Riyad al-Sunbati"
+  },
+  "sg_00g_intro_quartal_open": {
+    "tagsPt": [
+      "Nível 1",
+      "Quintal",
+      "Sem Terça"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "Quintal",
+      "No Third"
+    ],
+    "structurePt": "Voicing 1–5–9 (duas quintas justas empilhadas). Por eliminar a 3ª, soa aberto, moderno e evita choques harmônicos com notas de passagem ou microtons.",
+    "structureEn": "1–5–9 voicing (two stacked perfect fifths). Omitting the 3rd keeps harmony open, spacious, and clash-free under modal melodies.",
+    "temperamentPt": "Quintas justas têm quase zero erro em 12-TET (−2¢), soando incrivelmente limpas tanto em guitarra clean quanto com crunch/reverb.",
+    "temperamentEn": "Perfect fifths sit within 2¢ of pure intonation in 12-TET, ringing crystal-clear on both clean and driven guitar tones.",
+    "pitfallPt": "Armadilha comum: apertar demais os dedos nos voicings abertos — relaxe o polegar atrás do braço para alcançar o espaçamento de 4 casas confortavelmente.",
+    "pitfallEn": "Common pitfall: squeezing too hard on wide fifth stretches — drop the thumb behind the neck for relaxed 4-fret reach.",
+    "experimentPt": "Experimente o timbre 'Ambient Swell' no compartimento Áudio & FX enquanto arpeja acordes quintais.",
+    "experimentEn": "Try the 'Ambient Swell' preset inside Audio & FX while slowly arpeggiating open quintal voicings.",
+    "repertoire": "The Police (Andy Summers) · Radiohead · Bill Frisell · Explosions in the Sky"
+  },
+  "sg_00h_intro_odd_meters": {
+    "tagsPt": [
+      "Nível 1",
+      "7/8 Aksak",
+      "Malfuf 3+3+2"
+    ],
+    "tagsEn": [
+      "Level 1",
+      "7/8 Aksak",
+      "Malfuf 3+3+2"
+    ],
+    "structurePt": "Compassos ímpares (Aksak) não são contas difíceis: são apenas blocos simples de 2 e 3 pulsos combinados. 7/8 (2+2+3) é um dos ciclos mais naturais e dançantes do mundo.",
+    "structureEn": "Odd meters (Aksak) aren’t complex math — they are simple combinations of 2- and 3-pulse cells. 7/8 (2+2+3) is one of the world’s most natural grooves.",
+    "temperamentPt": "Use em Ré Mixolídio (12-TET) para focar 100% na fluidez rítmica da mão direita.",
+    "temperamentEn": "Practice in D Mixolydian (12-TET) so 100% of your focus stays on right-hand rhythmic pocket.",
+    "pitfallPt": "Armadilha comum: apressar o último grupo de 3 colcheias tentando encurtá-lo para um 4/4 comum.",
+    "pitfallEn": "Common pitfall: rushing the closing 3-eighth group and collapsing back into 4/4.",
+    "experimentPt": "Depois de dominar 7/8, troque o ciclo para Malfuf (3+3+2) e ouça imediatamente o balanço do baião brasileiro!",
+    "experimentEn": "Once comfortable in 7/8, switch the rhythm to Malfuf (3+3+2) and feel the unmistakable pulse of Brazilian baião!",
+    "repertoire": "Pink Floyd — Money (7/4) · Balkan Rachenitsa · Hermeto Pascoal · Tool"
   }
 };

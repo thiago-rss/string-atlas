@@ -1,11 +1,13 @@
 /**
- * Complete Progressive Experimental Study Guide View v8.0 (8 Chapters · 32 Bilingual Lessons)
- * - Persistent completion progress in localStorage (100% backwards-compatible with v4–v7 IDs)
- * - Chapter horizontal pill rail + status filter (All / Pending / Completed)
- * - 1-click "Load Lesson Preset" (including Scala .scl projection for Ch. 7!) + quick lab jumps
+ * Restructured Progressive Study Guide View v8.4
+ * - 4 Progressive Levels (Foundation -> Intermediate -> Advanced -> Master) · 9 Chapters · 40 Lessons
+ * - "Next Recommended Lesson" Banner guiding learners step-by-step from #01 to #40
+ * - Clickable Glossary Term pills linking straight into the interactive Glossary
+ * - 100% backwards-compatible localStorage progress for all 32 original lesson IDs
  */
 import { DB } from '../core/database.js';
-import { STUDY_LESSONS, STUDY_MODULES } from '../core/studyGuide.js';
+import { getGlossaryTermById } from '../core/glossary.js';
+import { STUDY_LESSONS, STUDY_LEVELS, STUDY_MODULES } from '../core/studyGuide.js';
 import { STUDY_DOSSIERS } from '../core/studyDossiers.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { t } from '../core/i18n.js';
@@ -15,6 +17,13 @@ import { toggleEtudePlayback, stopEtudePlayback } from './etudeView.js';
 import { toggleRhythmPlayback } from './rhythmView.js';
 import { toggleVampPlayback, stopVampPlayback } from './vampView.js';
 import { startLineMode } from './lineModeView.js';
+
+const LEVEL_META = {
+  foundation:   { pt: 'Nível 1 · Fundamentos', en: 'Level 1 · Foundation', cls: 'lvl-foundation' },
+  intermediate: { pt: 'Nível 2 · Intermediário', en: 'Level 2 · Intermediate', cls: 'lvl-intermediate' },
+  advanced:     { pt: 'Nível 3 · Avançado', en: 'Level 3 · Advanced', cls: 'lvl-advanced' },
+  master:       { pt: 'Nível 4 · Mestre', en: 'Level 4 · Master', cls: 'lvl-master' }
+};
 
 export function renderStudyGuideView(state) {
   const container = document.getElementById('tabStudyGuide');
@@ -26,9 +35,24 @@ export function renderStudyGuideView(state) {
   const doneCount = STUDY_LESSONS.filter((l) => doneSet.has(l.id)).length;
   const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
 
-  let visibleLessons = state.studyModuleFilter === 'all'
-    ? STUDY_LESSONS
-    : STUDY_LESSONS.filter((l) => l.moduleId === state.studyModuleFilter);
+  // Find the next sequential uncompleted lesson to guide beginners immediately
+  const nextRecommended = STUDY_LESSONS.find((l) => !doneSet.has(l.id)) || null;
+
+  const levelFilter = state.studyLevelFilter || 'all';
+  const visibleModules = levelFilter === 'all'
+    ? STUDY_MODULES
+    : STUDY_MODULES.filter((m) => m.level === levelFilter);
+
+  const validModIds = new Set(visibleModules.map((m) => m.id));
+  const activeModFilter = state.studyModuleFilter !== 'all' && validModIds.has(state.studyModuleFilter)
+    ? state.studyModuleFilter
+    : 'all';
+
+  let visibleLessons = STUDY_LESSONS.filter((l) => {
+    if (levelFilter !== 'all' && l.level !== levelFilter) return false;
+    if (activeModFilter !== 'all' && l.moduleId !== activeModFilter) return false;
+    return true;
+  });
 
   if (state.studyStatusFilter === 'pending') {
     visibleLessons = visibleLessons.filter((l) => !doneSet.has(l.id));
@@ -36,23 +60,52 @@ export function renderStudyGuideView(state) {
     visibleLessons = visibleLessons.filter((l) => doneSet.has(l.id));
   }
 
+  // Level filter strip
+  const levelPills = STUDY_LEVELS.map((lv) => {
+    const lvLessons = lv.id === 'all' ? STUDY_LESSONS : STUDY_LESSONS.filter((l) => l.level === lv.id);
+    const lvDone = lvLessons.filter((l) => doneSet.has(l.id)).length;
+    return `
+      <button type="button" class="btn-pill ${levelFilter === lv.id ? 'active-teal' : ''}" data-sg-action="filterLevel" data-val="${lv.id}">
+        ${isEn ? lv.labelEn : lv.labelPt} <span class="cat-count">${lvDone}/${lvLessons.length}</span>
+      </button>
+    `;
+  }).join('');
+
+  // Chapter rail scoped to the active level
   const chapterPills = [
-    `<button type="button" class="btn-pill ${state.studyModuleFilter === 'all' ? 'active' : ''}" data-sg-action="filterMod" data-val="all">${t(state.lang, 'sgAllChapters')} (${totalCount})</button>`,
-    ...STUDY_MODULES.map((m) => {
+    `<button type="button" class="btn-pill ${activeModFilter === 'all' ? 'active' : ''}" data-sg-action="filterMod" data-val="all">${t(state.lang, 'sgAllChapters')} (${visibleModules.reduce((acc, m) => acc + STUDY_LESSONS.filter((l) => l.moduleId === m.id).length, 0)})</button>`,
+    ...visibleModules.map((m) => {
       const label = isEn ? m.titleEn : m.titlePt;
       const mLessons = STUDY_LESSONS.filter((l) => l.moduleId === m.id);
       const mDone = mLessons.filter((l) => doneSet.has(l.id)).length;
       return `
-        <button type="button" class="btn-pill ${state.studyModuleFilter === m.id ? 'active' : ''}" data-sg-action="filterMod" data-val="${m.id}">
+        <button type="button" class="btn-pill ${activeModFilter === m.id ? 'active' : ''}" data-sg-action="filterMod" data-val="${m.id}">
           ${label} <span class="cat-count">${mDone}/${mLessons.length}</span>
         </button>
       `;
     })
   ].join('');
 
-  const activeChapterMeta = state.studyModuleFilter !== 'all'
-    ? STUDY_MODULES.find((m) => m.id === state.studyModuleFilter)
+  const activeChapterMeta = activeModFilter !== 'all'
+    ? STUDY_MODULES.find((m) => m.id === activeModFilter)
     : null;
+
+  const nextBannerHtml = nextRecommended ? `
+    <div class="sg-next-banner">
+      <div class="sg-next-info">
+        <span class="control-label">${t(state.lang, 'sgNextRecommended')}</span>
+        <strong>#${String(nextRecommended.number).padStart(2, '0')} · ${isEn ? nextRecommended.titleEn : nextRecommended.titlePt}</strong>
+        <span class="mono-tag">${isEn ? LEVEL_META[nextRecommended.level].en : LEVEL_META[nextRecommended.level].pt} · ${nextRecommended.duration}</span>
+      </div>
+      <button type="button" class="btn-primary" data-sg-action="applyLesson" data-id="${nextRecommended.id}">
+        ▶ ${t(state.lang, 'sgStartNextBtn')}
+      </button>
+    </div>
+  ` : `
+    <div class="sg-next-banner is-complete">
+      <strong>✦ ${t(state.lang, 'sgAllCompleteBanner')}</strong>
+    </div>
+  `;
 
   const cardsHtml = visibleLessons.length === 0
     ? `<p class="empty-hint">${t(state.lang, 'sgNoFilteredLessons')}</p>`
@@ -62,9 +115,20 @@ export function renderStudyGuideView(state) {
         const isActive = state.activeLessonId === lesson.id;
         const isDossierOpen = state.openDossierLessonId === lesson.id;
         const tags = isEn ? (dossier?.tagsEn || []) : (dossier?.tagsPt || []);
+        const lvlInfo = LEVEL_META[lesson.level] || LEVEL_META.foundation;
 
         const tunObj = DB.tunings.find((x) => x.id === lesson.preset.tuningId);
         const tunBadge = tunObj ? tunObj.short : lesson.preset.tuningId;
+
+        const glChipsHtml = (lesson.glossaryIds || [])
+          .map((gid) => getGlossaryTermById(gid))
+          .filter(Boolean)
+          .map((term) => `
+            <button type="button" class="btn-mini gl-link-chip" data-sg-action="openGlossary" data-gid="${term.id}" title="${t(state.lang, 'sgGlossaryLinkTip')}">
+              📖 ${(isEn ? term.termEn : term.termPt).split('(')[0].trim()}
+            </button>
+          `)
+          .join('');
 
         const dossierHtml = isDossierOpen && dossier ? `
           <div class="sg-dossier-box">
@@ -96,9 +160,9 @@ export function renderStudyGuideView(state) {
             <div class="sg-card-top">
               <div class="sg-card-meta">
                 <span class="sg-num">#${String(lesson.number).padStart(2, '0')}</span>
+                <span class="sg-level-badge ${lvlInfo.cls}">${isEn ? lvlInfo.en : lvlInfo.pt}</span>
                 <span class="soft-tag">${lesson.duration}</span>
                 <span class="soft-tag" style="color:var(--accent-root)">${tunBadge}</span>
-                <span class="soft-tag">${lesson.glossaryTerm}</span>
               </div>
               <button type="button" class="btn-mini ${isDone ? 'active-mini' : ''}" data-sg-action="toggleDone" data-id="${lesson.id}">
                 ${isDone ? t(state.lang, 'sgCompleted') : t(state.lang, 'sgMarkDone')}
@@ -115,9 +179,11 @@ export function renderStudyGuideView(state) {
               <strong>${t(state.lang, 'sgEarTipLabel')}:</strong> ${isEn ? lesson.earTipEn : lesson.earTipPt}
             </p>
 
-            <div class="tag-list" style="margin-bottom:10px">
+            <div class="tag-list" style="margin-bottom:6px">
               ${tags.map((tg) => `<span class="soft-tag">${tg}</span>`).join('')}
             </div>
+
+            ${glChipsHtml ? `<div class="pill-row" style="margin-bottom:8px">${glChipsHtml}</div>` : ''}
 
             <div class="sg-card-actions">
               <button type="button" class="btn-primary" data-sg-action="applyLesson" data-id="${lesson.id}">
@@ -154,7 +220,10 @@ export function renderStudyGuideView(state) {
         <div class="sg-progress-fill" style="width:${pct}%"></div>
       </div>
 
-      <div class="category-bar sg-chapter-rail" style="margin-top:12px">${chapterPills}</div>
+      ${nextBannerHtml}
+
+      <div class="category-bar sg-chapter-rail" style="margin-top:10px">${levelPills}</div>
+      <div class="category-bar sg-chapter-rail" style="margin-top:6px">${chapterPills}</div>
 
       ${activeChapterMeta ? `<p class="rhythm-note">${isEn ? activeChapterMeta.descEn : activeChapterMeta.descPt}</p>` : ''}
 
@@ -168,7 +237,9 @@ export function renderStudyGuideView(state) {
     const act = btn.dataset.sgAction;
     const st = getState();
 
-    if (act === 'filterMod') {
+    if (act === 'filterLevel') {
+      setState({ studyLevelFilter: btn.dataset.val, studyModuleFilter: 'all' });
+    } else if (act === 'filterMod') {
       setState({ studyModuleFilter: btn.dataset.val });
     } else if (act === 'filterStatus') {
       setState({ studyStatusFilter: btn.dataset.val });
@@ -181,6 +252,14 @@ export function renderStudyGuideView(state) {
     } else if (act === 'toggleDossier') {
       const id = btn.dataset.id;
       setState({ openDossierLessonId: st.openDossierLessonId === id ? null : id });
+    } else if (act === 'openGlossary') {
+      setState({
+        glossaryCategory: 'all',
+        glossarySearch: '',
+        glossaryFocusId: btn.dataset.gid,
+        activeTab: 'glossary',
+        workspaceOpen: true
+      });
     } else if (act === 'applyLesson') {
       applyLessonPreset(btn.dataset.id, null);
     } else if (act === 'openTool') {

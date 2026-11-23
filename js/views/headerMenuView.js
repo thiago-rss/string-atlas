@@ -87,6 +87,14 @@ export function renderHeaderMenuDrawer(state) {
           </span>
         </button>
 
+        <button type="button" class="hm-tile" data-hm-action="openGlossary">
+          <span class="hm-tile-icon">📖</span>
+          <span class="hm-tile-text">
+            <strong>${t(state.lang, 'hmGlossaryTitle')}</strong>
+            <small>${t(state.lang, 'hmGlossarySub')}</small>
+          </span>
+        </button>
+
         <button type="button" class="hm-tile" data-hm-action="openShortcuts">
           <span class="hm-tile-icon">?</span>
           <span class="hm-tile-text">
@@ -128,6 +136,8 @@ export function renderHeaderMenuDrawer(state) {
       setState({ headerMenuOpen: false, zenMode: !st.zenMode });
     } else if (act === 'toggleLang') {
       setState({ lang: st.lang === 'pt' ? 'en' : 'pt' });
+    } else if (act === 'openGlossary') {
+      setState({ headerMenuOpen: false, activeTab: 'glossary', workspaceOpen: true });
     } else if (act === 'openShortcuts') {
       setState({ headerMenuOpen: false, shortcutsOpen: true, paletteOpen: false });
     } else if (act === 'installPwa') {

@@ -22,7 +22,8 @@ import {
 import { buildEditorialPlateSvg, resolveCssVarsInSvg } from '../js/core/plateExporter.js';
 import { SCALA_PRESETS, exportToSclText, mapScalaToFretboard, parseSclText } from '../js/core/scalaEngine.js';
 import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js';
-import { STUDY_LESSONS, STUDY_MODULES } from '../js/core/studyGuide.js';
+import { STUDY_LESSONS, STUDY_LEVELS, STUDY_MODULES } from '../js/core/studyGuide.js';
+import { GLOSSARY_CATEGORIES, GLOSSARY_TERMS } from '../js/core/glossary.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
 import { analyzePitch24, buildConstraintFallbackChain, detectPitchYIN } from '../js/audio/pitchDetector.js';
 import { isBluetoothDeviceLabel } from '../js/audio/mobileAudioGuard.js';
@@ -60,6 +61,7 @@ const jsFiles = [
   'js/core/sessionCodec.js',
   'js/core/studyGuide.js',
   'js/core/studyDossiers.js',
+  'js/core/glossary.js',
   'js/audio/mobileAudioGuard.js',
   'js/audio/synthEngine.js',
   'js/audio/rhythmEngine.js',
@@ -77,6 +79,7 @@ const jsFiles = [
   'js/views/snapshotsView.js',
   'js/views/commandPaletteView.js',
   'js/views/studyGuideView.js',
+  'js/views/glossaryView.js',
   'js/views/lineModeView.js',
   'js/views/harmonyView.js',
   'js/views/etudeView.js',
@@ -351,6 +354,27 @@ if (!btDet.freq || Math.abs(btDet.freq - 110.0) > 0.6) {
 }
 ok('Unit-tested Mobile Audio Hardening (3-tier fallback, AirPods/BT detection & 16kHz HFP YIN)');
 
+// 5g. Validate Interactive Bilingual Glossary & 4-Level 40-Lesson Curriculum Contract
+const glCatIds = new Set(GLOSSARY_CATEGORIES.map((c) => c.id));
+const glIds = new Set();
+for (const g of GLOSSARY_TERMS) {
+  if (glIds.has(g.id)) fail(`Duplicate glossary term id: ${g.id}`);
+  glIds.add(g.id);
+  if (!glCatIds.has(g.category)) fail(`Glossary term ${g.id} unknown category: ${g.category}`);
+  if (!g.termPt || !g.termEn || !g.defPt || !g.defEn || !g.guitarTipPt || !g.guitarTipEn) {
+    fail(`Glossary term ${g.id} incomplete bilingual fields`);
+  }
+}
+const validLvlIds = new Set(STUDY_LEVELS.map((lv) => lv.id));
+STUDY_LESSONS.forEach((l, idx) => {
+  if (l.number !== idx + 1) fail(`Lesson ${l.id} has non-sequential number ${l.number} (expected ${idx + 1})`);
+  if (!validLvlIds.has(l.level)) fail(`Lesson ${l.id} has invalid level: ${l.level}`);
+  for (const gid of l.glossaryIds || []) {
+    if (!glIds.has(gid)) fail(`Lesson ${l.id} references unknown glossaryId: ${gid}`);
+  }
+});
+ok(`Validated ${GLOSSARY_TERMS.length} bilingual glossary terms & 4-level progressive curriculum (${STUDY_MODULES.length} chapters, ${STUDY_LESSONS.length} sequential lessons)`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -365,4 +389,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.3 integrity checks passed.');
+console.log('\nAll String Atlas v8.4 integrity checks passed.');

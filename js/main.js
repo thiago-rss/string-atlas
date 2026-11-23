@@ -33,6 +33,7 @@ import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
 import { renderThemeDrawer, cycleNextTheme, updateThemeHeaderButton } from './views/themeDrawerView.js';
 import { renderHeaderMenuDrawer } from './views/headerMenuView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
+import { renderGlossaryView, refreshGlossaryListInPlace } from './views/glossaryView.js';
 import {
   renderLineModeView,
   startLineMode,
@@ -95,6 +96,7 @@ const WORKSPACE_ZONES = [
     shortEn: 'Study',
     tools: [
       { id: 'study', labelKey: 'tabStudyGuide' },
+      { id: 'glossary', labelKey: 'tabGlossary' },
       { id: 'line', labelKey: 'tabLineMode' },
       { id: 'ear', labelKey: 'tabEarLab' }
     ]
@@ -117,6 +119,7 @@ const TAB_TO_SECTION_ID = {
   vamp: 'tabVamp',
   ear: 'tabEarLab',
   study: 'tabStudyGuide',
+  glossary: 'tabGlossary',
   line: 'tabLineMode',
   etude: 'tabEtude',
   harmony: 'tabHarmony',
@@ -261,6 +264,14 @@ function renderAll(state, patch = null) {
       refreshScaleBrowserInPlace(state);
       return;
     }
+    if (keys.every((k) => k === 'glossarySearch' || k === 'glossaryFocusId') && 'glossarySearch' in patch) {
+      refreshGlossaryListInPlace(state);
+      return;
+    }
+    if (keys.every((k) => ['glossaryCategory', 'glossarySearch', 'glossaryFocusId'].includes(k))) {
+      renderGlossaryView(state);
+      return;
+    }
     if (keys.length === 1 && keys[0] === 'rhythmBpm') {
       updateRhythmBadge(state);
       return;
@@ -298,6 +309,9 @@ function renderAll(state, patch = null) {
     if (keys.every((k) => k === 'activeTab' || k === 'workspaceOpen')) {
       renderLabTabs(state);
       renderMobileBottomNav(state);
+      if (state.activeTab === 'glossary' && state.glossaryFocusId) {
+        renderGlossaryView(state);
+      }
       return;
     }
     if (keys.length === 1 && keys[0] === 'zenMode') {
@@ -342,8 +356,9 @@ function renderAll(state, patch = null) {
       renderSnapshotsDrawer(state);
       return;
     }
-    if (keys.every((k) => ['studyModuleFilter', 'studyStatusFilter', 'openDossierLessonId', 'completedLessons'].includes(k))) {
+    if (keys.every((k) => ['studyLevelFilter', 'studyModuleFilter', 'studyStatusFilter', 'openDossierLessonId', 'completedLessons'].includes(k))) {
       renderStudyGuideView(state);
+  renderGlossaryView(state);
       return;
     }
     if (keys.every((k) => ['earMode', 'earIntervalSet', 'earScalePool', 'earQuestion', 'earSelectedId', 'earStats'].includes(k))) {
@@ -380,6 +395,7 @@ function renderAll(state, patch = null) {
   renderVampView(state);
   renderEarLabView(state);
   renderStudyGuideView(state);
+  renderGlossaryView(state);
   renderLineModeView(state);
   renderHarmonyView(state);
   renderEtudeView(state);

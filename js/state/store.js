@@ -210,9 +210,13 @@ const state = {
   scalaEditorOpen: false,
   scalaParseError: '',
 
-  // Phase 4 & 8: Complete 8-Chapter Progressive Study Guide
+  // Phase 8.4: Restructured 4-Level Study Guide (9 Chapters · 40 Lessons) & Glossary
+  studyLevelFilter: 'all', // 'all' | 'foundation' | 'intermediate' | 'advanced' | 'master'
   studyModuleFilter: 'all',
   studyStatusFilter: 'all', // 'all' | 'pending' | 'done'
+  glossaryCategory: 'all',
+  glossarySearch: '',
+  glossaryFocusId: null,
   activeLessonId: null,
   openDossierLessonId: null,
   completedLessons: Array.isArray(saved.completedLessons) ? saved.completedLessons : [],

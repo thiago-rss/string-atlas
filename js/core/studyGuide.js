@@ -1,80 +1,442 @@
 /**
- * String Atlas Complete Progressive Study Guide v8.0 (8 Chapters · 32 Bilingual Lessons PT/EN)
- * Contract: Lesson = Self-contained Preset + matching key in STUDY_DOSSIERS
+ * String Atlas Restructured Progressive Study Guide v8.4
+ * 4 Levels (Foundation -> Intermediate -> Advanced -> Master) · 9 Chapters · 40 Bilingual Lessons (PT/EN)
+ * Backwards-compatible: preserves all 32 original lesson IDs for localStorage progress.
  */
+
+export const STUDY_LEVELS = [
+  {
+    "id": "all",
+    "labelPt": "Todos os Níveis",
+    "labelEn": "All Levels"
+  },
+  {
+    "id": "foundation",
+    "labelPt": "Nível 1 · Fundamentos",
+    "labelEn": "Level 1 · Foundations"
+  },
+  {
+    "id": "intermediate",
+    "labelPt": "Nível 2 · Intermediário",
+    "labelEn": "Level 2 · Intermediate"
+  },
+  {
+    "id": "advanced",
+    "labelPt": "Nível 3 · Avançado",
+    "labelEn": "Level 3 · Advanced"
+  },
+  {
+    "id": "master",
+    "labelPt": "Nível 4 · Mestre & Fronteira",
+    "labelEn": "Level 4 · Master & Frontier"
+  }
+];
 
 export const STUDY_MODULES = [
   {
-    "id": "mod_maqam_24tet",
+    "id": "mod_foundations_modal",
     "number": 1,
-    "titlePt": "Cap. 1 · Maqamat & Microtonalidade 24-TET",
-    "titleEn": "Ch. 1 · Maqamat & 24-TET Microtonality",
-    "descPt": "Transferindo a teoria árabe de quartos de tom, Ajnas e Sayr para o braço da guitarra elétrica.",
-    "descEn": "Translating Arabic quarter-tone theory, Ajnas, and Sayr directly onto the electric guitar fretboard."
+    "level": "foundation",
+    "titlePt": "Cap. 1 · Fundamentos: Ouvido Modal, Braço & Drone",
+    "titleEn": "Ch. 1 · Foundations: Modal Ear, Neck & Drone",
+    "descPt": "Ponto de partida em E Standard e 12-TET: entenda o pensamento modal sobre drone, graus característicos, formas fechadas e leitura de cents.",
+    "descEn": "Starting point in E Standard & 12-TET: grasp modal thinking over drones, characteristic degrees, movable closed shapes, and reading cents."
+  },
+  {
+    "id": "mod_bridge_12tet",
+    "number": 2,
+    "level": "foundation",
+    "titlePt": "Cap. 2 · Ponte 12-TET: Tetracordes (Ajnas), Menor Harmônica & Ritmo",
+    "titleEn": "Ch. 2 · 12-TET Bridge: Tetrachords (Ajnas), Harmonic Minor & Rhythm",
+    "descPt": "Prepare o terreno antes dos microtons: 2ª aumentada, primeiros Maqamat 12-TET (Kurd/Nahawand), acordes abertos quintais e compassos assimétricos base.",
+    "descEn": "Build your bridge before microtones: augmented 2nd, first 12-TET Maqamat (Kurd/Nahawand), open quintal chords, and entry odd meters."
+  },
+  {
+    "id": "mod_maqam_24tet",
+    "number": 3,
+    "level": "intermediate",
+    "titlePt": "Cap. 3 · Maqamat & Microtonalidade 24-TET",
+    "titleEn": "Ch. 3 · Maqamat & 24-TET Microtonality",
+    "descPt": "Treine o ouvido para graus neutros (150¢ / 350¢) e transfira Bayati, Rast, Hijaz e Saba para o braço com micro-bends (+50¢) e slide.",
+    "descEn": "Train your ear for neutral degrees (150¢ / 350¢) and translate Bayati, Rast, Hijaz, and Saba onto guitar via +50¢ micro-bends and slide."
   },
   {
     "id": "mod_scordatura_baritone",
-    "number": 2,
-    "titlePt": "Cap. 2 · Barítono (B/A Std) & Scordatura",
-    "titleEn": "Ch. 2 · Baritone (B/A Std) & Scordatura",
-    "descPt": "Explorando registros graves (B Standard, A Standard), afinações simétricas e cordas soltas modais.",
-    "descEn": "Exploring low baritone registers (B Standard, A Standard), symmetrical tunings, and open modal drones."
-  },
-  {
-    "id": "mod_symmetry_posttonal",
-    "number": 3,
-    "titlePt": "Cap. 3 · Simetrias, Messiaen & Pitch Sets",
-    "titleEn": "Ch. 3 · Symmetries, Messiaen & Pitch Sets",
-    "descPt": "Geometria invariante no braço com Messiaen, Slonimsky e a Teoria dos Conjuntos de Allen Forte.",
-    "descEn": "Invariant fretboard geometry using Messiaen modes, Slonimsky patterns, and Allen Forte Pitch-Class Set Theory."
+    "number": 4,
+    "level": "intermediate",
+    "titlePt": "Cap. 4 · Scordatura, Barítono (B/A Std) & Tensão Física",
+    "titleEn": "Ch. 4 · Scordatura, Baritone (B/A Std) & String Tension",
+    "descPt": "De DADGAD e All Fourths/CFADGC até a engenharia de calibres e riffs graves em B Standard e A Standard.",
+    "descEn": "From DADGAD and All Fourths/CFADGC to physical gauge engineering and low-register phrasing in B Standard and A Standard."
   },
   {
     "id": "mod_harmony_polymeter",
-    "number": 4,
-    "titlePt": "Cap. 4 · Harmonia Não-Tercial, Espectral & Polimetria",
-    "titleEn": "Ch. 4 · Non-Tercial Harmony, Overtone & Polymeter",
-    "descPt": "Voicings quartais/clusters, série harmônica natural e sobreposição de Iqa'at árabes com ciclos ímpares.",
-    "descEn": "Quartal/cluster voicings, natural harmonic partials, and Arabic Iqa'at layered against odd polymeters."
-  },
-  {
-    "id": "mod_extended_range",
     "number": 5,
-    "titlePt": "Cap. 5 · Alcance Estendido (7 & 8 Cordas)",
-    "titleEn": "Ch. 5 · Extended Range (7 & 8 Strings)",
-    "descPt": "Mapeamento modal, voicings abertos e riffs polimétricos em 7 cordas (B Std / All 4ths) e 8 cordas (F Std / Drop E).",
-    "descEn": "Modal mapping, wide voicings, and polymetric riffs across 7-string (B Std / All 4ths) and 8-string (F Std / Drop E) guitars."
+    "level": "advanced",
+    "titlePt": "Cap. 5 · Harmonia Não-Tercial, Espectral & Polimetria",
+    "titleEn": "Ch. 5 · Non-Tercial Harmony, Overtone & Polymeter",
+    "descPt": "Voicings quartais (So What), clusters secundais, harmônicos naturais em Entonação Justa e Iqa’at (10/8) polimétricos.",
+    "descEn": "Quartal (So What) voicings, secundal clusters, Just Intonation natural harmonics, and polymetric Arabic Iqa’at (10/8)."
   },
   {
     "id": "mod_modulation_sayr",
     "number": 6,
-    "titlePt": "Cap. 6 · Arte da Modulação (Radar & Sayr)",
-    "titleEn": "Ch. 6 · Art of Modulation (Radar & Sayr)",
-    "descPt": "Condução de pivôs no Radar Modal 24-TET, mutações paralelas de 1 grau e jornadas de modulação ao vivo no Vamp Lab.",
-    "descEn": "Pivot-tone voice leading in the 24-TET Modal Radar, 1-degree parallel mutations, and live Vamp/Sayr modulation journeys."
+    "level": "advanced",
+    "titlePt": "Cap. 6 · Arte da Modulação: Radar Modal & Vamps Sayr",
+    "titleEn": "Ch. 6 · Art of Modulation: Modal Radar & Sayr Vamps",
+    "descPt": "Mutações paralelas de 1 grau no Radar 24-TET, modulações Sayr pelo Ghammaz, mediantes cromáticas e ciclos barítono ao vivo.",
+    "descEn": "1-degree parallel mutations in the 24-TET Radar, Ghammaz Sayr modulations, chromatic mediants, and live baritone modal cycles."
+  },
+  {
+    "id": "mod_extended_range",
+    "number": 7,
+    "level": "advanced",
+    "titlePt": "Cap. 7 · Alcance Estendido (7 & 8 Cordas)",
+    "titleEn": "Ch. 7 · Extended Range (7 & 8 Strings)",
+    "descPt": "Mapeamento modal em 7 cordas (B Standard / All Fourths) e 8 cordas (F Standard Meshuggah / Drop E 41,2 Hz).",
+    "descEn": "Modal fretboard mapping across 7-string (B Standard / All Fourths) and 8-string (F Standard Meshuggah / Drop E 41.2 Hz)."
+  },
+  {
+    "id": "mod_symmetry_posttonal",
+    "number": 8,
+    "level": "master",
+    "titlePt": "Cap. 8 · Simetrias, Messiaen, Slonimsky & Pitch Sets",
+    "titleEn": "Ch. 8 · Symmetries, Messiaen, Slonimsky & Pitch Sets",
+    "descPt": "Modos de transposição limitada, interpolações de Slonimsky, polimetria 11/8 e Teoria dos Conjuntos de Allen Forte.",
+    "descEn": "Modes of limited transposition, Slonimsky interpolations, 11/8 polymeter, and Allen Forte Pitch-Class Set Theory."
   },
   {
     "id": "mod_microtonal_frontier",
-    "number": 7,
-    "titlePt": "Cap. 7 · Fronteira Microtonal (Scala, 53-TET & JI)",
-    "titleEn": "Ch. 7 · Microtonal Frontier (Scala, 53-TET & JI)",
-    "descPt": "Além do 24-TET: Entonação Justa 5/7-limit, commas do 53-TET turco/otomano, tritava Bohlen-Pierce (3/1) e Gamelan real.",
-    "descEn": "Beyond 24-TET: 5/7-limit Just Intonation, Turkish/Ottoman 53-TET commas, Bohlen-Pierce tritave (3/1), and measured Gamelan."
-  },
-  {
-    "id": "mod_luthier_ear_mastery",
-    "number": 8,
-    "titlePt": "Cap. 8 · Ouvido, Polimetria & Engenharia de Tensão",
-    "titleEn": "Ch. 8 · Ear Mastery, Polymeter & Tension Engineering",
-    "descPt": "Treinamento auditivo microtonal, ciclos de 11/8, calibração física de encordoamentos barítono e workflow completo de estúdio.",
-    "descEn": "Microtonal ear training, 11/8 polymeters, physical baritone gauge calibration, and full DAW/Zen studio workflow."
+    "number": 9,
+    "level": "master",
+    "titlePt": "Cap. 9 · Fronteira Microtonal (Scala .scl, 53-TET, JI) & Projeto Final",
+    "titleEn": "Ch. 9 · Microtonal Frontier (Scala .scl, 53-TET, JI) & Final Project",
+    "descPt": "Além do 24-TET: Entonação Justa 5/7-limit, commas do 53-TET otomano, tritava Bohlen-Pierce (3/1), Gamelan e workflow completo de estúdio.",
+    "descEn": "Beyond 24-TET: 5/7-limit Just Intonation, Ottoman 53-TET commas, Bohlen-Pierce tritave (3/1), Gamelan, and complete studio workflow."
   }
 ];
 
 export const STUDY_LESSONS = [
   {
+    "id": "sg_00a_modal_vs_tonal",
+    "moduleId": "mod_foundations_modal",
+    "level": "foundation",
+    "number": 1,
+    "duration": "10 min",
+    "glossaryTerm": "Modal vs. Tonal · Drone",
+    "glossaryIds": [
+      "modal_vs_tonal",
+      "drone",
+      "char_degree"
+    ],
+    "titlePt": "Pensamento Modal & o Poder do Drone (Dórico vs. Eólio)",
+    "titleEn": "Modal Thinking & the Power of the Drone (Dorian vs. Aeolian)",
+    "summaryPt": "Seu ponto de partida: descubra como uma única nota sustentada (Drone) transforma a percepção das escalas e destaque o grau característico (6ª maior) do Dórico.",
+    "summaryEn": "Your starting point: discover how a single sustained Drone transforms scale perception and spotlight Dorian’s signature characteristic degree (major 6th).",
+    "taskPt": "Ligue o Drone em Ré, clique nas notas destacadas em coral (Si natural = 6ª maior) no braço e compare o brilho do Dórico tocando frases curtas de 3 notas.",
+    "taskEn": "Turn on the D Drone, audition the coral characteristic markers (B natural = major 6th) on the neck, and phrase short 3-note ideas.",
+    "earTipPt": "Não corra pelas notas: segure a nota Si natural (6ª maior) por dois segundos sobre o Drone de Ré para sentir a cor 'luminosa porém menor' do Dórico.",
+    "earTipEn": "Don’t rush: hold B natural (major 6th) for two full seconds over the D Drone to feel Dorian’s bright-yet-minor gravity.",
+    "audioAction": "DRONE",
+    "suggestDrone": true,
+    "preset": {
+      "scaleId": "std_dorian",
+      "rootQ": 4,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "linear_oud",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_00b_phrygian_lydian_poles",
+    "moduleId": "mod_foundations_modal",
+    "level": "foundation",
+    "number": 2,
+    "duration": "10 min",
+    "glossaryTerm": "Modos Gregos · ♭2 / ♯4",
+    "glossaryIds": [
+      "greek_modes",
+      "char_degree",
+      "12tet"
+    ],
+    "titlePt": "Os Dois Polos de Cor: Frígio (♭2) & Lídio (♯4)",
+    "titleEn": "The Two Poles of Color: Phrygian (♭2) & Lydian (♯4)",
+    "summaryPt": "Sinta os extremos emocionais dos 7 modos gregos sobre a mesma tônica Mi: a gravidade sombria da ♭2 (Frígio) em contraste com a luminosidade aérea da ♯4 (Lídio).",
+    "summaryEn": "Experience the emotional extremes of the 7 Greek modes on one root (E): the dark downward gravity of ♭2 (Phrygian) vs. the luminous lift of ♯4 (Lydian).",
+    "taskPt": "Toque sobre o Drone em Mi Frígio enfatizando a casa 1 (Fá = ♭2) caindo na corda solta (Mi). Depois abra o compartimento Escala e troque para Mi Lídio para ouvir a virada de humor.",
+    "taskEn": "Play over the E Phrygian Drone emphasizing fret 1 (F = ♭2) resolving into open E. Then switch to E Lydian in the Scale compartment to hear the stark mood shift.",
+    "earTipPt": "A ♭2 puxa fortemente para baixo (tensão sombria/metal/flamenco), enquanto a ♯4 flutua para cima rumo à 5ª justa.",
+    "earTipEn": "The ♭2 pulls strongly downward (dark/metal/flamenco tension), while the ♯4 floats upward toward the perfect 5th.",
+    "audioAction": "DRONE",
+    "suggestDrone": true,
+    "preset": {
+      "scaleId": "std_phrygian",
+      "rootQ": 8,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quintal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "pedal_drone",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_00c_closed_shapes_pent",
+    "moduleId": "mod_foundations_modal",
+    "level": "foundation",
+    "number": 3,
+    "duration": "12 min",
+    "glossaryTerm": "Forma Fechada · In-Sen",
+    "glossaryIds": [
+      "closed_shape",
+      "12tet",
+      "char_degree"
+    ],
+    "titlePt": "Formas Fechadas & Pentatônicas Além do Clichê (In-Sen)",
+    "titleEn": "Closed Shapes & Pentatonics Beyond Cliché (In-Sen)",
+    "summaryPt": "Aprenda a isolar uma região de 5 casas (Forma Fechada móvel) e descubra como a escala japonesa In-Sen (1 · ♭2 · 4 · 5 · ♭7) reinventa o universo de 5 notas.",
+    "summaryEn": "Learn to isolate a 5-fret Closed Shape window and see how the Japanese In-Sen scale (1 · ♭2 · 4 · 5 · ♭7) reinvents 5-note guitar phrasing.",
+    "taskPt": "Abra o compartimento Braço & Vista, ligue a 'Janela Fechada' nas casas 5–10 sobre Lá In-Sen e crie motivos de 5 notas sem sair dessa região.",
+    "taskEn": "Open Neck & View, toggle 'Closed Window' on frets 5–10 in A In-Sen, and craft 5-note motifs strictly inside that position.",
+    "earTipPt": "O salto entre a ♭2 (B♭) e a 4ª justa (D) cria uma silhueta de koto/shakuhachi completamente livre dos clichês da pentatônica menor.",
+    "earTipEn": "The wide gap between ♭2 (B♭) and perfect 4th (D) carves a koto/shakuhachi contour totally free of standard minor-pentatonic clichés.",
+    "audioAction": "SCALE",
+    "suggestEtude": true,
+    "preset": {
+      "scaleId": "jp_insen",
+      "rootQ": 18,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "interval_seq",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_00d_cents_intervals_ear",
+    "moduleId": "mod_foundations_modal",
+    "level": "foundation",
+    "number": 4,
+    "duration": "10 min",
+    "glossaryTerm": "Cents (¢) · Série Harmônica",
+    "glossaryIds": [
+      "cent",
+      "harmonic_series",
+      "12tet"
+    ],
+    "titlePt": "Lendo o Mapa: Graus, Cents (¢) & Harmônicos Naturais",
+    "titleEn": "Reading the Map: Degrees, Cents (¢) & Natural Harmonics",
+    "summaryPt": "Domine a linguagem de medidas do String Atlas: entenda o que são 100¢ (semitom) e 50¢ (quarto de tom), alterne rótulos no braço e ouça os primeiros harmônicos naturais.",
+    "summaryEn": "Master String Atlas’s measurement language: understand 100¢ (semitone) and 50¢ (quarter-tone), toggle neck labels, and audition natural string harmonics.",
+    "taskPt": "No compartimento Braço & Vista, alterne o rótulo entre 'Nota', 'Grau' e 'Cents' e clique nos losangos azuis de Harmônicos (casas 12, 7 e 5) observando a barra inspetora.",
+    "taskEn": "Inside Neck & View, cycle labels between 'Note', 'Degree', and 'Cents', then click blue Harmonic diamonds (frets 12, 7, and 5) while reading the inspector bar.",
+    "earTipPt": "Perceba no inspetor que o 5º harmônico natural soa −14¢ abaixo do traste temperado — sua primeira pista real do mundo microtonal!",
+    "earTipEn": "Notice in the inspector that the 5th natural harmonic rings −14¢ below equal-tempered frets — your first real glimpse into microtonality!",
+    "audioAction": "SCALE",
+    "preset": {
+      "scaleId": "std_lydian",
+      "rootQ": 0,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quintal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "harmonic_weave",
+      "droneOn": false,
+      "harmonicsOn": true,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_00e_harmonic_minor_hijaz",
+    "moduleId": "mod_bridge_12tet",
+    "level": "foundation",
+    "number": 5,
+    "duration": "12 min",
+    "glossaryTerm": "Frígio Dominante · 2ª Aum.",
+    "glossaryIds": [
+      "12tet",
+      "jins",
+      "char_degree"
+    ],
+    "titlePt": "Menor Harmônica & Frígio Dominante (A 2ª Aumentada)",
+    "titleEn": "Harmonic Minor & Phrygian Dominant (The Augmented 2nd)",
+    "summaryPt": "Antes de entrar nos quartos de tom árabes, domine o salto expressivo de 1½ tom (3 casas: ♭2→3M) em 12-TET puro no modo Frígio Dominante (Freygish / Flamenco).",
+    "summaryEn": "Before tackling Arabic quarter-tones, master the expressive 1½-step leap (3 frets: ♭2→M3) in pure 12-TET via Phrygian Dominant (Freygish / Flamenco).",
+    "taskPt": "Pratique o Etude Linear em Corda Única sobre Mi Frígio Dominante conectando Fá (casa 1) e Sol♯ (casa 4) com legato limpo sobre o acorde drone Hijaz.",
+    "taskEn": "Run the Single-String Linear Etude in E Phrygian Dominant connecting F (fret 1) and G♯ (fret 4) smoothly over the Hijaz drone chord.",
+    "earTipPt": "A combinação de ♭2 escura com 3ª maior luminosa gera o famoso 'tetracorde Hijaz' (½ · 1½ · ½), presente do flamenco ao metal.",
+    "earTipEn": "Pairing a dark ♭2 with a radiant major 3rd builds the famous Hijaz tetrachord (H · m3 · H) heard across flamenco, klezmer, and metal.",
+    "audioAction": "ETUDE",
+    "suggestEtude": true,
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "phrygian_dominant",
+      "rootQ": 8,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "hijaz_drone_chord",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "linear_oud",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    }
+  },
+  {
+    "id": "sg_00f_maqam_kurd_nahawand",
+    "moduleId": "mod_bridge_12tet",
+    "level": "foundation",
+    "number": 6,
+    "duration": "12 min",
+    "glossaryTerm": "Maqam · Jins · Iqa’ Maqsum",
+    "glossaryIds": [
+      "maqam",
+      "jins",
+      "qarar_ghammaz",
+      "iqa"
+    ],
+    "titlePt": "Primeiros Maqamat em 12-TET: Kurd & Nahawand",
+    "titleEn": "First Maqamat in 12-TET: Kurd & Nahawand",
+    "summaryPt": "Entre na teoria árabe sem precisar de microtons ainda: aprenda a organizar suas frases em dois tetracordes (Ajnas) sobre o ciclo clássico Maqsum (4/4).",
+    "summaryEn": "Step into Arabic modal theory with zero quarter-tones yet: organize phrasing into stacked tetrachords (Ajnas) over the classic Maqsum (4/4) cycle.",
+    "taskPt": "Inicie o ciclo Maqsum (Ritmo) sobre Ré Maqam Kurd, repousando alternadamente no Qarar (Ré = 1) e no Ghammaz (Sol = 4) antes de resolver pela ♭2 (E♭).",
+    "taskEn": "Start the Maqsum cycle (Rhythm) in D Maqam Kurd, resting alternately on the Qarar (D = 1) and Ghammaz (G = 4) before resolving down through ♭2 (E♭).",
+    "earTipPt": "Apesar de compartilhar as notas do Frígio, o Maqam Kurd respira sobre o 4º grau (Sol) como polo secundário — isso muda completamente o fraseado.",
+    "earTipEn": "Though pitch-identical to Phrygian, Maqam Kurd breathes around the 4th degree (G) as a secondary pole — transforming the entire melodic feel.",
+    "audioAction": "RHYTHM",
+    "suggestRhythm": true,
+    "preset": {
+      "scaleId": "maqam_kurd",
+      "rootQ": 4,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "linear_oud",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_00g_intro_quartal_open",
+    "moduleId": "mod_bridge_12tet",
+    "level": "foundation",
+    "number": 7,
+    "duration": "12 min",
+    "glossaryTerm": "Harmonia Quintal & Quartal",
+    "glossaryIds": [
+      "quintal_harmony",
+      "quartal_harmony",
+      "modal_vs_tonal"
+    ],
+    "titlePt": "Saindo das Tríades: Acordes Abertos & Quintais (add9 no3)",
+    "titleEn": "Beyond Triads: Open & Quintal Chords (add9 no3)",
+    "summaryPt": "Descubra como empilhar quintas justas (1–5–9) sem terça cria acordes cinematográficos e modernos que funcionam sobre quase qualquer modo.",
+    "summaryEn": "Discover how stacking perfect fifths (1–5–9) without a 3rd yields wide, modern voicings that float gracefully across modal landscapes.",
+    "taskPt": "Abra Harmonia & Voicings, ouça (Strum e Arpejar) 3 posições diferentes de 'Quintal Aberto (1–5–9)' e projete o voicing sobre o braço.",
+    "taskEn": "Open Harmony & Voicings, strum and arpeggiate 3 different fretboard positions of 'Open Quintal (1–5–9)', and overlay them onto the neck.",
+    "earTipPt": "Sem terça definida, o acorde quintal absorve instantaneamente a emoção da melodia que você tocar por cima — base do post-rock, shoegaze e jazz aberto.",
+    "earTipEn": "Without a fixed 3rd, quintal voicings absorb whatever modal color you sing over them — cornerstone of post-rock, shoegaze, and open jazz.",
+    "audioAction": "VOICING",
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "std_aeolian",
+      "rootQ": 4,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quintal_3",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "interval_seq",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    }
+  },
+  {
+    "id": "sg_00h_intro_odd_meters",
+    "moduleId": "mod_bridge_12tet",
+    "level": "foundation",
+    "number": 8,
+    "duration": "12 min",
+    "glossaryTerm": "Aksak 7/8 · Malfuf (3+3+2)",
+    "glossaryIds": [
+      "aksak",
+      "iqa",
+      "polymeter"
+    ],
+    "titlePt": "Primeiros Compassos Ímpares: Malfuf (3+3+2) & Aksak 7/8",
+    "titleEn": "First Odd Meters: Malfuf (3+3+2) & 7/8 Aksak",
+    "summaryPt": "Desmistifique compassos assimétricos começando pelo agrupamento 2+2+3 (7/8 Rachenitsa) e sua ligação direta com a célula 3+3+2 do Malfuf árabe e do baião.",
+    "summaryEn": "Demystify asymmetric meters starting with 2+2+3 (7/8 Rachenitsa) and its natural link to the 3+3+2 Malfuf / Brazilian baião groove.",
+    "taskPt": "Inicie o ciclo Aksak 7/8 (2+2+3) no Motor Rítmico e toque linhas simples em Ré Mixolídio marcando o grupo final de 3 colcheias com acento firme.",
+    "taskEn": "Launch Aksak 7/8 (2+2+3) in the Rhythm Engine and play simple D Mixolydian motifs leaning firmly into the closing 3-eighth pulse.",
+    "earTipPt": "Cante 'UM-dois / UM-dois / UM-dois-três' antes de pegar a palheta — sentir o balanço físico elimina qualquer rigidez matemática.",
+    "earTipEn": "Chant 'ONE-two / ONE-two / ONE-two-three' before picking — feeling the physical sway removes all math stiffness.",
+    "audioAction": "RHYTHM",
+    "suggestRhythm": true,
+    "preset": {
+      "scaleId": "std_mixolydian",
+      "rootQ": 4,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "quintal_3",
+      "rhythmId": "aksak_7_223",
+      "etudePatternId": "interval_seq",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    }
+  },
+  {
+    "id": "sg_29_ear_neutral_mastery",
+    "moduleId": "mod_maqam_24tet",
+    "number": 9,
+    "duration": "12 min",
+    "glossaryTerm": "Treino 150¢ / 350¢",
+    "titlePt": "Treino Auditivo 24-TET: Cravando Segundas e Terças Neutras",
+    "titleEn": "24-TET Ear Mastery: Locking Neutral 2nds & 3rds",
+    "summaryPt": "Treine o ouvido para distinguir instantaneamente semitom (100¢), neutro (150¢) e tom (200¢), além de ♭3 (300¢), terça neutra (350¢) e 3ª maior (400¢).",
+    "summaryEn": "Train your ear to separate minor 2nd (100¢), neutral 2nd (150¢), and major 2nd (200¢), plus minor (300¢), neutral (350¢), and major (400¢) thirds.",
+    "taskPt": "Abra o Treino Auditivo (Estudo & Áudio), alcance uma sequência (Streak) de 6 acertos em Segundas e depois em Terças, comparando os sons após cada resposta.",
+    "taskEn": "Open the 24-TET Ear Trainer (Study & Audio), hit a 6-answer streak on Seconds then Thirds, auditioning choices side by side.",
+    "earTipPt": "Cante a nota antes de clicar na opção: se o som parecer 'suspenso entre triste e alegre', você está ouvindo um grau neutro.",
+    "earTipEn": "Sing the pitch before clicking: if it feels suspended right between dark and bright, you are hearing a neutral degree.",
+    "audioAction": "SCALE",
+    "suggestEar": true,
+    "preset": {
+      "scaleId": "maqam_rast",
+      "rootQ": 0,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "rast_neutral_triad",
+      "rhythmId": "iqa_maqsum",
+      "etudePatternId": "micro_bend_lab",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "24tet",
+      "neutral_degree",
+      "cent"
+    ]
+  },
+  {
     "id": "sg_01_bayati_bend",
     "moduleId": "mod_maqam_24tet",
-    "number": 1,
+    "number": 10,
     "duration": "12 min",
     "glossaryTerm": "Jins Bayati / +50¢",
     "titlePt": "Maqam Bayati & o Micro-Bend de +50¢",
@@ -100,12 +462,19 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "24tet",
+      "jins",
+      "micro_bend",
+      "line_mode_yin"
+    ]
   },
   {
     "id": "sg_02_rast_neutral_3rd",
     "moduleId": "mod_maqam_24tet",
-    "number": 2,
+    "number": 11,
     "duration": "12 min",
     "glossaryTerm": "3ª Neutra (350¢)",
     "titlePt": "Maqam Rast: Dissolvendo Maior e Menor",
@@ -131,12 +500,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "neutral_degree",
+      "maqam",
+      "taqsim"
+    ]
   },
   {
     "id": "sg_03_hijaz_linear",
     "moduleId": "mod_maqam_24tet",
-    "number": 3,
+    "number": 12,
     "duration": "15 min",
     "glossaryTerm": "Jins Hijaz / Linear",
     "titlePt": "Maqam Hijaz & Fraseado Horizontal em 1 Corda",
@@ -162,12 +537,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "jins",
+      "maqam",
+      "neutral_degree"
+    ]
   },
   {
     "id": "sg_04_saba_zamzam",
     "moduleId": "mod_maqam_24tet",
-    "number": 4,
+    "number": 13,
     "duration": "15 min",
     "glossaryTerm": "4ª Diminuta / Saba",
     "titlePt": "Maqam Saba & Saba Zamzam: Tensão Sem 4ª Justa",
@@ -192,12 +573,125 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "maqam",
+      "jins",
+      "24tet"
+    ]
+  },
+  {
+    "id": "sg_07_dadgad_kurd",
+    "moduleId": "mod_scordatura_baritone",
+    "number": 14,
+    "duration": "12 min",
+    "glossaryTerm": "DADGAD / Ressonância",
+    "titlePt": "DADGAD & Ressonância de Cordas Soltas em Kurd",
+    "titleEn": "DADGAD & Open-String Resonance in Maqam Kurd",
+    "summaryPt": "Observe como todas as 6 cordas soltas de DADGAD (D A D G A D) pertencem exatamente a Ré Kurd, transformando a guitarra em um instrumento de bordão.",
+    "summaryEn": "See how all 6 open strings of DADGAD belong cleanly to D Maqam Kurd, turning the guitar into a sympathetic drone instrument.",
+    "taskPt": "Toque o Etude de Bordão de Corda Solta e explore os voicings Quartais de 3 vozes aproveitando as cordas soltas verdes no braço.",
+    "taskEn": "Play the Open-String Pedal Etude and audition 3-Voice Quartal voicings taking advantage of green in-scale open strings.",
+    "earTipPt": "Deixe as cordas soltas soarem por baixo das notas presas na 1ª e 2ª cordas — a ressonância simpática enriquece enormemente o timbre limpo.",
+    "earTipEn": "Let open strings ring underneath fretted melodies on strings 1–2 — sympathetic resonance adds huge acoustic bloom.",
+    "audioAction": "ETUDE",
+    "suggestVoicing": true,
+    "suggestEtude": true,
+    "preset": {
+      "scaleId": "maqam_kurd",
+      "rootQ": 4,
+      "tuningId": "dadgad",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "aksak_7_223",
+      "etudePatternId": "pedal_drone",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "scordatura",
+      "maqam",
+      "drone"
+    ]
+  },
+  {
+    "id": "sg_08_all_fourths_oud_bridge",
+    "moduleId": "mod_scordatura_baritone",
+    "number": 15,
+    "duration": "15 min",
+    "glossaryTerm": "All Fourths / CFADGC",
+    "titlePt": "Simetria em Quartas & Ponte Oud-Guitarra (CFADGC)",
+    "titleEn": "All-Fourths Symmetry & Oud-Guitar Bridge (CFADGC)",
+    "summaryPt": "Elimine a quebra da 3ª maior entre as cordas G e B: em All Fourths ou Oud-Mapped (C F A D G C), qualquer desenho de Jins ou acorde quartal é 100% transportável.",
+    "summaryEn": "Remove the G–B major-3rd warp: in All Fourths or Oud-Mapped (C F A D G C), every jins shape and quartal voicing shifts identically across strings.",
+    "taskPt": "Compare as formas fechadas de Dó Suznak em CFADGC com All Fourths e teste voicings quartais verticais na aba de Harmonia.",
+    "taskEn": "Compare closed C Suznak shapes in CFADGC vs All Fourths and audition vertical quartal voicings in the Harmony Lab.",
+    "earTipPt": "Ao eliminar a irregularidade da afinação padrão, seu ouvido passa a mapear intervalos por geometria pura.",
+    "earTipEn": "Removing standard tuning’s warp lets your ear map intervals directly onto pure vertical geometry.",
+    "audioAction": "SCALE",
+    "suggestVoicing": true,
+    "suggestDrone": true,
+    "preset": {
+      "scaleId": "maqam_suznak",
+      "rootQ": 0,
+      "tuningId": "oud_cfadgc",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "iqa_jurjina",
+      "etudePatternId": "interval_seq",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "all_fourths",
+      "scordatura",
+      "closed_shape"
+    ]
+  },
+  {
+    "id": "sg_31_tension_baritone_eng",
+    "moduleId": "mod_scordatura_baritone",
+    "number": 16,
+    "duration": "12 min",
+    "glossaryTerm": "Tensão Física / Barítono",
+    "titlePt": "Engenharia de Tensão: Calibrando B Standard & A Standard",
+    "titleEn": "Tension Engineering: Calibrating B Standard & A Standard",
+    "summaryPt": "Entenda a física T = UW·(2Lf)²/386 na prática: evite cordas moles em afinações graves comparando escalas 25.5\", 27.0\" e Multi-Scale na aba Luthieria.",
+    "summaryEn": "Apply T = UW·(2Lf)²/386 to your real guitar: cure floppy low strings in baritone tunings by comparing 25.5\", 27.0\", and Multi-Scale setups.",
+    "taskPt": "Abra a aba Tensão de Cordas (Luthieria) com A Standard carregado, teste a diferença entre 25.5\" e 27.0\" e clique em '✦ Sugerir Calibres Ideais' em 17.5 lbs.",
+    "taskEn": "Open String Tension (Luthier) in A Standard, compare 25.5\" vs 27.0\" scale lengths, and click '✦ Recommend Balanced Gauges' at 17.5 lbs.",
+    "earTipPt": "Para micro-bends precisos de +50¢ em barítono, mantenha as cordas agudas lisas (P) entre 14,5 e 16,5 lbs e as graves encapadas (W) entre 17,5 e 20 lbs.",
+    "earTipEn": "For effortless +50¢ micro-bends on baritone, aim for 14.5–16.5 lbs on plain trebles and 17.5–20 lbs on wound basses.",
+    "audioAction": "SCALE",
+    "suggestTension": true,
+    "preset": {
+      "scaleId": "maqam_saba_zamzam",
+      "rootQ": 18,
+      "tuningId": "a_standard",
+      "microMode": "bend",
+      "chordId": "cluster_secundal",
+      "rhythmId": "iqa_baladi",
+      "etudePatternId": "pedal_drone",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "string_tension",
+      "baritone_multiscale",
+      "scordatura"
+    ]
   },
   {
     "id": "sg_05_bstd_nawa_athar",
     "moduleId": "mod_scordatura_baritone",
-    "number": 5,
+    "number": 17,
     "duration": "15 min",
     "glossaryTerm": "B Standard / Nawa Athar",
     "titlePt": "B Standard: Gravidade Modal em Nawa Athar",
@@ -223,12 +717,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "baritone_multiscale",
+      "maqam",
+      "scordatura"
+    ]
   },
   {
     "id": "sg_06_astd_low_posttonal",
     "moduleId": "mod_scordatura_baritone",
-    "number": 6,
+    "number": 18,
     "duration": "15 min",
     "glossaryTerm": "A Standard / Forte 4-Z29",
     "titlePt": "A Standard (A1 = 55 Hz): Riffs Pós-Tonais & Frígio",
@@ -254,190 +754,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_07_dadgad_kurd",
-    "moduleId": "mod_scordatura_baritone",
-    "number": 7,
-    "duration": "12 min",
-    "glossaryTerm": "DADGAD / Ressonância",
-    "titlePt": "DADGAD & Ressonância de Cordas Soltas em Kurd",
-    "titleEn": "DADGAD & Open-String Resonance in Maqam Kurd",
-    "summaryPt": "Observe como todas as 6 cordas soltas de DADGAD (D A D G A D) pertencem exatamente a Ré Kurd, transformando a guitarra em um instrumento de bordão.",
-    "summaryEn": "See how all 6 open strings of DADGAD belong cleanly to D Maqam Kurd, turning the guitar into a sympathetic drone instrument.",
-    "taskPt": "Toque o Etude de Bordão de Corda Solta e explore os voicings Quartais de 3 vozes aproveitando as cordas soltas verdes no braço.",
-    "taskEn": "Play the Open-String Pedal Etude and audition 3-Voice Quartal voicings taking advantage of green in-scale open strings.",
-    "earTipPt": "Deixe as cordas soltas soarem por baixo das notas presas na 1ª e 2ª cordas — a ressonância simpática enriquece enormemente o timbre limpo.",
-    "earTipEn": "Let open strings ring underneath fretted melodies on strings 1–2 — sympathetic resonance adds huge acoustic bloom.",
-    "audioAction": "ETUDE",
-    "suggestVoicing": true,
-    "suggestEtude": true,
-    "preset": {
-      "scaleId": "maqam_kurd",
-      "rootQ": 4,
-      "tuningId": "dadgad",
-      "microMode": "bend",
-      "chordId": "quartal_3",
-      "rhythmId": "aksak_7_223",
-      "etudePatternId": "pedal_drone",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_08_all_fourths_oud_bridge",
-    "moduleId": "mod_scordatura_baritone",
-    "number": 8,
-    "duration": "15 min",
-    "glossaryTerm": "All Fourths / CFADGC",
-    "titlePt": "Simetria em Quartas & Ponte Oud-Guitarra (CFADGC)",
-    "titleEn": "All-Fourths Symmetry & Oud-Guitar Bridge (CFADGC)",
-    "summaryPt": "Elimine a quebra da 3ª maior entre as cordas G e B: em All Fourths ou Oud-Mapped (C F A D G C), qualquer desenho de Jins ou acorde quartal é 100% transportável.",
-    "summaryEn": "Remove the G–B major-3rd warp: in All Fourths or Oud-Mapped (C F A D G C), every jins shape and quartal voicing shifts identically across strings.",
-    "taskPt": "Compare as formas fechadas de Dó Suznak em CFADGC com All Fourths e teste voicings quartais verticais na aba de Harmonia.",
-    "taskEn": "Compare closed C Suznak shapes in CFADGC vs All Fourths and audition vertical quartal voicings in the Harmony Lab.",
-    "earTipPt": "Ao eliminar a irregularidade da afinação padrão, seu ouvido passa a mapear intervalos por geometria pura.",
-    "earTipEn": "Removing standard tuning’s warp lets your ear map intervals directly onto pure vertical geometry.",
-    "audioAction": "SCALE",
-    "suggestVoicing": true,
-    "suggestDrone": true,
-    "preset": {
-      "scaleId": "maqam_suznak",
-      "rootQ": 0,
-      "tuningId": "oud_cfadgc",
-      "microMode": "bend",
-      "chordId": "quartal_3",
-      "rhythmId": "iqa_jurjina",
-      "etudePatternId": "interval_seq",
-      "droneOn": true,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_09_messiaen_mode2",
-    "moduleId": "mod_symmetry_posttonal",
-    "number": 9,
-    "duration": "15 min",
-    "glossaryTerm": "Messiaen Modo 2 (+3)",
-    "titlePt": "Messiaen Modo 2: Simetria de 3 em 3 Casas",
-    "titleEn": "Messiaen Mode 2: 3-Fret Shift Symmetry",
-    "summaryPt": "Explore a escala Octatônica (½–1) onde qualquer célula melódica ou acorde pode ser transladado exatamente +3 casas mantendo 100% das notas na escala.",
-    "summaryEn": "Explore the Half–Whole Octatonic grid where any melodic cell or voicing shifts verbatim +3 frets while staying 100% in scale.",
-    "taskPt": "Gere um Etude de Sequências Intervalares em Messiaen Modo 2 e pratique deslocar o mesmo motivo 3 casas acima na região média e aguda.",
-    "taskEn": "Generate an Intervallic Sequence Etude in Messiaen Mode 2 and shift the same motif +3 frets across mid and high zones.",
-    "earTipPt": "Ouça as quatro tríades maiores ocultas (ex.: C, E♭, F♯, A) que criam modulações instantâneas sem sair da mesma escala.",
-    "earTipEn": "Listen for the four hidden major triads (e.g., C, E♭, F♯, A) unlocking instant outside color inside one scale.",
-    "audioAction": "ETUDE",
-    "suggestEtude": true,
-    "suggestRhythm": true,
-    "preset": {
-      "scaleId": "messiaen_mode2",
-      "rootQ": 0,
-      "tuningId": "standard",
-      "microMode": "bend",
-      "chordId": "maj7_b5",
-      "rhythmId": "odd_5_4",
-      "etudePatternId": "interval_seq",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_10_messiaen_mode3_m3",
-    "moduleId": "mod_symmetry_posttonal",
-    "number": 10,
-    "duration": "15 min",
-    "glossaryTerm": "Messiaen Modo 3 / M3",
-    "titlePt": "Messiaen Modo 3 & Afinação de Terças Maiores",
-    "titleEn": "Messiaen Mode 3 & Major Thirds Tuning",
-    "summaryPt": "Quando uma escala de simetria em 3ª maior encontra a afinação Terças Maiores (C E G♯ C E G♯), o braço inteiro vira um mosaico perfeitamente repetitivo.",
-    "summaryEn": "When a major-3rd symmetric scale meets Major Thirds tuning (C E G♯ C E G♯), the entire fretboard becomes a seamless repeating mosaic.",
-    "taskPt": "Observe o padrão visual no braço e capture uma frase diagonal de 8 notas clicando diretamente no SVG (modo Frase Gravada na Partitura/Tab).",
-    "taskEn": "Inspect the repeating neck grid and capture an 8-note diagonal phrase by clicking directly on the SVG (Recorded Phrase tab mode).",
-    "earTipPt": "O Modo 3 elimina a sensação de tônica tradicional; crie tensão alternando tríades aumentadas e mediantes cromáticas.",
-    "earTipEn": "Mode 3 dissolves traditional tonic pull; build momentum by pivoting across augmented triads and chromatic mediants.",
-    "audioAction": "SCALE",
-    "suggestVoicing": true,
-    "preset": {
-      "scaleId": "messiaen_mode3",
-      "rootQ": 0,
-      "tuningId": "major_thirds",
-      "microMode": "bend",
-      "chordId": "maj7_b5",
-      "rhythmId": "odd_5_4",
-      "etudePatternId": "string_skip",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_11_slonimsky_skip",
-    "moduleId": "mod_symmetry_posttonal",
-    "number": 11,
-    "duration": "15 min",
-    "glossaryTerm": "Slonimsky / Trítono",
-    "titlePt": "Slonimsky & String Skipping Angular",
-    "titleEn": "Slonimsky & Angular String Skipping",
-    "summaryPt": "Aplique a interpolação simétrica de trítono de Nicolas Slonimsky para gerar fraseados angulares de jazz contemporâneo e metal técnico.",
-    "summaryEn": "Apply Nicolas Slonimsky’s tritone interpolation to generate angular phrasing for contemporary jazz and technical metal.",
-    "taskPt": "Ative o Etude de String Skipping com Auto +4 BPM e Loop ligados, começando em 80 BPM e focando na limpeza dos saltos de corda.",
-    "taskEn": "Run the String Skipping Etude with Loop and Auto +4 BPM engaged, starting at 80 BPM with razor-clean string crossings.",
-    "earTipPt": "Toda frase criada em Slonimsky #1 repete sua geometria exata 6 casas acima (no trítono).",
-    "earTipEn": "Every melodic cell in Slonimsky #1 mirrors verbatim 6 frets higher at the tritone.",
-    "audioAction": "ETUDE",
-    "suggestEtude": true,
-    "suggestRhythm": true,
-    "preset": {
-      "scaleId": "slonimsky_tritone_interp",
-      "rootQ": 8,
-      "tuningId": "all_fourths",
-      "microMode": "bend",
-      "chordId": "viennese_chord",
-      "rhythmId": "aksak_11_8",
-      "etudePatternId": "string_skip",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_12_pitch_class_sets",
-    "moduleId": "mod_symmetry_posttonal",
-    "number": 12,
-    "duration": "15 min",
-    "glossaryTerm": "Forte 3-5 / 4-Z15",
-    "titlePt": "Teoria dos Conjuntos: [0,1,6] & Todos-os-Intervalos",
-    "titleEn": "Pitch-Class Set Theory: [0,1,6] & All-Interval Sets",
-    "summaryPt": "Use o Vetor Intervalar de Allen Forte para compor além de escalas tradicionais — do Tricorde Vienense [0,1,6] ao universal [0,1,4,6] (<111111>).",
-    "summaryEn": "Use Allen Forte’s Interval Vector to compose beyond conventional scales — from the Viennese Trichord [0,1,6] to the universal [0,1,4,6] (<111111>).",
-    "taskPt": "Abra a aba Harmonia & Voicings, percorra as 4 primeiras inversões de [0,1,4,6] e depois experimente montar seu próprio conjunto no Construtor 24-TET.",
-    "taskEn": "Open Harmony & Voicings, audition the first 4 inversions of [0,1,4,6], then craft your own collection in the 24-TET Set Builder.",
-    "earTipPt": "Preste atenção na transparência do som quando você abre o semitom em uma 9ª menor ou 7ª maior entre cordas espaçadas.",
-    "earTipEn": "Notice how opening a semitone into a minor 9th or major 7th across skipped strings turns harshness into shimmering clarity.",
-    "audioAction": "VOICING",
-    "suggestVoicing": true,
-    "preset": {
-      "scaleId": "set_all_interval_0146",
-      "rootQ": 4,
-      "tuningId": "b_standard",
-      "microMode": "bend",
-      "chordId": "all_interval_chord",
-      "rhythmId": "aksak_11_8",
-      "etudePatternId": "string_skip",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
+    },
+    "level": "intermediate",
+    "glossaryIds": [
+      "baritone_multiscale",
+      "pitch_class_set",
+      "line_mode_yin"
+    ]
   },
   {
     "id": "sg_13_quartal_quintal",
     "moduleId": "mod_harmony_polymeter",
-    "number": 13,
+    "number": 19,
     "duration": "12 min",
     "glossaryTerm": "Quartal / Quintal",
     "titlePt": "Harmonia Quartal (So What) & Quintal Aberta",
@@ -462,42 +790,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_14_clusters_marwa",
-    "moduleId": "mod_harmony_polymeter",
-    "number": 14,
-    "duration": "15 min",
-    "glossaryTerm": "Clusters / Raga Marwa",
-    "titlePt": "Clusters Secundais & Suspensão em Raga Marwa",
-    "titleEn": "Secundal Clusters & Suspension in Raga Marwa",
-    "summaryPt": "Explore o vazio acústico do Raga Marwa (sem 5ª justa) e o atrito de segundas adjacentes para construir atmosferas de crepúsculo e vanguarda.",
-    "summaryEn": "Explore Raga Marwa’s fifth-less acoustic void and tight secundal friction to build dusk-like avant-garde atmospheres.",
-    "taskPt": "Mantenha a 5ª do Drone DESLIGADA (apenas tônica pura em F♯) e experimente voicings de Maj7(♭5) e Clusters Secundais.",
-    "taskEn": "Keep the Drone 5th OFF (pure F♯ tonic only) and audition Maj7(♭5) and Secundal Cluster voicings across the neck.",
-    "earTipPt": "No Marwa, repouse longamente sobre a ♭2 e a 6ª maior — adiar a tônica amplifica dramaticamente a sensação de flutuação.",
-    "earTipEn": "In Marwa, linger on ♭2 and major 6th — delaying the tonic amplifies its signature floating suspense.",
-    "audioAction": "DRONE",
-    "suggestDrone": true,
-    "suggestVoicing": true,
-    "preset": {
-      "scaleId": "raga_marwa",
-      "rootQ": 12,
-      "tuningId": "sonic_unison",
-      "microMode": "bend",
-      "chordId": "maj7_b5",
-      "rhythmId": "aksak_7_322",
-      "etudePatternId": "linear_oud",
-      "droneOn": true,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "quartal_harmony",
+      "quintal_harmony",
+      "modal_vs_tonal"
+    ]
   },
   {
     "id": "sg_15_spectral_armorial",
     "moduleId": "mod_harmony_polymeter",
-    "number": 15,
+    "number": 20,
     "duration": "15 min",
     "glossaryTerm": "Série Harmônica / Armorial",
     "titlePt": "Harmônicos Espectrais & Lídio ♭7 Armorial",
@@ -522,12 +826,54 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": true,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "harmonic_series",
+      "just_intonation",
+      "iqa"
+    ]
+  },
+  {
+    "id": "sg_14_clusters_marwa",
+    "moduleId": "mod_harmony_polymeter",
+    "number": 21,
+    "duration": "15 min",
+    "glossaryTerm": "Clusters / Raga Marwa",
+    "titlePt": "Clusters Secundais & Suspensão em Raga Marwa",
+    "titleEn": "Secundal Clusters & Suspension in Raga Marwa",
+    "summaryPt": "Explore o vazio acústico do Raga Marwa (sem 5ª justa) e o atrito de segundas adjacentes para construir atmosferas de crepúsculo e vanguarda.",
+    "summaryEn": "Explore Raga Marwa’s fifth-less acoustic void and tight secundal friction to build dusk-like avant-garde atmospheres.",
+    "taskPt": "Mantenha a 5ª do Drone DESLIGADA (apenas tônica pura em F♯) e experimente voicings de Maj7(♭5) e Clusters Secundais.",
+    "taskEn": "Keep the Drone 5th OFF (pure F♯ tonic only) and audition Maj7(♭5) and Secundal Cluster voicings across the neck.",
+    "earTipPt": "No Marwa, repouse longamente sobre a ♭2 e a 6ª maior — adiar a tônica amplifica dramaticamente a sensação de flutuação.",
+    "earTipEn": "In Marwa, linger on ♭2 and major 6th — delaying the tonic amplifies its signature floating suspense.",
+    "audioAction": "DRONE",
+    "suggestDrone": true,
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "raga_marwa",
+      "rootQ": 12,
+      "tuningId": "sonic_unison",
+      "microMode": "bend",
+      "chordId": "maj7_b5",
+      "rhythmId": "aksak_7_322",
+      "etudePatternId": "linear_oud",
+      "droneOn": true,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "secundal_cluster",
+      "raga_andolan",
+      "drone"
+    ]
   },
   {
     "id": "sg_16_samai_polymeter",
     "moduleId": "mod_harmony_polymeter",
-    "number": 16,
+    "number": 22,
     "duration": "15 min",
     "glossaryTerm": "Sama’i 10/8 & Polimetria",
     "titlePt": "Iqa’at (10/8) & Deslocamento Polimétrico",
@@ -552,132 +898,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_17_7str_kurd_b",
-    "moduleId": "mod_extended_range",
-    "number": 17,
-    "duration": "15 min",
-    "glossaryTerm": "7c B Std / Drop A",
-    "titlePt": "7 Cordas B Standard: Modalismo Grave em Kurd",
-    "titleEn": "7-String B Standard: Low-Register Modalism in Kurd",
-    "summaryPt": "Estenda o fraseado árabe do Maqam Kurd até a 7ª corda solta (B1), equilibrando bordões profundos com melodias cantáveis nas cordas agudas.",
-    "summaryEn": "Extend Arabic Maqam Kurd phrasing down to the open 7th string (B1), balancing deep drones with lyrical treble lines.",
-    "taskPt": "Explore o braço de 7 cordas em Si Kurd usando o Etude de Bordão de Corda Solta na 7ª corda (B1) e teste os voicings Quartais de 7 cordas.",
-    "taskEn": "Explore the 7-string neck in B Kurd using the Open-String Pedal Etude on the 7th string (B1) and audition 7-string quartal voicings.",
-    "earTipPt": "Use o contraste de oitavas: deixe a 7ª corda solta (B1) sustentar a tônica enquanto o Jins Kurd canta duas oitavas acima.",
-    "earTipEn": "Exploit octave separation: let the open 7th string (B1) anchor the tonic while Jins Kurd sings two octaves higher.",
-    "audioAction": "ETUDE",
-    "suggestEtude": true,
-    "suggestVoicing": true,
-    "preset": {
-      "scaleId": "maqam_kurd",
-      "rootQ": 22,
-      "tuningId": "7_b_standard",
-      "microMode": "bend",
-      "chordId": "quartal_3",
-      "rhythmId": "iqa_baladi",
-      "etudePatternId": "pedal_drone",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_18_7str_all_fourths",
-    "moduleId": "mod_extended_range",
-    "number": 18,
-    "duration": "15 min",
-    "glossaryTerm": "7c All Fourths",
-    "titlePt": "7 Cordas All Fourths (BEADGCF): Geometria Pura",
-    "titleEn": "7-String All Fourths (BEADGCF): Pure Geometry",
-    "summaryPt": "Com 7 cordas afinadas estritamente em quartas justas, qualquer forma fechada de Maqam Nikriz ou arpejo quartal é 100% invariante de ponta a ponta.",
-    "summaryEn": "With 7 strings tuned strictly in perfect fourths, every closed Maqam Nikriz shape or quartal arpeggio shifts identically across all 7 strings.",
-    "taskPt": "Ative a Janela de Forma Fechada (5 casas) em 7c All Fourths e pratique linhas diagonais em Ré Nikriz sobre Sama’i Thaqil (10/8).",
-    "taskEn": "Enable the 5-fret Closed Window in 7-String All Fourths and practice diagonal D Nikriz runs over Sama’i Thaqil (10/8).",
-    "earTipPt": "Sem a quebra da corda B, você consegue empilhar até 4 ou 5 quartas justas em uma pestana limpa.",
-    "earTipEn": "Without the B-string warp, you can stack 4 or 5 perfect fourths cleanly under a single vertical barre.",
-    "audioAction": "SCALE",
-    "suggestVoicing": true,
-    "suggestRhythm": true,
-    "preset": {
-      "scaleId": "maqam_nikriz",
-      "rootQ": 4,
-      "tuningId": "7_all_fourths",
-      "microMode": "bend",
-      "chordId": "quartal_4_so_what",
-      "rhythmId": "iqa_samai_thaqil",
-      "etudePatternId": "interval_seq",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
-  },
-  {
-    "id": "sg_19_8str_meshuggah_poly",
-    "moduleId": "mod_extended_range",
-    "number": 19,
-    "duration": "18 min",
-    "glossaryTerm": "8c F Std / 13/16",
-    "titlePt": "8 Cordas F Standard (Meshuggah) & Polimetria 13/16",
-    "titleEn": "8-String F Standard (Meshuggah) & 13/16 Polymeter",
-    "summaryPt": "Combine a afinação icônica de 8 cordas em Fá (F1 = 43,65 Hz) com a escala Octatônica (Messiaen Modo 2) e deslocamento polimétrico em 13/16.",
-    "summaryEn": "Pair the iconic 8-string F Standard tuning (F1 = 43.65 Hz) with the Half-Whole Octatonic scale (Messiaen Mode 2) and 13/16 polymetric shifting.",
-    "taskPt": "Inicie o ciclo 13/16 com Trilha B em 4 pulsos e pratique o Etude de String Skipping sobre Fá Messiaen Modo 2 (trocando o timbre para Doom Fuzz no Deck).",
-    "taskEn": "Start the 13/16 cycle with Track B in 4 and run the String Skipping Etude in F Messiaen Mode 2 (try Doom Fuzz in the Audio/FX compartment).",
-    "earTipPt": "Nas cordas 8 e 7, menos notas com máxima precisão rítmica soam mais pesadas do que acordes cheios.",
-    "earTipEn": "On strings 8 and 7, sparse notes with razor-tight rhythmic precision hit far harder than dense chords.",
-    "audioAction": "RHYTHM",
-    "suggestRhythm": true,
-    "suggestEtude": true,
-    "preset": {
-      "scaleId": "messiaen_mode2",
-      "rootQ": 10,
-      "tuningId": "8_f_meshuggah",
-      "microMode": "bend",
-      "chordId": "viennese_chord",
-      "rhythmId": "odd_13_16",
-      "etudePatternId": "string_skip",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_20_8str_drop_e_line",
-    "moduleId": "mod_extended_range",
-    "number": 20,
-    "duration": "15 min",
-    "glossaryTerm": "8c Drop E (41,2 Hz)",
-    "titlePt": "8 Cordas Drop E (E1 = 41,2 Hz): Sub-Grave & Line Mode",
-    "titleEn": "8-String Drop E (E1 = 41.2 Hz): Sub-Bass & Line Mode",
-    "summaryPt": "Domine o registro de contrabaixo na guitarra de 8 cordas Drop E (E B E A D G B E) com Frígio, intervalos abertos e aferição ao vivo no Line Mode (34 Hz).",
-    "summaryEn": "Command bass-register territory on an 8-string Drop E (E B E A D G B E) using Phrygian gravity, wide intervals, and 34 Hz Line Mode tracking.",
-    "taskPt": "Abra o Line Mode, teste a estabilidade da 8ª corda solta (E1 = 41,2 Hz) no Afinador de 8 cordas e verifique a tensão ideal na aba Tensão de Cordas.",
-    "taskEn": "Open Line Mode, check pick-attack pitch stability on the open 8th string (E1 = 41.2 Hz) in the 8-string tuner, then inspect its tension in String Tension.",
-    "earTipPt": "Na frequência de E1 (41,2 Hz), um ataque excessivo de palheta pode elevar o pitch em até +25¢ no primeiro instante — pratique ataque controlado.",
-    "earTipEn": "At E1 (41.2 Hz), heavy pick strikes can sharpen the transient by +25¢ — practice controlled, consistent attack.",
-    "audioAction": "ETUDE",
-    "suggestLivePitch": true,
-    "suggestTension": true,
-    "preset": {
-      "scaleId": "std_phrygian",
-      "rootQ": 8,
-      "tuningId": "8_drop_e",
-      "microMode": "bend",
-      "chordId": "quintal_3",
-      "rhythmId": "odd_13_16",
-      "etudePatternId": "pedal_drone",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": true
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "iqa",
+      "polymeter",
+      "aksak"
+    ]
   },
   {
     "id": "sg_21_radar_parallel_shift",
     "moduleId": "mod_modulation_sayr",
-    "number": 21,
+    "number": 23,
     "duration": "12 min",
     "glossaryTerm": "Mutação ±1 Grau",
     "titlePt": "Mutações Paralelas no Radar: Dórico → Bayati → Kurd",
@@ -702,12 +934,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "24tet",
+      "neutral_degree",
+      "greek_modes"
+    ]
   },
   {
     "id": "sg_22_sayr_ghammaz_vamp",
     "moduleId": "mod_modulation_sayr",
-    "number": 22,
+    "number": 24,
     "duration": "15 min",
     "glossaryTerm": "Sayr / Ghammaz (4ª)",
     "titlePt": "Modulação Sayr pelo Ghammaz (Bayati → Hijaz → Rast)",
@@ -732,12 +970,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "sayr",
+      "qarar_ghammaz",
+      "maqam"
+    ]
   },
   {
     "id": "sg_23_lydian_mediants",
     "moduleId": "mod_modulation_sayr",
-    "number": 23,
+    "number": 25,
     "duration": "15 min",
     "glossaryTerm": "Mediantes Cromáticas",
     "titlePt": "Mediantes Cromáticas Lídias (F → A♭ → B → D)",
@@ -763,12 +1007,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "chromatic_mediants",
+      "greek_modes",
+      "quintal_harmony"
+    ]
   },
   {
     "id": "sg_24_baritone_doom_cycle",
     "moduleId": "mod_modulation_sayr",
-    "number": 24,
+    "number": 26,
     "duration": "15 min",
     "glossaryTerm": "B Std Modulação Doom",
     "titlePt": "Modulação Barítono: Nawa Athar ↔ Saba Zamzam",
@@ -793,12 +1043,336 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "baritone_multiscale",
+      "sayr",
+      "maqam"
+    ]
+  },
+  {
+    "id": "sg_17_7str_kurd_b",
+    "moduleId": "mod_extended_range",
+    "number": 27,
+    "duration": "15 min",
+    "glossaryTerm": "7c B Std / Drop A",
+    "titlePt": "7 Cordas B Standard: Modalismo Grave em Kurd",
+    "titleEn": "7-String B Standard: Low-Register Modalism in Kurd",
+    "summaryPt": "Estenda o fraseado árabe do Maqam Kurd até a 7ª corda solta (B1), equilibrando bordões profundos com melodias cantáveis nas cordas agudas.",
+    "summaryEn": "Extend Arabic Maqam Kurd phrasing down to the open 7th string (B1), balancing deep drones with lyrical treble lines.",
+    "taskPt": "Explore o braço de 7 cordas em Si Kurd usando o Etude de Bordão de Corda Solta na 7ª corda (B1) e teste os voicings Quartais de 7 cordas.",
+    "taskEn": "Explore the 7-string neck in B Kurd using the Open-String Pedal Etude on the 7th string (B1) and audition 7-string quartal voicings.",
+    "earTipPt": "Use o contraste de oitavas: deixe a 7ª corda solta (B1) sustentar a tônica enquanto o Jins Kurd canta duas oitavas acima.",
+    "earTipEn": "Exploit octave separation: let the open 7th string (B1) anchor the tonic while Jins Kurd sings two octaves higher.",
+    "audioAction": "ETUDE",
+    "suggestEtude": true,
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "maqam_kurd",
+      "rootQ": 22,
+      "tuningId": "7_b_standard",
+      "microMode": "bend",
+      "chordId": "quartal_3",
+      "rhythmId": "iqa_baladi",
+      "etudePatternId": "pedal_drone",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "scordatura",
+      "baritone_multiscale",
+      "maqam"
+    ]
+  },
+  {
+    "id": "sg_18_7str_all_fourths",
+    "moduleId": "mod_extended_range",
+    "number": 28,
+    "duration": "15 min",
+    "glossaryTerm": "7c All Fourths",
+    "titlePt": "7 Cordas All Fourths (BEADGCF): Geometria Pura",
+    "titleEn": "7-String All Fourths (BEADGCF): Pure Geometry",
+    "summaryPt": "Com 7 cordas afinadas estritamente em quartas justas, qualquer forma fechada de Maqam Nikriz ou arpejo quartal é 100% invariante de ponta a ponta.",
+    "summaryEn": "With 7 strings tuned strictly in perfect fourths, every closed Maqam Nikriz shape or quartal arpeggio shifts identically across all 7 strings.",
+    "taskPt": "Ative a Janela de Forma Fechada (5 casas) em 7c All Fourths e pratique linhas diagonais em Ré Nikriz sobre Sama’i Thaqil (10/8).",
+    "taskEn": "Enable the 5-fret Closed Window in 7-String All Fourths and practice diagonal D Nikriz runs over Sama’i Thaqil (10/8).",
+    "earTipPt": "Sem a quebra da corda B, você consegue empilhar até 4 ou 5 quartas justas em uma pestana limpa.",
+    "earTipEn": "Without the B-string warp, you can stack 4 or 5 perfect fourths cleanly under a single vertical barre.",
+    "audioAction": "SCALE",
+    "suggestVoicing": true,
+    "suggestRhythm": true,
+    "preset": {
+      "scaleId": "maqam_nikriz",
+      "rootQ": 4,
+      "tuningId": "7_all_fourths",
+      "microMode": "bend",
+      "chordId": "quartal_4_so_what",
+      "rhythmId": "iqa_samai_thaqil",
+      "etudePatternId": "interval_seq",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "all_fourths",
+      "closed_shape",
+      "iqa"
+    ]
+  },
+  {
+    "id": "sg_19_8str_meshuggah_poly",
+    "moduleId": "mod_extended_range",
+    "number": 29,
+    "duration": "18 min",
+    "glossaryTerm": "8c F Std / 13/16",
+    "titlePt": "8 Cordas F Standard (Meshuggah) & Polimetria 13/16",
+    "titleEn": "8-String F Standard (Meshuggah) & 13/16 Polymeter",
+    "summaryPt": "Combine a afinação icônica de 8 cordas em Fá (F1 = 43,65 Hz) com a escala Octatônica (Messiaen Modo 2) e deslocamento polimétrico em 13/16.",
+    "summaryEn": "Pair the iconic 8-string F Standard tuning (F1 = 43.65 Hz) with the Half-Whole Octatonic scale (Messiaen Mode 2) and 13/16 polymetric shifting.",
+    "taskPt": "Inicie o ciclo 13/16 com Trilha B em 4 pulsos e pratique o Etude de String Skipping sobre Fá Messiaen Modo 2 (trocando o timbre para Doom Fuzz no Deck).",
+    "taskEn": "Start the 13/16 cycle with Track B in 4 and run the String Skipping Etude in F Messiaen Mode 2 (try Doom Fuzz in the Audio/FX compartment).",
+    "earTipPt": "Nas cordas 8 e 7, menos notas com máxima precisão rítmica soam mais pesadas do que acordes cheios.",
+    "earTipEn": "On strings 8 and 7, sparse notes with razor-tight rhythmic precision hit far harder than dense chords.",
+    "audioAction": "RHYTHM",
+    "suggestRhythm": true,
+    "suggestEtude": true,
+    "preset": {
+      "scaleId": "messiaen_mode2",
+      "rootQ": 10,
+      "tuningId": "8_f_meshuggah",
+      "microMode": "bend",
+      "chordId": "viennese_chord",
+      "rhythmId": "odd_13_16",
+      "etudePatternId": "string_skip",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "polymeter",
+      "messiaen",
+      "baritone_multiscale"
+    ]
+  },
+  {
+    "id": "sg_20_8str_drop_e_line",
+    "moduleId": "mod_extended_range",
+    "number": 30,
+    "duration": "15 min",
+    "glossaryTerm": "8c Drop E (41,2 Hz)",
+    "titlePt": "8 Cordas Drop E (E1 = 41,2 Hz): Sub-Grave & Line Mode",
+    "titleEn": "8-String Drop E (E1 = 41.2 Hz): Sub-Bass & Line Mode",
+    "summaryPt": "Domine o registro de contrabaixo na guitarra de 8 cordas Drop E (E B E A D G B E) com Frígio, intervalos abertos e aferição ao vivo no Line Mode (34 Hz).",
+    "summaryEn": "Command bass-register territory on an 8-string Drop E (E B E A D G B E) using Phrygian gravity, wide intervals, and 34 Hz Line Mode tracking.",
+    "taskPt": "Abra o Line Mode, teste a estabilidade da 8ª corda solta (E1 = 41,2 Hz) no Afinador de 8 cordas e verifique a tensão ideal na aba Tensão de Cordas.",
+    "taskEn": "Open Line Mode, check pick-attack pitch stability on the open 8th string (E1 = 41.2 Hz) in the 8-string tuner, then inspect its tension in String Tension.",
+    "earTipPt": "Na frequência de E1 (41,2 Hz), um ataque excessivo de palheta pode elevar o pitch em até +25¢ no primeiro instante — pratique ataque controlado.",
+    "earTipEn": "At E1 (41.2 Hz), heavy pick strikes can sharpen the transient by +25¢ — practice controlled, consistent attack.",
+    "audioAction": "ETUDE",
+    "suggestLivePitch": true,
+    "suggestTension": true,
+    "preset": {
+      "scaleId": "std_phrygian",
+      "rootQ": 8,
+      "tuningId": "8_drop_e",
+      "microMode": "bend",
+      "chordId": "quintal_3",
+      "rhythmId": "odd_13_16",
+      "etudePatternId": "pedal_drone",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "advanced",
+    "glossaryIds": [
+      "line_mode_yin",
+      "string_tension",
+      "baritone_multiscale"
+    ]
+  },
+  {
+    "id": "sg_09_messiaen_mode2",
+    "moduleId": "mod_symmetry_posttonal",
+    "number": 31,
+    "duration": "15 min",
+    "glossaryTerm": "Messiaen Modo 2 (+3)",
+    "titlePt": "Messiaen Modo 2: Simetria de 3 em 3 Casas",
+    "titleEn": "Messiaen Mode 2: 3-Fret Shift Symmetry",
+    "summaryPt": "Explore a escala Octatônica (½–1) onde qualquer célula melódica ou acorde pode ser transladado exatamente +3 casas mantendo 100% das notas na escala.",
+    "summaryEn": "Explore the Half–Whole Octatonic grid where any melodic cell or voicing shifts verbatim +3 frets while staying 100% in scale.",
+    "taskPt": "Gere um Etude de Sequências Intervalares em Messiaen Modo 2 e pratique deslocar o mesmo motivo 3 casas acima na região média e aguda.",
+    "taskEn": "Generate an Intervallic Sequence Etude in Messiaen Mode 2 and shift the same motif +3 frets across mid and high zones.",
+    "earTipPt": "Ouça as quatro tríades maiores ocultas (ex.: C, E♭, F♯, A) que criam modulações instantâneas sem sair da mesma escala.",
+    "earTipEn": "Listen for the four hidden major triads (e.g., C, E♭, F♯, A) unlocking instant outside color inside one scale.",
+    "audioAction": "ETUDE",
+    "suggestEtude": true,
+    "suggestRhythm": true,
+    "preset": {
+      "scaleId": "messiaen_mode2",
+      "rootQ": 0,
+      "tuningId": "standard",
+      "microMode": "bend",
+      "chordId": "maj7_b5",
+      "rhythmId": "odd_5_4",
+      "etudePatternId": "interval_seq",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "master",
+    "glossaryIds": [
+      "messiaen",
+      "12tet"
+    ]
+  },
+  {
+    "id": "sg_10_messiaen_mode3_m3",
+    "moduleId": "mod_symmetry_posttonal",
+    "number": 32,
+    "duration": "15 min",
+    "glossaryTerm": "Messiaen Modo 3 / M3",
+    "titlePt": "Messiaen Modo 3 & Afinação de Terças Maiores",
+    "titleEn": "Messiaen Mode 3 & Major Thirds Tuning",
+    "summaryPt": "Quando uma escala de simetria em 3ª maior encontra a afinação Terças Maiores (C E G♯ C E G♯), o braço inteiro vira um mosaico perfeitamente repetitivo.",
+    "summaryEn": "When a major-3rd symmetric scale meets Major Thirds tuning (C E G♯ C E G♯), the entire fretboard becomes a seamless repeating mosaic.",
+    "taskPt": "Observe o padrão visual no braço e capture uma frase diagonal de 8 notas clicando diretamente no SVG (modo Frase Gravada na Partitura/Tab).",
+    "taskEn": "Inspect the repeating neck grid and capture an 8-note diagonal phrase by clicking directly on the SVG (Recorded Phrase tab mode).",
+    "earTipPt": "O Modo 3 elimina a sensação de tônica tradicional; crie tensão alternando tríades aumentadas e mediantes cromáticas.",
+    "earTipEn": "Mode 3 dissolves traditional tonic pull; build momentum by pivoting across augmented triads and chromatic mediants.",
+    "audioAction": "SCALE",
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "messiaen_mode3",
+      "rootQ": 0,
+      "tuningId": "major_thirds",
+      "microMode": "bend",
+      "chordId": "maj7_b5",
+      "rhythmId": "odd_5_4",
+      "etudePatternId": "string_skip",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "master",
+    "glossaryIds": [
+      "messiaen",
+      "scordatura"
+    ]
+  },
+  {
+    "id": "sg_11_slonimsky_skip",
+    "moduleId": "mod_symmetry_posttonal",
+    "number": 33,
+    "duration": "15 min",
+    "glossaryTerm": "Slonimsky / Trítono",
+    "titlePt": "Slonimsky & String Skipping Angular",
+    "titleEn": "Slonimsky & Angular String Skipping",
+    "summaryPt": "Aplique a interpolação simétrica de trítono de Nicolas Slonimsky para gerar fraseados angulares de jazz contemporâneo e metal técnico.",
+    "summaryEn": "Apply Nicolas Slonimsky’s tritone interpolation to generate angular phrasing for contemporary jazz and technical metal.",
+    "taskPt": "Ative o Etude de String Skipping com Auto +4 BPM e Loop ligados, começando em 80 BPM e focando na limpeza dos saltos de corda.",
+    "taskEn": "Run the String Skipping Etude with Loop and Auto +4 BPM engaged, starting at 80 BPM with razor-clean string crossings.",
+    "earTipPt": "Toda frase criada em Slonimsky #1 repete sua geometria exata 6 casas acima (no trítono).",
+    "earTipEn": "Every melodic cell in Slonimsky #1 mirrors verbatim 6 frets higher at the tritone.",
+    "audioAction": "ETUDE",
+    "suggestEtude": true,
+    "suggestRhythm": true,
+    "preset": {
+      "scaleId": "slonimsky_tritone_interp",
+      "rootQ": 8,
+      "tuningId": "all_fourths",
+      "microMode": "bend",
+      "chordId": "viennese_chord",
+      "rhythmId": "aksak_11_8",
+      "etudePatternId": "string_skip",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "master",
+    "glossaryIds": [
+      "slonimsky",
+      "all_fourths"
+    ]
+  },
+  {
+    "id": "sg_30_kopanitsa_11_8",
+    "moduleId": "mod_symmetry_posttonal",
+    "number": 34,
+    "duration": "15 min",
+    "glossaryTerm": "Kopanitsa 11/8 × 4",
+    "titlePt": "Polimetria Avançada: Kopanitsa 11/8 contra Ciclo de 4",
+    "titleEn": "Advanced Polymeter: 11/8 Kopanitsa vs. 4-Pulse Cycle",
+    "summaryPt": "Domine o ciclo balcânico de 11 pulsos (2+2+3+2+2) sobreposto a uma camada polimétrica de 4 (MMC = 44 pulsos) — arquitetura assinatura de Tigran Hamasyan e prog moderno.",
+    "summaryEn": "Master the 11-pulse Balkan cycle (2+2+3+2+2) layered against a 4-pulse polymeter (LCM = 44 pulses) — signature architecture of Tigran Hamasyan and modern prog.",
+    "taskPt": "Inicie Kopanitsa 11/8, ative a Polimetria Trilha B = 4 e pratique o Etude em Slonimsky #1 sobre B Standard mantendo a subdivisão firme.",
+    "taskEn": "Start Kopanitsa 11/8, engage Track B Polymeter = 4, and practice the Slonimsky #1 Etude in B Standard keeping every eighth-note crisp.",
+    "earTipPt": "Marque o grupo alongado de 3 colcheias no meio do compasso (pulsos 5–6–7) com uma acentuação física do pé ou do tronco.",
+    "earTipEn": "Anchor the elongated 3-eighth middle cell (pulses 5–6–7) physically so the 11-pulse cycle grooves naturally.",
+    "audioAction": "RHYTHM",
+    "suggestRhythm": true,
+    "suggestEtude": true,
+    "preset": {
+      "scaleId": "slonimsky_tritone_interp",
+      "rootQ": 22,
+      "tuningId": "b_standard",
+      "microMode": "bend",
+      "chordId": "viennese_chord",
+      "rhythmId": "aksak_11_8",
+      "etudePatternId": "string_skip",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": false
+    },
+    "level": "master",
+    "glossaryIds": [
+      "aksak",
+      "polymeter",
+      "slonimsky"
+    ]
+  },
+  {
+    "id": "sg_12_pitch_class_sets",
+    "moduleId": "mod_symmetry_posttonal",
+    "number": 35,
+    "duration": "15 min",
+    "glossaryTerm": "Forte 3-5 / 4-Z15",
+    "titlePt": "Teoria dos Conjuntos: [0,1,6] & Todos-os-Intervalos",
+    "titleEn": "Pitch-Class Set Theory: [0,1,6] & All-Interval Sets",
+    "summaryPt": "Use o Vetor Intervalar de Allen Forte para compor além de escalas tradicionais — do Tricorde Vienense [0,1,6] ao universal [0,1,4,6] (<111111>).",
+    "summaryEn": "Use Allen Forte’s Interval Vector to compose beyond conventional scales — from the Viennese Trichord [0,1,6] to the universal [0,1,4,6] (<111111>).",
+    "taskPt": "Abra a aba Harmonia & Voicings, percorra as 4 primeiras inversões de [0,1,4,6] e depois experimente montar seu próprio conjunto no Construtor 24-TET.",
+    "taskEn": "Open Harmony & Voicings, audition the first 4 inversions of [0,1,4,6], then craft your own collection in the 24-TET Set Builder.",
+    "earTipPt": "Preste atenção na transparência do som quando você abre o semitom em uma 9ª menor ou 7ª maior entre cordas espaçadas.",
+    "earTipEn": "Notice how opening a semitone into a minor 9th or major 7th across skipped strings turns harshness into shimmering clarity.",
+    "audioAction": "VOICING",
+    "suggestVoicing": true,
+    "preset": {
+      "scaleId": "set_all_interval_0146",
+      "rootQ": 4,
+      "tuningId": "b_standard",
+      "microMode": "bend",
+      "chordId": "all_interval_chord",
+      "rhythmId": "aksak_11_8",
+      "etudePatternId": "string_skip",
+      "droneOn": false,
+      "harmonicsOn": false,
+      "voicingOverlayOn": true
+    },
+    "level": "master",
+    "glossaryIds": [
+      "pitch_class_set",
+      "interval_vector"
+    ]
   },
   {
     "id": "sg_25_ji_5limit_thirds",
     "moduleId": "mod_microtonal_frontier",
-    "number": 25,
+    "number": 36,
     "duration": "12 min",
     "glossaryTerm": "Just Intonation 5/4 (−14¢)",
     "titlePt": "Entonação Justa 5-Limit: A Pureza da Terça −14¢",
@@ -825,12 +1399,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": true,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "master",
+    "glossaryIds": [
+      "just_intonation",
+      "scala_scl",
+      "cent"
+    ]
   },
   {
     "id": "sg_26_ji_7limit_blues",
     "moduleId": "mod_microtonal_frontier",
-    "number": 26,
+    "number": 37,
     "duration": "15 min",
     "glossaryTerm": "Sétima Harmônica 7/4 (−31¢)",
     "titlePt": "Entonação Justa 7-Limit: O Verdadeiro Blues Septimal",
@@ -857,12 +1437,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "master",
+    "glossaryIds": [
+      "just_intonation",
+      "harmonic_series",
+      "scala_scl"
+    ]
   },
   {
     "id": "sg_27_ottoman_53tet_ussak",
     "moduleId": "mod_microtonal_frontier",
-    "number": 27,
+    "number": 38,
     "duration": "15 min",
     "glossaryTerm": "53-TET / Commas (181¢)",
     "titlePt": "53-TET Otomano: Makam Uşşak vs. Bayati Árabe",
@@ -889,12 +1475,18 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
+    },
+    "level": "master",
+    "glossaryIds": [
+      "edo_53",
+      "scala_scl",
+      "24tet"
+    ]
   },
   {
     "id": "sg_28_bohlen_pierce_gamelan",
     "moduleId": "mod_microtonal_frontier",
-    "number": 28,
+    "number": 39,
     "duration": "15 min",
     "glossaryTerm": "Bohlen-Pierce 3/1 (1902¢)",
     "titlePt": "Além da Oitava: Bohlen-Pierce (Tritava 3/1) & Gamelan",
@@ -920,100 +1512,18 @@ export const STUDY_LESSONS = [
       "droneOn": false,
       "harmonicsOn": false,
       "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_29_ear_neutral_mastery",
-    "moduleId": "mod_luthier_ear_mastery",
-    "number": 29,
-    "duration": "12 min",
-    "glossaryTerm": "Treino 150¢ / 350¢",
-    "titlePt": "Treino Auditivo 24-TET: Cravando Segundas e Terças Neutras",
-    "titleEn": "24-TET Ear Mastery: Locking Neutral 2nds & 3rds",
-    "summaryPt": "Treine o ouvido para distinguir instantaneamente semitom (100¢), neutro (150¢) e tom (200¢), além de ♭3 (300¢), terça neutra (350¢) e 3ª maior (400¢).",
-    "summaryEn": "Train your ear to separate minor 2nd (100¢), neutral 2nd (150¢), and major 2nd (200¢), plus minor (300¢), neutral (350¢), and major (400¢) thirds.",
-    "taskPt": "Abra o Treino Auditivo (Estudo & Áudio), alcance uma sequência (Streak) de 6 acertos em Segundas e depois em Terças, comparando os sons após cada resposta.",
-    "taskEn": "Open the 24-TET Ear Trainer (Study & Audio), hit a 6-answer streak on Seconds then Thirds, auditioning choices side by side.",
-    "earTipPt": "Cante a nota antes de clicar na opção: se o som parecer 'suspenso entre triste e alegre', você está ouvindo um grau neutro.",
-    "earTipEn": "Sing the pitch before clicking: if it feels suspended right between dark and bright, you are hearing a neutral degree.",
-    "audioAction": "SCALE",
-    "suggestEar": true,
-    "preset": {
-      "scaleId": "maqam_rast",
-      "rootQ": 0,
-      "tuningId": "standard",
-      "microMode": "bend",
-      "chordId": "rast_neutral_triad",
-      "rhythmId": "iqa_maqsum",
-      "etudePatternId": "micro_bend_lab",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_30_kopanitsa_11_8",
-    "moduleId": "mod_luthier_ear_mastery",
-    "number": 30,
-    "duration": "15 min",
-    "glossaryTerm": "Kopanitsa 11/8 × 4",
-    "titlePt": "Polimetria Avançada: Kopanitsa 11/8 contra Ciclo de 4",
-    "titleEn": "Advanced Polymeter: 11/8 Kopanitsa vs. 4-Pulse Cycle",
-    "summaryPt": "Domine o ciclo balcânico de 11 pulsos (2+2+3+2+2) sobreposto a uma camada polimétrica de 4 (MMC = 44 pulsos) — arquitetura assinatura de Tigran Hamasyan e prog moderno.",
-    "summaryEn": "Master the 11-pulse Balkan cycle (2+2+3+2+2) layered against a 4-pulse polymeter (LCM = 44 pulses) — signature architecture of Tigran Hamasyan and modern prog.",
-    "taskPt": "Inicie Kopanitsa 11/8, ative a Polimetria Trilha B = 4 e pratique o Etude em Slonimsky #1 sobre B Standard mantendo a subdivisão firme.",
-    "taskEn": "Start Kopanitsa 11/8, engage Track B Polymeter = 4, and practice the Slonimsky #1 Etude in B Standard keeping every eighth-note crisp.",
-    "earTipPt": "Marque o grupo alongado de 3 colcheias no meio do compasso (pulsos 5–6–7) com uma acentuação física do pé ou do tronco.",
-    "earTipEn": "Anchor the elongated 3-eighth middle cell (pulses 5–6–7) physically so the 11-pulse cycle grooves naturally.",
-    "audioAction": "RHYTHM",
-    "suggestRhythm": true,
-    "suggestEtude": true,
-    "preset": {
-      "scaleId": "slonimsky_tritone_interp",
-      "rootQ": 22,
-      "tuningId": "b_standard",
-      "microMode": "bend",
-      "chordId": "viennese_chord",
-      "rhythmId": "aksak_11_8",
-      "etudePatternId": "string_skip",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
-  },
-  {
-    "id": "sg_31_tension_baritone_eng",
-    "moduleId": "mod_luthier_ear_mastery",
-    "number": 31,
-    "duration": "12 min",
-    "glossaryTerm": "Tensão Física / Barítono",
-    "titlePt": "Engenharia de Tensão: Calibrando B Standard & A Standard",
-    "titleEn": "Tension Engineering: Calibrating B Standard & A Standard",
-    "summaryPt": "Entenda a física T = UW·(2Lf)²/386 na prática: evite cordas moles em afinações graves comparando escalas 25.5\", 27.0\" e Multi-Scale na aba Luthieria.",
-    "summaryEn": "Apply T = UW·(2Lf)²/386 to your real guitar: cure floppy low strings in baritone tunings by comparing 25.5\", 27.0\", and Multi-Scale setups.",
-    "taskPt": "Abra a aba Tensão de Cordas (Luthieria) com A Standard carregado, teste a diferença entre 25.5\" e 27.0\" e clique em '✦ Sugerir Calibres Ideais' em 17.5 lbs.",
-    "taskEn": "Open String Tension (Luthier) in A Standard, compare 25.5\" vs 27.0\" scale lengths, and click '✦ Recommend Balanced Gauges' at 17.5 lbs.",
-    "earTipPt": "Para micro-bends precisos de +50¢ em barítono, mantenha as cordas agudas lisas (P) entre 14,5 e 16,5 lbs e as graves encapadas (W) entre 17,5 e 20 lbs.",
-    "earTipEn": "For effortless +50¢ micro-bends on baritone, aim for 14.5–16.5 lbs on plain trebles and 17.5–20 lbs on wound basses.",
-    "audioAction": "SCALE",
-    "suggestTension": true,
-    "preset": {
-      "scaleId": "maqam_saba_zamzam",
-      "rootQ": 18,
-      "tuningId": "a_standard",
-      "microMode": "bend",
-      "chordId": "cluster_secundal",
-      "rhythmId": "iqa_baladi",
-      "etudePatternId": "pedal_drone",
-      "droneOn": false,
-      "harmonicsOn": false,
-      "voicingOverlayOn": false
-    }
+    },
+    "level": "master",
+    "glossaryIds": [
+      "bohlen_pierce",
+      "gamelan",
+      "scala_scl"
+    ]
   },
   {
     "id": "sg_32_complete_studio_workflow",
-    "moduleId": "mod_luthier_ear_mastery",
-    "number": 32,
+    "moduleId": "mod_microtonal_frontier",
+    "number": 40,
     "duration": "15 min",
     "glossaryTerm": "Zen + DAW MIDI/XML",
     "titlePt": "Workflow Completo: Modo Zen, Pranchas PNG & Exportação DAW",
@@ -1038,6 +1548,12 @@ export const STUDY_LESSONS = [
       "droneOn": true,
       "harmonicsOn": false,
       "voicingOverlayOn": true
-    }
+    },
+    "level": "master",
+    "glossaryIds": [
+      "midi_musicxml_24",
+      "closed_shape",
+      "maqam"
+    ]
   }
 ];

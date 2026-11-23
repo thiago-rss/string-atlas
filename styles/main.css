@@ -3081,3 +3081,124 @@ body[data-zen="true"] .header-menu-drawer {
   color: var(--accent-root);
   font-weight: 600;
 }
+
+/* =========================================================================
+ * Phase 8.4 Additions: Interactive Glossary & 4-Level Progressive Curriculum
+ * ========================================================================= */
+
+.sg-next-banner {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent-root);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sg-next-banner.is-complete {
+  border-color: var(--accent-live);
+  color: var(--accent-live);
+}
+
+.sg-next-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sg-level-badge {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.sg-level-badge.lvl-foundation {
+  background: rgba(82, 242, 156, 0.16);
+  color: var(--accent-live);
+}
+
+.sg-level-badge.lvl-intermediate {
+  background: rgba(229, 169, 85, 0.2);
+  color: var(--accent-root);
+}
+
+.sg-level-badge.lvl-advanced {
+  background: rgba(240, 140, 75, 0.2);
+  color: var(--accent-micro);
+}
+
+.sg-level-badge.lvl-master {
+  background: rgba(214, 123, 255, 0.2);
+  color: var(--accent-radar-b);
+}
+
+.gl-link-chip {
+  font-size: 0.72rem;
+  border-style: dashed;
+}
+
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .glossary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gl-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.gl-card.is-focused {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1.5px var(--accent-root), 0 0 22px rgba(229, 169, 85, 0.22);
+}
+
+.gl-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gl-card-title {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+}
+
+.gl-card-def {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.gl-tip-box {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border-left: 2px solid var(--accent-scale);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+}

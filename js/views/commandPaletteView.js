@@ -10,6 +10,7 @@ import { THEMES } from '../core/themes.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { STUDY_LESSONS } from '../core/studyGuide.js';
 import { SCALA_PRESETS } from '../core/scalaEngine.js';
+import { GLOSSARY_TERMS } from '../core/glossary.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
@@ -27,6 +28,7 @@ const TOOL_COMMANDS = [
   { id: 'harmony', key: 'tabHarmony',    icon: '◈' },
   { id: 'rhythm',  key: 'tabRhythm',     icon: '♪' },
   { id: 'study',   key: 'tabStudyGuide', icon: '✦' },
+  { id: 'glossary', key: 'tabGlossary',  icon: '📖' },
   { id: 'line',    key: 'tabLineMode',   icon: '●' },
   { id: 'ear',     key: 'tabEarLab',     icon: '🎧' },
   { id: 'tension', key: 'tabTension',    icon: '🔧' },
@@ -125,7 +127,21 @@ export function buildCommandIndex(lang = 'pt') {
     });
   });
 
-  // 6. Study Lessons (32)
+  // 5c. Glossary Terms (39)
+  GLOSSARY_TERMS.forEach((g) => {
+    items.push({
+      uid: `glossary:${g.id}`,
+      type: 'glossary',
+      badge: g.symbol,
+      icon: '📖',
+      title: isEn ? g.termEn : g.termPt,
+      sub: isEn ? 'Technical Glossary' : 'Glossário Técnico',
+      search: `${g.termPt} ${g.termEn} ${g.symbol} glossario glossary ${g.id}`.toLowerCase(),
+      payload: { glossaryId: g.id }
+    });
+  });
+
+  // 6. Study Lessons (40)
   STUDY_LESSONS.forEach((l) => {
     items.push({
       uid: `lesson:${l.id}`,
@@ -237,6 +253,19 @@ export function executeCommandItem(item) {
       scalaCustomText: '',
       scalaOverlayOn: true,
       activeTab: 'scala',
+      workspaceOpen: true,
+      paletteOpen: false,
+      paletteQuery: ''
+    });
+    return;
+  }
+
+  if (item.type === 'glossary') {
+    setState({
+      glossaryCategory: 'all',
+      glossarySearch: '',
+      glossaryFocusId: item.payload.glossaryId,
+      activeTab: 'glossary',
       workspaceOpen: true,
       paletteOpen: false,
       paletteQuery: ''
