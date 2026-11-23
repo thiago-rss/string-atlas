@@ -1,10 +1,14 @@
 /**
- * Interactive 22-Fret SVG Fretboard Renderer v3.0
- * - 3 Microtonal Modes: 'bend' (12-TET + ↑¼), 'slide' (midpoint diamonds), 'frets24' (quarter-tone frets)
- * - Spectral Harmonics Overlay (2nd–7th partials)
- * - Dynamic Voicing Overlay
- * - Phase 3: Zero-thrash Procedural Etude Playhead Ring (highlights exact string & fret live)
+ * Interactive 22-Fret Luthier-Grade SVG Fretboard Renderer v7.2
+ * - Dynamic 6, 7, or 8 strings
+ * - Theme-matched woodgrain / carbon-fiber / matte surfaces, 3D neck curvature gradients,
+ *   neck binding with side-dot markers, slotted nut, 3D metallic fret wires,
+ *   cast string shadows, wound bass strings, and 6 distinct thematic inlay styles!
+ * - 3 Microtonal Modes ('bend', 'slide', 'frets24'), Spectral Harmonics, Voicing Overlay,
+ *   Closed-Position Fret Window, Radar Scale B Overlay, Etude Playhead & Live Pitch Mirror.
  */
+import { DB } from '../core/database.js';
+import { getThemeById } from '../core/themes.js';
 import {
   SPECTRAL_HARMONICS,
   mod24,
@@ -14,20 +18,21 @@ import {
   intervalQToCents
 } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
-import { DB } from '../core/database.js';
 import { getActiveScale, getActiveVoicing, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 
 const NUM_FRETS = 22;
-const SVG_W = 1220;
-function computeSvgH(numStrings) {
-  return TOP_Y + (numStrings - 1) * STRING_GAP + 48;
-}
-const NUT_X = 76;
+const SVG_W = 1240;
+const NUT_X = 86;
 const RIGHT_PAD = 24;
-const TOP_Y = 38;
+const TOP_Y = 44;
 const STRING_GAP = 36;
 const INLAY_FRETS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
+const INLAY_SET = new Set(INLAY_FRETS);
+
+function computeSvgH(numStrings) {
+  return TOP_Y + (numStrings - 1) * STRING_GAP + 54;
+}
 
 function buildFretXs() {
   const xs = [NUT_X];
@@ -35,7 +40,7 @@ function buildFretXs() {
   let totalWeight = 0;
   const weights = [];
   for (let f = 1; f <= NUM_FRETS; f += 1) {
-    const w = Math.pow(0.962, f - 1);
+    const w = Math.pow(0.958, f - 1);
     weights.push(w);
     totalWeight += w;
   }
@@ -50,7 +55,7 @@ function buildFretXs() {
 const FRET_XS = buildFretXs();
 
 function fretPosToX(pos) {
-  if (pos <= 0) return NUT_X - 30;
+  if (pos <= 0) return NUT_X - 36;
   const fLow = Math.floor(pos);
   const frac = pos - fLow;
   if (fLow >= NUM_FRETS) return FRET_XS[NUM_FRETS];
@@ -58,12 +63,12 @@ function fretPosToX(pos) {
 }
 
 function fretCenterX(f) {
-  if (f === 0) return NUT_X - 32;
+  if (f === 0) return NUT_X - 38;
   return (FRET_XS[f - 1] + FRET_XS[f]) / 2;
 }
 
 function stepQToX(stepQ, microMode) {
-  if (stepQ === 0) return NUT_X - 32;
+  if (stepQ === 0) return NUT_X - 38;
   const isMicro = stepQ % 2 !== 0;
   const fretNum = Math.floor(stepQ / 2);
   if (!isMicro) return fretCenterX(fretNum);
@@ -81,9 +86,184 @@ function getMarkerLabel(q, intervalQ, labelMode) {
 }
 
 /**
- * Updates the live Etude Playhead indicator directly inside the existing SVG
- * without rebuilding the DOM — ensures 60fps smoothness and 100% clickable controls.
+ * Builds rich SVG <defs> for the active theme's fretboard material, metallic frets,
+ * slotted nut, carbon/wood grain pattern, and marker shadows.
  */
+function buildFretboardDefs(fbSkin) {
+  const [w0, w1, w2] = fbSkin.woodStops;
+  const [n0, n1, n2] = fbSkin.nutStops;
+  const [f0, f1, f2] = fbSkin.fretStops;
+
+  let surfacePattern = '';
+  if (fbSkin.grainStyle === 'carbon') {
+    surfacePattern = `
+      <pattern id="saBoardTexture" width="12" height="12" patternUnits="userSpaceOnUse">
+        <rect width="6" height="6" fill="${fbSkin.grainColor}"/>
+        <rect x="6" y="6" width="6" height="6" fill="${fbSkin.grainColor}"/>
+        <path d="M0 12 L12 0 M-3 3 L3 -3 M9 15 L15 9" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+      </pattern>
+    `;
+  } else if (fbSkin.grainStyle === 'matte') {
+    surfacePattern = `
+      <pattern id="saBoardTexture" width="24" height="24" patternUnits="userSpaceOnUse">
+        <circle cx="12" cy="12" r="0.8" fill="${fbSkin.grainColor}"/>
+        <line x1="0" y1="0" x2="24" y2="0" stroke="rgba(255,255,255,0.025)" stroke-width="0.6"/>
+      </pattern>
+    `;
+  } else {
+    surfacePattern = `
+      <pattern id="saBoardTexture" width="180" height="36" patternUnits="userSpaceOnUse">
+        <path d="M0 6 Q 45 2, 90 7 T 180 6" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.6"/>
+        <path d="M0 15 Q 60 19, 120 14 T 180 16" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.1"/>
+        <path d="M0 24 Q 40 21, 95 26 T 180 23" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.8"/>
+        <path d="M0 32 Q 55 35, 130 31 T 180 33" fill="none" stroke="${fbSkin.grainColor}" stroke-width="0.9"/>
+      </pattern>
+    `;
+  }
+
+  return `
+    <defs>
+      <linearGradient id="saWoodGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${w0}"/>
+        <stop offset="48%" stop-color="${w1}"/>
+        <stop offset="100%" stop-color="${w2}"/>
+      </linearGradient>
+
+      <linearGradient id="saNutGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${n0}"/>
+        <stop offset="45%" stop-color="${n1}"/>
+        <stop offset="100%" stop-color="${n2}"/>
+      </linearGradient>
+
+      <linearGradient id="saFretGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${f0}"/>
+        <stop offset="50%" stop-color="${f1}"/>
+        <stop offset="100%" stop-color="${f2}"/>
+      </linearGradient>
+
+      <radialGradient id="saPearlGrad" cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+        <stop offset="65%" stop-color="${fbSkin.inlayFill === 'none' ? '#ffffff' : fbSkin.inlayFill}" stop-opacity="0.88"/>
+        <stop offset="100%" stop-color="${fbSkin.inlayFill === 'none' ? '#cccccc' : fbSkin.inlayFill}" stop-opacity="0.58"/>
+      </radialGradient>
+
+      <filter id="saNoteShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.55"/>
+      </filter>
+
+      ${surfacePattern}
+    </defs>
+  `;
+}
+
+/**
+ * Renders theme-specific fretboard inlays (Pearl Dots, 70s Trapezoids, Doom Monoliths,
+ * Djent Sharktooth, Avant Crosshairs, or Brazilian Armorial Sunbursts).
+ */
+function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
+  const out = [];
+  const midY = TOP_Y + STRING_GAP * ((numStrings - 1) / 2);
+  const style = fbSkin.inlayStyle || 'pearl_dot';
+
+  INLAY_FRETS.forEach((f) => {
+    const cx = fretCenterX(f);
+    const fretW = FRET_XS[f] - FRET_XS[f - 1];
+
+    if (style === 'vintage_trapezoid') {
+      // Classic 70s Les Paul / SG pearloid trapezoids scaled to each fret width
+      const h = f === 12 ? boardH * 0.56 : boardH * 0.48;
+      const wTop = Math.min(20, fretW * 0.42);
+      const wBot = Math.min(26, fretW * 0.54);
+      const y1 = midY - h / 2;
+      const y2 = midY + h / 2;
+      out.push(`
+        <polygon
+          points="${(cx - wTop / 2).toFixed(1)},${y1.toFixed(1)} ${(cx + wTop / 2).toFixed(1)},${y1.toFixed(1)} ${(cx + wBot / 2).toFixed(1)},${y2.toFixed(1)} ${(cx - wBot / 2).toFixed(1)},${y2.toFixed(1)}"
+          fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="1"
+        />
+      `);
+    } else if (style === 'doom_monolith') {
+      // Gothic elongated pointed diamond / double monolith at 12th fret
+      const drawGlyph = (gy, scale = 1) => {
+        const rx = Math.min(9.5, fretW * 0.24) * scale;
+        const ry = 18 * scale;
+        return `
+          <polygon points="${cx.toFixed(1)},${(gy - ry).toFixed(1)} ${(cx + rx).toFixed(1)},${gy.toFixed(1)} ${cx.toFixed(1)},${(gy + ry).toFixed(1)} ${(cx - rx).toFixed(1)},${gy.toFixed(1)}"
+            fill="${fbSkin.inlayFill}" fill-opacity="0.24" stroke="${fbSkin.inlayStroke}" stroke-width="1.1"/>
+          <line x1="${cx.toFixed(1)}" y1="${(gy - ry * 0.65).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${(gy + ry * 0.65).toFixed(1)}" stroke="${fbSkin.inlayStroke}" stroke-width="0.9" stroke-opacity="0.7"/>
+        `;
+      };
+      if (f === 12) {
+        out.push(drawGlyph(TOP_Y + STRING_GAP * 1.5, 0.85));
+        out.push(drawGlyph(TOP_Y + STRING_GAP * (numStrings - 2.5), 0.85));
+      } else {
+        out.push(drawGlyph(midY, 1));
+      }
+    } else if (style === 'djent_sharktooth') {
+      // Aggressive precision angled sharktooth inlays hugging the bass side
+      const xL = FRET_XS[f - 1] + fretW * 0.22;
+      const xR = FRET_XS[f] - fretW * 0.2;
+      const yBot = boardTop + boardH - 10;
+      const yPeak = f === 12 ? boardTop + 14 : boardTop + boardH * 0.42;
+      out.push(`
+        <polygon points="${xL.toFixed(1)},${yBot.toFixed(1)} ${xR.toFixed(1)},${yBot.toFixed(1)} ${xR.toFixed(1)},${yPeak.toFixed(1)}"
+          fill="${fbSkin.inlayFill}" stroke="${fbSkin.inlayStroke}" stroke-width="1" stroke-opacity="0.65"/>
+      `);
+    } else if (style === 'avant_crosshair') {
+      // Fluxus / John Cage technical score crosshairs + registration circles
+      const drawCross = (gy) => `
+        <g stroke="${fbSkin.inlayStroke}" stroke-width="1" fill="none">
+          <circle cx="${cx.toFixed(1)}" cy="${gy.toFixed(1)}" r="7.5"/>
+          <line x1="${(cx - 12).toFixed(1)}" y1="${gy.toFixed(1)}" x2="${(cx + 12).toFixed(1)}" y2="${gy.toFixed(1)}"/>
+          <line x1="${cx.toFixed(1)}" y1="${(gy - 12).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${(gy + 12).toFixed(1)}"/>
+        </g>
+      `;
+      if (f === 12) {
+        out.push(drawCross(TOP_Y + STRING_GAP * 1.5));
+        out.push(drawCross(TOP_Y + STRING_GAP * (numStrings - 2.5)));
+      } else {
+        out.push(drawCross(midY));
+      }
+    } else if (style === 'armorial_sun') {
+      // Brazilian Armorial woodcut 4-pointed sunburst star inlaid in warm pearl & terracotta rim
+      const drawStar = (gy, rOut, rIn) => {
+        const pts = [];
+        for (let k = 0; k < 8; k += 1) {
+          const ang = (k * Math.PI) / 4;
+          const rad = k % 2 === 0 ? rOut : rIn;
+          pts.push(`${(cx + Math.cos(ang) * rad).toFixed(1)},${(gy + Math.sin(ang) * rad).toFixed(1)}`);
+        }
+        return `<polygon points="${pts.join(' ')}" fill="url(#saPearlGrad)" fill-opacity="0.38" stroke="${fbSkin.inlayStroke}" stroke-width="1"/>`;
+      };
+      if (f === 12) {
+        out.push(drawStar(TOP_Y + STRING_GAP * 1.5, 13, 4.5));
+        out.push(drawStar(TOP_Y + STRING_GAP * (numStrings - 2.5), 13, 4.5));
+      } else {
+        out.push(drawStar(midY, Math.min(14, fretW * 0.34), 4.8));
+      }
+    } else {
+      // Clean Studio Pearloid Dots
+      if (f === 12) {
+        out.push(`<circle cx="${cx.toFixed(1)}" cy="${(TOP_Y + STRING_GAP * 1.5).toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
+        out.push(`<circle cx="${cx.toFixed(1)}" cy="${(TOP_Y + STRING_GAP * (numStrings - 2.5)).toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
+      } else {
+        out.push(`<circle cx="${cx.toFixed(1)}" cy="${midY.toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
+      }
+    }
+
+    // Side-dot marker embedded along the top neck binding strip!
+    const bindDotY = boardTop - 3;
+    if (f === 12) {
+      out.push(`<circle cx="${(cx - 4.5).toFixed(1)}" cy="${bindDotY}" r="1.9" fill="${fbSkin.sideDotColor}"/>`);
+      out.push(`<circle cx="${(cx + 4.5).toFixed(1)}" cy="${bindDotY}" r="1.9" fill="${fbSkin.sideDotColor}"/>`);
+    } else {
+      out.push(`<circle cx="${cx.toFixed(1)}" cy="${bindDotY}" r="1.9" fill="${fbSkin.sideDotColor}"/>`);
+    }
+  });
+
+  return out.join('');
+}
+
 export function highlightFretboardEtudeEvent(ev, microMode) {
   const layer = document.getElementById('etudePlayheadLayer');
   if (!layer) return;
@@ -108,11 +288,6 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
   `;
 }
 
-
-/**
- * Zero-thrash live pitch mirror on the SVG fretboard (#livePitchLayer).
- * Highlights the exact detected pitch (octave-accurate when possible, or pitch-class fallback).
- */
 export function highlightFretboardLivePitch(pitch, state) {
   const layer = document.getElementById('livePitchLayer');
   if (!layer) return;
@@ -160,6 +335,9 @@ export function renderFretboard(state) {
   const legendEl = document.getElementById('fretboardLegend');
   if (!container) return;
 
+  const activeTheme = getThemeById(state.theme);
+  const fbSkin = activeTheme.fretboard;
+
   const scale = getActiveScale();
   const rootName = qToNoteName(state.rootQ, false);
   const scaleName = state.lang === 'en' ? scale.nameEn : scale.namePt;
@@ -195,7 +373,6 @@ export function renderFretboard(state) {
     });
   }
 
-  // Optional Phase 6 Radar Comparison Scale B lookup (pc -> intervalQ relative to Scale B root)
   const radarBMap = new Map();
   if (state.radarOverlayOnNeck && state.radarCompareScaleId) {
     const scB = DB.scales.find((s) => s.id === state.radarCompareScaleId);
@@ -208,62 +385,103 @@ export function renderFretboard(state) {
 
   const numStrings = state.customStringsQ.length;
   const svgH = computeSvgH(numStrings);
-  const boardH = STRING_GAP * (numStrings - 1) + 28;
+  const boardTop = TOP_Y - 16;
+  const boardH = STRING_GAP * (numStrings - 1) + 32;
+  const boardW = SVG_W - NUT_X - RIGHT_PAD;
+
   const parts = [];
   parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${svgH}" role="img" aria-label="${rootName} ${scaleName}">`);
+  parts.push(buildFretboardDefs(fbSkin));
 
-  // Fretboard wood & nut
-  parts.push(`<rect x="${NUT_X}" y="${TOP_Y - 14}" width="${SVG_W - NUT_X - RIGHT_PAD}" height="${boardH}" rx="4" fill="var(--bg-fretboard)"/>`);
-  parts.push(`<rect x="${NUT_X - 7}" y="${TOP_Y - 14}" width="7" height="${boardH}" fill="var(--bg-nut)"/>`);
+  // Headstock transition area (behind the nut)
+  parts.push(`<rect x="10" y="${boardTop - 4}" width="${NUT_X - 18}" height="${boardH + 8}" rx="6" fill="${fbSkin.headstockFill}" fill-opacity="0.88" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`);
+
+  // Top & Bottom Neck Binding Strips (authentic luthier trim)
+  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop - 6}" width="${boardW + 10}" height="6" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop + boardH}" width="${boardW + 10}" height="6" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+
+  // Main radiused wood / carbon fretboard surface + texture overlay
+  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saWoodGrad)"/>`);
+  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saBoardTexture)"/>`);
+
+  // Subtle dark shadow cast by the nut onto fret 1
+  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="6" height="${boardH}" fill="#000000" fill-opacity="0.28"/>`);
+
+  // Realistic 3D Slotted Nut
+  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop}" width="10" height="${boardH}" rx="1.5" fill="url(#saNutGrad)" stroke="rgba(0,0,0,0.5)" stroke-width="0.9"/>`);
+
+  // Thematic Inlays + Binding Side Dots
+  parts.push(renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }));
 
   // Closed-Position Fretboard Window highlight box
   const winMin = state.fretWindowStart;
   const winMax = Math.min(NUM_FRETS, state.fretWindowStart + state.fretWindowSpan);
   if (state.fretWindowOn) {
-    const wx1 = winMin === 0 ? NUT_X - 50 : FRET_XS[Math.max(0, winMin - 1)];
+    const wx1 = winMin === 0 ? NUT_X - 58 : FRET_XS[Math.max(0, winMin - 1)];
     const wx2 = FRET_XS[winMax];
-    parts.push(`<rect x="${wx1}" y="${TOP_Y - 14}" width="${Math.max(12, wx2 - wx1)}" height="${boardH}" rx="4" fill="var(--accent-scale)" fill-opacity="0.11" stroke="var(--accent-scale)" stroke-width="1.5" stroke-dasharray="5 3"/>`);
+    parts.push(`<rect x="${wx1}" y="${boardTop}" width="${Math.max(12, wx2 - wx1)}" height="${boardH}" rx="3" fill="var(--accent-scale)" fill-opacity="0.13" stroke="var(--accent-scale)" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
 
-  // Fret inlays (centered dynamically for 6, 7, or 8 strings)
-  const midY = TOP_Y + STRING_GAP * ((numStrings - 1) / 2);
-  INLAY_FRETS.forEach((f) => {
-    const cx = fretCenterX(f);
-    if (f === 12) {
-      parts.push(`<circle cx="${cx}" cy="${TOP_Y + STRING_GAP * 1.5}" r="5.5" fill="var(--inlay-color)"/>`);
-      parts.push(`<circle cx="${cx}" cy="${TOP_Y + STRING_GAP * (numStrings - 2.5)}" r="5.5" fill="var(--inlay-color)"/>`);
-    } else {
-      parts.push(`<circle cx="${cx}" cy="${midY}" r="5.5" fill="var(--inlay-color)"/>`);
-    }
-  });
-
-  // Semitone fret wires & numbers
+  // 3D Metallic Fret Wires & Highlighted Fret Ruler Numbers
   for (let f = 1; f <= NUM_FRETS; f += 1) {
     const x = FRET_XS[f];
-    parts.push(`<line x1="${x}" y1="${TOP_Y - 14}" x2="${x}" y2="${TOP_Y + STRING_GAP * (numStrings - 1) + 14}" stroke="var(--fret-wire)" stroke-width="1.6"/>`);
-    parts.push(`<text x="${fretCenterX(f)}" y="${svgH - 12}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="ui-monospace, monospace">${f}</text>`);
+    // Cast fret shadow
+    parts.push(`<line x1="${(x + 1.6).toFixed(1)}" y1="${boardTop}" x2="${(x + 1.6).toFixed(1)}" y2="${boardTop + boardH}" stroke="#000000" stroke-opacity="0.45" stroke-width="2"/>`);
+    // Metallic fret crown
+    parts.push(`<rect x="${(x - 1.3).toFixed(1)}" y="${boardTop}" width="2.6" height="${boardH}" rx="1" fill="url(#saFretGrad)"/>`);
 
+    const isInlayFret = INLAY_SET.has(f);
+    const numColor = isInlayFret ? 'var(--accent-root)' : 'var(--text-muted)';
+    parts.push(`<text x="${fretCenterX(f).toFixed(1)}" y="${svgH - 13}" text-anchor="middle" fill="${numColor}" font-size="${isInlayFret ? 11.5 : 10.2}" font-weight="${isInlayFret ? 700 : 500}" font-family="var(--font-mono, ui-monospace, monospace)">${f}</text>`);
+
+    // 24-TET dashed quarter-tone frets
     if (state.microMode === 'frets24') {
       const microX = (FRET_XS[f - 1] + FRET_XS[f]) / 2;
-      parts.push(`<line x1="${microX}" y1="${TOP_Y - 12}" x2="${microX}" y2="${TOP_Y + STRING_GAP * (numStrings - 1) + 12}" stroke="var(--fret-micro)" stroke-width="1.2" stroke-dasharray="4 4"/>`);
+      parts.push(`<line x1="${microX.toFixed(1)}" y1="${boardTop + 2}" x2="${microX.toFixed(1)}" y2="${boardTop + boardH - 2}" stroke="var(--fret-micro)" stroke-width="1.35" stroke-dasharray="4 4"/>`);
     }
   }
 
-  // Strings
+  // Realistic Guitar Strings (Cast Shadow + Plain/Wound Metallic Gauge + Nut Slots)
+  const woundStartVisIdx = numStrings <= 6 ? 3 : (numStrings === 7 ? 3 : 3);
   for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
     const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const y = TOP_Y + visIdx * STRING_GAP;
-    const strokeW = 1.2 + visIdx * 0.42;
+    const isWound = visIdx >= woundStartVisIdx;
+    const strokeW = 1.15 + visIdx * 0.42;
 
     const openPc = mod24(openQ);
     const openInScale = allowedMap.has(openPc);
+    const strColor = openInScale
+      ? 'var(--accent-open)'
+      : (isWound ? fbSkin.stringWound : fbSkin.stringPlain);
 
-    parts.push(`<line x1="${NUT_X - 7}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="${openInScale ? 'var(--accent-open)' : 'var(--string-color)'}" stroke-width="${strokeW}" stroke-opacity="${openInScale ? '0.85' : '0.45'}"/>`);
-    parts.push(`<text x="14" y="${y + 4}" fill="var(--text-muted)" font-size="10.5" font-family="ui-monospace, monospace">${visIdx + 1}</text>`);
+    // Subtle string slot notch on the nut
+    parts.push(`<line x1="${NUT_X - 10}" y1="${y}" x2="${NUT_X}" y2="${y}" stroke="rgba(0,0,0,0.55)" stroke-width="${(strokeW + 1).toFixed(1)}"/>`);
+
+    // Cast shadow onto fretboard wood
+    parts.push(`<line x1="${NUT_X}" y1="${(y + 2.4).toFixed(1)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y + 2.4).toFixed(1)}" stroke="#000000" stroke-opacity="0.45" stroke-width="${(strokeW + 0.6).toFixed(1)}"/>`);
+
+    // Resonant glow for in-scale open string
+    if (openInScale) {
+      parts.push(`<line x1="${NUT_X - 8}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="var(--accent-open)" stroke-opacity="0.22" stroke-width="${(strokeW + 4).toFixed(1)}"/>`);
+    }
+
+    // Core string wire
+    parts.push(`<line x1="${NUT_X - 24}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="${strColor}" stroke-width="${strokeW.toFixed(2)}" stroke-opacity="${openInScale ? '0.94' : '0.78'}"/>`);
+
+    // Specular highlight / wound ribbing sheen
+    if (isWound) {
+      parts.push(`<line x1="${NUT_X}" y1="${(y - 0.35).toFixed(2)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.28" stroke-width="0.9" stroke-dasharray="2.2 2"/>`);
+    } else {
+      parts.push(`<line x1="${NUT_X}" y1="${(y - 0.35).toFixed(2)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.34" stroke-width="0.65"/>`);
+    }
+
+    // String number badge on far left headstock edge
+    parts.push(`<text x="19" y="${y + 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10.2" font-weight="600" font-family="var(--font-mono, ui-monospace, monospace)">${visIdx + 1}</text>`);
   }
 
-  // Voicing spine
+  // Voicing spine connecting chord notes
   if (activeVoicing && activeVoicing.notes.length >= 2) {
     const pts = activeVoicing.notes
       .map((n) => {
@@ -273,10 +491,10 @@ export function renderFretboard(state) {
         return `${x.toFixed(1)},${y.toFixed(1)}`;
       })
       .join(' ');
-    parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3" stroke-opacity="0.48" stroke-linecap="round" stroke-linejoin="round"/>`);
+    parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3.2" stroke-opacity="0.52" stroke-linecap="round" stroke-linejoin="round"/>`);
   }
 
-  // Open Strings, Harmonics, Scale & Voicing Nodes
+  // Open Strings, Harmonics, Scale, Voicing & Radar B Nodes
   for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
     const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
@@ -292,12 +510,14 @@ export function renderFretboard(state) {
       : (openInVoicing ? 'var(--accent-voicing)' : 'var(--bg-elevated)');
     const openInk = (openInScale || openInVoicing) ? 'var(--accent-root-ink)' : 'var(--text-secondary)';
     const openLabel = qToNoteName(openQ, false);
+    const openCx = NUT_X - 38;
 
     parts.push(`
-      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
-        ${openInVoicing ? `<circle cx="${NUT_X - 32}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
-        <circle cx="${NUT_X - 32}" cy="${y}" r="13.5" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'none' : 'var(--border-strong)'}" stroke-width="1"/>
-        <text x="${NUT_X - 32}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.5" font-weight="700">${openLabel}</text>
+      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
+        ${openInVoicing ? `<circle cx="${openCx}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
+        ${openInScale && openIv === 0 ? `<circle cx="${openCx}" cy="${y}" r="16" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.7"/>` : ''}
+        <circle cx="${openCx}" cy="${y}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.45)' : 'var(--border-strong)'}" stroke-width="1.1"/>
+        <text x="${openCx}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.2" font-weight="700">${openLabel}</text>
       </g>
     `);
 
@@ -306,9 +526,9 @@ export function renderFretboard(state) {
         const hx = fretPosToX(h.fretPos);
         const hFreq = qToFreq(openQ) * h.ratio;
         parts.push(`
-          <g class="note-node" data-kind="harmonic" data-freq="${hFreq.toFixed(3)}" data-partial="${h.partial}" data-ji="${h.jiCentsOffset}" data-string="${visIdx + 1}" data-fretpos="${h.fretPos}" data-openq="${openQ}">
-            <circle cx="${hx}" cy="${y - 12}" r="7.5" fill="var(--accent-harmonic)" fill-opacity="0.92" stroke="#0d1017" stroke-width="1.2"/>
-            <text x="${hx}" y="${y - 9}" text-anchor="middle" fill="#0c1220" font-size="8.5" font-weight="800">${h.partial}</text>
+          <g class="note-node" filter="url(#saNoteShadow)" data-kind="harmonic" data-freq="${hFreq.toFixed(3)}" data-partial="${h.partial}" data-ji="${h.jiCentsOffset}" data-string="${visIdx + 1}" data-fretpos="${h.fretPos}" data-openq="${openQ}">
+            <polygon points="${hx.toFixed(1)},${(y - 20).toFixed(1)} ${(hx + 7.5).toFixed(1)},${(y - 12.5).toFixed(1)} ${hx.toFixed(1)},${(y - 5).toFixed(1)} ${(hx - 7.5).toFixed(1)},${(y - 12.5).toFixed(1)}" fill="var(--accent-harmonic)" stroke="#0d1017" stroke-width="1.1"/>
+            <text x="${hx.toFixed(1)}" y="${(y - 9.5).toFixed(1)}" text-anchor="middle" fill="#0c1220" font-size="8.2" font-weight="800">${h.partial}</text>
           </g>
         `);
       });
@@ -332,7 +552,7 @@ export function renderFretboard(state) {
       if (isMicroStep && fretNum === 0 && state.microMode === 'bend') continue;
 
       const cx = stepQToX(stepQ, state.microMode);
-      const isRoot = intervalQ === 0;
+      const isRoot = intervalQ === 0 && inScale;
       const isChar = inScale && charSet.has(intervalQ);
       const isPlaying = state.playingPcQ !== null && state.playingPcQ === pc;
 
@@ -356,42 +576,46 @@ export function renderFretboard(state) {
       }
 
       const label = getMarkerLabel(absQ, intervalQ, state.labelMode);
-      const fontSize = label.length >= 4 ? 8.4 : label.length === 3 ? 9.4 : 10.5;
+      const fontSize = label.length >= 4 ? 8.3 : label.length === 3 ? 9.3 : 10.4;
       const outsideWin = state.fretWindowOn && (fretNum < winMin || fretNum > winMax);
       const dimClass = outsideWin && !voicingHit ? 'is-outside-win' : (activeVoicing && !voicingHit ? 'is-dimmed' : '');
 
-      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
+      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" filter="url(#saNoteShadow)" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
 
       if (voicingHit) {
-        parts.push(`<circle cx="${cx}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
       } else if (inScale && inRadarB) {
-        parts.push(`<circle cx="${cx}" cy="${y}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
+      } else if (isRoot) {
+        // Crown halo ring for instant tonic orientation
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.2" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.72"/>`);
       }
 
       if (isMicroStep && state.microMode === 'slide') {
-        const r = 13;
-        parts.push(`<polygon points="${cx},${y - r} ${cx + r},${y} ${cx},${y + r} ${cx - r},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
-        parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
+        const r = 13.2;
+        parts.push(`<polygon points="${cx.toFixed(1)},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${cx.toFixed(1)},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
+        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       } else if (isMicroStep && state.microMode === 'bend') {
-        parts.push(`<rect x="${cx - 14}" y="${y - 12}" width="28" height="24" rx="7" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
-        parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
-        parts.push(`<text x="${cx + 12}" y="${y - 8}" text-anchor="middle" fill="var(--accent-micro)" font-size="8.5" font-weight="800">↑¼</text>`);
+        parts.push(`<rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="7" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
+        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
+        parts.push(`<rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>`);
+        parts.push(`<text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>`);
       } else {
-        parts.push(`<circle cx="${cx}" cy="${y}" r="12.2" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
-        parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.2" fill="${fill}" stroke="rgba(0,0,0,0.55)" stroke-width="1.2"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="10.8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>`);
+        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       }
 
       parts.push('</g>');
     }
   }
 
-  // Dedicated top layer for live Etude Playhead highlight (pointer-events: none)
+  // Dedicated top layers for live Etude Playhead & Live Pitch Mirror
   parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
   parts.push('<g id="livePitchLayer" style="pointer-events:none"></g>');
   parts.push('</svg>');
   container.innerHTML = parts.join('');
 
-  // Restore active etude playhead if stepping or playing
   if (state.etudeActiveIdx >= 0 && state.currentEtude?.events?.[state.etudeActiveIdx]) {
     highlightFretboardEtudeEvent(state.currentEtude.events[state.etudeActiveIdx], state.microMode);
   }
@@ -488,7 +712,6 @@ export function renderInspector(state) {
     ${microTip}
   `;
 }
-
 
 function renderFretWindowControls(state) {
   const bar = document.getElementById('fretWindowControls');

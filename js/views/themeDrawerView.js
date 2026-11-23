@@ -1,10 +1,19 @@
 /**
- * Visual Design Studio Gallery Drawer (#themeDrawer)
- * Allows instant 1-click switching across all 7 musical-aesthetic designs with live swatch previews.
+ * Visual Design Studio Gallery Drawer (#themeDrawer) v7.2
+ * Renders each design card using its authentic typography, binding strip, inlay silhouette & swatches.
  */
 import { THEMES, getThemeById } from '../core/themes.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
+
+const INLAY_PREVIEW_GLYPH = {
+  pearl_dot: '●',
+  vintage_trapezoid: '▰',
+  doom_monolith: '◆',
+  djent_sharktooth: '◢',
+  avant_crosshair: '⊕',
+  armorial_sun: '✦'
+};
 
 export function updateThemeHeaderButton(state) {
   const btn = document.getElementById('btnThemeToggle');
@@ -14,7 +23,6 @@ export function updateThemeHeaderButton(state) {
   btn.innerHTML = `<span class="theme-btn-dot" style="background:${th.swatches[2]};border-color:${th.swatches[3]}"></span><span>${shortName}</span>`;
   btn.classList.toggle('is-open', Boolean(state.themeDrawerOpen));
 
-  // Sync PWA browser chrome color with active design
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme && th.themeColor) {
     metaTheme.setAttribute('content', th.themeColor);
@@ -39,6 +47,9 @@ export function renderThemeDrawer(state) {
     const title = isEn ? th.nameEn : th.namePt;
     const era = isEn ? th.eraEn : th.eraPt;
     const desc = isEn ? th.descEn : th.descPt;
+    const ornTag = isEn ? th.ornamentTagEn : th.ornamentTagPt;
+    const glyph = INLAY_PREVIEW_GLYPH[th.fretboard?.inlayStyle] || '●';
+    const bindCol = th.fretboard?.bindingColor || th.swatches[2];
 
     const swatchesHtml = th.swatches
       .map((hex) => `<span class="theme-swatch" style="background:${hex}"></span>`)
@@ -47,19 +58,22 @@ export function renderThemeDrawer(state) {
     return `
       <button type="button" class="theme-card ${isActive ? 'is-active' : ''}" data-th-action="pick" data-id="${th.id}">
         <div class="theme-card-preview" style="background:${th.swatches[0]};border-color:${th.swatches[2]}">
-          <div class="theme-mini-neck" style="background:${th.fretboardHex}">
+          <div class="theme-mini-neck" style="background-color:${th.fretboardHex};border-top-color:${bindCol};border-bottom-color:${bindCol}">
+            <span class="mini-inlay-glyph" style="color:${bindCol}">${glyph}</span>
             <span class="mini-dot" style="background:${th.swatches[2]}"></span>
             <span class="mini-dot" style="background:${th.swatches[3]}"></span>
             <span class="mini-dot is-dia" style="background:${th.swatches[4]}"></span>
+            <span class="mini-inlay-glyph" style="color:${bindCol}">${glyph}</span>
           </div>
           <div class="theme-swatches-row">${swatchesHtml}</div>
         </div>
 
         <div class="theme-card-body">
           <div class="theme-card-head">
-            <strong>${title}</strong>
+            <strong style="font-family:${th.fontPreview}">${title}</strong>
             <span class="theme-era-badge">${era}</span>
           </div>
+          <span class="theme-ornament-tag">${ornTag}</span>
           <p class="theme-card-desc">${desc}</p>
         </div>
       </button>
@@ -85,7 +99,6 @@ export function renderThemeDrawer(state) {
     const btn = e.target.closest('button[data-th-action]');
     if (!btn) return;
     const act = btn.dataset.thAction;
-    const st = getState();
 
     if (act === 'close') {
       setState({ themeDrawerOpen: false });

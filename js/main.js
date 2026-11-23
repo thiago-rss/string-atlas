@@ -146,6 +146,9 @@ function renderAll(state, patch = null) {
     if (keys.every((k) => k === 'theme' || k === 'themeDrawerOpen')) {
       document.documentElement.setAttribute('data-theme', state.theme);
       renderThemeDrawer(state);
+      if ('theme' in patch) {
+        renderFretboard(state);
+      }
       return;
     }
     if (keys.every((k) => k === 'snapshotsOpen' || k === 'snapshots')) {

@@ -210,6 +210,9 @@ for (const th of THEMES) {
   if (!allCss.includes(`[data-theme="${th.id}"]`)) {
     fail(`Missing CSS [data-theme="${th.id}"] block`);
   }
+  if (!th.fretboard?.woodStops || th.fretboard.woodStops.length !== 3 || !th.fretboard.inlayStyle) {
+    fail(`Theme ${th.id} missing luthier fretboard skin definition`);
+  }
 }
 ok(`Validated ${THEMES.length} curated musical-aesthetic designs in themes.js & styles/themes.css`);
 
@@ -227,4 +230,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.1 integrity checks passed.');
+console.log('\nAll String Atlas v7.2 integrity checks passed.');

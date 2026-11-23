@@ -1,19 +1,11 @@
 /* =========================================================================
- * String Atlas — Multi-Design Studio Themes (v7.1.0)
- * 7 Distinct Musical Aesthetics:
- * 1. layl         (Obsidian Studio)
- * 2. nahar        (Warm Parchment)
- * 3. rock70s      (70s Analog · Vintage Tube & Vinyl)
- * 4. doom         (Doom Ritual · Monolith & Velvet Haze)
- * 5. djent        (Djent Poly · CNC Carbon & Blueprint Grid)
- * 6. experimental (Avant · Graphic Score / Fluxus / Bauhaus)
- * 7. brazilian    (Brasilidade · Tropicália, Armorial & Jacarandá)
+ * String Atlas — Signature Musical Designs, Fonts & Ornaments (v7.2.0)
  * ========================================================================= */
 
-/* Base typographic variables (inherited by Layl & Nahar) */
 :root {
-  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-body);
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --display-tracking: -0.02em;
   --display-transform: none;
   --panel-border-width: 1px;
@@ -22,6 +14,15 @@
 body {
   font-family: var(--font-body);
   transition: background-color 0.25s ease, color 0.2s ease;
+}
+
+.mono-tag,
+.pill-badge,
+.voicing-tab-sig,
+.detected-note-big,
+.etude-target-big,
+.tuner-str-note {
+  font-family: var(--font-mono);
 }
 
 .brand-title,
@@ -35,54 +36,77 @@ body {
 }
 
 .panel {
+  position: relative;
   border-width: var(--panel-border-width);
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.2s ease;
 }
 
+/* Signature Top Ornament Ribbon */
+.theme-ornament-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent-root), var(--accent-scale), transparent);
+  opacity: 0.55;
+  margin-bottom: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Subtle fretboard housing polish */
+.fretboard-scroll {
+  padding: 10px 8px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.04), transparent 70%), var(--bg-fretboard);
+}
+
 /* =========================================================================
- * DESIGN 3: 70s ANALOG (Rock Anos 70 · Tube Amps, Walnut & Vinyl Gold)
+ * DESIGN 3: 70s ANALOG (Rock Anos 70 · Tube Amps, Brass Rivets & Vinyl Gold)
+ * Fonts: Fraunces (Display) + DM Sans (Body)
  * ========================================================================= */
 [data-theme="rock70s"] {
-  --bg-canvas: #19120d;
-  --bg-panel: #251a13;
-  --bg-elevated: #312319;
-  --bg-fretboard: #2b1a12;
-  --bg-nut: #5c432d;
-  --border-subtle: rgba(240, 179, 98, 0.16);
-  --border-strong: rgba(240, 179, 98, 0.34);
+  --bg-canvas: #17100b;
+  --bg-panel: #241912;
+  --bg-elevated: #312217;
+  --bg-fretboard: #21120a;
+  --bg-nut: #c8a252;
+  --border-subtle: rgba(235, 179, 98, 0.2);
+  --border-strong: rgba(240, 174, 82, 0.44);
 
-  --text-primary: #f6ead8;
-  --text-secondary: #cbb597;
-  --text-muted: #998165;
+  --text-primary: #f7ebd9;
+  --text-secondary: #d4bc9c;
+  --text-muted: #a18666;
 
-  --accent-root: #f0752c;
-  --accent-root-ink: #170e07;
-  --accent-scale: #6ab07c;
-  --accent-scale-ink: #0f1a11;
-  --accent-char: #dc4538;
+  --accent-root: #f07428;
+  --accent-root-ink: #170d06;
+  --accent-scale: #6eb881;
+  --accent-scale-ink: #0c170f;
+  --accent-char: #de4538;
   --accent-char-ink: #ffffff;
-  --accent-micro: #ffaa3b;
-  --accent-micro-ink: #1a1005;
-  --accent-harmonic: #72a8d8;
-  --accent-open: #87c96e;
-  --accent-voicing: #f2c44e;
-  --accent-etude: #ff9d47;
-  --accent-live: #7be088;
+  --accent-micro: #ffaa38;
+  --accent-micro-ink: #1a0f04;
+  --accent-harmonic: #72abd9;
+  --accent-open: #8ccf70;
+  --accent-voicing: #f5c952;
+  --accent-etude: #ffa047;
+  --accent-live: #7ce38a;
   --accent-danger: #d93f32;
-  --accent-radar-b: #e57ac9;
+  --accent-radar-b: #e67cc9;
 
-  --fret-wire: #b39264;
-  --fret-micro: rgba(255, 170, 59, 0.55);
-  --string-color: #dfd0b8;
-  --inlay-color: rgba(248, 232, 200, 0.28);
+  --fret-wire: #cfa962;
+  --fret-micro: rgba(255, 170, 56, 0.62);
+  --string-color: #e6d7be;
+  --inlay-color: rgba(248, 232, 200, 0.32);
 
-  --shadow-panel: 0 12px 28px rgba(8, 4, 1, 0.52), inset 0 1px 0 rgba(255, 214, 150, 0.12);
+  --shadow-panel: 0 14px 32px rgba(5, 2, 0, 0.62), inset 0 1px 0 rgba(255, 224, 168, 0.16), inset 0 -2px 0 rgba(0, 0, 0, 0.45);
   --radius-lg: 12px;
   --radius-md: 9px;
   --radius-sm: 6px;
 
-  --font-display: "Rockwell", "American Typewriter", Georgia, serif;
-  --display-tracking: 0.01em;
+  --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --display-tracking: 0.005em;
   --display-transform: none;
   --panel-border-width: 1.5px;
 }
@@ -90,113 +114,210 @@ body {
 [data-theme="rock70s"] body {
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(ellipse at 50% -10%, rgba(240, 117, 44, 0.16), transparent 62%),
-    repeating-linear-gradient(45deg, rgba(240, 179, 98, 0.025) 0 2px, transparent 2px 8px),
-    repeating-linear-gradient(-45deg, rgba(240, 179, 98, 0.025) 0 2px, transparent 2px 8px);
+    radial-gradient(ellipse at 50% -15%, rgba(240, 116, 40, 0.22), transparent 58%),
+    repeating-linear-gradient(45deg, rgba(240, 184, 104, 0.032) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(-45deg, rgba(240, 184, 104, 0.032) 0 2px, transparent 2px 7px);
+}
+
+/* Vintage amp white/gold double piping ribbon */
+[data-theme="rock70s"] .theme-ornament-bar {
+  height: 10px;
+  border-radius: 999px;
+  opacity: 1;
+  background: linear-gradient(180deg, #f6e0ae 0%, #c89844 35%, #2b1a0e 36%, #2b1a0e 64%, #f07428 65%, #a84210 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  margin-bottom: 2px;
+}
+
+/* Glowing vintage tube amp jewel pilot lamp next to brand title */
+[data-theme="rock70s"] .brand-title::after {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-left: 9px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff0c2, #ff5b1f 55%, #8a1600 100%);
+  box-shadow: 0 0 10px rgba(255, 95, 31, 0.85), 0 0 2px #ffe8b3;
 }
 
 [data-theme="rock70s"] .panel {
-  background: linear-gradient(180deg, #2a1e16 0%, #221811 100%);
+  background: linear-gradient(180deg, #2b1e15 0%, #211610 100%);
+  border-color: rgba(235, 179, 98, 0.34);
+}
+
+/* Vintage brushed-brass faceplate corner screw rivets on main stage panels */
+[data-theme="rock70s"] .fretboard-panel::before,
+[data-theme="rock70s"] .fretboard-panel::after,
+[data-theme="rock70s"] .deck-panel::before,
+[data-theme="rock70s"] .deck-panel::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background:
+    linear-gradient(135deg, transparent 42%, rgba(28, 16, 6, 0.8) 45%, rgba(28, 16, 6, 0.8) 55%, transparent 58%),
+    radial-gradient(circle at 30% 30%, #ffe8b0, #b88735 68%, #5e4115 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+[data-theme="rock70s"] .fretboard-panel::before,
+[data-theme="rock70s"] .deck-panel::before { left: 8px; }
+[data-theme="rock70s"] .fretboard-panel::after,
+[data-theme="rock70s"] .deck-panel::after { right: 8px; }
+
+[data-theme="rock70s"] .brand-title {
+  font-size: 1.42rem;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
 }
 
 [data-theme="rock70s"] .lab-tab-btn.is-active,
 [data-theme="rock70s"] .btn-primary {
-  background: linear-gradient(180deg, #f5843c 0%, #d9611c 100%);
-  color: #170d06;
-  box-shadow: inset 0 1px 0 rgba(255, 235, 198, 0.45), 0 3px 10px rgba(0, 0, 0, 0.35);
-}
-
-[data-theme="rock70s"] .fretboard-scroll {
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+  background: linear-gradient(180deg, #f7893e 0%, #d45b17 100%);
+  color: #160c05;
+  box-shadow: inset 0 1px 0 rgba(255, 236, 196, 0.55), 0 3px 10px rgba(0, 0, 0, 0.45);
 }
 
 /* =========================================================================
- * DESIGN 4: DOOM RITUAL (Doom Metal · Monolith, Velvet Haze & Antique Brass)
+ * DESIGN 4: DOOM RITUAL (Doom Metal · Monolith, Gothic Filigree & Velvet Haze)
+ * Fonts: Cinzel (Carved Display) + Cormorant Garamond (Solemn Literary Body)
  * ========================================================================= */
 [data-theme="doom"] {
-  --bg-canvas: #08070a;
-  --bg-panel: #110e16;
-  --bg-elevated: #1a1522;
-  --bg-fretboard: #0b090e;
-  --bg-nut: #342938;
-  --border-subtle: rgba(176, 120, 255, 0.15);
-  --border-strong: rgba(212, 154, 58, 0.32);
+  --bg-canvas: #070609;
+  --bg-panel: #100d15;
+  --bg-elevated: #191321;
+  --bg-fretboard: #09070c;
+  --bg-nut: #b8aa90;
+  --border-subtle: rgba(176, 120, 255, 0.16);
+  --border-strong: rgba(212, 154, 58, 0.38);
 
-  --text-primary: #eae0d0;
-  --text-secondary: #a89bb5;
-  --text-muted: #766a82;
+  --text-primary: #ece2d1;
+  --text-secondary: #b4a5c2;
+  --text-muted: #7f718c;
 
-  --accent-root: #d49a3a;
-  --accent-root-ink: #0c0906;
-  --accent-scale: #b078ff;
-  --accent-scale-ink: #12081e;
-  --accent-char: #e03546;
+  --accent-root: #d9a13f;
+  --accent-root-ink: #0a0704;
+  --accent-scale: #b57dff;
+  --accent-scale-ink: #11071e;
+  --accent-char: #e33648;
   --accent-char-ink: #ffffff;
-  --accent-micro: #ff7838;
-  --accent-micro-ink: #160a04;
+  --accent-micro: #ff7b3b;
+  --accent-micro-ink: #140802;
   --accent-harmonic: #7d9cf5;
-  --accent-open: #6ac28c;
-  --accent-voicing: #e6b85c;
-  --accent-etude: #c98cff;
-  --accent-live: #68e39d;
+  --accent-open: #6cc990;
+  --accent-voicing: #ebbd60;
+  --accent-etude: #cc8fff;
+  --accent-live: #6be6a0;
   --accent-danger: #d92638;
-  --accent-radar-b: #f05482;
+  --accent-radar-b: #f25584;
 
-  --fret-wire: #685e73;
-  --fret-micro: rgba(255, 120, 56, 0.52);
-  --string-color: #c8bdd4;
-  --inlay-color: rgba(234, 224, 208, 0.24);
+  --fret-wire: #826e52;
+  --fret-micro: rgba(255, 123, 59, 0.58);
+  --string-color: #cfc3db;
+  --inlay-color: rgba(236, 226, 209, 0.28);
 
-  --shadow-panel: 0 16px 38px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(176, 120, 255, 0.08);
-  --radius-lg: 3px;
+  --shadow-panel: 0 18px 42px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(217, 161, 63, 0.16);
+  --radius-lg: 2px;
   --radius-md: 2px;
   --radius-sm: 2px;
 
-  --font-display: "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --display-tracking: 0.06em;
+  --font-body: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Cinzel", "Palatino Linotype", Georgia, serif;
+  --display-tracking: 0.08em;
   --display-transform: uppercase;
   --panel-border-width: 1px;
 }
 
 [data-theme="doom"] body {
+  font-size: 16px;
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(circle at 20% 0%, rgba(128, 48, 196, 0.16), transparent 48%),
-    radial-gradient(circle at 82% 18%, rgba(186, 36, 54, 0.11), transparent 44%),
-    linear-gradient(180deg, #0b0810 0%, #060508 100%);
+    radial-gradient(circle at 18% 0%, rgba(132, 46, 204, 0.2), transparent 46%),
+    radial-gradient(circle at 84% 12%, rgba(196, 32, 52, 0.14), transparent 42%),
+    radial-gradient(ellipse at 50% 100%, rgba(217, 161, 63, 0.08), transparent 55%),
+    linear-gradient(180deg, #0b0811 0%, #050407 100%);
 }
 
-[data-theme="doom"] .panel {
-  border-top-color: rgba(212, 154, 58, 0.28);
+/* Ornate antique-brass gothic altar divider */
+[data-theme="doom"] .theme-ornament-bar {
+  height: 18px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent 5%, rgba(217, 161, 63, 0.45) 35%, transparent 45%, transparent 55%, rgba(217, 161, 63, 0.45) 65%, transparent 95%);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-bottom: -2px;
+}
+
+[data-theme="doom"] .theme-ornament-bar::after {
+  content: "✦  ◆  ✦";
+  color: var(--accent-root);
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  text-shadow: 0 0 10px rgba(217, 161, 63, 0.5);
+}
+
+/* Carved golden filigree corner L-brackets on Doom stage panels */
+[data-theme="doom"] .fretboard-panel,
+[data-theme="doom"] .dossier-panel,
+[data-theme="doom"] .oblique-panel {
+  border-color: rgba(217, 161, 63, 0.26);
+  background-image:
+    linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to bottom, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to left, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to bottom, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to top, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to left, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(to top, var(--accent-root) 14px, transparent 14px);
+  background-repeat: no-repeat;
+  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px;
+  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
+}
+
+[data-theme="doom"] .brand-title {
+  font-size: 1.38rem;
+  text-shadow: 0 0 18px rgba(217, 161, 63, 0.25);
+}
+
+[data-theme="doom"] .section-heading {
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(217, 161, 63, 0.2);
 }
 
 [data-theme="doom"] .lab-tab-btn {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.8rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.07em;
+  font-size: 0.78rem;
 }
 
 [data-theme="doom"] .btn-primary,
 [data-theme="doom"] .lab-tab-btn.is-active {
-  background: linear-gradient(180deg, #deb057 0%, #b57c22 100%);
-  color: #0b0805;
+  background: linear-gradient(180deg, #e0b258 0%, #b37a20 100%);
+  color: #0b0704;
 }
 
 /* =========================================================================
- * DESIGN 5: DJENT POLY (Djent / Tech Metal · Carbon Chassis & Blueprint Grid)
+ * DESIGN 5: DJENT POLY (Djent / Tech Metal · CNC Carbon & Telemetry HUD)
+ * Fonts: Chakra Petch (Angular Tech Display) + Space Grotesk + JetBrains Mono
  * ========================================================================= */
 [data-theme="djent"] {
-  --bg-canvas: #06090e;
-  --bg-panel: #0c121b;
-  --bg-elevated: #121b28;
-  --bg-fretboard: #090d14;
-  --bg-nut: #1f2e40;
-  --border-subtle: rgba(0, 229, 255, 0.14);
-  --border-strong: rgba(0, 229, 255, 0.34);
+  --bg-canvas: #05080d;
+  --bg-panel: #0b111a;
+  --bg-elevated: #111a26;
+  --bg-fretboard: #080c12;
+  --bg-nut: #263445;
+  --border-subtle: rgba(0, 229, 255, 0.16);
+  --border-strong: rgba(0, 229, 255, 0.42);
 
-  --text-primary: #eaf6ff;
-  --text-secondary: #8ba6bf;
-  --text-muted: #5a728a;
+  --text-primary: #ebf7ff;
+  --text-secondary: #8eaac4;
+  --text-muted: #5d7892;
 
   --accent-root: #00e5ff;
   --accent-root-ink: #031319;
@@ -214,18 +335,19 @@ body {
   --accent-danger: #ff3366;
   --accent-radar-b: #d45cff;
 
-  --fret-wire: #6a829c;
-  --fret-micro: rgba(255, 140, 43, 0.55);
-  --string-color: #b7d2eb;
-  --inlay-color: rgba(0, 229, 255, 0.24);
+  --fret-wire: #7391b0;
+  --fret-micro: rgba(255, 140, 43, 0.62);
+  --string-color: #c2dcf5;
+  --inlay-color: rgba(0, 229, 255, 0.28);
 
-  --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 229, 255, 0.06);
-  --radius-lg: 4px;
-  --radius-md: 3px;
+  --shadow-panel: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 0 24px rgba(0, 229, 255, 0.03);
+  --radius-lg: 3px;
+  --radius-md: 2px;
   --radius-sm: 2px;
 
-  --font-display: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --display-tracking: 0.04em;
+  --font-body: "Space Grotesk", -apple-system, sans-serif;
+  --font-display: "Chakra Petch", "JetBrains Mono", monospace;
+  --display-tracking: 0.06em;
   --display-transform: uppercase;
   --panel-border-width: 1px;
 }
@@ -233,38 +355,79 @@ body {
 [data-theme="djent"] body {
   background-color: var(--bg-canvas);
   background-image:
-    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
-    radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.09), transparent 55%);
-  background-size: 28px 28px, 28px 28px, 100% 100%;
+    linear-gradient(rgba(0, 229, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.045) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.12), transparent 55%);
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+}
+
+/* Neon CNC telemetry HUD header bar */
+[data-theme="djent"] .theme-ornament-bar {
+  height: 16px;
+  border-radius: 0;
+  opacity: 1;
+  background:
+    linear-gradient(90deg, var(--accent-root) 0 42px, transparent 42px 50px, rgba(0, 229, 255, 0.28) 50px 100%);
+  background-size: 100% 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  justify-content: flex-end;
+}
+
+[data-theme="djent"] .theme-ornament-bar::after {
+  content: "SYS // 24-TET POLYMETRIC CHASSIS";
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  color: var(--accent-root);
+  background: var(--bg-canvas);
+  padding-left: 10px;
+}
+
+/* Precision CNC corner reticles on all panels */
+[data-theme="djent"] .panel {
+  background-image:
+    linear-gradient(to right, var(--accent-root) 10px, transparent 10px),
+    linear-gradient(to bottom, var(--accent-root) 10px, transparent 10px),
+    linear-gradient(to left, var(--accent-scale) 10px, transparent 10px),
+    linear-gradient(to top, var(--accent-scale) 10px, transparent 10px);
+  background-repeat: no-repeat;
+  background-size: 10px 2px, 2px 10px, 10px 2px, 2px 10px;
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%;
+}
+
+[data-theme="djent"] .brand-title {
+  font-size: 1.4rem;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
 }
 
 [data-theme="djent"] .lab-tab-btn,
 [data-theme="djent"] .control-label,
 [data-theme="djent"] .pill-badge {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-display);
 }
 
 [data-theme="djent"] .lab-tab-btn.is-active,
 [data-theme="djent"] .btn-primary {
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.38);
 }
 
 /* =========================================================================
  * DESIGN 6: AVANT / GRAPHIC SCORE (Música Experimental · Fluxus / Bauhaus)
+ * Fonts: Syne (Bold Exhibition Display) + Space Mono (Graphic Score Typewriter)
  * ========================================================================= */
 [data-theme="experimental"] {
   --bg-canvas: #eeece6;
-  --bg-panel: #faf9f5;
-  --bg-elevated: #f0ede5;
-  --bg-fretboard: #1b1b1d;
-  --bg-nut: #38383c;
-  --border-subtle: rgba(20, 20, 20, 0.35);
-  --border-strong: #161616;
+  --bg-panel: #fbfaf6;
+  --bg-elevated: #f0ede4;
+  --bg-fretboard: #19191b;
+  --bg-nut: #e2e0d8;
+  --border-subtle: rgba(18, 18, 18, 0.45);
+  --border-strong: #141414;
 
   --text-primary: #141414;
-  --text-secondary: #434340;
-  --text-muted: #6e6e68;
+  --text-secondary: #3f3f3c;
+  --text-muted: #696963;
 
   --accent-root: #dc3826;
   --accent-root-ink: #ffffff;
@@ -282,38 +445,73 @@ body {
   --accent-danger: #c6281c;
   --accent-radar-b: #9e1b84;
 
-  --fret-wire: #8b8b90;
-  --fret-micro: rgba(217, 107, 20, 0.65);
-  --string-color: #d7d7dc;
-  --inlay-color: rgba(255, 255, 255, 0.25);
+  --fret-wire: #95959c;
+  --fret-micro: rgba(217, 107, 20, 0.72);
+  --string-color: #dedee3;
+  --inlay-color: rgba(255, 255, 255, 0.32);
 
-  --shadow-panel: 3px 3px 0 #181818;
-  --radius-lg: 2px;
-  --radius-md: 2px;
-  --radius-sm: 2px;
+  --shadow-panel: 4px 4px 0 #141414;
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
 
-  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --display-tracking: -0.025em;
+  --font-body: "Space Mono", ui-monospace, monospace;
+  --font-display: "Syne", "Helvetica Neue", Helvetica, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --display-tracking: -0.02em;
   --display-transform: uppercase;
-  --panel-border-width: 1.5px;
+  --panel-border-width: 2px;
 }
 
 [data-theme="experimental"] body {
+  font-size: 13.5px;
   background-color: var(--bg-canvas);
-  background-image: radial-gradient(rgba(20, 20, 20, 0.14) 1px, transparent 1px);
-  background-size: 18px 18px;
+  background-image: radial-gradient(rgba(18, 18, 18, 0.16) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Fluxus / John Cage Editorial Crop-Mark Registration Strip */
+[data-theme="experimental"] .theme-ornament-bar {
+  height: 20px;
+  border-radius: 0;
+  opacity: 1;
+  background: none;
+  border-top: 2px solid #141414;
+  border-bottom: 1px solid #141414;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+[data-theme="experimental"] .theme-ornament-bar::before {
+  content: "⊕ FIG. 01 — GRAPHIC SCORE LAB";
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #141414;
+}
+
+[data-theme="experimental"] .theme-ornament-bar::after {
+  content: "24-TET // FLUXUS EDITION ⊕";
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-root);
+}
+
+[data-theme="experimental"] .brand-title {
+  font-size: 1.48rem;
+  font-weight: 800;
 }
 
 [data-theme="experimental"] .panel {
-  border-color: #181818;
+  border-color: #141414;
 }
 
 [data-theme="experimental"] .btn-primary,
 [data-theme="experimental"] .lab-tab-btn.is-active,
 [data-theme="experimental"] .btn-pill.active,
 [data-theme="experimental"] .btn-pill.active-teal {
-  box-shadow: 2px 2px 0 #181818;
+  box-shadow: 2.5px 2.5px 0 #141414;
 }
 
 [data-theme="experimental"] .btn-ghost,
@@ -322,52 +520,55 @@ body {
 [data-theme="experimental"] .lab-tab-btn,
 [data-theme="experimental"] select,
 [data-theme="experimental"] .search-input {
-  border-color: #181818;
+  border-color: #141414;
+  border-width: 1.5px;
 }
 
 /* =========================================================================
- * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Bahia, Terracota & Jacarandá)
+ * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Azulejo Baiano & Jacarandá)
+ * Fonts: Playfair Display (Editorial Tropicalista) + Work Sans
  * ========================================================================= */
 [data-theme="brazilian"] {
-  --bg-canvas: #f6eee0;
-  --bg-panel: #fffaf0;
-  --bg-elevated: #f2e5cf;
-  --bg-fretboard: #2b1812;
-  --bg-nut: #523526;
-  --border-subtle: rgba(122, 68, 36, 0.18);
-  --border-strong: rgba(122, 68, 36, 0.36);
+  --bg-canvas: #f7efe0;
+  --bg-panel: #fffbf2;
+  --bg-elevated: #f3e6cf;
+  --bg-fretboard: #29130b;
+  --bg-nut: #ede0c4;
+  --border-subtle: rgba(130, 68, 32, 0.2);
+  --border-strong: rgba(130, 68, 32, 0.42);
 
-  --text-primary: #241710;
-  --text-secondary: #634937;
+  --text-primary: #24160e;
+  --text-secondary: #634836;
   --text-muted: #8c6e58;
 
-  --accent-root: #d48914;
+  --accent-root: #d68a12;
   --accent-root-ink: #ffffff;
-  --accent-scale: #0f7a5c;
+  --accent-scale: #0e7c5d;
   --accent-scale-ink: #ffffff;
   --accent-char: #c84b26;
   --accent-char-ink: #ffffff;
-  --accent-micro: #e06324;
+  --accent-micro: #e36422;
   --accent-micro-ink: #ffffff;
-  --accent-harmonic: #1d56a8;
-  --accent-open: #168557;
-  --accent-voicing: #c27808;
-  --accent-etude: #0f7a5c;
-  --accent-live: #118253;
+  --accent-harmonic: #1b56ab;
+  --accent-open: #148758;
+  --accent-voicing: #c47a08;
+  --accent-etude: #0e7c5d;
+  --accent-live: #118554;
   --accent-danger: #bf3424;
-  --accent-radar-b: #7e3699;
+  --accent-radar-b: #82369e;
 
-  --fret-wire: #a68d71;
-  --fret-micro: rgba(224, 99, 36, 0.65);
-  --string-color: #e6d6be;
-  --inlay-color: rgba(242, 206, 136, 0.32);
+  --fret-wire: #bda173;
+  --fret-micro: rgba(227, 100, 34, 0.7);
+  --string-color: #f0e2ca;
+  --inlay-color: rgba(245, 223, 176, 0.36);
 
-  --shadow-panel: 0 10px 26px rgba(92, 50, 22, 0.1);
+  --shadow-panel: 0 10px 26px rgba(96, 52, 22, 0.11);
   --radius-lg: 14px;
   --radius-md: 10px;
   --radius-sm: 7px;
 
-  --font-display: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+  --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
   --display-tracking: -0.01em;
   --display-transform: none;
   --panel-border-width: 1.5px;
@@ -376,25 +577,43 @@ body {
 [data-theme="brazilian"] body {
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(ellipse at 12% 0%, rgba(212, 137, 20, 0.13), transparent 46%),
-    radial-gradient(ellipse at 88% 8%, rgba(15, 122, 92, 0.1), transparent 44%),
-    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 18px),
-    repeating-linear-gradient(-60deg, rgba(15, 122, 92, 0.032) 0 1px, transparent 1px 18px);
+    radial-gradient(ellipse at 10% 0%, rgba(214, 138, 18, 0.16), transparent 46%),
+    radial-gradient(ellipse at 90% 6%, rgba(14, 124, 93, 0.12), transparent 44%),
+    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 20px),
+    repeating-linear-gradient(-60deg, rgba(14, 124, 93, 0.032) 0 1px, transparent 1px 20px);
+}
+
+/* Custom Repeating SVG Armorial Woodcut & Bahian Tile Geometric Frieze! */
+[data-theme="brazilian"] .theme-ornament-bar {
+  height: 16px;
+  border-radius: 6px;
+  opacity: 1;
+  background-color: #2c150c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16' viewBox='0 0 40 16'%3E%3Cpolygon points='20,1 28,8 20,15 12,8' fill='%23d68a12'/%3E%3Cpolygon points='20,4 24,8 20,12 16,8' fill='%230e7c5d'/%3E%3Cpolygon points='0,8 8,1 8,15' fill='%23c84b26'/%3E%3Cpolygon points='40,8 32,1 32,15' fill='%23c84b26'/%3E%3Ccircle cx='20' cy='8' r='1.7' fill='%23fffbf2'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: center;
+  box-shadow: 0 2px 6px rgba(96, 52, 22, 0.18);
+  margin-bottom: 2px;
+}
+
+[data-theme="brazilian"] .brand-title {
+  font-size: 1.44rem;
+  font-style: italic;
 }
 
 [data-theme="brazilian"] .panel {
   border-top: 3px solid var(--accent-char);
+  border-bottom: 2px solid rgba(14, 124, 93, 0.28);
 }
 
-[data-theme="brazilian"] .topbar {
-  padding-bottom: 8px;
-  border-bottom: 2px solid rgba(200, 75, 38, 0.24);
+[data-theme="brazilian"] .fretboard-panel {
+  border-top: 4px solid var(--accent-scale);
 }
 
 [data-theme="brazilian"] .lab-tab-btn.is-active {
-  background: linear-gradient(135deg, #0f7a5c 0%, #15946f 100%);
+  background: linear-gradient(135deg, #0e7c5d 0%, #159972 100%);
   color: #ffffff;
-  border-color: #0f7a5c;
+  border-color: #0e7c5d;
 }
 
 /* =========================================================================
@@ -426,7 +645,7 @@ body {
 
 .theme-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
   gap: 10px;
 }
 
@@ -464,7 +683,7 @@ body {
 }
 
 .theme-mini-neck {
-  height: 22px;
+  height: 28px;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -472,26 +691,34 @@ body {
   padding: 0 10px;
   position: relative;
   overflow: hidden;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
   background-image: repeating-linear-gradient(
     to bottom,
-    transparent 0 4px,
-    rgba(255, 255, 255, 0.22) 4px 5px
+    transparent 0 4.5px,
+    rgba(255, 255, 255, 0.24) 4.5px 5.5px
   );
 }
 
+.mini-inlay-glyph {
+  font-size: 0.72rem;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .mini-dot {
-  width: 9px;
-  height: 9px;
+  width: 9.5px;
+  height: 9.5px;
   border-radius: 50%;
   display: inline-block;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 }
 
 .mini-dot.is-dia {
   border-radius: 1px;
   transform: rotate(45deg);
-  width: 8px;
-  height: 8px;
+  width: 8.5px;
+  height: 8.5px;
 }
 
 .theme-swatches-row {
@@ -517,12 +744,18 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+}
+
+.theme-ornament-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent-scale);
 }
 
 .theme-era-badge {
-  font-family: ui-monospace, monospace;
-  font-size: 0.67rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 999px;
@@ -539,7 +772,7 @@ body {
   color: var(--text-secondary);
 }
 
-/* Hide theme drawer in Zen mode too */
-body[data-zen="true"] .theme-drawer {
+body[data-zen="true"] .theme-drawer,
+body[data-zen="true"] .theme-ornament-bar {
   display: none !important;
 }
