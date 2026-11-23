@@ -1,0 +1,10 @@
+{
+  "name": "String Atlas — Modal Guitar Lab",
+  "short_name": "String Atlas",
+  "description": "Laboratório modal, microtonal (24-TET) e experimental para guitarra elétrica.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0e1116",
+  "theme_color": "#0e1116",
+  "icons": []
+}

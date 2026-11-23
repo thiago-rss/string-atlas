@@ -1,0 +1,16 @@
+# macOS / Sistema
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependências e builds temporários
+node_modules/
+dist/
+*.log
