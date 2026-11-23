@@ -1,5 +1,8 @@
 # String Atlas — Modal Guitar Lab
 
+[![Abrir App Online](https://img.shields.io/badge/%E2%96%B6_Abrir_App_Online-String_Atlas_PWA-e5a955?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/)
+[![Manual em PDF](https://img.shields.io/badge/Manual_do_Usu%C3%A1rio-PDF-4cc9b0?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/docs/manual_do_usuario.pdf)
+
 ![Version](https://img.shields.io/badge/version-8.4.0-e5a955?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Offline--First-4cc9b0?style=flat-square)
 ![Tuning](https://img.shields.io/badge/tuning-24--TET%20%2B%20Scala%20.scl-f08c4b?style=flat-square)
@@ -9,7 +12,10 @@
 
 **String Atlas** é um laboratório PWA (*Progressive Web App*) **offline-first** para guitarra elétrica dedicado à experimentação **modal, microtonal (24-TET & Scala `.scl`), harmônica não-tercial, polimétrica e de luthieria** — construído integralmente em **Vanilla JavaScript (ES Modules), HTML5, CSS3 e Web Audio API**, sem frameworks nem dependências externas.
 
-> 📖 **Manual Completo em PDF:** consulte [`docs/manual_do_usuario.pdf`](./docs/manual_do_usuario.pdf) para o guia ilustrado de todos os compartimentos, modos microtonais, Line Mode multicanal, calculadora física de tensão e tabela de atalhos.
+> 🎸 **Usar o App Online:** [**https://thiago-rss.github.io/string-atlas/**](https://thiago-rss.github.io/string-atlas/)  
+> Funciona direto no navegador (desktop e mobile com braço vertical automático) e pode ser instalado na tela inicial para uso 100% offline.
+>
+> 📖 **Manual Completo em PDF:** consulte [`docs/manual_do_usuario.pdf`](./docs/manual_do_usuario.pdf) ([abrir versão online](https://thiago-rss.github.io/string-atlas/docs/manual_do_usuario.pdf)) para o guia ilustrado de todos os compartimentos, modos microtonais, Line Mode multicanal, calculadora física de tensão e tabela de atalhos.
 
 ---
 
@@ -27,17 +33,27 @@
 
 ---
 
+## Instalação como Aplicativo (PWA Offline)
+
+Acesse [**https://thiago-rss.github.io/string-atlas/**](https://thiago-rss.github.io/string-atlas/) em qualquer dispositivo:
+
+- **iOS (Safari):** abra o link → toque em **Compartilhar** → **Adicionar à Tela de Início**.
+- **Android (Chrome/Edge):** toque no aviso de instalação ou abra **Opções → ⬇ Instalar App**.
+- **macOS (Safari / Chrome):** *Arquivo → Adicionar ao Dock* (Safari) ou ícone de instalação na barra de endereços (Chrome).
+
+---
+
 ## Execução Local & Validação
 
 Requer apenas **Node.js 18+** (para validação) e qualquer servidor HTTP estático (Python 3, `npx serve`, etc.):
 
-```bash
+~~~bash
 # 1. Validar integridade, sintaxe, catálogo, DSP YIN, Scala, Tensão, Glossário e SW
 node scripts/check.mjs
 
 # 2. Subir servidor local (libera getUserMedia/Line Mode em localhost)
 python3 -m http.server 8080
-```
+~~~
 
 Abra `http://localhost:8080` no navegador.
 
@@ -45,16 +61,7 @@ Abra `http://localhost:8080` no navegador.
 
 ## Publicação Automática no GitHub Pages (CI/CD)
 
-Este repositório já inclui o workflow `.github/workflows/deploy.yml`:
-
-1. Faça `push` para a branch `main` (ou `master`).
-2. No GitHub, acesse **Settings → Pages → Build and deployment → Source** e selecione **GitHub Actions**.
-3. A cada `push`, o GitHub executa automaticamente `node scripts/check.mjs` e, se todos os testes passarem, publica o bundle estático em HTTPS (`https://<usuario>.github.io/string-atlas/`).
-
-### Instalação como Aplicativo (PWA Offline)
-- **iOS (Safari):** abra a URL HTTPS → toque em **Compartilhar** → **Adicionar à Tela de Início**.
-- **Android (Chrome/Edge):** toque no aviso de instalação ou abra **Opções → ⬇ Instalar App**.
-- **macOS (Safari / Chrome):** *Arquivo → Adicionar ao Dock* (Safari) ou ícone de instalação na barra de endereços (Chrome).
+Este repositório utiliza o workflow `.github/workflows/deploy.yml`: a cada `push` na branch `main`, o GitHub Actions executa automaticamente `node scripts/check.mjs` e, se todos os testes passarem, publica o bundle estático atualizado em [**https://thiago-rss.github.io/string-atlas/**](https://thiago-rss.github.io/string-atlas/).
 
 ---
 
@@ -76,7 +83,7 @@ Este repositório já inclui o workflow `.github/workflows/deploy.yml`:
 
 ## Arquitetura do Repositório
 
-```text
+~~~text
 string-atlas/
 ├── .github/workflows/deploy.yml   # CI (check.mjs) + Deploy GitHub Pages
 ├── docs/manual_do_usuario.pdf     # Manual ilustrado do usuário (PDF)
@@ -94,7 +101,7 @@ string-atlas/
 ├── scripts/check.mjs              # Validador de integridade e testes unitários
 ├── CHANGELOG.md                   # Histórico de versões v1.0.0 → v8.4.0
 └── LICENSE                        # Licença MIT
-```
+~~~
 
 ---
 
