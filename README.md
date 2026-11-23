@@ -20,18 +20,6 @@
 
 ---
 
-## Vitrine Visual (`v8.6.0`)
-
-<p align="center">
-  <img src="./docs/preview-desktop-layl.png" alt="String Atlas Desktop — Tema Layl, Compartimentos Puros, HUD Vivo Mic/Interface e Braço 24-TET" width="100%" />
-</p>
-
-| Mobile PWA (Braço Vertical Automático & 1-Toque Mic/Line) | Luthieria Avançada (Comparador A/B de Tensão & 7 Mundos Visuais) |
-| :---: | :---: |
-| <img src="./docs/preview-mobile-vertical.png" alt="String Atlas Mobile — Braço Vertical Automático 0–12 e Barra Inferior" width="100%" /> | <img src="./docs/preview-luthier-worlds.png" alt="String Atlas — Comparador A/B de Tensão, Diagnóstico de Tensor e 7 Mundos Visuais" width="100%" /> |
-
----
-
 ## Principais Recursos
 
 | Pilar | O que inclui |
@@ -94,11 +82,7 @@ Abra `http://localhost:8080` no navegador.
 ~~~text
 string-atlas/
 ├── .github/workflows/deploy.yml   # CI (check.mjs) + Deploy GitHub Pages
-├── docs/
-│   ├── manual_do_usuario.pdf      # Manual ilustrado do usuário v8.6.0 (PDF)
-│   ├── preview-desktop-layl.png   # Vitrine Desktop (Layl + Live HUD + 24-TET)
-│   ├── preview-mobile-vertical.png# Vitrine Mobile (Braço Vertical Automático)
-│   └── preview-luthier-worlds.png # Vitrine Luthieria A/B & 7 Mundos Visuais
+├── docs/manual_do_usuario.pdf     # Manual ilustrado do usuário v8.6.0 (PDF)
 ├── index.html                     # Shell PWA minimalista em compartimentos
 ├── manifest.json                  # Manifesto PWA isolado para subpath
 ├── sw.js                          # Service Worker offline-first (54 assets)
