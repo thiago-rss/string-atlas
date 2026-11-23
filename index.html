@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d1017" />
-  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat, Messiaen, Non-Tercial Voicings, Procedural Experimental Etudes, 24-TET Staff/Tab & Iqa'at/Polymetric Rhythm Engine." />
+  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat, Baritone/Scordatura, Line Mode Pitch/Bend Detector, Progressive Study Guide, Voicings, Procedural Etudes & Polymetric Iqa'at." />
   <title>String Atlas — Modal Guitar Lab</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
@@ -22,6 +22,7 @@
       </div>
 
       <div class="topbar-actions">
+        <span class="pill-badge live-badge" id="lineStatusBadge" hidden>● LIVE: —</span>
         <span class="pill-badge" id="rhythmStatusBadge" hidden>♪ —</span>
         <span class="pill-badge" id="tuningSummaryBadge">EADGBE</span>
         <button type="button" class="btn-ghost" id="btnLangToggle" aria-label="Switch language">PT / EN</button>
@@ -53,12 +54,14 @@
       <!-- Synchronized 24-TET Staff + 6-String Tablature -->
       <section class="panel notation-panel" id="notationPanel" aria-label="24-TET Staff and Guitar Tablature"></section>
 
-      <!-- Phase 3 Lab Module Navigation -->
+      <!-- Phase 4 Lab Module Navigation -->
       <nav class="lab-tabs" id="labTabs" aria-label="Laboratory Modules"></nav>
 
       <!-- Active Lab Workspace Views -->
-      <section id="tabHarmony" class="tab-section"></section>
+      <section id="tabStudyGuide" class="tab-section"></section>
+      <section id="tabLineMode" class="tab-section" hidden></section>
       <section id="tabEtude" class="tab-section" hidden></section>
+      <section id="tabHarmony" class="tab-section" hidden></section>
       <section id="tabRhythm" class="tab-section" hidden></section>
       <section id="tabDossier" class="tab-section bottom-grid" hidden>
         <article class="panel dossier-panel" id="dossierPanel"></article>
@@ -67,8 +70,8 @@
     </main>
 
     <footer class="app-footer">
-      <span data-i18n="footerTip">Atalhos: Espaço = Escala · E = Etude · N = Nova Variação · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v3.1.0 · 24-TET · Expanded Atlas & Baritone Lab</span>
+      <span data-i18n="footerTip">Atalhos: Espaço = Escala · E = Etude · N = Variação · L = Line Mode · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
+      <span class="mono-tag">v4.0.0 · 24-TET · Line Mode &amp; Study Guide</span>
     </footer>
   </div>
 

@@ -1,12 +1,26 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v3.0
+ * String Atlas — Modal Guitar Lab Bootstrap v4.0
  */
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
 import { synthEngine } from './audio/synthEngine.js';
-import { renderDeckPanel, refreshScaleBrowserInPlace, toggleScalePlayback } from './views/deckPanelsView.js';
-import { renderFretboard, renderInspector, highlightFretboardEtudeEvent } from './views/fretboardView.js';
+import {
+  renderDeckPanel,
+  refreshScaleBrowserInPlace,
+  toggleScalePlayback
+} from './views/deckPanelsView.js';
+import {
+  renderFretboard,
+  renderInspector,
+  highlightFretboardEtudeEvent
+} from './views/fretboardView.js';
 import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
+import { renderStudyGuideView } from './views/studyGuideView.js';
+import {
+  renderLineModeView,
+  startLineMode,
+  stopLineMode
+} from './views/lineModeView.js';
 import { renderHarmonyView } from './views/harmonyView.js';
 import {
   renderEtudeView,
@@ -15,7 +29,11 @@ import {
   stopEtudePlayback,
   toggleEtudePlayback
 } from './views/etudeView.js';
-import { renderRhythmView, toggleRhythmPlayback, updateRhythmBadge } from './views/rhythmView.js';
+import {
+  renderRhythmView,
+  toggleRhythmPlayback,
+  updateRhythmBadge
+} from './views/rhythmView.js';
 import { renderDossierAndOblique } from './views/dossierView.js';
 
 function applyStaticI18nAndTheme(state) {
@@ -39,6 +57,8 @@ function renderLabTabs(state) {
   if (!nav) return;
 
   const tabs = [
+    { id: 'study', label: t(state.lang, 'tabStudyGuide') },
+    { id: 'line', label: t(state.lang, 'tabLineMode') },
     { id: 'etude', label: t(state.lang, 'tabEtude') },
     { id: 'harmony', label: t(state.lang, 'tabHarmony') },
     { id: 'rhythm', label: t(state.lang, 'tabRhythm') },
@@ -57,8 +77,10 @@ function renderLabTabs(state) {
     setState({ activeTab: btn.dataset.tab });
   };
 
-  document.getElementById('tabHarmony').hidden = state.activeTab !== 'harmony';
+  document.getElementById('tabStudyGuide').hidden = state.activeTab !== 'study';
+  document.getElementById('tabLineMode').hidden = state.activeTab !== 'line';
   document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
+  document.getElementById('tabHarmony').hidden = state.activeTab !== 'harmony';
   document.getElementById('tabRhythm').hidden = state.activeTab !== 'rhythm';
   document.getElementById('tabDossier').hidden = state.activeTab !== 'dossier';
 }
@@ -68,7 +90,12 @@ function renderAll(state, patch = null) {
     const keys = Object.keys(patch);
 
     // Fast paths: live sliders, search input & playhead cursors never tear down DOM inputs
-    if (keys.length === 1 && (keys[0] === 'bpm' || keys[0] === 'etudeBpm')) return;
+    if (
+      keys.length === 1 &&
+      (keys[0] === 'bpm' || keys[0] === 'etudeBpm' || keys[0] === 'lineInputGain' || keys[0] === 'lineRmsGate')
+    ) {
+      return;
+    }
     if (keys.length === 1 && keys[0] === 'scaleSearch') {
       refreshScaleBrowserInPlace(state);
       return;
@@ -103,6 +130,12 @@ function renderAll(state, patch = null) {
       renderLabTabs(state);
       return;
     }
+
+    // Fast path: Study Guide UI-only toggles
+    if (keys.every((k) => k === 'studyModuleFilter' || k === 'openDossierLessonId' || k === 'completedLessons')) {
+      renderStudyGuideView(state);
+      return;
+    }
   }
 
   applyStaticI18nAndTheme(state);
@@ -110,6 +143,8 @@ function renderAll(state, patch = null) {
   renderFretboard(state);
   renderNotationPanel(state);
   renderLabTabs(state);
+  renderStudyGuideView(state);
+  renderLineModeView(state);
   renderHarmonyView(state);
   renderEtudeView(state);
   renderRhythmView(state);
@@ -140,6 +175,12 @@ function bindGlobalControls() {
       toggleEtudePlayback();
     } else if (key === 'n') {
       regenerateEtude();
+    } else if (key === 'l') {
+      if (st.lineModeRunning) stopLineMode();
+      else {
+        setState({ activeTab: 'line' });
+        startLineMode();
+      }
     } else if (key === 'd') {
       const next = !st.droneOn;
       synthEngine.updateDrone(next, st.rootQ, st.droneFifth);

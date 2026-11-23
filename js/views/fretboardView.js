@@ -104,6 +104,50 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
   `;
 }
 
+
+/**
+ * Zero-thrash live pitch mirror on the SVG fretboard (#livePitchLayer).
+ * Highlights the exact detected pitch (octave-accurate when possible, or pitch-class fallback).
+ */
+export function highlightFretboardLivePitch(pitch, state) {
+  const layer = document.getElementById('livePitchLayer');
+  if (!layer) return;
+  if (!pitch || !state.lineShowOnNeck) {
+    layer.innerHTML = '';
+    return;
+  }
+
+  const hits = [];
+  for (let visIdx = 0; visIdx < 6; visIdx += 1) {
+    const stringArrIdx = 5 - visIdx;
+    const openQ = state.customStringsQ[stringArrIdx];
+    const stepQ = pitch.nearestQ - openQ;
+    if (stepQ < 0 || stepQ > NUM_FRETS * 2) continue;
+    if (stepQ === 1 && state.microMode === 'bend') continue;
+
+    const x = stepQToX(stepQ, state.microMode);
+    const y = TOP_Y + visIdx * STRING_GAP;
+    hits.push({ x, y });
+  }
+
+  if (!hits.length) {
+    layer.innerHTML = '';
+    return;
+  }
+
+  const inTune = Math.abs(pitch.centsFrom24) <= 14;
+  const stroke = inTune ? 'var(--accent-live)' : 'var(--accent-micro)';
+
+  layer.innerHTML = hits
+    .map(
+      ({ x, y }) => `
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="19" fill="none" stroke="${stroke}" stroke-width="3" stroke-dasharray="5 3" class="live-pitch-ring"/>
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${stroke}" fill-opacity="0.35"/>
+      `
+    )
+    .join('');
+}
+
 export function renderFretboard(state) {
   const container = document.getElementById('fretboardContainer');
   const titleEl = document.getElementById('activeScaleTitle');
@@ -126,6 +170,7 @@ export function renderFretboard(state) {
     <span class="legend-item"><span class="legend-diamond" style="background:var(--accent-micro)"></span>${t(state.lang, 'legendMicro')}</span>
     ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
     ${state.activeTab === 'etude' ? `<span class="legend-item"><span class="legend-ring etude"></span>${t(state.lang, 'legendEtudeCursor')}</span>` : ''}
+    ${state.lineModeRunning ? `<span class="legend-item"><span class="legend-ring live"></span>${t(state.lang, 'legendLivePitch')}</span>` : ''}
     ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
   `;
 
@@ -302,6 +347,7 @@ export function renderFretboard(state) {
 
   // Dedicated top layer for live Etude Playhead highlight (pointer-events: none)
   parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
+  parts.push('<g id="livePitchLayer" style="pointer-events:none"></g>');
   parts.push('</svg>');
   container.innerHTML = parts.join('');
 

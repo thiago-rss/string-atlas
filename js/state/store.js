@@ -5,7 +5,7 @@ import { DB } from '../core/database.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v31';
+const STORAGE_KEY = 'string_atlas_prefs_v4';
 
 function loadSavedPrefs() {
   try {
@@ -23,7 +23,8 @@ function savePrefs(state) {
       JSON.stringify({
         lang: state.lang,
         theme: state.theme,
-        tuningId: state.tuningId
+        tuningId: state.tuningId,
+        completedLessons: state.completedLessons
       })
     );
   } catch {
@@ -65,7 +66,7 @@ const state = {
   inspectedNote: null,
 
   // Workspace tab ('harmony' | 'etude' | 'rhythm' | 'dossier')
-  activeTab: 'etude',
+  activeTab: 'study',
 
   // Phase 2: Harmony & Voicing Lab
   harmonyMode: 'catalog',
@@ -102,6 +103,23 @@ const state = {
   rhythmPlaying: false,
   polyEnabled: false,
   polyLength: 4,
+
+  // Phase 4: Line Mode & 24-TET Pitch Detector
+  lineModeRunning: false,
+  lineInputMode: 'line', // 'line' | 'mic'
+  lineDeviceId: '',
+  audioInputDevices: [],
+  lineInputGain: 1.4,
+  lineRmsGate: 0.014,
+  lineShowOnNeck: true,
+  lineValidateEtude: false,
+  lineError: '',
+
+  // Phase 4: Progressive Study Guide
+  studyModuleFilter: 'all',
+  activeLessonId: null,
+  openDossierLessonId: null,
+  completedLessons: Array.isArray(saved.completedLessons) ? saved.completedLessons : [],
 
   // Oblique Lab
   obliqueIndex: 0
@@ -271,7 +289,7 @@ export function setState(patch) {
     recomputeEtude();
   }
 
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch) {
     savePrefs(state);
   }
 

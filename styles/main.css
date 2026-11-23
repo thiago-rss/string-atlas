@@ -28,6 +28,8 @@
   --accent-open: #6bd98e;
   --accent-voicing: #ffd166;
   --accent-etude: #38e8ff;
+  --accent-live: #52f29c;
+  --accent-danger: #e05260;
 
   --fret-wire: #5c6370;
   --fret-micro: rgba(240, 140, 75, 0.45);
@@ -65,6 +67,8 @@
   --accent-open: #2a9454;
   --accent-voicing: #b87400;
   --accent-etude: #0077b6;
+  --accent-live: #158f50;
+  --accent-danger: #c63544;
 
   --fret-wire: #8b8175;
   --fret-micro: rgba(240, 140, 75, 0.55);
@@ -1282,4 +1286,329 @@ button:disabled {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* =========================================================================
+ * Phase 4 Additions: Line Mode Pitch/Bend Detector & Progressive Study Guide
+ * ========================================================================= */
+
+.live-badge {
+  color: var(--accent-live);
+  border-color: var(--accent-live);
+}
+
+.legend-ring.live {
+  border-color: var(--accent-live);
+  border-style: dashed;
+}
+
+.live-pitch-ring {
+  filter: drop-shadow(0 0 8px var(--accent-live));
+}
+
+.btn-danger {
+  border: 1px solid var(--accent-danger);
+  background: var(--accent-danger);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.line-controls-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.line-dsp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.level-meter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.level-meter-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.level-meter-fill {
+  height: 100%;
+  background: var(--text-muted);
+  transition: width 0.05s linear;
+}
+
+.level-meter-fill.is-above-gate {
+  background: linear-gradient(90deg, var(--accent-scale), var(--accent-live));
+}
+
+.line-error-banner {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(224, 82, 96, 0.14);
+  border: 1px solid var(--accent-danger);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+}
+
+.line-telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 960px) {
+  .line-telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.telemetry-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detected-note-big {
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.detected-note-big.is-in-scale {
+  color: var(--accent-live);
+}
+
+.detected-note-big.is-micro {
+  color: var(--accent-micro);
+}
+
+.detected-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bend-gauge-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.bend-gauge-track {
+  position: relative;
+  height: 44px;
+  margin-top: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+}
+
+.bend-zone-quarter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 46.67%;
+  width: 23.33%;
+  background: rgba(82, 242, 156, 0.18);
+  border-left: 1px dashed var(--accent-live);
+  border-right: 1px dashed var(--accent-live);
+}
+
+.bend-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.bend-tick.is-quarter {
+  width: 2px;
+  background: var(--accent-live);
+}
+
+.bend-tick span {
+  position: absolute;
+  bottom: 3px;
+  left: 4px;
+  font-size: 0.68rem;
+  font-family: ui-monospace, monospace;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.bend-tick.is-quarter span {
+  color: var(--accent-live);
+  font-weight: 700;
+}
+
+.bend-needle {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: var(--accent-root);
+  transition: left 0.05s linear;
+}
+
+.bend-needle.is-quarter-lock {
+  background: var(--accent-live);
+  box-shadow: 0 0 12px var(--accent-live);
+}
+
+.bend-needle.is-zero-lock {
+  background: var(--accent-scale);
+}
+
+.etude-target-big {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--accent-etude);
+  font-family: ui-monospace, monospace;
+}
+
+/* Progressive Study Guide */
+.sg-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.sg-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-root), var(--accent-scale));
+  transition: width 0.25s ease;
+}
+
+.sg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .sg-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sg-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sg-card.is-active {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1px var(--accent-root);
+}
+
+.sg-card.is-done {
+  border-left: 3px solid var(--accent-live);
+}
+
+.sg-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sg-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.sg-num {
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--accent-scale);
+}
+
+.sg-card-title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.sg-card-summary {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.sg-task-box {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border-left: 2px solid var(--accent-root);
+  font-size: 0.82rem;
+}
+
+.sg-ear-tip {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.sg-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.sg-dossier-box {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
 }

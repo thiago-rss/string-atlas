@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (24-TET PWA: 74 Scales/Modes, 26 Tunings incl. B/A Standard, Voicings, Procedural Etudes & Polymetric Iqa'at)",
+  "description": "String Atlas — Modal Guitar Lab (v4.0.0: 24-TET Line Mode Pitch/Bend Detector, Progressive Study Guide, 74 Scales, 26 Tunings, Voicings, Etudes & Polymetric Iqa'at)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"
