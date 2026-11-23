@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="layl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1017" />
+  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat, Messiaen, Pitch-Class Sets & Scordatura sandbox for electric guitar." />
+  <title>String Atlas — Modal Guitar Lab</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="./assets/icons/icon.svg" alt="String Atlas Logo" class="brand-icon" width="34" height="34" />
+        <div>
+          <h1 class="brand-title">String Atlas</h1>
+          <p class="brand-subtitle" data-i18n="subtitle">Modal Guitar Lab · 24-TET</p>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="pill-badge" id="tuningSummaryBadge">EADGBE</span>
+        <button type="button" class="btn-ghost" id="btnLangToggle" aria-label="Switch language">PT / EN</button>
+        <button type="button" class="btn-ghost" id="btnThemeToggle" aria-label="Switch theme">Layl</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <!-- Control Deck -->
+      <section class="panel deck-panel" id="deckPanel" aria-label="Lab Controls"></section>
+
+      <!-- Fretboard Stage -->
+      <section class="panel fretboard-panel" aria-label="Interactive 24-TET Fretboard">
+        <div class="fretboard-header">
+          <div class="fretboard-title-group">
+            <h2 id="activeScaleTitle" class="stage-title">—</h2>
+            <span id="activeFormulaTag" class="mono-tag">—</span>
+          </div>
+          <div class="legend-strip" id="fretboardLegend"></div>
+        </div>
+
+        <div class="fretboard-scroll" id="fretboardContainer"></div>
+
+        <div class="inspector-strip" id="inspectorStrip">
+          <span class="inspector-hint" data-i18n="inspectorHint">Clique em qualquer nota, corda solta ou harmônico no braço para ouvir e inspecionar.</span>
+        </div>
+      </section>
+
+      <!-- Bottom Split: Dossier + Oblique Lab -->
+      <section class="bottom-grid">
+        <article class="panel dossier-panel" id="dossierPanel"></article>
+        <aside class="panel oblique-panel" id="obliquePanel"></aside>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span data-i18n="footerTip">Atalhos: Espaço = Tocar/Parar escala · D = Drone · H = Harmônicos</span>
+      <span class="mono-tag">v1.0.0 · 24-TET Engine</span>
+    </footer>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

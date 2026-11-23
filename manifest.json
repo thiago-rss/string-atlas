@@ -1,10 +1,17 @@
 {
   "name": "String Atlas — Modal Guitar Lab",
   "short_name": "String Atlas",
-  "description": "Laboratório modal, microtonal (24-TET) e experimental para guitarra elétrica.",
+  "description": "Laboratório PWA de experimentação modal, microtonal (24-TET), scordatura e harmonia contemporânea para guitarra elétrica.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0e1116",
-  "theme_color": "#0e1116",
-  "icons": []
+  "background_color": "#0d1017",
+  "theme_color": "#0d1017",
+  "icons": [
+    {
+      "src": "./assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
