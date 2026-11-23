@@ -103,6 +103,7 @@ function buildTensionChartSvg(calc, unit, lang) {
     parts.push(`<text x="${padL - 10}" y="${y + 15}" text-anchor="end" fill="var(--text-secondary)" font-size="10.5" font-weight="700" font-family="var(--font-mono, monospace)">S${r.guitarStr} · ${r.noteName}</text>`);
     parts.push(`<rect x="${padL}" y="${y + 4}" width="${plotW}" height="15" rx="3" fill="var(--bg-panel)" fill-opacity="0.55"/>`);
     parts.push(`<rect x="${padL}" y="${y + 4}" width="${barW.toFixed(1)}" height="15" rx="3" fill="${col}" fill-opacity="0.88"/>`);
+    parts.push(`<rect x="${padL}" y="${y + 4}" width="${barW.toFixed(1)}" height="6.5" rx="2.5" fill="#ffffff" fill-opacity="0.22"/>`);
     parts.push(`<text x="${(padL + barW + 8).toFixed(1)}" y="${y + 15}" fill="var(--text-primary)" font-size="10.2" font-weight="700" font-family="var(--font-mono, monospace)">${fmtTension(r.lbs, unit)}</text>`);
   });
 

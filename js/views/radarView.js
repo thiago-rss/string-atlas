@@ -41,6 +41,19 @@ function buildRadarSvg({ rootA, scaleA, compareTarget }) {
 
   const parts = [];
   parts.push(`<svg class="radar-svg" viewBox="0 0 ${size} ${size}" role="img" aria-label="24-TET Pitch Class Radar">`);
+  parts.push(`
+    <defs>
+      <radialGradient id="saRadarDial" cx="50%" cy="44%" r="58%">
+        <stop offset="0%" stop-color="var(--accent-root)" stop-opacity="0.09"/>
+        <stop offset="55%" stop-color="var(--bg-panel)" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.28"/>
+      </radialGradient>
+      <filter id="saRadarGlow" x="-25%" y="-25%" width="150%" height="150%">
+        <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="var(--accent-scale)" flood-opacity="0.45"/>
+      </filter>
+    </defs>
+  `);
+  parts.push(`<circle cx="${cx}" cy="${cy}" r="${rOuter + 4}" fill="url(#saRadarDial)" stroke="var(--border-strong)" stroke-width="1.2"/>`);
 
   // Concentric reference rings
   parts.push(`<circle cx="${cx}" cy="${cy}" r="${rOuter}" fill="none" stroke="var(--border-strong)" stroke-width="1.2"/>`);
@@ -62,7 +75,7 @@ function buildRadarSvg({ rootA, scaleA, compareTarget }) {
       const p = polarXY(cx, cy, rPoly, pc);
       return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
     }).join(' ');
-    parts.push(`<polygon points="${ptsA}" fill="var(--accent-scale)" fill-opacity="0.18" stroke="var(--accent-scale)" stroke-width="2.2"/>`);
+    parts.push(`<polygon points="${ptsA}" fill="var(--accent-scale)" fill-opacity="0.2" stroke="var(--accent-scale)" stroke-width="2.3" filter="url(#saRadarGlow)"/>`);
   }
 
   // Optional Scale B Comparison Polygon

@@ -1,5 +1,7 @@
 /* =========================================================================
- * String Atlas — Signature Musical Designs, Fonts & Ornaments (v7.2.0)
+ * String Atlas — Tactile Dimensional Aesthetics & 7 Musical Worlds (v7.5.0)
+ * Eliminates flat digital surfaces via layered depth, specular bevels,
+ * subtle analog/paper grain, custom sculpted controls, and theme-specific SVG art.
  * ========================================================================= */
 
 :root {
@@ -9,13 +11,88 @@
   --display-tracking: -0.02em;
   --display-transform: none;
   --panel-border-width: 1px;
+  --grain-opacity: 0.036;
+  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.01) 38%, rgba(0, 0, 0, 0.14) 100%);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.11), inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.01) 52%, rgba(0, 0, 0, 0.14) 100%);
+  --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --well-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.06);
+  --card-surface: linear-gradient(165deg, rgba(255, 255, 255, 0.045) 0%, rgba(0, 0, 0, 0.12) 100%);
 }
 
+/* =========================================================================
+ * UNIVERSAL TACTILE DEPTH, MICRO-GRAIN & SCULPTED HARDWARE CONTROLS
+ * ========================================================================= */
 body {
   font-family: var(--font-body);
-  transition: background-color 0.25s ease, color 0.2s ease;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.28s ease, color 0.2s ease;
 }
 
+/* Subtle tactile analog/paper micro-grain overlay across the viewport */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Bespoke Architectural Backdrop Watermark (rendered by themeGraphics.js) */
+.theme-stage-backdrop {
+  position: fixed;
+  top: -40px;
+  right: -60px;
+  width: 440px;
+  height: 440px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.72;
+  transition: opacity 0.35s ease;
+}
+
+.theme-stage-backdrop svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .theme-stage-backdrop {
+    width: 280px;
+    height: 280px;
+    opacity: 0.45;
+  }
+}
+
+/* Bespoke Header Artwork Banner (rendered by themeGraphics.js) */
+.theme-ornament-bar {
+  width: 100%;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -4px;
+  pointer-events: none;
+}
+
+.ornament-art-svg {
+  width: 100%;
+  max-width: 960px;
+  height: 32px;
+  display: block;
+}
+
+/* Typography bindings */
 .mono-tag,
 .pill-badge,
 .voicing-tab-sig,
@@ -35,73 +112,305 @@ body {
   text-transform: var(--display-transform);
 }
 
+/* Dimensional Panels */
 .panel {
   position: relative;
   border-width: var(--panel-border-width);
+  background-color: var(--bg-panel);
+  background-image: var(--panel-surface);
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim);
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.2s ease;
 }
 
-/* Signature Top Ornament Ribbon */
-.theme-ornament-bar {
-  width: 100%;
-  height: 4px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, var(--accent-root), var(--accent-scale), transparent);
-  opacity: 0.55;
-  margin-bottom: -4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+/* Dimensional Inner Cards */
+.voicing-card,
+.telemetry-card,
+.sg-card,
+.vamp-step-card,
+.tension-kpi-card,
+.radar-item-card,
+.atlas-card,
+.oblique-card,
+.theme-card,
+.tuner-str-card,
+.snap-card,
+.retuner-string,
+.ear-choice-btn {
+  background-color: var(--bg-elevated);
+  background-image: var(--card-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.16s ease;
 }
 
-/* Subtle fretboard housing polish */
+.voicing-card:hover,
+.sg-card:hover,
+.radar-item-card:hover,
+.atlas-card:hover,
+.theme-card:hover,
+.tuner-str-card:hover,
+.ear-choice-btn:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Tactile Beveled Buttons */
+.btn-ghost,
+.btn-pill,
+.btn-mini,
+.dock-btn,
+.zone-tab-btn,
+.subtool-pill {
+  background-image: var(--btn-sheen);
+  box-shadow: var(--btn-shadow);
+}
+
+.btn-ghost:hover,
+.btn-pill:hover,
+.btn-mini:hover,
+.dock-btn:hover,
+.zone-tab-btn:hover,
+.subtool-pill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.btn-ghost:active,
+.btn-pill:active,
+.btn-mini:active,
+.btn-primary:active,
+.dock-btn:active,
+.zone-tab-btn:active {
+  transform: translateY(0px);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.btn-primary,
+.btn-pill.active,
+.btn-mini.active-mini,
+.dock-btn.is-open,
+.zone-tab-btn.is-active {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.02) 55%, rgba(0, 0, 0, 0.18) 100%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.btn-pill.active-teal,
+.btn-pill.active-harm,
+.btn-pill.active-voicing,
+.btn-pill.active-radar {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(0, 0, 0, 0.15) 100%);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+/* Sculpted Recessed Inputs & Selects */
+select,
+.search-input,
+.bpm-control,
+.tens-num-wrap,
+.inspector-strip {
+  box-shadow: var(--well-shadow);
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 30px;
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.14) 0%, rgba(255, 255, 255, 0.03) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1.5 1.5L6 6l4.5-4.5' fill='none' stroke='%239aa7b8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 0, right 10px center;
+}
+
+select:focus,
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-root);
+  box-shadow: var(--well-shadow), 0 0 0 2px rgba(229, 169, 85, 0.24);
+}
+
+/* Custom Sculpted Studio Range Sliders (Replaces flat browser defaults!) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 18px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--border-strong);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #ffffff 0%, var(--accent-root) 52%, rgba(0, 0, 0, 0.4) 100%);
+  border: 1.5px solid rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(229, 169, 85, 0.35);
+  transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.14);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-strong);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #ffffff 0%, var(--accent-root) 58%);
+  border: 1.5px solid rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Recessed Studio Stage Frame around the SVG Fretboard */
 .fretboard-scroll {
-  padding: 10px 8px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.04), transparent 70%), var(--bg-fretboard);
+  padding: 12px 10px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.07), transparent 64%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.14) 22%, rgba(0, 0, 0, 0.35) 100%),
+    var(--bg-fretboard);
+  box-shadow: inset 0 6px 22px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.pill-badge {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.18));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.deck-compartment-body,
+.notation-scroll,
+.tension-chart-wrap,
+.scordatura-tuner-box,
+.rhythm-track-block,
+.ear-stage-box,
+.radar-clock-panel,
+.radar-section {
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.26), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* =========================================================================
- * DESIGN 3: 70s ANALOG (Rock Anos 70 · Tube Amps, Brass Rivets & Vinyl Gold)
- * Fonts: Fraunces (Display) + DM Sans (Body)
+ * DESIGN 1: LAYL · OBSIDIAN (Oud Visualizer Nocturnal Glass & Warm Gold)
+ * ========================================================================= */
+[data-theme="layl"] {
+  --bg-canvas: #080b11;
+  --bg-panel: rgba(20, 26, 38, 0.88);
+  --bg-elevated: rgba(29, 37, 54, 0.92);
+  --border-subtle: rgba(229, 169, 85, 0.14);
+  --border-strong: rgba(229, 169, 85, 0.32);
+  --shadow-panel: 0 18px 44px -10px rgba(0, 0, 0, 0.72);
+  --panel-inset-rim: inset 0 1px 0 rgba(248, 214, 152, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="layl"] body {
+  background-color: #080b11;
+  background-image:
+    radial-gradient(ellipse 70% 42% at 18% -5%, rgba(229, 169, 85, 0.13), transparent 62%),
+    radial-gradient(ellipse 60% 45% at 86% 8%, rgba(76, 201, 176, 0.1), transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 108%, rgba(42, 62, 110, 0.18), transparent 65%),
+    linear-gradient(180deg, #0c111b 0%, #07090f 100%);
+}
+
+[data-theme="layl"] .panel {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="layl"] .brand-title {
+  background: linear-gradient(135deg, #fff3d6 0%, #e5a955 62%, #c98632 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================================================
+ * DESIGN 2: NAHAR · PARCHMENT (Oud Visualizer Daytime Illuminated Manuscript)
+ * ========================================================================= */
+[data-theme="nahar"] {
+  --bg-canvas: #efe8d8;
+  --bg-panel: rgba(252, 248, 240, 0.94);
+  --bg-elevated: #f3ecdd;
+  --border-subtle: rgba(138, 96, 36, 0.18);
+  --border-strong: rgba(138, 96, 36, 0.38);
+  --grain-opacity: 0.048;
+  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(244, 235, 218, 0.45) 100%);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 -1px 0 rgba(120, 82, 30, 0.14);
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(226, 212, 186, 0.35) 100%);
+  --btn-shadow: 0 2px 5px rgba(72, 48, 18, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --well-shadow: inset 0 2px 5px rgba(84, 58, 22, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
+  --card-surface: linear-gradient(170deg, rgba(255, 255, 255, 0.78) 0%, rgba(235, 224, 202, 0.38) 100%);
+  --shadow-panel: 0 12px 30px -8px rgba(78, 52, 18, 0.16);
+}
+
+[data-theme="nahar"] body {
+  background-color: #efe8d8;
+  background-image:
+    radial-gradient(ellipse 65% 40% at 15% 0%, rgba(196, 125, 30, 0.12), transparent 58%),
+    radial-gradient(ellipse 60% 42% at 88% 10%, rgba(29, 138, 117, 0.08), transparent 58%),
+    linear-gradient(180deg, #f6f0e4 0%, #e7decb 100%);
+}
+
+[data-theme="nahar"] .panel {
+  border-top: 2px solid rgba(196, 125, 30, 0.36);
+}
+
+/* =========================================================================
+ * DESIGN 3: 70s ANALOG (Rock Anos 70 · Vintage Tube Amp, Tolex & Brass Faceplate)
  * ========================================================================= */
 [data-theme="rock70s"] {
-  --bg-canvas: #17100b;
-  --bg-panel: #241912;
-  --bg-elevated: #312217;
-  --bg-fretboard: #21120a;
+  --bg-canvas: #150e09;
+  --bg-panel: #241811;
+  --bg-elevated: #312116;
+  --bg-fretboard: #1f1109;
   --bg-nut: #c8a252;
-  --border-subtle: rgba(235, 179, 98, 0.2);
-  --border-strong: rgba(240, 174, 82, 0.44);
+  --border-subtle: rgba(238, 184, 102, 0.22);
+  --border-strong: rgba(242, 178, 86, 0.48);
 
-  --text-primary: #f7ebd9;
-  --text-secondary: #d4bc9c;
-  --text-muted: #a18666;
+  --text-primary: #f9eedc;
+  --text-secondary: #d9c09e;
+  --text-muted: #a68a68;
 
-  --accent-root: #f07428;
+  --accent-root: #f27729;
   --accent-root-ink: #170d06;
   --accent-scale: #6eb881;
   --accent-scale-ink: #0c170f;
-  --accent-char: #de4538;
+  --accent-char: #e04638;
   --accent-char-ink: #ffffff;
-  --accent-micro: #ffaa38;
+  --accent-micro: #ffad3b;
   --accent-micro-ink: #1a0f04;
   --accent-harmonic: #72abd9;
-  --accent-open: #8ccf70;
-  --accent-voicing: #f5c952;
-  --accent-etude: #ffa047;
+  --accent-open: #8ed171;
+  --accent-voicing: #f7cc54;
+  --accent-etude: #ffa24a;
   --accent-live: #7ce38a;
   --accent-danger: #d93f32;
   --accent-radar-b: #e67cc9;
 
   --fret-wire: #cfa962;
-  --fret-micro: rgba(255, 170, 56, 0.62);
+  --fret-micro: rgba(255, 173, 59, 0.65);
   --string-color: #e6d7be;
   --inlay-color: rgba(248, 232, 200, 0.32);
 
-  --shadow-panel: 0 14px 32px rgba(5, 2, 0, 0.62), inset 0 1px 0 rgba(255, 224, 168, 0.16), inset 0 -2px 0 rgba(0, 0, 0, 0.45);
-  --radius-lg: 12px;
-  --radius-md: 9px;
+  --grain-opacity: 0.052;
+  --shadow-panel: 0 18px 40px -6px rgba(4, 1, 0, 0.78);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 224, 168, 0.24), inset 0 -2px 0 rgba(0, 0, 0, 0.55);
+  --radius-lg: 11px;
+  --radius-md: 8px;
   --radius-sm: 6px;
 
   --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -114,40 +423,49 @@ body {
 [data-theme="rock70s"] body {
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(ellipse at 50% -15%, rgba(240, 116, 40, 0.22), transparent 58%),
-    repeating-linear-gradient(45deg, rgba(240, 184, 104, 0.032) 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(-45deg, rgba(240, 184, 104, 0.032) 0 2px, transparent 2px 7px);
+    radial-gradient(ellipse 75% 42% at 50% -10%, rgba(242, 119, 41, 0.28), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 15% 85%, rgba(212, 145, 42, 0.1), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(240, 184, 104, 0.04) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(-45deg, rgba(240, 184, 104, 0.04) 0 2px, transparent 2px 7px);
 }
 
-/* Vintage amp white/gold double piping ribbon */
-[data-theme="rock70s"] .theme-ornament-bar {
-  height: 10px;
-  border-radius: 999px;
-  opacity: 1;
-  background: linear-gradient(180deg, #f6e0ae 0%, #c89844 35%, #2b1a0e 36%, #2b1a0e 64%, #f07428 65%, #a84210 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
-  margin-bottom: 2px;
-}
-
-/* Glowing vintage tube amp jewel pilot lamp next to brand title */
-[data-theme="rock70s"] .brand-title::after {
-  content: "";
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-left: 9px;
-  vertical-align: middle;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff0c2, #ff5b1f 55%, #8a1600 100%);
-  box-shadow: 0 0 10px rgba(255, 95, 31, 0.85), 0 0 2px #ffe8b3;
+/* Brushed Vintage Champagne-Bronze Amplifier Faceplate on Control Deck! */
+[data-theme="rock70s"] .deck-panel {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 240, 204, 0.025) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #3c2918 0%, #2a1c11 45%, #22160d 100%);
+  border-top: 3px solid #e6be6c;
+  border-bottom: 2px solid #7d5722;
 }
 
 [data-theme="rock70s"] .panel {
-  background: linear-gradient(180deg, #2b1e15 0%, #211610 100%);
-  border-color: rgba(235, 179, 98, 0.34);
+  background-image: linear-gradient(180deg, #2e2016 0%, #231710 55%, #1c120c 100%);
+  border-color: rgba(235, 179, 98, 0.36);
 }
 
-/* Vintage brushed-brass faceplate corner screw rivets on main stage panels */
+/* Glowing vintage amber amp jewel pilot lamp next to brand title */
+[data-theme="rock70s"] .brand-title {
+  font-size: 1.45rem;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  background: linear-gradient(180deg, #fff2d1 0%, #f0b052 75%, #c77624 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="rock70s"] .brand-title::after {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff4cc, #ff641f 52%, #7d1200 100%);
+  box-shadow: 0 0 14px rgba(255, 98, 28, 0.92), 0 0 3px #ffe8b3;
+}
+
+/* Brass faceplate corner screw rivets */
 [data-theme="rock70s"] .fretboard-panel::before,
 [data-theme="rock70s"] .fretboard-panel::after,
 [data-theme="rock70s"] .deck-panel::before,
@@ -155,53 +473,48 @@ body {
   content: "";
   position: absolute;
   top: 8px;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background:
-    linear-gradient(135deg, transparent 42%, rgba(28, 16, 6, 0.8) 45%, rgba(28, 16, 6, 0.8) 55%, transparent 58%),
-    radial-gradient(circle at 30% 30%, #ffe8b0, #b88735 68%, #5e4115 100%);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    linear-gradient(135deg, transparent 42%, rgba(28, 16, 6, 0.85) 45%, rgba(28, 16, 6, 0.85) 55%, transparent 58%),
+    radial-gradient(circle at 30% 30%, #fff0c2, #c4923a 65%, #5c3f14 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   pointer-events: none;
 }
 
 [data-theme="rock70s"] .fretboard-panel::before,
-[data-theme="rock70s"] .deck-panel::before { left: 8px; }
+[data-theme="rock70s"] .deck-panel::before { left: 9px; }
 [data-theme="rock70s"] .fretboard-panel::after,
-[data-theme="rock70s"] .deck-panel::after { right: 8px; }
+[data-theme="rock70s"] .deck-panel::after { right: 9px; }
 
-[data-theme="rock70s"] .brand-title {
-  font-size: 1.42rem;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
-}
-
-[data-theme="rock70s"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
+[data-theme="rock70s"] .zone-tab-btn.is-active,
+[data-theme="rock70s"] .lab-tab-btn.is-active,
 [data-theme="rock70s"] .btn-primary {
-  background: linear-gradient(180deg, #f7893e 0%, #d45b17 100%);
+  background: linear-gradient(180deg, #fa8e42 0%, #d45b17 100%);
   color: #160c05;
-  box-shadow: inset 0 1px 0 rgba(255, 236, 196, 0.55), 0 3px 10px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.6), 0 4px 14px rgba(240, 116, 40, 0.35);
 }
 
 /* =========================================================================
- * DESIGN 4: DOOM RITUAL (Doom Metal · Monolith, Gothic Filigree & Velvet Haze)
- * Fonts: Cinzel (Carved Display) + Cormorant Garamond (Solemn Literary Body)
+ * DESIGN 4: DOOM RITUAL (Doom Metal · Cathedral Monolith & Velvet Haze)
  * ========================================================================= */
 [data-theme="doom"] {
-  --bg-canvas: #070609;
-  --bg-panel: #100d15;
-  --bg-elevated: #191321;
-  --bg-fretboard: #09070c;
+  --bg-canvas: #060508;
+  --bg-panel: #100c15;
+  --bg-elevated: #191322;
+  --bg-fretboard: #08060b;
   --bg-nut: #b8aa90;
-  --border-subtle: rgba(176, 120, 255, 0.16);
-  --border-strong: rgba(212, 154, 58, 0.38);
+  --border-subtle: rgba(181, 125, 255, 0.18);
+  --border-strong: rgba(217, 161, 63, 0.42);
 
-  --text-primary: #ece2d1;
-  --text-secondary: #b4a5c2;
-  --text-muted: #7f718c;
+  --text-primary: #efe4d2;
+  --text-secondary: #b9a9c7;
+  --text-muted: #827390;
 
-  --accent-root: #d9a13f;
+  --accent-root: #dba342;
   --accent-root-ink: #0a0704;
-  --accent-scale: #b57dff;
+  --accent-scale: #b880ff;
   --accent-scale-ink: #11071e;
   --accent-char: #e33648;
   --accent-char-ink: #ffffff;
@@ -209,8 +522,8 @@ body {
   --accent-micro-ink: #140802;
   --accent-harmonic: #7d9cf5;
   --accent-open: #6cc990;
-  --accent-voicing: #ebbd60;
-  --accent-etude: #cc8fff;
+  --accent-voicing: #f0c264;
+  --accent-etude: #ce92ff;
   --accent-live: #6be6a0;
   --accent-danger: #d92638;
   --accent-radar-b: #f25584;
@@ -220,7 +533,9 @@ body {
   --string-color: #cfc3db;
   --inlay-color: rgba(236, 226, 209, 0.28);
 
-  --shadow-panel: 0 18px 42px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(217, 161, 63, 0.16);
+  --grain-opacity: 0.058;
+  --shadow-panel: 0 22px 48px rgba(0, 0, 0, 0.88), 0 0 24px rgba(124, 48, 196, 0.08);
+  --panel-inset-rim: inset 0 1px 0 rgba(219, 163, 66, 0.22), inset 0 0 32px rgba(0, 0, 0, 0.48);
   --radius-lg: 2px;
   --radius-md: 2px;
   --radius-sm: 2px;
@@ -236,36 +551,15 @@ body {
   font-size: 16px;
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(circle at 18% 0%, rgba(132, 46, 204, 0.2), transparent 46%),
-    radial-gradient(circle at 84% 12%, rgba(196, 32, 52, 0.14), transparent 42%),
-    radial-gradient(ellipse at 50% 100%, rgba(217, 161, 63, 0.08), transparent 55%),
-    linear-gradient(180deg, #0b0811 0%, #050407 100%);
+    radial-gradient(circle at 16% 0%, rgba(138, 46, 212, 0.26), transparent 46%),
+    radial-gradient(circle at 86% 12%, rgba(204, 30, 52, 0.18), transparent 42%),
+    radial-gradient(ellipse at 50% 100%, rgba(219, 163, 66, 0.12), transparent 55%),
+    linear-gradient(180deg, #0c0813 0%, #050407 100%);
 }
 
-/* Ornate antique-brass gothic altar divider */
-[data-theme="doom"] .theme-ornament-bar {
-  height: 18px;
-  opacity: 1;
-  background: linear-gradient(90deg, transparent 5%, rgba(217, 161, 63, 0.45) 35%, transparent 45%, transparent 55%, rgba(217, 161, 63, 0.45) 65%, transparent 95%);
-  background-size: 100% 1px;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin-bottom: -2px;
-}
-
-[data-theme="doom"] .theme-ornament-bar::after {
-  content: "✦  ◆  ✦";
-  color: var(--accent-root);
-  font-size: 0.72rem;
-  letter-spacing: 0.35em;
-  text-shadow: 0 0 10px rgba(217, 161, 63, 0.5);
-}
-
-/* Carved golden filigree corner L-brackets on Doom stage panels */
-[data-theme="doom"] .fretboard-panel,
-[data-theme="doom"] .dossier-panel,
-[data-theme="doom"] .oblique-panel {
-  border-color: rgba(217, 161, 63, 0.26);
+/* Carved Altar Filigree Brackets + Hammered Dark Bronze Gradient */
+[data-theme="doom"] .panel {
+  border-color: rgba(219, 163, 66, 0.28);
   background-image:
     linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
     linear-gradient(to bottom, var(--accent-root) 14px, transparent 14px),
@@ -274,50 +568,57 @@ body {
     linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
     linear-gradient(to top, var(--accent-root) 14px, transparent 14px),
     linear-gradient(to left, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to top, var(--accent-root) 14px, transparent 14px);
+    linear-gradient(to top, var(--accent-root) 14px, transparent 14px),
+    linear-gradient(180deg, rgba(36, 25, 50, 0.65) 0%, rgba(13, 10, 18, 0.94) 100%);
   background-repeat: no-repeat;
-  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px;
-  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%;
+  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 100% 100%;
+  background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%, 0 0;
 }
 
 [data-theme="doom"] .brand-title {
-  font-size: 1.38rem;
-  text-shadow: 0 0 18px rgba(217, 161, 63, 0.25);
+  font-size: 1.42rem;
+  background: linear-gradient(180deg, #faebd0 0%, #dba342 65%, #99661a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgba(219, 163, 66, 0.35));
 }
 
 [data-theme="doom"] .section-heading {
   padding-bottom: 6px;
-  border-bottom: 1px solid rgba(217, 161, 63, 0.2);
+  border-bottom: 1px solid rgba(219, 163, 66, 0.24);
 }
 
-[data-theme="doom"] .zone-tab-btn, [data-theme="doom"] .lab-tab-btn {
+[data-theme="doom"] .zone-tab-btn,
+[data-theme="doom"] .lab-tab-btn {
   font-family: var(--font-display);
   letter-spacing: 0.07em;
   font-size: 0.78rem;
 }
 
 [data-theme="doom"] .btn-primary,
-[data-theme="doom"] .zone-tab-btn.is-active, .lab-tab-btn.is-active {
-  background: linear-gradient(180deg, #e0b258 0%, #b37a20 100%);
+[data-theme="doom"] .zone-tab-btn.is-active,
+[data-theme="doom"] .lab-tab-btn.is-active {
+  background: linear-gradient(180deg, #e8bc64 0%, #ad731b 100%);
   color: #0b0704;
+  box-shadow: 0 0 18px rgba(219, 163, 66, 0.32), inset 0 1px 0 rgba(255, 245, 220, 0.45);
 }
 
 /* =========================================================================
- * DESIGN 5: DJENT POLY (Djent / Tech Metal · CNC Carbon & Telemetry HUD)
- * Fonts: Chakra Petch (Angular Tech Display) + Space Grotesk + JetBrains Mono
+ * DESIGN 5: DJENT POLY (Djent / Tech Metal · Machined Titanium & Neon CNC HUD)
  * ========================================================================= */
 [data-theme="djent"] {
-  --bg-canvas: #05080d;
-  --bg-panel: #0b111a;
-  --bg-elevated: #111a26;
-  --bg-fretboard: #080c12;
+  --bg-canvas: #04070c;
+  --bg-panel: rgba(11, 17, 27, 0.9);
+  --bg-elevated: rgba(17, 26, 40, 0.94);
+  --bg-fretboard: #070b12;
   --bg-nut: #263445;
-  --border-subtle: rgba(0, 229, 255, 0.16);
-  --border-strong: rgba(0, 229, 255, 0.42);
+  --border-subtle: rgba(0, 229, 255, 0.18);
+  --border-strong: rgba(0, 229, 255, 0.48);
 
-  --text-primary: #ebf7ff;
-  --text-secondary: #8eaac4;
-  --text-muted: #5d7892;
+  --text-primary: #eef8ff;
+  --text-secondary: #92b0cc;
+  --text-muted: #5f7c98;
 
   --accent-root: #00e5ff;
   --accent-root-ink: #031319;
@@ -340,7 +641,9 @@ body {
   --string-color: #c2dcf5;
   --inlay-color: rgba(0, 229, 255, 0.28);
 
-  --shadow-panel: 0 12px 30px rgba(0, 0, 0, 0.65), inset 0 0 24px rgba(0, 229, 255, 0.03);
+  --grain-opacity: 0.028;
+  --shadow-panel: 0 16px 38px rgba(0, 0, 0, 0.72), 0 0 24px rgba(0, 229, 255, 0.06);
+  --panel-inset-rim: inset 0 1px 0 rgba(0, 229, 255, 0.24), inset 0 -1px 0 rgba(52, 245, 153, 0.12);
   --radius-lg: 3px;
   --radius-md: 2px;
   --radius-sm: 2px;
@@ -355,85 +658,78 @@ body {
 [data-theme="djent"] body {
   background-color: var(--bg-canvas);
   background-image:
-    linear-gradient(rgba(0, 229, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.045) 1px, transparent 1px),
-    radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.12), transparent 55%);
-  background-size: 26px 26px, 26px 26px, 100% 100%;
+    linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(ellipse 65% 40% at 50% 0%, rgba(0, 229, 255, 0.16), transparent 58%),
+    radial-gradient(ellipse 45% 38% at 90% 90%, rgba(52, 245, 153, 0.09), transparent 55%);
+  background-size: 26px 26px, 26px 26px, 100% 100%, 100% 100%;
 }
 
-/* Neon CNC telemetry HUD header bar */
-[data-theme="djent"] .theme-ornament-bar {
-  height: 16px;
-  border-radius: 0;
-  opacity: 1;
-  background:
-    linear-gradient(90deg, var(--accent-root) 0 42px, transparent 42px 50px, rgba(0, 229, 255, 0.28) 50px 100%);
-  background-size: 100% 2px;
-  background-repeat: no-repeat;
-  background-position: center;
-  justify-content: flex-end;
-}
-
-[data-theme="djent"] .theme-ornament-bar::after {
-  content: "SYS // 24-TET POLYMETRIC CHASSIS";
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.16em;
-  color: var(--accent-root);
-  background: var(--bg-canvas);
-  padding-left: 10px;
-}
-
-/* Precision CNC corner reticles on all panels */
+/* Machined Anodized Titanium Panel Sheen + Glowing CNC Reticles */
 [data-theme="djent"] .panel {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   background-image:
-    linear-gradient(to right, var(--accent-root) 10px, transparent 10px),
-    linear-gradient(to bottom, var(--accent-root) 10px, transparent 10px),
-    linear-gradient(to left, var(--accent-scale) 10px, transparent 10px),
-    linear-gradient(to top, var(--accent-scale) 10px, transparent 10px);
+    linear-gradient(to right, var(--accent-root) 12px, transparent 12px),
+    linear-gradient(to bottom, var(--accent-root) 12px, transparent 12px),
+    linear-gradient(to left, var(--accent-scale) 12px, transparent 12px),
+    linear-gradient(to top, var(--accent-scale) 12px, transparent 12px),
+    linear-gradient(160deg, rgba(0, 229, 255, 0.055) 0%, rgba(10, 16, 26, 0.2) 45%, rgba(0, 0, 0, 0.35) 100%);
   background-repeat: no-repeat;
-  background-size: 10px 2px, 2px 10px, 10px 2px, 2px 10px;
-  background-position: 0 0, 0 0, 100% 100%, 100% 100%;
+  background-size: 12px 2px, 2px 12px, 12px 2px, 2px 12px, 100% 100%;
+  background-position: 0 0, 0 0, 100% 100%, 100% 100%, 0 0;
 }
 
 [data-theme="djent"] .brand-title {
-  font-size: 1.4rem;
-  text-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+  font-size: 1.44rem;
+  background: linear-gradient(90deg, #ffffff 0%, #00e5ff 55%, #34f599 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.38));
 }
 
-[data-theme="djent"] .zone-tab-btn, .lab-tab-btn,
+/* Machined Chamfered Tech Buttons */
+[data-theme="djent"] .btn-primary,
+[data-theme="djent"] .zone-tab-btn {
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+[data-theme="djent"] .zone-tab-btn,
+[data-theme="djent"] .lab-tab-btn,
 [data-theme="djent"] .control-label,
 [data-theme="djent"] .pill-badge {
   font-family: var(--font-display);
 }
 
-[data-theme="djent"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
+[data-theme="djent"] .zone-tab-btn.is-active,
+[data-theme="djent"] .lab-tab-btn.is-active,
 [data-theme="djent"] .btn-primary {
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.38);
+  background: linear-gradient(135deg, #24f0ff 0%, #00b8d4 100%);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
 }
 
 /* =========================================================================
- * DESIGN 6: AVANT / GRAPHIC SCORE (Música Experimental · Fluxus / Bauhaus)
- * Fonts: Syne (Bold Exhibition Display) + Space Mono (Graphic Score Typewriter)
+ * DESIGN 6: AVANT / GRAPHIC SCORE (Experimental · Archival Cotton Print & Fluxus)
  * ========================================================================= */
 [data-theme="experimental"] {
-  --bg-canvas: #eeece6;
-  --bg-panel: #fbfaf6;
-  --bg-elevated: #f0ede4;
-  --bg-fretboard: #19191b;
+  --bg-canvas: #ece9e0;
+  --bg-panel: #fbf9f3;
+  --bg-elevated: #f2efe5;
+  --bg-fretboard: #18181a;
   --bg-nut: #e2e0d8;
-  --border-subtle: rgba(18, 18, 18, 0.45);
-  --border-strong: #141414;
+  --border-subtle: rgba(20, 20, 20, 0.32);
+  --border-strong: #161616;
 
   --text-primary: #141414;
-  --text-secondary: #3f3f3c;
-  --text-muted: #696963;
+  --text-secondary: #3f3f3b;
+  --text-muted: #696962;
 
   --accent-root: #dc3826;
   --accent-root-ink: #ffffff;
   --accent-scale: #1e4fd6;
   --accent-scale-ink: #ffffff;
-  --accent-char: #141414;
+  --accent-char: #161616;
   --accent-char-ink: #ffffff;
   --accent-micro: #d96b14;
   --accent-micro-ink: #ffffff;
@@ -450,96 +746,79 @@ body {
   --string-color: #dedee3;
   --inlay-color: rgba(255, 255, 255, 0.32);
 
-  --shadow-panel: 4px 4px 0 #141414;
-  --radius-lg: 0px;
-  --radius-md: 0px;
-  --radius-sm: 0px;
+  --grain-opacity: 0.055;
+  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(238, 234, 223, 0.45) 100%);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 3px rgba(20, 20, 20, 0.03);
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(224, 219, 208, 0.35) 100%);
+  --btn-shadow: 2px 2px 0 rgba(20, 20, 20, 0.85);
+  --well-shadow: inset 0 2px 4px rgba(20, 20, 20, 0.1), 0 1px 0 rgba(255, 255, 255, 0.9);
+  --card-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(235, 230, 218, 0.35) 100%);
+  --shadow-panel: 4px 4px 0 rgba(20, 20, 20, 0.88), 0 12px 26px rgba(20, 20, 20, 0.09);
+  --radius-lg: 1px;
+  --radius-md: 1px;
+  --radius-sm: 1px;
 
   --font-body: "Space Mono", ui-monospace, monospace;
   --font-display: "Syne", "Helvetica Neue", Helvetica, sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;
   --display-tracking: -0.02em;
   --display-transform: uppercase;
-  --panel-border-width: 2px;
+  --panel-border-width: 1.8px;
 }
 
 [data-theme="experimental"] body {
   font-size: 13.5px;
   background-color: var(--bg-canvas);
-  background-image: radial-gradient(rgba(18, 18, 18, 0.16) 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-
-/* Fluxus / John Cage Editorial Crop-Mark Registration Strip */
-[data-theme="experimental"] .theme-ornament-bar {
-  height: 20px;
-  border-radius: 0;
-  opacity: 1;
-  background: none;
-  border-top: 2px solid #141414;
-  border-bottom: 1px solid #141414;
-  justify-content: space-between;
-  padding: 0 4px;
-}
-
-[data-theme="experimental"] .theme-ornament-bar::before {
-  content: "⊕ FIG. 01 — GRAPHIC SCORE LAB";
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #141414;
-}
-
-[data-theme="experimental"] .theme-ornament-bar::after {
-  content: "24-TET // FLUXUS EDITION ⊕";
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--accent-root);
+  background-image:
+    radial-gradient(ellipse 55% 38% at 12% 0%, rgba(30, 79, 214, 0.07), transparent 60%),
+    radial-gradient(ellipse 55% 38% at 88% 8%, rgba(220, 56, 38, 0.07), transparent 60%),
+    radial-gradient(rgba(18, 18, 18, 0.16) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 16px 16px;
 }
 
 [data-theme="experimental"] .brand-title {
-  font-size: 1.48rem;
+  font-size: 1.52rem;
   font-weight: 800;
 }
 
 [data-theme="experimental"] .panel {
-  border-color: #141414;
+  border-color: #161616;
 }
 
 [data-theme="experimental"] .btn-primary,
-[data-theme="experimental"] .zone-tab-btn.is-active, .lab-tab-btn.is-active,
+[data-theme="experimental"] .zone-tab-btn.is-active,
+[data-theme="experimental"] .lab-tab-btn.is-active,
 [data-theme="experimental"] .btn-pill.active,
 [data-theme="experimental"] .btn-pill.active-teal {
-  box-shadow: 2.5px 2.5px 0 #141414;
+  box-shadow: 3px 3px 0 #141414;
 }
 
 [data-theme="experimental"] .btn-ghost,
 [data-theme="experimental"] .btn-pill,
 [data-theme="experimental"] .btn-mini,
-[data-theme="experimental"] .zone-tab-btn, .lab-tab-btn,
+[data-theme="experimental"] .dock-btn,
+[data-theme="experimental"] .zone-tab-btn,
 [data-theme="experimental"] select,
 [data-theme="experimental"] .search-input {
-  border-color: #141414;
+  border-color: #161616;
   border-width: 1.5px;
 }
 
 /* =========================================================================
- * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Azulejo Baiano & Jacarandá)
- * Fonts: Playfair Display (Editorial Tropicalista) + Work Sans
+ * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Glazed Ceramic & Jacarandá)
  * ========================================================================= */
 [data-theme="brazilian"] {
-  --bg-canvas: #f7efe0;
+  --bg-canvas: #f4ead6;
   --bg-panel: #fffbf2;
-  --bg-elevated: #f3e6cf;
-  --bg-fretboard: #29130b;
+  --bg-elevated: #f5e9d3;
+  --bg-fretboard: #26110a;
   --bg-nut: #ede0c4;
-  --border-subtle: rgba(130, 68, 32, 0.2);
-  --border-strong: rgba(130, 68, 32, 0.42);
+  --border-subtle: rgba(138, 66, 28, 0.22);
+  --border-strong: rgba(138, 66, 28, 0.44);
 
-  --text-primary: #24160e;
-  --text-secondary: #634836;
-  --text-muted: #8c6e58;
+  --text-primary: #24150d;
+  --text-secondary: #634634;
+  --text-muted: #8c6c56;
 
   --accent-root: #d68a12;
   --accent-root-ink: #ffffff;
@@ -562,7 +841,14 @@ body {
   --string-color: #f0e2ca;
   --inlay-color: rgba(245, 223, 176, 0.36);
 
-  --shadow-panel: 0 10px 26px rgba(96, 52, 22, 0.11);
+  --grain-opacity: 0.05;
+  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(247, 234, 210, 0.55) 100%);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.96), inset 0 -2px 0 rgba(168, 86, 36, 0.14);
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(230, 206, 170, 0.35) 100%);
+  --btn-shadow: 0 2px 6px rgba(96, 48, 18, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --well-shadow: inset 0 2px 5px rgba(96, 48, 18, 0.13), 0 1px 0 rgba(255, 255, 255, 0.9);
+  --card-surface: linear-gradient(168deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 222, 192, 0.42) 100%);
+  --shadow-panel: 0 14px 32px -8px rgba(96, 48, 18, 0.18);
   --radius-lg: 14px;
   --radius-md: 10px;
   --radius-sm: 7px;
@@ -577,43 +863,43 @@ body {
 [data-theme="brazilian"] body {
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(ellipse at 10% 0%, rgba(214, 138, 18, 0.16), transparent 46%),
-    radial-gradient(ellipse at 90% 6%, rgba(14, 124, 93, 0.12), transparent 44%),
-    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 20px),
-    repeating-linear-gradient(-60deg, rgba(14, 124, 93, 0.032) 0 1px, transparent 1px 20px);
-}
-
-/* Custom Repeating SVG Armorial Woodcut & Bahian Tile Geometric Frieze! */
-[data-theme="brazilian"] .theme-ornament-bar {
-  height: 16px;
-  border-radius: 6px;
-  opacity: 1;
-  background-color: #2c150c;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16' viewBox='0 0 40 16'%3E%3Cpolygon points='20,1 28,8 20,15 12,8' fill='%23d68a12'/%3E%3Cpolygon points='20,4 24,8 20,12 16,8' fill='%230e7c5d'/%3E%3Cpolygon points='0,8 8,1 8,15' fill='%23c84b26'/%3E%3Cpolygon points='40,8 32,1 32,15' fill='%23c84b26'/%3E%3Ccircle cx='20' cy='8' r='1.7' fill='%23fffbf2'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-position: center;
-  box-shadow: 0 2px 6px rgba(96, 52, 22, 0.18);
-  margin-bottom: 2px;
+    radial-gradient(ellipse 60% 42% at 10% 0%, rgba(214, 138, 18, 0.2), transparent 48%),
+    radial-gradient(ellipse 58% 44% at 90% 6%, rgba(14, 124, 93, 0.15), transparent 48%),
+    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(200, 75, 38, 0.1), transparent 55%),
+    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-60deg, rgba(14, 124, 93, 0.032) 0 1px, transparent 1px 22px);
 }
 
 [data-theme="brazilian"] .brand-title {
-  font-size: 1.44rem;
+  font-size: 1.48rem;
   font-style: italic;
+  background: linear-gradient(135deg, #8a2c12 0%, #c84b26 50%, #d68a12 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 [data-theme="brazilian"] .panel {
   border-top: 3px solid var(--accent-char);
-  border-bottom: 2px solid rgba(14, 124, 93, 0.28);
+  border-bottom: 2px solid rgba(14, 124, 93, 0.34);
 }
 
 [data-theme="brazilian"] .fretboard-panel {
   border-top: 4px solid var(--accent-scale);
 }
 
-[data-theme="brazilian"] .zone-tab-btn.is-active, .lab-tab-btn.is-active {
-  background: linear-gradient(135deg, #0e7c5d 0%, #159972 100%);
+[data-theme="brazilian"] .zone-tab-btn.is-active,
+[data-theme="brazilian"] .lab-tab-btn.is-active {
+  background: linear-gradient(135deg, #0b6e52 0%, #169c75 100%);
   color: #ffffff;
-  border-color: #0e7c5d;
+  border-color: #0b6e52;
+  box-shadow: 0 4px 14px rgba(14, 124, 93, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="brazilian"] .btn-primary {
+  background: linear-gradient(135deg, #e09619 0%, #c46812 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(200, 75, 38, 0.28), inset 0 1px 0 rgba(255, 245, 215, 0.45);
 }
 
 /* =========================================================================
@@ -637,6 +923,7 @@ body {
   border: 2px solid transparent;
   display: inline-block;
   flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
 }
 
 .theme-drawer[hidden] {
@@ -655,11 +942,9 @@ body {
   gap: 8px;
   padding: 10px;
   border-radius: var(--radius-md);
-  background: var(--bg-elevated);
   border: 1.5px solid var(--border-subtle);
   text-align: left;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease;
 }
 
 .theme-card:hover {
@@ -669,7 +954,7 @@ body {
 
 .theme-card.is-active {
   border-color: var(--accent-root);
-  box-shadow: 0 0 0 1.5px var(--accent-root);
+  box-shadow: 0 0 0 1.5px var(--accent-root), 0 8px 22px rgba(0, 0, 0, 0.3);
 }
 
 .theme-card-preview {
@@ -680,6 +965,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .theme-mini-neck {
@@ -702,7 +988,7 @@ body {
 
 .mini-inlay-glyph {
   font-size: 0.72rem;
-  opacity: 0.5;
+  opacity: 0.58;
   pointer-events: none;
 }
 
@@ -711,7 +997,7 @@ body {
   height: 9.5px;
   border-radius: 50%;
   display: inline-block;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.55);
 }
 
 .mini-dot.is-dia {
@@ -730,7 +1016,7 @@ body {
   flex: 1;
   height: 7px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .theme-card-body {
@@ -773,6 +1059,7 @@ body {
 }
 
 body[data-zen="true"] .theme-drawer,
-body[data-zen="true"] .theme-ornament-bar {
+body[data-zen="true"] .theme-ornament-bar,
+body[data-zen="true"] .theme-stage-backdrop {
   display: none !important;
 }

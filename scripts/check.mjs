@@ -7,6 +7,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { DB } from '../js/core/database.js';
 import { THEMES } from '../js/core/themes.js';
+import { getThemeBackdropWatermarkSvg, getThemeHeaderBannerSvg } from '../js/core/themeGraphics.js';
 import { calculateSetTension, getDefaultPackForCount, recommendBalancedGauges } from '../js/core/tensionEngine.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
@@ -43,6 +44,7 @@ const jsFiles = [
   'js/core/database.js',
   'js/core/i18n.js',
   'js/core/themes.js',
+  'js/core/themeGraphics.js',
   'js/core/tensionEngine.js',
   'js/core/voicingEngine.js',
   'js/core/etudeGenerator.js',
@@ -213,6 +215,9 @@ for (const th of THEMES) {
   if (!allCss.includes(`[data-theme="${th.id}"]`)) {
     fail(`Missing CSS [data-theme="${th.id}"] block`);
   }
+  if (!getThemeHeaderBannerSvg(th.id).includes('<svg') || !getThemeBackdropWatermarkSvg(th.id).includes('<svg')) {
+    fail(`Theme ${th.id} missing custom SVG artwork in themeGraphics.js`);
+  }
   if (!th.fretboard?.woodStops || th.fretboard.woodStops.length !== 3 || !th.fretboard.inlayStyle) {
     fail(`Theme ${th.id} missing luthier fretboard skin definition`);
   }
@@ -280,4 +285,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.4 integrity checks passed.');
+console.log('\nAll String Atlas v7.5 integrity checks passed.');

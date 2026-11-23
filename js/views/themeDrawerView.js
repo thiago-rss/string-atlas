@@ -3,6 +3,7 @@
  * Renders each design card using its authentic typography, binding strip, inlay silhouette & swatches.
  */
 import { THEMES, getThemeById } from '../core/themes.js';
+import { getThemeBackdropWatermarkSvg, getThemeHeaderBannerSvg } from '../core/themeGraphics.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
 
@@ -26,6 +27,19 @@ export function updateThemeHeaderButton(state) {
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme && th.themeColor) {
     metaTheme.setAttribute('content', th.themeColor);
+  }
+
+  // Inject bespoke inline SVG header artwork & subtle background architectural watermark
+  const ornBar = document.getElementById('themeOrnamentBar');
+  if (ornBar && ornBar.dataset.renderedTheme !== th.id) {
+    ornBar.innerHTML = getThemeHeaderBannerSvg(th.id);
+    ornBar.dataset.renderedTheme = th.id;
+  }
+
+  const backdrop = document.getElementById('themeStageBackdrop');
+  if (backdrop && backdrop.dataset.renderedTheme !== th.id) {
+    backdrop.innerHTML = getThemeBackdropWatermarkSvg(th.id);
+    backdrop.dataset.renderedTheme = th.id;
   }
 }
 

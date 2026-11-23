@@ -147,8 +147,30 @@ function buildFretboardDefs(fbSkin) {
         <stop offset="100%" stop-color="${fbSkin.inlayFill === 'none' ? '#cccccc' : fbSkin.inlayFill}" stop-opacity="0.58"/>
       </radialGradient>
 
-      <filter id="saNoteShadow" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000000" flood-opacity="0.55"/>
+      <linearGradient id="saNeckSheen" x1="0" y1="0" x2="1" y2="0.85">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"/>
+        <stop offset="32%" stop-color="#ffffff" stop-opacity="0.0"/>
+        <stop offset="52%" stop-color="#ffffff" stop-opacity="0.075"/>
+        <stop offset="72%" stop-color="#000000" stop-opacity="0.04"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.16"/>
+      </linearGradient>
+
+      <linearGradient id="saNeckVignette" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#000000" stop-opacity="0.34"/>
+        <stop offset="14%" stop-color="#000000" stop-opacity="0"/>
+        <stop offset="86%" stop-color="#000000" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.38"/>
+      </linearGradient>
+
+      <radialGradient id="saJewelGloss" cx="32%" cy="26%" r="72%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.52"/>
+        <stop offset="38%" stop-color="#ffffff" stop-opacity="0.14"/>
+        <stop offset="78%" stop-color="#000000" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.34"/>
+      </radialGradient>
+
+      <filter id="saNoteShadow" x="-35%" y="-35%" width="170%" height="170%">
+        <feDropShadow dx="0" dy="2.5" stdDeviation="2.6" flood-color="#000000" flood-opacity="0.62"/>
       </filter>
 
       ${surfacePattern}
@@ -403,6 +425,8 @@ export function renderFretboard(state) {
   // Main radiused wood / carbon fretboard surface + texture overlay
   parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saWoodGrad)"/>`);
   parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saBoardTexture)"/>`);
+  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckSheen)"/>`);
+  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckVignette)"/>`);
 
   // Subtle dark shadow cast by the nut onto fret 1
   parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="6" height="${boardH}" fill="#000000" fill-opacity="0.28"/>`);
@@ -516,7 +540,8 @@ export function renderFretboard(state) {
       <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
         ${openInVoicing ? `<circle cx="${openCx}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
         ${openInScale && openIv === 0 ? `<circle cx="${openCx}" cy="${y}" r="16" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.7"/>` : ''}
-        <circle cx="${openCx}" cy="${y}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.45)' : 'var(--border-strong)'}" stroke-width="1.1"/>
+        <circle cx="${openCx}" cy="${y}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.55)' : 'var(--border-strong)'}" stroke-width="1.1"/>
+        ${openInScale || openInVoicing ? `<circle cx="${openCx}" cy="${y}" r="13" fill="url(#saJewelGloss)" style="pointer-events:none"/>` : ''}
         <text x="${openCx}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.2" font-weight="700">${openLabel}</text>
       </g>
     `);
@@ -594,15 +619,18 @@ export function renderFretboard(state) {
       if (isMicroStep && state.microMode === 'slide') {
         const r = 13.2;
         parts.push(`<polygon points="${cx.toFixed(1)},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${cx.toFixed(1)},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
+        parts.push(`<polygon points="${cx.toFixed(1)},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${cx.toFixed(1)},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
         parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       } else if (isMicroStep && state.microMode === 'bend') {
         parts.push(`<rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="7" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
+        parts.push(`<rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="7" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
         parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
         parts.push(`<rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>`);
         parts.push(`<text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>`);
       } else {
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.2" fill="${fill}" stroke="rgba(0,0,0,0.55)" stroke-width="1.2"/>`);
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="10.8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>`);
         parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       }
 

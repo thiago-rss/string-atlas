@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v7.4.0';
+const CACHE_NAME = 'string-atlas-v7.5.0';
 
 const CORE_ASSETS = [
   './',
@@ -16,6 +16,7 @@ const CORE_ASSETS = [
   './js/core/database.js',
   './js/core/i18n.js',
   './js/core/themes.js',
+  './js/core/themeGraphics.js',
   './js/core/tensionEngine.js',
   './js/core/voicingEngine.js',
   './js/core/etudeGenerator.js',
