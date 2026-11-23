@@ -1,15 +1,17 @@
 /**
- * Reactive Unidirectional Store v3.1
+ * Reactive Unidirectional Store v5.0
  */
 import { DB } from '../core/database.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
+import { VAMP_PRESETS } from '../core/vampEngine.js';
+import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v4';
+const STORAGE_KEY = 'string_atlas_prefs_v5';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -33,29 +35,57 @@ function savePrefs(state) {
 }
 
 const saved = loadSavedPrefs();
-const initialTuning = DB.tunings.find((t) => t.id === saved.tuningId) || DB.tunings[0];
-const defaultRhythm = DB.rhythms[1]; // Sama'i Thaqil 10/8
+const hashPayload = typeof window !== 'undefined' ? decodeSessionHash(window.location.hash) : null;
+
+const validScaleIds = new Set(DB.scales.map((s) => s.id));
+const validTuningIds = new Set(DB.tunings.map((t) => t.id));
+const validChordIds = new Set(DB.chords.map((c) => c.id));
+const validRhythmIds = new Set(DB.rhythms.map((r) => r.id));
+const validVampIds = new Set(VAMP_PRESETS.map((v) => v.id));
+
+const resolvedTuningId = (hashPayload && validTuningIds.has(hashPayload.t))
+  ? hashPayload.t
+  : (validTuningIds.has(saved.tuningId) ? saved.tuningId : DB.tunings[0].id);
+const initialTuning = DB.tunings.find((t) => t.id === resolvedTuningId) || DB.tunings[0];
+
+const resolvedRhythmId = (hashPayload && validRhythmIds.has(hashPayload.ry))
+  ? hashPayload.ry
+  : DB.rhythms[1].id;
+const initialRhythm = DB.rhythms.find((r) => r.id === resolvedRhythmId) || DB.rhythms[1];
+
+const resolvedVampId = (hashPayload && validVampIds.has(hashPayload.vp))
+  ? hashPayload.vp
+  : VAMP_PRESETS[0].id;
+const initialVamp = VAMP_PRESETS.find((v) => v.id === resolvedVampId) || VAMP_PRESETS[0];
 
 const state = {
   lang: saved.lang === 'en' ? 'en' : 'pt',
   theme: saved.theme === 'nahar' ? 'nahar' : 'layl',
+  zenMode: false,
+  snapshotsOpen: false,
+  snapshots: loadSnapshots(),
 
   // Scale / Modal browsing & filtering state
   category: 'all',
-  temperamentFilter: 'all', // 'all' | '12tet' | '24tet'
+  temperamentFilter: 'all',
   scaleSearch: '',
   atlasOpen: false,
-  scaleId: 'maqam_bayati',
-  rootQ: 4, // D
+  scaleId: (hashPayload && validScaleIds.has(hashPayload.s)) ? hashPayload.s : 'maqam_bayati',
+  rootQ: (hashPayload && Number.isInteger(hashPayload.r) && hashPayload.r >= 0 && hashPayload.r <= 23) ? hashPayload.r : 4,
   customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
   tuningId: initialTuning.id,
   customStringsQ: [...initialTuning.stringsQ],
   retunerOpen: false,
-  microMode: 'bend', // 'bend' | 'slide' | 'frets24'
-  labelMode: 'note', // 'note' | 'degree' | 'cents'
-  harmonicsOn: false,
+  microMode: (hashPayload && ['bend', 'slide', 'frets24'].includes(hashPayload.m)) ? hashPayload.m : 'bend',
+  labelMode: (hashPayload && ['note', 'degree', 'cents'].includes(hashPayload.l)) ? hashPayload.l : 'note',
+  harmonicsOn: hashPayload ? Boolean(hashPayload.h) : false,
+
+  // Phase 5: Closed-Position Fretboard Window Filter
+  fretWindowOn: hashPayload ? Boolean(hashPayload.fw) : false,
+  fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
+  fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
 
   // Audio state
   droneOn: false,
@@ -65,19 +95,32 @@ const state = {
   bpm: 96,
   inspectedNote: null,
 
-  // Workspace tab ('harmony' | 'etude' | 'rhythm' | 'dossier')
-  activeTab: 'study',
+  // Workspace tab ('vamp' | 'study' | 'line' | 'etude' | 'harmony' | 'rhythm' | 'dossier')
+  activeTab: 'vamp',
+
+  // Phase 5: Modal Vamp & Sayr Modulation Lab
+  vampPresetId: initialVamp.id,
+  vampSteps: initialVamp.steps.map((s) => ({ ...s })),
+  vampBpm: initialVamp.bpm,
+  vampBeatsPerBar: initialVamp.beatsPerBar,
+  vampStyle: 'pad', // 'pad' | 'strum'
+  vampClickOn: true,
+  vampSyncNeck: true,
+  vampPlaying: false,
+  vampActiveStepIdx: 0,
+  vampActiveBar: 0,
+  vampActiveBeat: 0,
 
   // Phase 2: Harmony & Voicing Lab
   harmonyMode: 'catalog',
-  chordId: 'quartal_3',
+  chordId: (hashPayload && validChordIds.has(hashPayload.c)) ? hashPayload.c : 'quartal_3',
   customSetIntervalsQ: [0, 2, 12],
-  voicingOverlayOn: false,
+  voicingOverlayOn: hashPayload ? Boolean(hashPayload.vo) : false,
   selectedVoicingIdx: 0,
   computedVoicings: [],
 
   // Phase 3: Procedural Experimental Etude Lab
-  etudePatternId: 'micro_bend_lab',
+  etudePatternId: (hashPayload && hashPayload.ep) ? hashPayload.ep : 'micro_bend_lab',
   etudeZoneId: 'mid',
   etudeGroupingId: 'group5',
   etudeLength: 16,
@@ -97,8 +140,8 @@ const state = {
 
   // Universal Rhythm & Polymeter Engine
   rhythmFilter: 'all',
-  rhythmId: defaultRhythm.id,
-  rhythmSteps: [...defaultRhythm.steps],
+  rhythmId: initialRhythm.id,
+  rhythmSteps: [...initialRhythm.steps],
   rhythmBpm: 112,
   rhythmPlaying: false,
   polyEnabled: false,
@@ -106,7 +149,7 @@ const state = {
 
   // Phase 4: Line Mode & 24-TET Pitch Detector
   lineModeRunning: false,
-  lineInputMode: 'line', // 'line' | 'mic'
+  lineInputMode: 'line',
   lineDeviceId: '',
   audioInputDevices: [],
   lineInputGain: 1.4,
@@ -129,9 +172,6 @@ export function scaleIsMicrotonal(scale) {
   return scale.intervalsQ.some((iv) => iv % 2 !== 0);
 }
 
-/**
- * Returns scales matching active category, temperamentFilter, and search query.
- */
 export function getFilteredScales(st = state) {
   const q = (st.scaleSearch || '').trim().toLowerCase();
   return DB.scales.filter((s) => {
@@ -141,16 +181,9 @@ export function getFilteredScales(st = state) {
     if (st.temperamentFilter === '12tet' && isMicro) return false;
     if (q) {
       const hay = [
-        s.namePt,
-        s.nameEn,
-        s.subfamilyPt,
-        s.subfamilyEn,
-        ...(s.tagsPt || []),
-        ...(s.tagsEn || []),
-        s.dossier?.repertoire || ''
-      ]
-        .join(' ')
-        .toLowerCase();
+        s.namePt, s.nameEn, s.subfamilyPt, s.subfamilyEn,
+        ...(s.tagsPt || []), ...(s.tagsEn || []), s.dossier?.repertoire || ''
+      ].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -192,12 +225,12 @@ export function getActiveScale() {
       tagsPt: ['Custom 24-TET', `${state.customScaleIntervalsQ.length} Notas`],
       tagsEn: ['Custom 24-TET', `${state.customScaleIntervalsQ.length} Notes`],
       dossier: {
-        structurePt: 'Conjunto personalizado criado no Construtor de Pitch-Class Set. Altere os graus na aba Harmonia & Voicings para explorar novas simetrias.',
-        structureEn: 'Custom collection crafted in the Pitch-Class Set Builder. Toggle degrees in Harmony & Voicings to discover new symmetries.',
+        structurePt: 'Conjunto personalizado criado no Construtor de Pitch-Class Set.',
+        structureEn: 'Custom collection crafted in the Pitch-Class Set Builder.',
         temperamentPt: 'Compatível com 12-TET e quartos de tom 24-TET dependendo dos graus ativados.',
         temperamentEn: 'Supports both 12-TET and 24-TET quarter-tones depending on toggled degrees.',
-        articulationPt: 'Experimente alternar os modos Microtonal e projetar os voicings calculados sobre o braço.',
-        articulationEn: 'Experiment with switching Microtonal modes and overlaying computed voicings onto the neck.',
+        articulationPt: 'Alterne modos Microtonal e projete voicings calculados sobre o braço.',
+        articulationEn: 'Switch Microtonal modes and overlay computed voicings onto the neck.',
         repertoire: 'String Atlas Custom Lab'
       }
     };
@@ -289,6 +322,9 @@ export function setState(patch) {
     recomputeEtude();
   }
 
+  if ('snapshots' in patch) {
+    saveSnapshots(state.snapshots);
+  }
   if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch) {
     savePrefs(state);
   }

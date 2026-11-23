@@ -1612,3 +1612,284 @@ button:disabled {
   background: var(--bg-panel);
   border: 1px solid var(--border-strong);
 }
+
+/* =========================================================================
+ * Phase 5 Additions: Vamp & Sayr Lab, Closed Fret Window, Tuner, Snapshots & Zen
+ * ========================================================================= */
+
+.vamp-badge {
+  color: var(--accent-voicing);
+  border-color: var(--accent-voicing);
+}
+
+.note-node.is-outside-win {
+  opacity: 0.14;
+}
+
+.note-node.is-outside-win:hover {
+  opacity: 0.9;
+}
+
+/* Closed-Position Fretboard Window Bar */
+.fret-window-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+/* Modal Vamp & Sayr Lab */
+.vamp-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.vamp-transport-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.vamp-options-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.vamp-live-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.vamp-beats-strip {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.vamp-beat-led {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  transition: transform 0.06s ease, background 0.06s ease;
+}
+
+.vamp-beat-led.is-downbeat {
+  border-color: var(--accent-root);
+}
+
+.vamp-beat-led.is-lit {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  transform: scale(1.1);
+}
+
+.vamp-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 10px;
+}
+
+.vamp-step-card {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.vamp-step-card.is-now {
+  border-color: var(--accent-voicing);
+  box-shadow: 0 0 0 1px var(--accent-voicing), 0 0 18px rgba(255, 209, 102, 0.2);
+}
+
+.vamp-step-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.vamp-step-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vamp-step-edits {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 6px;
+}
+
+.vamp-step-edits select:last-child {
+  grid-column: span 2;
+}
+
+.vamp-mini-sel {
+  padding: 5px 7px;
+  font-size: 0.78rem;
+}
+
+/* 6-String Scordatura Tuner Strip inside Line Mode */
+.scordatura-tuner-box {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.tuner-strings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 8px;
+}
+
+.tuner-str-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.08s ease;
+}
+
+.tuner-str-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.tuner-str-card.is-nearest {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1px var(--accent-root);
+}
+
+.tuner-str-card.is-in-tune {
+  border-color: var(--accent-live);
+  box-shadow: 0 0 12px rgba(82, 242, 156, 0.35);
+}
+
+.tuner-str-num {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.tuner-str-note {
+  font-size: 1.15rem;
+  font-family: ui-monospace, monospace;
+  color: var(--accent-root);
+}
+
+.tuner-str-card.is-in-tune .tuner-str-note,
+.tuner-str-card.is-in-tune .tuner-str-delta {
+  color: var(--accent-live);
+}
+
+.tuner-str-delta {
+  font-family: ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Session Snapshots Drawer */
+.snapshots-drawer[hidden] {
+  display: none !important;
+}
+
+.snap-save-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.snap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.snap-card {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.snap-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+/* Zen Practice Mode */
+.zen-practice-bar[hidden] {
+  display: none !important;
+}
+
+.zen-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-root);
+}
+
+body[data-zen="true"] .topbar,
+body[data-zen="true"] .deck-panel,
+body[data-zen="true"] .notation-panel,
+body[data-zen="true"] .lab-tabs,
+body[data-zen="true"] .tab-section,
+body[data-zen="true"] .snapshots-drawer,
+body[data-zen="true"] .app-footer {
+  display: none !important;
+}
+
+body[data-zen="true"] .app-shell {
+  max-width: 1680px;
+  padding-top: 12px;
+}
+
+body[data-zen="true"] .fretboard-panel {
+  padding: 20px;
+}

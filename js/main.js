@@ -1,5 +1,5 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v4.0
+ * String Atlas — Modal Guitar Lab Bootstrap v5.0
  */
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
@@ -15,6 +15,8 @@ import {
   highlightFretboardEtudeEvent
 } from './views/fretboardView.js';
 import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
+import { renderVampView, toggleVampPlayback, updateVampBadge } from './views/vampView.js';
+import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
 import {
   renderLineModeView,
@@ -57,6 +59,7 @@ function renderLabTabs(state) {
   if (!nav) return;
 
   const tabs = [
+    { id: 'vamp', label: t(state.lang, 'tabVamp') },
     { id: 'study', label: t(state.lang, 'tabStudyGuide') },
     { id: 'line', label: t(state.lang, 'tabLineMode') },
     { id: 'etude', label: t(state.lang, 'tabEtude') },
@@ -77,6 +80,7 @@ function renderLabTabs(state) {
     setState({ activeTab: btn.dataset.tab });
   };
 
+  document.getElementById('tabVamp').hidden = state.activeTab !== 'vamp';
   document.getElementById('tabStudyGuide').hidden = state.activeTab !== 'study';
   document.getElementById('tabLineMode').hidden = state.activeTab !== 'line';
   document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
@@ -89,11 +93,15 @@ function renderAll(state, patch = null) {
   if (patch) {
     const keys = Object.keys(patch);
 
-    // Fast paths: live sliders, search input & playhead cursors never tear down DOM inputs
+    // Fast paths: live sliders, search input & cursors never tear down DOM inputs
     if (
       keys.length === 1 &&
-      (keys[0] === 'bpm' || keys[0] === 'etudeBpm' || keys[0] === 'lineInputGain' || keys[0] === 'lineRmsGate')
+      ['bpm', 'etudeBpm', 'lineInputGain', 'lineRmsGate'].includes(keys[0])
     ) {
+      return;
+    }
+    if (keys.length === 1 && keys[0] === 'vampBpm') {
+      updateVampBadge(state);
       return;
     }
     if (keys.length === 1 && keys[0] === 'scaleSearch') {
@@ -111,27 +119,32 @@ function renderAll(state, patch = null) {
       highlightFretboardEtudeEvent(ev, state.microMode);
       return;
     }
-
-    // Fast path: inspector + phrase capture on fretboard note click
     if (keys.every((k) => k === 'inspectedNote' || k === 'phraseEvents')) {
       renderInspector(state);
       renderNotationPanel(state);
       return;
     }
-
-    // Fast path: scale/phrase playback note highlight
     if (keys.length === 1 && keys[0] === 'playingPcQ') {
       renderFretboard(state);
       return;
     }
-
-    // Fast path: tab switch only
     if (keys.length === 1 && keys[0] === 'activeTab') {
       renderLabTabs(state);
       return;
     }
-
-    // Fast path: Study Guide UI-only toggles
+    if (keys.length === 1 && keys[0] === 'zenMode') {
+      renderZenBar(state);
+      return;
+    }
+    if (keys.every((k) => k === 'snapshotsOpen' || k === 'snapshots')) {
+      renderSnapshotsDrawer(state);
+      return;
+    }
+    if (keys.every((k) => k === 'fretWindowOn' || k === 'fretWindowStart' || k === 'fretWindowSpan')) {
+      renderFretboard(state);
+      renderZenBar(state);
+      return;
+    }
     if (keys.every((k) => k === 'studyModuleFilter' || k === 'openDossierLessonId' || k === 'completedLessons')) {
       renderStudyGuideView(state);
       return;
@@ -139,10 +152,13 @@ function renderAll(state, patch = null) {
   }
 
   applyStaticI18nAndTheme(state);
+  renderSnapshotsDrawer(state);
+  renderZenBar(state);
   renderDeckPanel(state);
   renderFretboard(state);
   renderNotationPanel(state);
   renderLabTabs(state);
+  renderVampView(state);
   renderStudyGuideView(state);
   renderLineModeView(state);
   renderHarmonyView(state);
@@ -162,6 +178,14 @@ function bindGlobalControls() {
     setState({ theme: st.theme === 'layl' ? 'nahar' : 'layl' });
   });
 
+  document.getElementById('btnZenToggle')?.addEventListener('click', () => {
+    setState({ zenMode: !getState().zenMode });
+  });
+
+  document.getElementById('btnSnapshotsToggle')?.addEventListener('click', () => {
+    setState({ snapshotsOpen: !getState().snapshotsOpen });
+  });
+
   window.addEventListener('keydown', (ev) => {
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
 
@@ -171,10 +195,14 @@ function bindGlobalControls() {
       ev.preventDefault();
       if (st.etudePlaying) stopEtudePlayback();
       toggleScalePlayback(st);
+    } else if (key === 'm') {
+      toggleVampPlayback();
     } else if (key === 'e') {
       toggleEtudePlayback();
     } else if (key === 'n') {
       regenerateEtude();
+    } else if (key === 'z') {
+      setState({ zenMode: !st.zenMode });
     } else if (key === 'l') {
       if (st.lineModeRunning) stopLineMode();
       else {

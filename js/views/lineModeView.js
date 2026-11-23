@@ -4,10 +4,11 @@
  * - Live 24-TET pitch readout, Hz, Scale/Maqam degree validation, & +50c Micro-Bend Gauge
  * - Optional Etude Target Lock: holds target pitch within ±16c to validate and auto-advance steps!
  */
-import { intervalQToLabel, mod24, qToNoteName } from '../core/theory24.js';
+import { intervalQToLabel, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
 import { getActiveScale, getState, setState } from '../state/store.js';
 import { pitchDetector } from '../audio/pitchDetector.js';
+import { synthEngine } from '../audio/synthEngine.js';
 import { highlightFretboardEtudeEvent, highlightFretboardLivePitch } from './fretboardView.js';
 import { highlightEtudeStep } from './etudeView.js';
 import { highlightNotationStep } from './notationView.js';
@@ -134,6 +135,27 @@ export function renderLineModeView(state) {
         </div>
       </div>
 
+      <div class="scordatura-tuner-box">
+        <div class="rhythm-track-head" style="margin-bottom:8px">
+          <span class="control-label">${t(state.lang, 'tunerStripTitle')}</span>
+          <span class="mono-tag" id="tunerLiveAdvice">${t(state.lang, 'tunerStripHint')}</span>
+        </div>
+        <div class="tuner-strings-grid" id="scordaturaTunerGrid">
+          ${state.customStringsQ.map((sq, idx) => {
+            const gStr = 6 - idx;
+            const hz = qToFreq(sq);
+            return `
+              <button type="button" class="tuner-str-card" data-l-action="auditionString" data-q="${sq}" data-tuner-idx="${idx}">
+                <span class="tuner-str-num">${t(state.lang, 'inspString')} ${gStr}</span>
+                <strong class="tuner-str-note">${qToNoteName(sq, true)}</strong>
+                <span class="mono-tag">${hz.toFixed(1)} Hz</span>
+                <span class="tuner-str-delta" data-tuner-delta="${idx}">—</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
       <p class="empty-hint" style="margin-top:10px">${t(state.lang, 'lineTipFooter')}</p>
     </div>
   `;
@@ -192,6 +214,8 @@ export function renderLineModeView(state) {
       targetLockStartMs = 0;
       lastValidatedIdx = -1;
       setState({ etudeActiveIdx: 0, notationMode: 'etude' });
+    } else if (act === 'auditionString') {
+      synthEngine.pluckQ(Number(btn.dataset.q), { duration: 2.2, velocity: 0.36 });
     }
   };
 }
@@ -286,6 +310,7 @@ function handleLivePitchFrame({ rms, pitch }) {
     if (noteEl) noteEl.textContent = '—';
     if (freqEl) freqEl.textContent = '0.00 Hz';
     if (needleEl) needleEl.style.opacity = '0.25';
+    updateScordaturaTunerLive(null, st);
     targetLockStartMs = 0;
     return;
   }
@@ -334,6 +359,9 @@ function handleLivePitchFrame({ rms, pitch }) {
       ? t(st.lang, 'lineQuarterLocked')
       : t(st.lang, 'lineBendTip');
   }
+
+  // 4b. Update 6-String Scordatura Tuner Strip
+  updateScordaturaTunerLive(pitch, st);
 
   // 5. Etude Target Real-Time Validation (Auto-Advance on ±16c pitch lock for 160ms)
   if (st.lineValidateEtude && st.currentEtude?.events?.length) {
@@ -387,6 +415,63 @@ function handleLivePitchFrame({ rms, pitch }) {
         matchEl.textContent = t(st.lang, 'lineTargetReady');
         matchEl.style.color = 'var(--text-secondary)';
       }
+    }
+  }
+}
+
+
+function updateScordaturaTunerLive(pitch, st) {
+  const grid = document.getElementById('scordaturaTunerGrid');
+  const adviceEl = document.getElementById('tunerLiveAdvice');
+  if (!grid) return;
+
+  if (!pitch) {
+    grid.querySelectorAll('.tuner-str-card').forEach((card) => {
+      card.classList.remove('is-nearest', 'is-in-tune');
+    });
+    return;
+  }
+
+  // Locate closest open string of active tuning within ±350 cents
+  let bestIdx = -1;
+  let bestDeltaCents = Infinity;
+  st.customStringsQ.forEach((sq, idx) => {
+    const delta = (pitch.exactQ - sq) * 50;
+    if (Math.abs(delta) < Math.abs(bestDeltaCents)) {
+      bestDeltaCents = delta;
+      bestIdx = idx;
+    }
+  });
+
+  const withinRange = bestIdx >= 0 && Math.abs(bestDeltaCents) <= 350;
+  const inTune = withinRange && Math.abs(bestDeltaCents) <= 6;
+
+  grid.querySelectorAll('.tuner-str-card').forEach((card) => {
+    const idx = Number(card.dataset.tunerIdx);
+    const isHit = withinRange && idx === bestIdx;
+    card.classList.toggle('is-nearest', isHit);
+    card.classList.toggle('is-in-tune', isHit && inTune);
+    const deltaEl = card.querySelector(`[data-tuner-delta="${idx}"]`);
+    if (deltaEl) {
+      if (isHit) {
+        const r = Math.round(bestDeltaCents);
+        deltaEl.textContent = inTune ? `✔ ${r >= 0 ? '+' : ''}${r}¢` : `${r >= 0 ? '+' : ''}${r}¢`;
+      } else {
+        deltaEl.textContent = '—';
+      }
+    }
+  });
+
+  if (adviceEl) {
+    if (!withinRange) {
+      adviceEl.textContent = t(st.lang, 'tunerStripHint');
+    } else if (inTune) {
+      const strName = qToNoteName(st.customStringsQ[bestIdx], true);
+      adviceEl.textContent = `✔ ${t(st.lang, 'inspString')} ${6 - bestIdx} (${strName}) · ${t(st.lang, 'tunerInTune')}`;
+    } else {
+      const strName = qToNoteName(st.customStringsQ[bestIdx], true);
+      const dir = bestDeltaCents < 0 ? t(st.lang, 'tunerTighten') : t(st.lang, 'tunerLoosen');
+      adviceEl.textContent = `${t(st.lang, 'inspString')} ${6 - bestIdx} (${strName}): ${dir} (${Math.round(bestDeltaCents)}¢)`;
     }
   }
 }

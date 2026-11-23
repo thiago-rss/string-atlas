@@ -174,6 +174,8 @@ export function renderFretboard(state) {
     ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
   `;
 
+  renderFretWindowControls(state);
+
   const allowedMap = new Map();
   scale.intervalsQ.forEach((iv) => {
     allowedMap.set(mod24(state.rootQ + iv), iv);
@@ -193,6 +195,15 @@ export function renderFretboard(state) {
   // Fretboard wood & nut
   parts.push(`<rect x="${NUT_X}" y="${TOP_Y - 14}" width="${SVG_W - NUT_X - RIGHT_PAD}" height="${STRING_GAP * 5 + 28}" rx="4" fill="var(--bg-fretboard)"/>`);
   parts.push(`<rect x="${NUT_X - 7}" y="${TOP_Y - 14}" width="7" height="${STRING_GAP * 5 + 28}" fill="var(--bg-nut)"/>`);
+
+  // Closed-Position Fretboard Window highlight box
+  const winMin = state.fretWindowStart;
+  const winMax = Math.min(NUM_FRETS, state.fretWindowStart + state.fretWindowSpan);
+  if (state.fretWindowOn) {
+    const wx1 = winMin === 0 ? NUT_X - 50 : FRET_XS[Math.max(0, winMin - 1)];
+    const wx2 = FRET_XS[winMax];
+    parts.push(`<rect x="${wx1}" y="${TOP_Y - 14}" width="${Math.max(12, wx2 - wx1)}" height="${STRING_GAP * 5 + 28}" rx="4" fill="var(--accent-scale)" fill-opacity="0.11" stroke="var(--accent-scale)" stroke-width="1.5" stroke-dasharray="5 3"/>`);
+  }
 
   // Fret inlays
   const midY = TOP_Y + STRING_GAP * 2.5;
@@ -263,7 +274,7 @@ export function renderFretboard(state) {
     const openLabel = qToNoteName(openQ, false);
 
     parts.push(`
-      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''}" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
+      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
         ${openInVoicing ? `<circle cx="${NUT_X - 32}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
         <circle cx="${NUT_X - 32}" cy="${y}" r="13.5" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'none' : 'var(--border-strong)'}" stroke-width="1"/>
         <text x="${NUT_X - 32}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.5" font-weight="700">${openLabel}</text>
@@ -320,7 +331,8 @@ export function renderFretboard(state) {
 
       const label = getMarkerLabel(absQ, intervalQ, state.labelMode);
       const fontSize = label.length >= 4 ? 8.4 : label.length === 3 ? 9.4 : 10.5;
-      const dimClass = activeVoicing && !voicingHit ? 'is-dimmed' : '';
+      const outsideWin = state.fretWindowOn && (fretNum < winMin || fretNum > winMax);
+      const dimClass = outsideWin && !voicingHit ? 'is-outside-win' : (activeVoicing && !voicingHit ? 'is-dimmed' : '');
 
       parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
 
@@ -447,4 +459,45 @@ export function renderInspector(state) {
     <span class="inspector-kv">${t(state.lang, 'inspPos')}: <strong>${posText}</strong></span>
     ${microTip}
   `;
+}
+
+
+function renderFretWindowControls(state) {
+  const bar = document.getElementById('fretWindowControls');
+  if (!bar) return;
+
+  const endFret = Math.min(NUM_FRETS, state.fretWindowStart + state.fretWindowSpan);
+  bar.innerHTML = `
+    <div class="fret-window-bar">
+      <button type="button" class="btn-mini ${state.fretWindowOn ? 'active-mini' : ''}" data-fw-action="toggle">
+        ${state.fretWindowOn ? `${t(state.lang, 'fretWinClosed')}: ${state.fretWindowStart}–${endFret}` : t(state.lang, 'fretWinFull')}
+      </button>
+      ${state.fretWindowOn ? `
+        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''}>◀ -1</button>
+        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= NUM_FRETS ? 'disabled' : ''}>+1 ▶</button>
+        <span class="mono-tag">${t(state.lang, 'fretWinSpanLabel')}:</span>
+        ${[4, 5, 6].map((sp) => `
+          <button type="button" class="btn-mini ${state.fretWindowSpan === sp ? 'active-mini' : ''}" data-fw-action="span" data-val="${sp}">${sp}</button>
+        `).join('')}
+      ` : ''}
+    </div>
+  `;
+
+  bar.onclick = (e) => {
+    const btn = e.target.closest('button[data-fw-action]');
+    if (!btn) return;
+    const act = btn.dataset.fwAction;
+    const st = getState();
+    if (act === 'toggle') {
+      setState({ fretWindowOn: !st.fretWindowOn });
+    } else if (act === 'shift') {
+      const d = Number(btn.dataset.delta);
+      const maxStart = Math.max(0, NUM_FRETS - st.fretWindowSpan);
+      setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
+    } else if (act === 'span') {
+      const sp = Number(btn.dataset.val);
+      const maxStart = Math.max(0, NUM_FRETS - sp);
+      setState({ fretWindowSpan: sp, fretWindowStart: Math.min(st.fretWindowStart, maxStart) });
+    }
+  };
 }

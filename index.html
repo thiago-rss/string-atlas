@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d1017" />
-  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat, Baritone/Scordatura, Line Mode Pitch/Bend Detector, Progressive Study Guide, Voicings, Procedural Etudes & Polymetric Iqa'at." />
+  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat & Sayr Vamps, Baritone B/A Standard, Scordatura Tuner, Line Mode, Voicings, Procedural Etudes & Study Guide." />
   <title>String Atlas — Modal Guitar Lab</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
   <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body>
+<body data-zen="false">
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
@@ -23,12 +23,21 @@
 
       <div class="topbar-actions">
         <span class="pill-badge live-badge" id="lineStatusBadge" hidden>● LIVE: —</span>
+        <span class="pill-badge vamp-badge" id="vampStatusBadge" hidden>⟳ VAMP</span>
         <span class="pill-badge" id="rhythmStatusBadge" hidden>♪ —</span>
         <span class="pill-badge" id="tuningSummaryBadge">EADGBE</span>
+        <button type="button" class="btn-ghost" id="btnSnapshotsToggle" data-i18n="snapBtnHeader">Presets / Link</button>
+        <button type="button" class="btn-ghost" id="btnZenToggle" data-i18n="zenEnter">Zen</button>
         <button type="button" class="btn-ghost" id="btnLangToggle" aria-label="Switch language">PT / EN</button>
         <button type="button" class="btn-ghost" id="btnThemeToggle" aria-label="Switch theme">Layl</button>
       </div>
     </header>
+
+    <!-- Collapsible Session Snapshots & Shareable URL Drawer -->
+    <section id="snapshotsDrawer" class="snapshots-drawer" hidden></section>
+
+    <!-- Floating Zen Practice Bar (only visible in Zen Mode) -->
+    <div id="zenPracticeBar" class="zen-practice-bar" hidden></div>
 
     <main class="workspace">
       <!-- Control Deck -->
@@ -44,6 +53,8 @@
           <div class="legend-strip" id="fretboardLegend"></div>
         </div>
 
+        <div id="fretWindowControls"></div>
+
         <div class="fretboard-scroll" id="fretboardContainer"></div>
 
         <div class="inspector-strip" id="inspectorStrip">
@@ -54,11 +65,12 @@
       <!-- Synchronized 24-TET Staff + 6-String Tablature -->
       <section class="panel notation-panel" id="notationPanel" aria-label="24-TET Staff and Guitar Tablature"></section>
 
-      <!-- Phase 4 Lab Module Navigation -->
+      <!-- Phase 5 Lab Module Navigation -->
       <nav class="lab-tabs" id="labTabs" aria-label="Laboratory Modules"></nav>
 
       <!-- Active Lab Workspace Views -->
-      <section id="tabStudyGuide" class="tab-section"></section>
+      <section id="tabVamp" class="tab-section"></section>
+      <section id="tabStudyGuide" class="tab-section" hidden></section>
       <section id="tabLineMode" class="tab-section" hidden></section>
       <section id="tabEtude" class="tab-section" hidden></section>
       <section id="tabHarmony" class="tab-section" hidden></section>
@@ -70,8 +82,8 @@
     </main>
 
     <footer class="app-footer">
-      <span data-i18n="footerTip">Atalhos: Espaço = Escala · E = Etude · N = Variação · L = Line Mode · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v4.0.0 · 24-TET · Line Mode &amp; Study Guide</span>
+      <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
+      <span class="mono-tag">v5.0.0 · 24-TET · Vamp, Sayr &amp; Zen Studio</span>
     </footer>
   </div>
 

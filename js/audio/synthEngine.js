@@ -18,6 +18,15 @@ class SynthEngine {
     this.etudeNextTime = 0;
     this.etudeStepIdx = 0;
     this.etudeUiTimeouts = [];
+
+    // Lookahead Modal Vamp & Sayr Sequencer state
+    this.vampTimerId = null;
+    this.vampPlaying = false;
+    this.vampNextBeatTime = 0;
+    this.vampStepIdx = 0;
+    this.vampBarInStep = 0;
+    this.vampBeatInBar = 0;
+    this.vampUiTimeouts = [];
   }
 
   ensureContext() {
@@ -216,6 +225,152 @@ class SynthEngine {
         this.etudeNextTime += stepDur;
       }
     }, 25);
+  }
+
+
+  /**
+   * Warm 24-TET electric pad / modal backing chord for Vamp & Sayr accompaniment
+   */
+  playModalPad({ rootQ, intervalsQ, duration = 2.6, when = null, style = 'pad' } = {}) {
+    const ctx = this.ensureContext();
+    const now = when !== null ? when : ctx.currentTime;
+    // Place bass firmly in guitar low-mid register (octave 2: q = 72 + rootQ)
+    const bassQ = 72 + (rootQ % 24);
+    const upperBaseQ = 96 + (rootQ % 24);
+    const chordQs = [bassQ, ...intervalsQ.slice(0, 5).map((iv) => upperBaseQ + iv)];
+
+    if (style === 'strum') {
+      const perVel = Math.min(0.24, 0.6 / Math.sqrt(chordQs.length));
+      chordQs.forEach((q, idx) => {
+        this.pluckQ(q, {
+          duration: Math.max(1.4, duration * 0.95),
+          velocity: perVel,
+          when: now + idx * 0.045
+        });
+      });
+      return;
+    }
+
+    // Lush filtered saw/triangle pad envelope
+    const padGain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(980, now);
+    filter.frequency.exponentialRampToValueAtTime(480, now + duration);
+    filter.Q.value = 1.1;
+
+    padGain.gain.setValueAtTime(0.0001, now);
+    padGain.gain.linearRampToValueAtTime(0.19, now + Math.min(0.28, duration * 0.2));
+    padGain.gain.setValueAtTime(0.16, now + Math.max(0.3, duration * 0.72));
+    padGain.gain.exponentialRampToValueAtTime(0.0008, now + duration + 0.08);
+
+    filter.connect(padGain).connect(this.masterGain);
+
+    const perOscGain = 1 / Math.max(2, chordQs.length);
+    chordQs.forEach((q, idx) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = idx === 0 ? 'triangle' : 'sawtooth';
+      osc.frequency.setValueAtTime(qToFreq(q), now);
+      g.gain.value = idx === 0 ? perOscGain * 1.35 : perOscGain * 0.78;
+      osc.connect(g).connect(filter);
+      osc.start(now);
+      osc.stop(now + duration + 0.12);
+    });
+  }
+
+  /**
+   * Starts precision Web Audio lookahead playback for Modal Vamps & Sayr Modulations
+   */
+  startVampSequencer(getConfig, { onBeat } = {}) {
+    this.stopVampSequencer();
+    const ctx = this.ensureContext();
+    this.vampPlaying = true;
+    this.vampStepIdx = 0;
+    this.vampBarInStep = 0;
+    this.vampBeatInBar = 0;
+    this.vampNextBeatTime = ctx.currentTime + 0.05;
+
+    this.vampTimerId = setInterval(() => {
+      if (!this.vampPlaying) return;
+      const cfg = getConfig();
+      const steps = cfg.steps || [];
+      if (!steps.length) {
+        this.stopVampSequencer();
+        return;
+      }
+
+      const scheduleAhead = 0.14;
+      while (this.vampNextBeatTime < ctx.currentTime + scheduleAhead && this.vampPlaying) {
+        const fresh = getConfig();
+        const bpm = Math.max(44, Math.min(200, fresh.bpm || 90));
+        const beatsPerBar = Math.max(2, Math.min(9, fresh.beatsPerBar || 4));
+        const beatDur = 60 / bpm;
+
+        const stepIdx = this.vampStepIdx % steps.length;
+        const step = steps[stepIdx];
+        const totalBars = Math.max(1, step.bars || 2);
+        const isStepStart = this.vampBarInStep === 0 && this.vampBeatInBar === 0;
+        const isBarStart = this.vampBeatInBar === 0;
+
+        // Trigger chord pad on bar 1 of step (or every bar in strum mode)
+        if (isStepStart || (fresh.style === 'strum' && isBarStart)) {
+          const chordDur = fresh.style === 'strum' ? beatDur * beatsPerBar : beatDur * beatsPerBar * totalBars;
+          this.playModalPad({
+            rootQ: step.rootQ,
+            intervalsQ: fresh.getChordIntervals(step.chordId),
+            duration: chordDur,
+            when: this.vampNextBeatTime,
+            style: fresh.style || 'pad'
+          });
+        } else if (isBarStart) {
+          // Gentle bass pulse re-articulation on subsequent bars inside multi-bar steps
+          this.pluckQ(72 + (step.rootQ % 24), {
+            duration: beatDur * 1.8,
+            velocity: 0.24,
+            when: this.vampNextBeatTime
+          });
+        }
+
+        if (fresh.clickOn) {
+          this.triggerGuideClick(this.vampNextBeatTime, isBarStart);
+        }
+
+        const uiDelay = Math.max(0, (this.vampNextBeatTime - ctx.currentTime) * 1000);
+        const snapStep = stepIdx;
+        const snapBar = this.vampBarInStep;
+        const snapBeat = this.vampBeatInBar;
+        const tid = setTimeout(() => {
+          if (this.vampPlaying && onBeat) {
+            onBeat({ stepIdx: snapStep, barInStep: snapBar, beatInBar: snapBeat, isStepStart });
+          }
+        }, uiDelay);
+        this.vampUiTimeouts.push(tid);
+
+        // Advance beat -> bar -> step
+        this.vampBeatInBar += 1;
+        if (this.vampBeatInBar >= beatsPerBar) {
+          this.vampBeatInBar = 0;
+          this.vampBarInStep += 1;
+          if (this.vampBarInStep >= totalBars) {
+            this.vampBarInStep = 0;
+            this.vampStepIdx = (stepIdx + 1) % steps.length;
+          }
+        }
+
+        this.vampNextBeatTime += beatDur;
+      }
+    }, 25);
+  }
+
+  stopVampSequencer() {
+    this.vampPlaying = false;
+    if (this.vampTimerId !== null) {
+      clearInterval(this.vampTimerId);
+      this.vampTimerId = null;
+    }
+    this.vampUiTimeouts.forEach((id) => clearTimeout(id));
+    this.vampUiTimeouts = [];
   }
 
   stopEtudeSequencer() {
