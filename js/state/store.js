@@ -2,6 +2,7 @@
  * Reactive Unidirectional Store v5.0
  */
 import { DB } from '../core/database.js';
+import { VALID_THEME_IDS } from '../core/themes.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
@@ -62,7 +63,10 @@ const initialVamp = VAMP_PRESETS.find((v) => v.id === resolvedVampId) || VAMP_PR
 
 const state = {
   lang: saved.lang === 'en' ? 'en' : 'pt',
-  theme: saved.theme === 'nahar' ? 'nahar' : 'layl',
+  theme: (hashPayload && VALID_THEME_IDS.has(hashPayload.th))
+    ? hashPayload.th
+    : (VALID_THEME_IDS.has(saved.theme) ? saved.theme : 'layl'),
+  themeDrawerOpen: false,
   zenMode: false,
   snapshotsOpen: false,
   snapshots: loadSnapshots(),

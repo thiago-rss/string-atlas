@@ -274,7 +274,7 @@ export const I18N = {
     obliqueTitle: 'Lab Oblíquo · Experimentação',
     obliqueDraw: 'Sortear Experimento',
     obliqueApply: 'Aplicar Preset Completo',
-    footerTip: 'Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing',
+    footerTip: 'Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · T = Design · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing',
     inspNote: 'Nota',
     inspFreq: 'Freq',
     inspDegree: 'Grau',
@@ -286,6 +286,9 @@ export const I18N = {
     inspBendTip: 'Execução: bend controlado de +50¢ (¼ tom)',
     inspSlideTip: 'Execução: ponto intermediário entre casas (slide/fretless)',
     inspHarmonic: 'Harmônico Natural',
+    themeGalleryTitle: 'Galeria de Designs · Identidades Musicais',
+    themeGalleryHint: 'Atalho T = alternar design',
+    themeCycleBtn: 'Próximo Design (T)',
     themeLayl: 'Layl',
     themeNahar: 'Nahar'
   },
@@ -560,7 +563,7 @@ export const I18N = {
     obliqueTitle: 'Oblique Lab · Experiments',
     obliqueDraw: 'Draw New Card',
     obliqueApply: 'Apply Full Preset',
-    footerTip: 'Shortcuts: Space = Scale · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmonics · R = Rhythm · V = Voicing',
+    footerTip: 'Shortcuts: Space = Scale · M = Vamp/Sayr · E = Etude · L = Line Mode · T = Design · Z = Zen · D = Drone · H = Harmonics · R = Rhythm · V = Voicing',
     inspNote: 'Note',
     inspFreq: 'Freq',
     inspDegree: 'Degree',
@@ -572,6 +575,9 @@ export const I18N = {
     inspBendTip: 'Technique: controlled +50¢ quarter-tone bend',
     inspSlideTip: 'Technique: midpoint between frets (slide/fretless)',
     inspHarmonic: 'Natural Harmonic',
+    themeGalleryTitle: 'Visual Design Studio · Musical Aesthetics',
+    themeGalleryHint: 'Shortcut T = cycle design',
+    themeCycleBtn: 'Next Design (T)',
     themeLayl: 'Layl',
     themeNahar: 'Nahar'
   }

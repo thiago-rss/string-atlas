@@ -1,0 +1,545 @@
+/* =========================================================================
+ * String Atlas — Multi-Design Studio Themes (v7.1.0)
+ * 7 Distinct Musical Aesthetics:
+ * 1. layl         (Obsidian Studio)
+ * 2. nahar        (Warm Parchment)
+ * 3. rock70s      (70s Analog · Vintage Tube & Vinyl)
+ * 4. doom         (Doom Ritual · Monolith & Velvet Haze)
+ * 5. djent        (Djent Poly · CNC Carbon & Blueprint Grid)
+ * 6. experimental (Avant · Graphic Score / Fluxus / Bauhaus)
+ * 7. brazilian    (Brasilidade · Tropicália, Armorial & Jacarandá)
+ * ========================================================================= */
+
+/* Base typographic variables (inherited by Layl & Nahar) */
+:root {
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-body);
+  --display-tracking: -0.02em;
+  --display-transform: none;
+  --panel-border-width: 1px;
+}
+
+body {
+  font-family: var(--font-body);
+  transition: background-color 0.25s ease, color 0.2s ease;
+}
+
+.brand-title,
+.stage-title,
+.section-heading,
+.oblique-title,
+.sg-card-title {
+  font-family: var(--font-display);
+  letter-spacing: var(--display-tracking);
+  text-transform: var(--display-transform);
+}
+
+.panel {
+  border-width: var(--panel-border-width);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.2s ease;
+}
+
+/* =========================================================================
+ * DESIGN 3: 70s ANALOG (Rock Anos 70 · Tube Amps, Walnut & Vinyl Gold)
+ * ========================================================================= */
+[data-theme="rock70s"] {
+  --bg-canvas: #19120d;
+  --bg-panel: #251a13;
+  --bg-elevated: #312319;
+  --bg-fretboard: #2b1a12;
+  --bg-nut: #5c432d;
+  --border-subtle: rgba(240, 179, 98, 0.16);
+  --border-strong: rgba(240, 179, 98, 0.34);
+
+  --text-primary: #f6ead8;
+  --text-secondary: #cbb597;
+  --text-muted: #998165;
+
+  --accent-root: #f0752c;
+  --accent-root-ink: #170e07;
+  --accent-scale: #6ab07c;
+  --accent-scale-ink: #0f1a11;
+  --accent-char: #dc4538;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #ffaa3b;
+  --accent-micro-ink: #1a1005;
+  --accent-harmonic: #72a8d8;
+  --accent-open: #87c96e;
+  --accent-voicing: #f2c44e;
+  --accent-etude: #ff9d47;
+  --accent-live: #7be088;
+  --accent-danger: #d93f32;
+  --accent-radar-b: #e57ac9;
+
+  --fret-wire: #b39264;
+  --fret-micro: rgba(255, 170, 59, 0.55);
+  --string-color: #dfd0b8;
+  --inlay-color: rgba(248, 232, 200, 0.28);
+
+  --shadow-panel: 0 12px 28px rgba(8, 4, 1, 0.52), inset 0 1px 0 rgba(255, 214, 150, 0.12);
+  --radius-lg: 12px;
+  --radius-md: 9px;
+  --radius-sm: 6px;
+
+  --font-display: "Rockwell", "American Typewriter", Georgia, serif;
+  --display-tracking: 0.01em;
+  --display-transform: none;
+  --panel-border-width: 1.5px;
+}
+
+[data-theme="rock70s"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(ellipse at 50% -10%, rgba(240, 117, 44, 0.16), transparent 62%),
+    repeating-linear-gradient(45deg, rgba(240, 179, 98, 0.025) 0 2px, transparent 2px 8px),
+    repeating-linear-gradient(-45deg, rgba(240, 179, 98, 0.025) 0 2px, transparent 2px 8px);
+}
+
+[data-theme="rock70s"] .panel {
+  background: linear-gradient(180deg, #2a1e16 0%, #221811 100%);
+}
+
+[data-theme="rock70s"] .lab-tab-btn.is-active,
+[data-theme="rock70s"] .btn-primary {
+  background: linear-gradient(180deg, #f5843c 0%, #d9611c 100%);
+  color: #170d06;
+  box-shadow: inset 0 1px 0 rgba(255, 235, 198, 0.45), 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="rock70s"] .fretboard-scroll {
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+}
+
+/* =========================================================================
+ * DESIGN 4: DOOM RITUAL (Doom Metal · Monolith, Velvet Haze & Antique Brass)
+ * ========================================================================= */
+[data-theme="doom"] {
+  --bg-canvas: #08070a;
+  --bg-panel: #110e16;
+  --bg-elevated: #1a1522;
+  --bg-fretboard: #0b090e;
+  --bg-nut: #342938;
+  --border-subtle: rgba(176, 120, 255, 0.15);
+  --border-strong: rgba(212, 154, 58, 0.32);
+
+  --text-primary: #eae0d0;
+  --text-secondary: #a89bb5;
+  --text-muted: #766a82;
+
+  --accent-root: #d49a3a;
+  --accent-root-ink: #0c0906;
+  --accent-scale: #b078ff;
+  --accent-scale-ink: #12081e;
+  --accent-char: #e03546;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #ff7838;
+  --accent-micro-ink: #160a04;
+  --accent-harmonic: #7d9cf5;
+  --accent-open: #6ac28c;
+  --accent-voicing: #e6b85c;
+  --accent-etude: #c98cff;
+  --accent-live: #68e39d;
+  --accent-danger: #d92638;
+  --accent-radar-b: #f05482;
+
+  --fret-wire: #685e73;
+  --fret-micro: rgba(255, 120, 56, 0.52);
+  --string-color: #c8bdd4;
+  --inlay-color: rgba(234, 224, 208, 0.24);
+
+  --shadow-panel: 0 16px 38px rgba(0, 0, 0, 0.72), inset 0 1px 0 rgba(176, 120, 255, 0.08);
+  --radius-lg: 3px;
+  --radius-md: 2px;
+  --radius-sm: 2px;
+
+  --font-display: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --display-tracking: 0.06em;
+  --display-transform: uppercase;
+  --panel-border-width: 1px;
+}
+
+[data-theme="doom"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(128, 48, 196, 0.16), transparent 48%),
+    radial-gradient(circle at 82% 18%, rgba(186, 36, 54, 0.11), transparent 44%),
+    linear-gradient(180deg, #0b0810 0%, #060508 100%);
+}
+
+[data-theme="doom"] .panel {
+  border-top-color: rgba(212, 154, 58, 0.28);
+}
+
+[data-theme="doom"] .lab-tab-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+}
+
+[data-theme="doom"] .btn-primary,
+[data-theme="doom"] .lab-tab-btn.is-active {
+  background: linear-gradient(180deg, #deb057 0%, #b57c22 100%);
+  color: #0b0805;
+}
+
+/* =========================================================================
+ * DESIGN 5: DJENT POLY (Djent / Tech Metal · Carbon Chassis & Blueprint Grid)
+ * ========================================================================= */
+[data-theme="djent"] {
+  --bg-canvas: #06090e;
+  --bg-panel: #0c121b;
+  --bg-elevated: #121b28;
+  --bg-fretboard: #090d14;
+  --bg-nut: #1f2e40;
+  --border-subtle: rgba(0, 229, 255, 0.14);
+  --border-strong: rgba(0, 229, 255, 0.34);
+
+  --text-primary: #eaf6ff;
+  --text-secondary: #8ba6bf;
+  --text-muted: #5a728a;
+
+  --accent-root: #00e5ff;
+  --accent-root-ink: #031319;
+  --accent-scale: #34f599;
+  --accent-scale-ink: #04170e;
+  --accent-char: #ff3b8d;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #ff8c2b;
+  --accent-micro-ink: #170a02;
+  --accent-harmonic: #7fa8ff;
+  --accent-open: #34f599;
+  --accent-voicing: #ffe047;
+  --accent-etude: #00e5ff;
+  --accent-live: #34f599;
+  --accent-danger: #ff3366;
+  --accent-radar-b: #d45cff;
+
+  --fret-wire: #6a829c;
+  --fret-micro: rgba(255, 140, 43, 0.55);
+  --string-color: #b7d2eb;
+  --inlay-color: rgba(0, 229, 255, 0.24);
+
+  --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 229, 255, 0.06);
+  --radius-lg: 4px;
+  --radius-md: 3px;
+  --radius-sm: 2px;
+
+  --font-display: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --display-tracking: 0.04em;
+  --display-transform: uppercase;
+  --panel-border-width: 1px;
+}
+
+[data-theme="djent"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.09), transparent 55%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+}
+
+[data-theme="djent"] .lab-tab-btn,
+[data-theme="djent"] .control-label,
+[data-theme="djent"] .pill-badge {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-theme="djent"] .lab-tab-btn.is-active,
+[data-theme="djent"] .btn-primary {
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+}
+
+/* =========================================================================
+ * DESIGN 6: AVANT / GRAPHIC SCORE (Música Experimental · Fluxus / Bauhaus)
+ * ========================================================================= */
+[data-theme="experimental"] {
+  --bg-canvas: #eeece6;
+  --bg-panel: #faf9f5;
+  --bg-elevated: #f0ede5;
+  --bg-fretboard: #1b1b1d;
+  --bg-nut: #38383c;
+  --border-subtle: rgba(20, 20, 20, 0.35);
+  --border-strong: #161616;
+
+  --text-primary: #141414;
+  --text-secondary: #434340;
+  --text-muted: #6e6e68;
+
+  --accent-root: #dc3826;
+  --accent-root-ink: #ffffff;
+  --accent-scale: #1e4fd6;
+  --accent-scale-ink: #ffffff;
+  --accent-char: #141414;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #d96b14;
+  --accent-micro-ink: #ffffff;
+  --accent-harmonic: #0e7c7b;
+  --accent-open: #168049;
+  --accent-voicing: #d49800;
+  --accent-etude: #dc3826;
+  --accent-live: #128048;
+  --accent-danger: #c6281c;
+  --accent-radar-b: #9e1b84;
+
+  --fret-wire: #8b8b90;
+  --fret-micro: rgba(217, 107, 20, 0.65);
+  --string-color: #d7d7dc;
+  --inlay-color: rgba(255, 255, 255, 0.25);
+
+  --shadow-panel: 3px 3px 0 #181818;
+  --radius-lg: 2px;
+  --radius-md: 2px;
+  --radius-sm: 2px;
+
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --display-tracking: -0.025em;
+  --display-transform: uppercase;
+  --panel-border-width: 1.5px;
+}
+
+[data-theme="experimental"] body {
+  background-color: var(--bg-canvas);
+  background-image: radial-gradient(rgba(20, 20, 20, 0.14) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+[data-theme="experimental"] .panel {
+  border-color: #181818;
+}
+
+[data-theme="experimental"] .btn-primary,
+[data-theme="experimental"] .lab-tab-btn.is-active,
+[data-theme="experimental"] .btn-pill.active,
+[data-theme="experimental"] .btn-pill.active-teal {
+  box-shadow: 2px 2px 0 #181818;
+}
+
+[data-theme="experimental"] .btn-ghost,
+[data-theme="experimental"] .btn-pill,
+[data-theme="experimental"] .btn-mini,
+[data-theme="experimental"] .lab-tab-btn,
+[data-theme="experimental"] select,
+[data-theme="experimental"] .search-input {
+  border-color: #181818;
+}
+
+/* =========================================================================
+ * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Bahia, Terracota & Jacarandá)
+ * ========================================================================= */
+[data-theme="brazilian"] {
+  --bg-canvas: #f6eee0;
+  --bg-panel: #fffaf0;
+  --bg-elevated: #f2e5cf;
+  --bg-fretboard: #2b1812;
+  --bg-nut: #523526;
+  --border-subtle: rgba(122, 68, 36, 0.18);
+  --border-strong: rgba(122, 68, 36, 0.36);
+
+  --text-primary: #241710;
+  --text-secondary: #634937;
+  --text-muted: #8c6e58;
+
+  --accent-root: #d48914;
+  --accent-root-ink: #ffffff;
+  --accent-scale: #0f7a5c;
+  --accent-scale-ink: #ffffff;
+  --accent-char: #c84b26;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #e06324;
+  --accent-micro-ink: #ffffff;
+  --accent-harmonic: #1d56a8;
+  --accent-open: #168557;
+  --accent-voicing: #c27808;
+  --accent-etude: #0f7a5c;
+  --accent-live: #118253;
+  --accent-danger: #bf3424;
+  --accent-radar-b: #7e3699;
+
+  --fret-wire: #a68d71;
+  --fret-micro: rgba(224, 99, 36, 0.65);
+  --string-color: #e6d6be;
+  --inlay-color: rgba(242, 206, 136, 0.32);
+
+  --shadow-panel: 0 10px 26px rgba(92, 50, 22, 0.1);
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 7px;
+
+  --font-display: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+  --display-tracking: -0.01em;
+  --display-transform: none;
+  --panel-border-width: 1.5px;
+}
+
+[data-theme="brazilian"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(ellipse at 12% 0%, rgba(212, 137, 20, 0.13), transparent 46%),
+    radial-gradient(ellipse at 88% 8%, rgba(15, 122, 92, 0.1), transparent 44%),
+    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(-60deg, rgba(15, 122, 92, 0.032) 0 1px, transparent 1px 18px);
+}
+
+[data-theme="brazilian"] .panel {
+  border-top: 3px solid var(--accent-char);
+}
+
+[data-theme="brazilian"] .topbar {
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(200, 75, 38, 0.24);
+}
+
+[data-theme="brazilian"] .lab-tab-btn.is-active {
+  background: linear-gradient(135deg, #0f7a5c 0%, #15946f 100%);
+  color: #ffffff;
+  border-color: #0f7a5c;
+}
+
+/* =========================================================================
+ * Visual Design Studio Gallery Drawer (#themeDrawer) & Topbar Theme Button
+ * ========================================================================= */
+.btn-theme-studio {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.btn-theme-studio.is-open {
+  border-color: var(--accent-root);
+  color: var(--accent-root);
+}
+
+.theme-btn-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.theme-drawer[hidden] {
+  display: none !important;
+}
+
+.theme-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+.theme-card.is-active {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1.5px var(--accent-root);
+}
+
+.theme-card-preview {
+  width: 100%;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.theme-mini-neck {
+  height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 10px;
+  position: relative;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 4px,
+    rgba(255, 255, 255, 0.22) 4px 5px
+  );
+}
+
+.mini-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+.mini-dot.is-dia {
+  border-radius: 1px;
+  transform: rotate(45deg);
+  width: 8px;
+  height: 8px;
+}
+
+.theme-swatches-row {
+  display: flex;
+  gap: 4px;
+}
+
+.theme-swatch {
+  flex: 1;
+  height: 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.theme-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.theme-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.theme-era-badge {
+  font-family: ui-monospace, monospace;
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  color: var(--accent-root);
+  white-space: nowrap;
+}
+
+.theme-card-desc {
+  margin: 0;
+  font-size: 0.77rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Hide theme drawer in Zen mode too */
+body[data-zen="true"] .theme-drawer {
+  display: none !important;
+}

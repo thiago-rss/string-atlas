@@ -20,7 +20,8 @@ export function extractShareablePayload(state) {
     vp: state.vampPresetId,
     fw: state.fretWindowOn ? 1 : 0,
     fs: state.fretWindowStart,
-    fl: state.fretWindowSpan
+    fl: state.fretWindowSpan,
+    th: state.theme
   };
 }
 

@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { DB } from '../js/core/database.js';
+import { THEMES } from '../js/core/themes.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
 import { VAMP_PRESETS, buildVampFromCurrentLab } from '../js/core/vampEngine.js';
@@ -40,6 +41,7 @@ const jsFiles = [
   'js/core/theory24.js',
   'js/core/database.js',
   'js/core/i18n.js',
+  'js/core/themes.js',
   'js/core/voicingEngine.js',
   'js/core/etudeGenerator.js',
   'js/core/vampEngine.js',
@@ -55,6 +57,7 @@ const jsFiles = [
   'js/views/fretboardView.js',
   'js/views/deckPanelsView.js',
   'js/views/notationView.js',
+  'js/views/themeDrawerView.js',
   'js/views/radarView.js',
   'js/views/vampView.js',
   'js/views/earLabView.js',
@@ -199,6 +202,17 @@ for (const tc of testTones) {
 }
 ok('Unit-tested YIN 24-TET DSP engine (8-String E1 41.2Hz, A1 55Hz, B1 61.7Hz & E½♭3 +50¢)');
 
+// 5b. Validate Multi-Design Studio Themes & CSS selectors
+const themeCss = fs.readFileSync(path.join(ROOT, 'styles/themes.css'), 'utf8');
+const mainCss = fs.readFileSync(path.join(ROOT, 'styles/main.css'), 'utf8');
+const allCss = mainCss + '\n' + themeCss;
+for (const th of THEMES) {
+  if (!allCss.includes(`[data-theme="${th.id}"]`)) {
+    fail(`Missing CSS [data-theme="${th.id}"] block`);
+  }
+}
+ok(`Validated ${THEMES.length} curated musical-aesthetic designs in themes.js & styles/themes.css`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -213,4 +227,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.0 integrity checks passed.');
+console.log('\nAll String Atlas v7.1 integrity checks passed.');

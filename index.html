@@ -10,6 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="./styles/main.css" />
+  <link rel="stylesheet" href="./styles/themes.css" />
 </head>
 <body data-zen="false">
   <div class="app-shell">
@@ -30,9 +31,12 @@
         <button type="button" class="btn-ghost" id="btnSnapshotsToggle" data-i18n="snapBtnHeader">Presets / Link</button>
         <button type="button" class="btn-ghost" id="btnZenToggle" data-i18n="zenEnter">Zen</button>
         <button type="button" class="btn-ghost" id="btnLangToggle" aria-label="Switch language">PT / EN</button>
-        <button type="button" class="btn-ghost" id="btnThemeToggle" aria-label="Switch theme">Layl</button>
+        <button type="button" class="btn-ghost btn-theme-studio" id="btnThemeToggle" aria-label="Choose visual design">Layl</button>
       </div>
     </header>
+
+    <!-- Collapsible Visual Design Studio Gallery -->
+    <section id="themeDrawer" class="theme-drawer" hidden></section>
 
     <!-- Collapsible Session Snapshots, JSON Backup & Shareable URL Drawer -->
     <section id="snapshotsDrawer" class="snapshots-drawer" hidden></section>
@@ -86,7 +90,7 @@
 
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v7.0.0 · 24-TET · 6/7/8-String · MIDI &amp; MusicXML</span>
+      <span class="mono-tag">v7.1.0 · 24-TET · 7 Studio Designs · 6/7/8-String</span>
     </footer>
   </div>
 

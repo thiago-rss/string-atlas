@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v7.0.0: 6/7/8-String Extended Range, 24-TET MIDI & MusicXML 4.0 Export, Modal Radar, Tone FX, Ear Lab, Vamps/Sayr, Line Mode & Study Guide)",
+  "description": "String Atlas — Modal Guitar Lab (v7.1.0: 7 Musical-Aesthetic Studio Designs, 6/7/8-String Extended Range, 24-TET MIDI & MusicXML 4.0 Export)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

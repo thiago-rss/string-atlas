@@ -19,6 +19,7 @@ import { renderRadarView } from './views/radarView.js';
 import { renderVampView, toggleVampPlayback, updateVampBadge } from './views/vampView.js';
 import { renderEarLabView } from './views/earLabView.js';
 import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
+import { renderThemeDrawer, cycleNextTheme, updateThemeHeaderButton } from './views/themeDrawerView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
 import {
   renderLineModeView,
@@ -52,8 +53,7 @@ function applyStaticI18nAndTheme(state) {
   const btnLang = document.getElementById('btnLangToggle');
   if (btnLang) btnLang.textContent = state.lang === 'en' ? 'EN · PT' : 'PT · EN';
 
-  const btnTheme = document.getElementById('btnThemeToggle');
-  if (btnTheme) btnTheme.textContent = state.theme === 'nahar' ? t(state.lang, 'themeNahar') : t(state.lang, 'themeLayl');
+  updateThemeHeaderButton(state);
 }
 
 function renderLabTabs(state) {
@@ -143,8 +143,14 @@ function renderAll(state, patch = null) {
       renderZenBar(state);
       return;
     }
+    if (keys.every((k) => k === 'theme' || k === 'themeDrawerOpen')) {
+      document.documentElement.setAttribute('data-theme', state.theme);
+      renderThemeDrawer(state);
+      return;
+    }
     if (keys.every((k) => k === 'snapshotsOpen' || k === 'snapshots')) {
-      renderSnapshotsDrawer(state);
+      renderThemeDrawer(state);
+  renderSnapshotsDrawer(state);
       return;
     }
     if (keys.every((k) => k === 'fretWindowOn' || k === 'fretWindowStart' || k === 'fretWindowSpan')) {
@@ -168,6 +174,7 @@ function renderAll(state, patch = null) {
   }
 
   applyStaticI18nAndTheme(state);
+  renderThemeDrawer(state);
   renderSnapshotsDrawer(state);
   renderZenBar(state);
   renderDeckPanel(state);
@@ -193,7 +200,7 @@ function bindGlobalControls() {
 
   document.getElementById('btnThemeToggle')?.addEventListener('click', () => {
     const st = getState();
-    setState({ theme: st.theme === 'layl' ? 'nahar' : 'layl' });
+    setState({ themeDrawerOpen: !st.themeDrawerOpen, snapshotsOpen: false });
   });
 
   document.getElementById('btnZenToggle')?.addEventListener('click', () => {
@@ -201,7 +208,7 @@ function bindGlobalControls() {
   });
 
   document.getElementById('btnSnapshotsToggle')?.addEventListener('click', () => {
-    setState({ snapshotsOpen: !getState().snapshotsOpen });
+    setState({ snapshotsOpen: !getState().snapshotsOpen, themeDrawerOpen: false });
   });
 
   window.addEventListener('keydown', (ev) => {
@@ -219,6 +226,8 @@ function bindGlobalControls() {
       toggleEtudePlayback();
     } else if (key === 'n') {
       regenerateEtude();
+    } else if (key === 't') {
+      cycleNextTheme();
     } else if (key === 'z') {
       setState({ zenMode: !st.zenMode });
     } else if (key === 'l') {

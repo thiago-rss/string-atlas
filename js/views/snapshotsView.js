@@ -2,6 +2,7 @@
  * Phase 5 Session Snapshots, Shareable URL Hash (#sa=...) & Zen Practice Floating Bar
  */
 import { DB } from '../core/database.js';
+import { VALID_THEME_IDS } from '../core/themes.js';
 import { qToNoteName } from '../core/theory24.js';
 import { encodeSessionHash, extractShareablePayload } from '../core/sessionCodec.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
@@ -176,6 +177,7 @@ function applySnapshotPayload(p) {
     fretWindowOn: Boolean(p.fw),
     fretWindowStart: Number.isInteger(p.fs) ? p.fs : 0,
     fretWindowSpan: Number.isInteger(p.fl) ? p.fl : 5,
+    ...(p.th && VALID_THEME_IDS.has(p.th) ? { theme: p.th } : {}),
     snapshotsOpen: false
   });
 }
