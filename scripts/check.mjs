@@ -7,6 +7,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { DB } from '../js/core/database.js';
 import { THEMES } from '../js/core/themes.js';
+import { calculateSetTension, getDefaultPackForCount, recommendBalancedGauges } from '../js/core/tensionEngine.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
 import { VAMP_PRESETS, buildVampFromCurrentLab } from '../js/core/vampEngine.js';
@@ -42,6 +43,7 @@ const jsFiles = [
   'js/core/database.js',
   'js/core/i18n.js',
   'js/core/themes.js',
+  'js/core/tensionEngine.js',
   'js/core/voicingEngine.js',
   'js/core/etudeGenerator.js',
   'js/core/vampEngine.js',
@@ -67,6 +69,7 @@ const jsFiles = [
   'js/views/harmonyView.js',
   'js/views/etudeView.js',
   'js/views/rhythmView.js',
+  'js/views/tensionView.js',
   'js/views/dossierView.js'
 ];
 
@@ -216,6 +219,53 @@ for (const th of THEMES) {
 }
 ok(`Validated ${THEMES.length} curated musical-aesthetic designs in themes.js & styles/themes.css`);
 
+// 5c. Unit-test String Tension Physics Engine (E Std 10-46, B Std, A Std 27", 8c Multi-Scale & Inverse Solver)
+const stdTun = DB.tunings.find((t) => t.id === 'standard');
+const pack1046 = getDefaultPackForCount(6, 'standard');
+const calcStd = calculateSetTension({
+  stringsQ: stdTun.stringsQ,
+  gauges: pack1046.strings,
+  scaleTrebleIn: 25.5,
+  scaleBassIn: 25.5,
+  multiScale: false
+});
+if (calcStd.totalLbs < 98 || calcStd.totalLbs > 110) {
+  fail(`Unexpected E Std 10-46 @ 25.5" total tension: ${calcStd.totalLbs.toFixed(1)} lbs`);
+}
+
+const aStdTun = DB.tunings.find((t) => t.id === 'a_standard');
+const recAStd = recommendBalancedGauges({
+  stringsQ: aStdTun.stringsQ,
+  scaleTrebleIn: 27.0,
+  scaleBassIn: 27.0,
+  multiScale: false,
+  targetLbs: 16.5
+});
+const calcRecA = calculateSetTension({
+  stringsQ: aStdTun.stringsQ,
+  gauges: recAStd,
+  scaleTrebleIn: 27.0,
+  scaleBassIn: 27.0,
+  multiScale: false
+});
+if (calcRecA.balanceScore < 75 || recAStd.length !== 6) {
+  fail(`Balanced gauge solver underperformed for A Std 27": balance=${calcRecA.balanceScore}%`);
+}
+
+const tun8Ms = DB.tunings.find((t) => t.id === '8_drop_e');
+const pack8 = getDefaultPackForCount(8, '8_drop_e');
+const calc8Ms = calculateSetTension({
+  stringsQ: tun8Ms.stringsQ,
+  gauges: pack8.strings,
+  scaleTrebleIn: 25.5,
+  scaleBassIn: 28.0,
+  multiScale: true
+});
+if (calc8Ms.rows[0].scaleIn !== 28.0 || calc8Ms.rows[7].scaleIn !== 25.5) {
+  fail('Multi-scale interpolation failed on 8-string Drop E');
+}
+ok(`Unit-tested String Tension Physics (E Std 10-46=${calcStd.totalLbs.toFixed(1)} lbs, A Std 27" Solver=${calcRecA.balanceScore}% balance, 8c Multi-Scale OK)`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -230,4 +280,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.2 integrity checks passed.');
+console.log('\nAll String Atlas v7.3 integrity checks passed.');

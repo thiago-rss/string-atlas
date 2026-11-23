@@ -2140,3 +2140,192 @@ body[data-zen="true"] .fretboard-panel {
   justify-content: space-between;
   gap: 8px;
 }
+
+/* =========================================================================
+ * Phase 7.3 Additions: Physical String Tension Calculator Lab
+ * ========================================================================= */
+
+.tension-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tension-scale-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tens-num-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  font-size: 0.78rem;
+}
+
+.tens-num-wrap input[type="number"] {
+  width: 58px;
+  background: transparent;
+  border: none;
+  color: var(--accent-root);
+  font-weight: 700;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.84rem;
+}
+
+.tens-num-wrap input[type="number"]:focus {
+  outline: none;
+}
+
+.tension-solver-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.tension-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tension-kpi-card {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tension-kpi-val {
+  font-size: 1.38rem;
+  font-weight: 800;
+  color: var(--accent-root);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  line-height: 1.15;
+}
+
+.tension-chart-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.tension-chart-svg {
+  display: block;
+  min-width: 580px;
+  width: 100%;
+  height: auto;
+}
+
+.tension-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.tension-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  min-width: 640px;
+}
+
+.tension-table th,
+.tension-table td {
+  padding: 9px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tension-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+.tension-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tension-note-cell,
+.tension-gauge-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tension-tune-btns {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.tension-gauge-cell select {
+  width: auto;
+  min-width: 72px;
+}
+
+.tens-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-left: 3px;
+}
+
+.feel-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.feel-badge.feel-floppy {
+  background: rgba(224, 82, 96, 0.18);
+  color: var(--accent-danger);
+}
+
+.feel-badge.feel-light {
+  background: rgba(76, 201, 176, 0.16);
+  color: var(--accent-scale);
+}
+
+.feel-badge.feel-balanced {
+  background: rgba(82, 242, 156, 0.18);
+  color: var(--accent-live);
+}
+
+.feel-badge.feel-heavy {
+  background: rgba(229, 169, 85, 0.2);
+  color: var(--accent-root);
+}
+
+.feel-badge.feel-stiff {
+  background: rgba(224, 108, 117, 0.22);
+  color: var(--accent-char);
+}

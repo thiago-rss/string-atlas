@@ -6,6 +6,7 @@ import { VALID_THEME_IDS } from '../core/themes.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
+import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
 const STORAGE_KEY = 'string_atlas_prefs_v7';
@@ -60,6 +61,7 @@ const resolvedVampId = (hashPayload && validVampIds.has(hashPayload.vp))
   ? hashPayload.vp
   : VAMP_PRESETS[0].id;
 const initialVamp = VAMP_PRESETS.find((v) => v.id === resolvedVampId) || VAMP_PRESETS[0];
+const initialGaugePack = getDefaultPackForCount(initialTuning.stringsQ.length, initialTuning.id);
 
 const state = {
   lang: saved.lang === 'en' ? 'en' : 'pt',
@@ -195,6 +197,17 @@ const state = {
   earStats: (saved.earStats && typeof saved.earStats === 'object')
     ? saved.earStats
     : { correct: 0, total: 0, streak: 0, bestStreak: 0 },
+
+  // Phase 7.3: String Tension Calculator Lab
+  tensionScalePresetId: initialTuning.stringsQ.length === 8 ? '28_0' : (initialTuning.stringsQ.length === 7 ? '26_5' : '25_5'),
+  tensionScaleTreble: initialTuning.stringsQ.length === 8 ? 28.0 : (initialTuning.stringsQ.length === 7 ? 26.5 : 25.5),
+  tensionScaleBass: initialTuning.stringsQ.length === 8 ? 28.0 : (initialTuning.stringsQ.length === 7 ? 26.5 : 25.5),
+  tensionMultiScale: false,
+  tensionMaterial: 'nickel_plated',
+  tensionUnit: 'lbs',
+  tensionTargetLbs: 16.5,
+  tensionPackId: initialGaugePack.id,
+  tensionGauges: initialGaugePack.strings.map((x) => ({ ...x })),
 
   // Oblique Lab
   obliqueIndex: 0
@@ -352,6 +365,11 @@ export function setState(patch) {
   }
   if (patchKeys.some((k) => ETUDE_AFFECTING_KEYS.has(k))) {
     recomputeEtude();
+  }
+  if (state.tensionGauges.length !== state.customStringsQ.length) {
+    const autoPack = getDefaultPackForCount(state.customStringsQ.length, state.tuningId);
+    state.tensionPackId = autoPack.id;
+    state.tensionGauges = autoPack.strings.map((x) => ({ ...x }));
   }
 
   if ('snapshots' in patch) {

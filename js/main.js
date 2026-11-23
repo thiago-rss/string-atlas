@@ -39,6 +39,7 @@ import {
   toggleRhythmPlayback,
   updateRhythmBadge
 } from './views/rhythmView.js';
+import { renderTensionView } from './views/tensionView.js';
 import { renderDossierAndOblique } from './views/dossierView.js';
 
 function applyStaticI18nAndTheme(state) {
@@ -69,6 +70,7 @@ function renderLabTabs(state) {
     { id: 'etude', label: t(state.lang, 'tabEtude') },
     { id: 'harmony', label: t(state.lang, 'tabHarmony') },
     { id: 'rhythm', label: t(state.lang, 'tabRhythm') },
+    { id: 'tension', label: t(state.lang, 'tabTension') },
     { id: 'dossier', label: t(state.lang, 'tabDossier') }
   ];
 
@@ -92,12 +94,13 @@ function renderLabTabs(state) {
   document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
   document.getElementById('tabHarmony').hidden = state.activeTab !== 'harmony';
   document.getElementById('tabRhythm').hidden = state.activeTab !== 'rhythm';
+  document.getElementById('tabTension').hidden = state.activeTab !== 'tension';
   document.getElementById('tabDossier').hidden = state.activeTab !== 'dossier';
 }
 
 const SILENT_SLIDER_KEYS = new Set([
   'bpm', 'etudeBpm', 'lineInputGain', 'lineRmsGate',
-  'delayMix', 'delayTime', 'tremoloDepth', 'tremoloRate', 'masterVolume'
+  'delayMix', 'delayTime', 'tremoloDepth', 'tremoloRate', 'masterVolume', 'tensionTargetLbs'
 ]);
 
 function renderAll(state, patch = null) {
@@ -169,6 +172,10 @@ function renderAll(state, patch = null) {
       renderEarLabView(state);
       return;
     }
+    if (keys.every((k) => k.startsWith('tension'))) {
+      renderTensionView(state);
+      return;
+    }
     if (keys.every((k) => ['radarPivotFilter', 'radarCompareScaleId', 'radarCompareRootQ', 'radarOverlayOnNeck'].includes(k))) {
       renderRadarView(state);
       renderFretboard(state);
@@ -192,6 +199,7 @@ function renderAll(state, patch = null) {
   renderHarmonyView(state);
   renderEtudeView(state);
   renderRhythmView(state);
+  renderTensionView(state);
   renderDossierAndOblique(state);
 }
 
