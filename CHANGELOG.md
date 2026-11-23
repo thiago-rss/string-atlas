@@ -2,6 +2,13 @@
 
 Todas as entregas estruturais do projeto, da fundação 24-TET ao lançamento PWA de produção (`v8.4.0`).
 
+## [8.6.0] — 2026-11-23 · Microfone & Interface de Áudio (Modelo Oud Visualizer)
+### Adicionado
+- **Compartimento Dedicado `🎙 Mic / Interface` no Trilho Superior (`deckPanelsView.js`):** acesso direto logo acima do braço virtual (sem precisar abrir a zona de Estudo), com alternância `🎙 Microfone` vs. `🔌 Interface (Line Mode)`, seletor de dispositivo USB com atualização automática `devicechange`, seleção de canal (`L+R · Ch 1 · Ch 2`), sliders de Gain e Noise Gate e medidor VU em tempo real.
+- **HUD Vivo no Palco do Braço (`#liveStageHud` em `lineModeView.js`):** aparece automaticamente logo acima do braço quando a escuta está ativa (oculto quando desligado), com nota 24-TET colorida por pertencimento à escala, agulha alternável (**Afinador `-50¢..+50¢`** ↔ **Micro-Bend `0..+50¢..+100¢`**), indicação instantânea *Aperte/Afrouxe/✔ Afinada* e faixa clicável de cravelhas de referência para 6, 7 e 8 cordas.
+- **Acompanhamento Aprimorado no Braço Virtual (`fretboardView.js`):** marcação em tempo real (Horizontal e Vertical Mobile) com cores semânticas (Tônica dourada, Na Escala verde, Microtom âmbar, Fora da Escala coral), badge flutuante `Nota ±¢`, **Rastro de Notas (`Trail`)** das últimas 5 alturas tocadas e opção **Focar Janela Fechada**.
+- **Barra Inferior Mobile (`mobileNavView.js`):** botão **`🎙 Mic/Line`** de 1 toque direto na barra do polegar (padrão *Oud Visualizer*).
+
 ## [8.5.0] — 2026-11-23 · Luthieria Avançada
 ### Adicionado
 - **Comparador A/B na Calculadora de Tensão (`js/core/tensionEngine.js`, `js/views/tensionView.js`):** compara dois setups físicos lado a lado (ex.: `A Standard` em `25.5″` vs. `27.0″`, ou dois packs de calibres / Multi-Scale / afinações), com gráfico SVG de barras duplas, diferença corda a corda (`Δ B − A`), **Diagnóstico de Tensor (Truss Rod)**, `Clonar A → B`, `⇄ Trocar A ↔ B`, `Aplicar B no Ativo`, `✦ Balancear B` e `Copiar A/B`.

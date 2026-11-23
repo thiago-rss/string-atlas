@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.5.0",
+  "version": "8.6.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.5.0: Advanced Luthier — A/B Tension Comparator with Truss-Rod Advisory & Persistent Saved Scordaturas)",
+  "description": "String Atlas — Modal Guitar Lab (v8.6.0: Oud-Visualizer-Style Microphone & USB Audio Interface Compartment, Live Stage Tuner HUD & Real-Time Virtual Fretboard Note Trail)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

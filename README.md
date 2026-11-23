@@ -3,7 +3,7 @@
 [![Abrir App Online](https://img.shields.io/badge/%E2%96%B6_Abrir_App_Online-String_Atlas_PWA-e5a955?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/)
 [![Manual em PDF](https://img.shields.io/badge/Manual_do_Usu%C3%A1rio-PDF-4cc9b0?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/docs/manual_do_usuario.pdf)
 
-![Version](https://img.shields.io/badge/version-8.5.0-e5a955?style=flat-square)
+![Version](https://img.shields.io/badge/version-8.6.0-e5a955?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Offline--First-4cc9b0?style=flat-square)
 ![Tuning](https://img.shields.io/badge/tuning-24--TET%20%2B%20Scala%20.scl-f08c4b?style=flat-square)
 ![Strings](https://img.shields.io/badge/strings-6%20%7C%207%20%7C%208-89a9c7?style=flat-square)
@@ -28,7 +28,7 @@
 | **Atlas Expandido & Fronteira Microtonal** | **74 escalas e modos** em 7 domínios (18 *Maqamat*, 7 Modos Gregos, Menor Harmônica/Melódica, Ragas, Japão/Gamelan, Armorial, todos os 7 Modos de Messiaen, Slonimsky e *Pitch-Class Sets*) + **39 afinações** (`E Std` → `B Std`, `A Std`, `7c`, `8c Drop E`, `All Fourths`, `DADGAD`, `CFADGC`) + **Laboratório Scala (`.scl`)** com 12 presets (*Just Intonation 5/7/11-limit*, *53-TET Otomano*, *Bohlen-Pierce 3/1*, *Gamelan real*) e projeção `±¢` no braço. |
 | **7 Mundos Visuais Esculturais (`T`)** | *Layl · Astrolábio*, *Nahar · Códice*, *70s Analog · Console Valvulado*, *Doom Ritual · Catedral*, *Djent Poly · Lâmina CNC*, *Avant · Partitura Gráfica* e *Brasilidade · Curvas & Cordel* — cada um com tipografia própria, filigranas vetoriais, acabamento de madeira/carbono e geometria própria de marcadores no braço. |
 | **Estúdio em Compartimentos Puros** | **Radar Modal 24-TET**, **Vamps & Sayr**, **Etudes Procedurais (6 geradores)**, **Harmonia Não-Tercial & Construtor de Pitch-Class Set**, **Motor Rítmico Universal (*Iqa’at* & Polimetria)**, **Treino Auditivo 24-TET** e **Dossiê / Lab Oblíquo**. |
-| **Line Mode Multicanal & Áudio Mobile Blindado** | Detector **YIN (34–1480 Hz)** otimizado para interfaces de áudio (`L+R` · `Ch 1` · `Ch 2`) com medidor de micro-bend `+50¢`, afinador de scordatura e validação automática de Etudes; `mobileAudioGuard.js` com desbloqueio no 1º toque (iOS/Android), `audioSession`, limiter `-3 dBFS`, anti-burst e Wake Lock. |
+| **Microfone & Interface de Áudio (Modelo Oud Visualizer)** | Compartimento **`🎙 Mic / Interface`** no trilho principal + botão 1-toque na barra mobile; detector **YIN (34–1480 Hz)** com modo *Microfone* e *Line Mode* (`L+R` · `Ch 1` · `Ch 2` + hot-plug USB), **HUD Vivo** sobre o braço (Afinador 6/7/8c ↔ Micro-Bend `+50¢`), acompanhamento no braço virtual com cores de escala + **Rastro de Notas** e `mobileAudioGuard.js` (iOS/Android/Bluetooth). |
 | **Currículo Progressivo & Glossário** | **4 Níveis · 9 Capítulos · 40 Lições & 40 Dossiês PT/EN** (de fundamentos em *E Standard/12-TET* até *53-TET/Scala/Pós-Tonal*) integrados ao **Glossário Técnico Interativo (39 termos)** com exemplos sonoros Web Audio. |
 | **Exportação Completa** | **Pranchas Didáticas PNG (2× Retina) & SVG**, **MIDI 24-TET (`.mid` com RPN ±2st + Pitch Bend `+50¢` e canais por voz)**, **MusicXML 4.0 (`.musicxml` com tablatura 6/7/8 cordas)**, **Scala `.scl`**, **Tablatura ASCII (`.txt`)**, **Snapshots `#sa=...`** e **Backup `.json`**. |
 

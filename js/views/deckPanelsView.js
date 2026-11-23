@@ -33,6 +33,8 @@ import {
   setState
 } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { pitchDetector } from '../audio/pitchDetector.js';
+import { refreshAudioDevices, startLineMode, stopLineMode } from './lineModeView.js';
 
 function groupScalesBySubfamily(scales, lang) {
   const isEn = lang === 'en';
@@ -173,7 +175,7 @@ export function renderDeckPanel(state) {
   const activeTuning = getActiveTuning();
   const allowedPcs = new Set(activeScale.intervalsQ.map((iv) => mod24(state.rootQ + iv)));
   const activeStrCount = state.stringCount || state.customStringsQ.length;
-  const openComp = state.deckCompartment; // null | 'setup' | 'neck' | 'audio'
+  const openComp = state.deckCompartment; // null | 'setup' | 'neck' | 'input' | 'audio'
   const rootName = qToNoteName(state.rootQ, false);
   const isRetuned = !stringsEqual(state.customStringsQ, activeTuning.stringsQ);
 
@@ -415,6 +417,104 @@ export function renderDeckPanel(state) {
         </div>
       </div>
     `;
+  } else if (openComp === 'input') {
+    const devOpts = state.audioInputDevices.length
+      ? [
+          `<option value="">${t(state.lang, 'lineDefaultDevice')}</option>`,
+          ...state.audioInputDevices.map(
+            (d) => `<option value="${d.deviceId}" ${d.deviceId === state.lineDeviceId ? 'selected' : ''}>${d.label}</option>`
+          )
+        ].join('')
+      : `<option value="">${t(state.lang, 'lineDefaultDevice')}</option>`;
+
+    compartmentDrawerHtml = `
+      <div class="deck-compartment-body" id="compInput">
+        <div class="compartment-head">
+          <span class="control-label">${t(state.lang, 'compInputTitle')}</span>
+          <div class="pill-row">
+            <button type="button" class="btn-mini" data-action="openFullLineTab">${t(state.lang, 'compInputFullBtn')} →</button>
+            <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+          </div>
+        </div>
+
+        <div class="input-comp-row">
+          <button type="button" class="${state.lineModeRunning ? 'btn-danger' : 'btn-primary'}" data-action="toggleLineListening">
+            ${state.lineModeRunning ? t(state.lang, 'lineStop') : t(state.lang, 'lineStart')}
+          </button>
+
+          <div class="pill-row">
+            <button type="button" class="btn-pill ${state.lineInputMode === 'mic' ? 'active-teal' : ''}" data-action="setLineMode" data-val="mic">
+              🎙 ${t(state.lang, 'lineModeMic')}
+            </button>
+            <button type="button" class="btn-pill ${state.lineInputMode === 'line' ? 'active-teal' : ''}" data-action="setLineMode" data-val="line">
+              🔌 ${t(state.lang, 'lineModeDirect')}
+            </button>
+          </div>
+
+          <div class="input-device-wrap">
+            <select id="selDeckAudioInput" aria-label="${t(state.lang, 'lineDeviceLabel')}">${devOpts}</select>
+            <button type="button" class="btn-mini" data-action="refreshLineDevices" title="${t(state.lang, 'lineRefreshDevices')}">↻</button>
+          </div>
+
+          <div class="pill-row" role="group" aria-label="${t(state.lang, 'lineChannelLabel')}">
+            <button type="button" class="btn-mini ${state.lineChannel === 'mix' ? 'active-mini' : ''}" data-action="setLineChannel" data-val="mix">L+R</button>
+            <button type="button" class="btn-mini ${state.lineChannel === 'ch1' ? 'active-mini' : ''}" data-action="setLineChannel" data-val="ch1">Ch 1</button>
+            <button type="button" class="btn-mini ${state.lineChannel === 'ch2' ? 'active-mini' : ''}" data-action="setLineChannel" data-val="ch2">Ch 2</button>
+          </div>
+        </div>
+
+        <div class="line-dsp-row" style="margin-top:10px;margin-bottom:0">
+          <label class="bpm-control">
+            <span>${t(state.lang, 'lineGainLabel')}</span>
+            <input type="range" id="rngDeckLineGain" min="0.5" max="3.5" step="0.1" value="${state.lineInputGain}" />
+            <strong id="valDeckLineGain">${state.lineInputGain.toFixed(1)}×</strong>
+          </label>
+
+          <label class="bpm-control">
+            <span>${t(state.lang, 'lineGateLabel')}</span>
+            <input type="range" id="rngDeckLineGate" min="0.004" max="0.060" step="0.002" value="${state.lineRmsGate}" />
+            <strong id="valDeckLineGate">${Math.round(state.lineRmsGate * 1000)}</strong>
+          </label>
+
+          <div class="level-meter-wrap">
+            <span class="control-label">${t(state.lang, 'lineInputLevel')}</span>
+            <div class="level-meter-track">
+              <div class="level-meter-fill" id="deckLineLevelFill" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comp-subsection input-tracking-row">
+          <div class="pill-row">
+            <button type="button" class="btn-mini ${state.lineShowOnNeck ? 'active-mini' : ''}" data-action="toggleLineNeck">
+              ${t(state.lang, 'lineMirrorNeck')}
+            </button>
+            <button type="button" class="btn-mini ${state.lineTrailOn ? 'active-mini' : ''}" data-action="toggleLineTrail">
+              ${t(state.lang, 'lineTrailLabel')}
+            </button>
+            <button type="button" class="btn-mini ${state.lineClampToWindow ? 'active-mini' : ''}" data-action="toggleLineClamp">
+              ${t(state.lang, 'lineClampLabel')}
+            </button>
+          </div>
+
+          <div class="pill-row">
+            <span class="control-label">${t(state.lang, 'hudModeLabel')}:</span>
+            <button type="button" class="btn-mini ${state.lineHudMode !== 'microbend' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="tuner">${t(state.lang, 'hudModeTuner')}</button>
+            <button type="button" class="btn-mini ${state.lineHudMode === 'microbend' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="microbend">${t(state.lang, 'hudModeBend')}</button>
+          </div>
+        </div>
+
+        ${state.lineModeRunning && state.lineInputMeta ? `
+          <div class="line-meta-strip" style="margin-top:10px;margin-bottom:0">
+            <span class="mono-tag">● ${(state.lineInputMeta.sampleRate / 1000).toFixed(1)} kHz · ${state.lineInputMeta.channelCount}ch · ${state.lineChannel.toUpperCase()}</span>
+            ${state.lineInputMeta.label ? `<span class="soft-tag">${state.lineInputMeta.label}</span>` : ''}
+            ${state.lineInputMeta.usedFallback ? `<span class="soft-tag" style="color:var(--accent-root)">${t(state.lang, 'lineFallbackTag')}</span>` : ''}
+            ${state.lineInputMeta.isBluetooth ? `<span class="line-bt-warn">${t(state.lang, 'lineBtWarning')}</span>` : ''}
+          </div>
+        ` : ''}
+        ${state.lineError ? `<p class="line-error-banner" style="margin-top:8px;margin-bottom:0">${state.lineError}</p>` : ''}
+      </div>
+    `;
   } else if (openComp === 'audio') {
     compartmentDrawerHtml = `
       <div class="deck-compartment-body" id="compAudio">
@@ -500,9 +600,14 @@ export function renderDeckPanel(state) {
   const filterActiveDot = (state.category !== 'all' || state.temperamentFilter !== 'all' || Boolean(state.scaleSearch)) ? '<span class="dock-dot"></span>' : '';
   const audioLiveDot = (state.droneOn || state.isPlayingScale) ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : '';
 
+  const inputMetaTxt = state.lineModeRunning
+    ? 'LIVE'
+    : (state.lineInputMode === 'line' ? `Line·${state.lineChannel.toUpperCase()}` : 'Mic');
+  const inputLiveDot = state.lineModeRunning ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : '';
+
   panel.innerHTML = `
-    <!-- Symmetric 4-Compartment Studio Rail (Oud Visualizer pattern — zero persistent Drone/Control clutter) -->
-    <div class="compartment-dock rail-grid-4" role="toolbar" aria-label="Studio Compartments">
+    <!-- Symmetric 5-Compartment Studio Rail (Oud Visualizer pattern — Mic/Interface right above Fretboard!) -->
+    <div class="compartment-dock rail-grid-5" role="toolbar" aria-label="Studio Compartments">
       <button type="button" class="dock-btn ${openComp === 'setup' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="setup">
         <span class="dock-btn-main">
           <span class="dock-icon" aria-hidden="true">🎛</span>
@@ -520,6 +625,16 @@ export function renderDeckPanel(state) {
           <span class="dock-label-short">${t(state.lang, 'dockNeckShort')}</span>
         </span>
         <span class="dock-meta">${orientSym} · ${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
+      </button>
+
+      <button type="button" class="dock-btn ${openComp === 'input' ? 'is-open' : ''} ${state.lineModeRunning ? 'is-live-dock' : ''}" data-action="toggleCompartment" data-val="input">
+        <span class="dock-btn-main">
+          <span class="dock-icon" aria-hidden="true">🎙</span>
+          <span class="dock-label-full">${t(state.lang, 'dockInput')}</span>
+          <span class="dock-label-short">${t(state.lang, 'dockInputShort')}</span>
+        </span>
+        <span class="dock-meta">${inputMetaTxt}</span>
+        ${inputLiveDot}
       </button>
 
       <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
@@ -580,6 +695,36 @@ export function renderDeckPanel(state) {
     };
   }
 
+  const selDeckDev = panel.querySelector('#selDeckAudioInput');
+  if (selDeckDev) {
+    selDeckDev.onchange = (e) => {
+      setState({ lineDeviceId: e.target.value });
+      if (getState().lineModeRunning) startLineMode();
+    };
+  }
+
+  const rngDeckGain = panel.querySelector('#rngDeckLineGain');
+  const valDeckGain = panel.querySelector('#valDeckLineGain');
+  if (rngDeckGain) {
+    rngDeckGain.oninput = (e) => {
+      const val = Number(e.target.value);
+      if (valDeckGain) valDeckGain.textContent = `${val.toFixed(1)}×`;
+      pitchDetector.setInputGain(val);
+      setState({ lineInputGain: val });
+    };
+  }
+
+  const rngDeckGate = panel.querySelector('#rngDeckLineGate');
+  const valDeckGate = panel.querySelector('#valDeckLineGate');
+  if (rngDeckGate) {
+    rngDeckGate.oninput = (e) => {
+      const val = Number(e.target.value);
+      if (valDeckGate) valDeckGate.textContent = `${Math.round(val * 1000)}`;
+      pitchDetector.setGate(val);
+      setState({ lineRmsGate: val });
+    };
+  }
+
   const bpmSlider = panel.querySelector('#rngBpm');
   const bpmVal = panel.querySelector('#bpmVal');
   if (bpmSlider) {
@@ -615,10 +760,36 @@ export function renderDeckPanel(state) {
 
     if (action === 'toggleCompartment') {
       const target = btn.dataset.val;
+      const opening = st.deckCompartment !== target;
       setState({
-        deckCompartment: st.deckCompartment === target ? null : target,
+        deckCompartment: opening ? target : null,
         headerMenuOpen: false
       });
+      if (opening && target === 'input' && !st.audioInputDevices.length) {
+        refreshAudioDevices();
+      }
+    } else if (action === 'toggleLineListening') {
+      if (st.lineModeRunning) stopLineMode();
+      else startLineMode();
+    } else if (action === 'setLineMode') {
+      setState({ lineInputMode: btn.dataset.val });
+      if (st.lineModeRunning) startLineMode();
+    } else if (action === 'refreshLineDevices') {
+      refreshAudioDevices();
+    } else if (action === 'setLineChannel') {
+      const ch = btn.dataset.val;
+      pitchDetector.setChannel(ch);
+      setState({ lineChannel: ch });
+    } else if (action === 'toggleLineNeck') {
+      setState({ lineShowOnNeck: !st.lineShowOnNeck });
+    } else if (action === 'toggleLineTrail') {
+      setState({ lineTrailOn: !st.lineTrailOn });
+    } else if (action === 'toggleLineClamp') {
+      setState({ lineClampToWindow: !st.lineClampToWindow });
+    } else if (action === 'setLineHudMode') {
+      setState({ lineHudMode: btn.dataset.val });
+    } else if (action === 'openFullLineTab') {
+      setState({ deckCompartment: null, activeTab: 'line', workspaceOpen: true });
     } else if (action === 'closeCompartment') {
       setState({ deckCompartment: null });
     } else if (action === 'toggleNotation') {

@@ -3300,3 +3300,266 @@ body[data-zen="true"] .header-menu-drawer {
   background: rgba(76, 201, 176, 0.2);
   color: var(--accent-scale);
 }
+
+/* =========================================================================
+ * Phase 8.6 Additions: Oud-Visualizer Mic/Interface Compartment & Live Stage HUD
+ * ========================================================================= */
+
+.dock-btn.is-live-dock {
+  border-color: var(--accent-live);
+  box-shadow: 0 0 0 1px rgba(82, 242, 156, 0.35), 0 0 14px rgba(82, 242, 156, 0.16);
+}
+
+.input-comp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-device-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 190px;
+}
+
+.input-device-wrap select {
+  flex: 1;
+  min-width: 0;
+}
+
+.input-tracking-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Live Stage HUD perched directly above the virtual fretboard */
+.live-stage-hud {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--accent-live);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: saCompartmentReveal 0.16s ease-out;
+}
+
+.live-stage-hud[hidden] {
+  display: none !important;
+}
+
+.stage-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stage-hud-readout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.stage-hud-note {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.55rem;
+  font-weight: 800;
+  min-width: 66px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.stage-hud-note.is-root {
+  color: var(--accent-root);
+  border-color: var(--accent-root);
+}
+
+.stage-hud-note.is-in-scale {
+  color: var(--accent-live);
+  border-color: var(--accent-live);
+}
+
+.stage-hud-note.is-micro {
+  color: var(--accent-micro);
+  border-color: var(--accent-micro);
+}
+
+.stage-hud-note.is-out {
+  color: var(--accent-danger);
+  border-color: var(--accent-danger);
+}
+
+.stage-hud-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.stage-hud-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stage-hud-advice {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.stage-hud-gauge-wrap {
+  flex: 1;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stage-gauge-track {
+  position: relative;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.stage-tuner-center-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 44%;
+  width: 12%;
+  background: rgba(82, 242, 156, 0.24);
+  border-left: 1px dashed var(--accent-live);
+  border-right: 1px dashed var(--accent-live);
+}
+
+.stage-gauge-tick {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.stage-gauge-tick.is-center {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.stage-gauge-needle {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 5px;
+  margin-left: -2.5px;
+  border-radius: 999px;
+  background: var(--accent-root);
+  box-shadow: 0 0 8px var(--accent-root);
+  transition: left 0.05s linear, background-color 0.12s ease;
+}
+
+.stage-gauge-needle.is-lock {
+  background: var(--accent-live);
+  box-shadow: 0 0 10px var(--accent-live);
+}
+
+.stage-vu-mini {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  overflow: hidden;
+}
+
+.stage-vu-fill {
+  height: 100%;
+  background: var(--text-muted);
+  transition: width 0.05s linear;
+}
+
+.stage-vu-fill.is-above-gate {
+  background: linear-gradient(90deg, var(--accent-scale), var(--accent-live));
+}
+
+.stage-hud-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.stage-stop-btn {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+}
+
+/* Interactive 6/7/8-String Reference Peg Strip directly inside Live Stage HUD */
+.stage-tuner-pegs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  gap: 5px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stage-peg-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.stage-peg-btn:hover {
+  border-color: var(--accent-root);
+}
+
+.stage-peg-btn.is-nearest {
+  border-color: var(--accent-root);
+  background: rgba(229, 169, 85, 0.14);
+}
+
+.stage-peg-btn.is-in-tune {
+  border-color: var(--accent-live);
+  background: rgba(82, 242, 156, 0.18);
+  color: var(--accent-live);
+}
+
+.stage-peg-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  color: var(--text-muted);
+}
+
+.stage-peg-delta {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+}

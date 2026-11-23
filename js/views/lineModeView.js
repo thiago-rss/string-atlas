@@ -1,20 +1,147 @@
 /**
- * Phase 4 Line Mode & 24-TET Micro-Bend Precision Monitor
- * - Direct Audio Interface Line Mode (raw unprocessed input) & Microphone Mode
- * - Live 24-TET pitch readout, Hz, Scale/Maqam degree validation, & +50c Micro-Bend Gauge
- * - Optional Etude Target Lock: holds target pitch within ±16c to validate and auto-advance steps!
+ * Real-Time Microphone & Audio Interface (Line Mode) Engine UI — v8.6 (Oud Visualizer Model)
+ * - Powers BOTH the sleek Live Stage HUD attached directly above the virtual fretboard
+ *   (Chromatic/Scordatura Tuner + Micro-Bend +50c Gauge + 6/7/8-string Reference Pegs)
+ *   AND the full Line Mode Workbench inside Studio -> Study (with Etude Auto-Validator).
+ * - Multi-channel USB Interface routing (L+R, Ch 1, Ch 2) + automatic hot-plug device detection.
  */
 import { intervalQToLabel, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
 import { getActiveScale, getState, setState } from '../state/store.js';
 import { pitchDetector } from '../audio/pitchDetector.js';
 import { synthEngine } from '../audio/synthEngine.js';
-import { highlightFretboardEtudeEvent, highlightFretboardLivePitch } from './fretboardView.js';
+import {
+  clearFretboardLiveTrail,
+  highlightFretboardEtudeEvent,
+  highlightFretboardLivePitch
+} from './fretboardView.js';
 import { highlightEtudeStep } from './etudeView.js';
 import { highlightNotationStep } from './notationView.js';
 
 let targetLockStartMs = 0;
 let lastValidatedIdx = -1;
+let deviceWatcherAttached = false;
+
+export async function refreshAudioDevices() {
+  const devices = await pitchDetector.listInputDevices();
+  setState({ audioInputDevices: devices });
+  return devices;
+}
+
+export function initAudioDeviceWatcher() {
+  if (deviceWatcherAttached) return;
+  deviceWatcherAttached = true;
+  pitchDetector.watchDeviceChanges((devices) => {
+    setState({ audioInputDevices: devices });
+  });
+}
+
+/**
+ * Sleek Live Stage HUD perched right above the virtual fretboard whenever Mic or Line Mode is ON.
+ * Completely hidden when listening is OFF to preserve the clean Oud-Visualizer stage!
+ */
+export function renderLiveStageHud(state) {
+  const hud = document.getElementById('liveStageHud');
+  if (!hud) return;
+
+  if (!state.lineModeRunning) {
+    hud.hidden = true;
+    return;
+  }
+  hud.hidden = false;
+
+  const isTuner = state.lineHudMode !== 'microbend';
+  const srcLabel = state.lineInputMode === 'line'
+    ? `🔌 LINE · ${state.lineChannel.toUpperCase()}`
+    : '🎙 MIC';
+  const rateTxt = state.lineInputMeta?.sampleRate
+    ? `${(state.lineInputMeta.sampleRate / 1000).toFixed(1)}kHz`
+    : '';
+
+  const gaugeHtml = isTuner
+    ? `
+      <div class="stage-gauge-track is-tuner-mode">
+        <div class="stage-tuner-center-zone" title="±6¢"></div>
+        <span class="stage-gauge-tick" style="left:8%">−50¢</span>
+        <span class="stage-gauge-tick is-center" style="left:50%">0¢</span>
+        <span class="stage-gauge-tick" style="left:92%">+50¢</span>
+        <div class="stage-gauge-needle" id="stageLiveNeedle" style="left:50%;opacity:0.25"></div>
+      </div>
+    `
+    : `
+      <div class="stage-gauge-track is-bend-mode">
+        <div class="bend-zone-quarter" title="+50¢ (¼ tom)"></div>
+        <span class="stage-gauge-tick" style="left:16.7%">0¢</span>
+        <span class="stage-gauge-tick is-center" style="left:58.3%">+50¢ (¼)</span>
+        <span class="stage-gauge-tick" style="left:95%">+100¢</span>
+        <div class="stage-gauge-needle" id="stageLiveNeedle" style="left:16.7%;opacity:0.25"></div>
+      </div>
+    `;
+
+  const pegsHtml = isTuner
+    ? `
+      <div class="stage-tuner-pegs" id="stageTunerPegs">
+        ${state.customStringsQ.map((sq, idx) => {
+          const gStr = state.customStringsQ.length - idx;
+          return `
+            <button type="button" class="stage-peg-btn" data-sh-action="auditionString" data-q="${sq}" data-peg-idx="${idx}" title="${t(state.lang, 'stagePegAuditionTip')}">
+              <span class="stage-peg-num">${gStr}</span>
+              <strong>${qToNoteName(sq, true)}</strong>
+              <span class="stage-peg-delta" data-peg-delta="${idx}">—</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `
+    : '';
+
+  hud.innerHTML = `
+    <div class="stage-hud-top">
+      <div class="stage-hud-readout">
+        <span class="stage-hud-note" id="stageLiveNote">—</span>
+        <div class="stage-hud-meta-col">
+          <div class="stage-hud-badges">
+            <span class="mono-tag" id="stageLiveFreq">0.0 Hz</span>
+            <span class="soft-tag" id="stageLiveScaleTag">${t(state.lang, 'lineWaiting')}</span>
+          </div>
+          <span class="mono-tag stage-hud-advice" id="stageTunerAdvice">${srcLabel}${rateTxt ? ` · ${rateTxt}` : ''} · ${t(state.lang, isTuner ? 'tunerStripHint' : 'lineBendTip')}</span>
+        </div>
+      </div>
+
+      <div class="stage-hud-gauge-wrap">
+        ${gaugeHtml}
+        <div class="stage-vu-mini" aria-hidden="true">
+          <div class="stage-vu-fill" id="stageVuFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="stage-hud-actions">
+        <button type="button" class="btn-mini ${isTuner ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="tuner">${t(state.lang, 'hudModeTuner')}</button>
+        <button type="button" class="btn-mini ${!isTuner ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="microbend">${t(state.lang, 'hudModeBend')}</button>
+        <button type="button" class="btn-mini" data-sh-action="openConfig" title="${t(state.lang, 'dockInput')}">⚙</button>
+        <button type="button" class="btn-danger stage-stop-btn" data-sh-action="stop">■</button>
+      </div>
+    </div>
+    ${pegsHtml}
+  `;
+
+  hud.onclick = (e) => {
+    const btn = e.target.closest('button[data-sh-action]');
+    if (!btn) return;
+    const act = btn.dataset.shAction;
+    const st = getState();
+
+    if (act === 'stop') {
+      stopLineMode();
+    } else if (act === 'setHudMode') {
+      setState({ lineHudMode: btn.dataset.val });
+    } else if (act === 'openConfig') {
+      setState({ deckCompartment: st.deckCompartment === 'input' ? null : 'input' });
+    } else if (act === 'auditionString') {
+      synthEngine.pluckQ(Number(btn.dataset.q), { duration: 2.1, velocity: 0.36 });
+    }
+  };
+}
 
 export function renderLineModeView(state) {
   const container = document.getElementById('tabLineMode');
@@ -59,6 +186,8 @@ export function renderLineModeView(state) {
           <select id="selAudioInput" aria-label="${t(state.lang, 'lineDeviceLabel')}">${deviceOptions}</select>
         </div>
 
+        <button type="button" class="btn-mini" data-l-action="refreshDevices" title="${t(state.lang, 'lineRefreshDevices')}">↻</button>
+
         <div class="pill-row" role="group" aria-label="${t(state.lang, 'lineChannelLabel')}">
           <button type="button" class="btn-mini ${state.lineChannel === 'mix' ? 'active-mini' : ''}" data-l-action="setChannel" data-val="mix">L+R</button>
           <button type="button" class="btn-mini ${state.lineChannel === 'ch1' ? 'active-mini' : ''}" data-l-action="setChannel" data-val="ch1">Ch 1</button>
@@ -67,6 +196,10 @@ export function renderLineModeView(state) {
 
         <button type="button" class="btn-pill ${state.lineShowOnNeck ? 'active' : ''}" data-l-action="toggleNeckMirror">
           ${t(state.lang, 'lineMirrorNeck')}
+        </button>
+
+        <button type="button" class="btn-pill ${state.lineTrailOn ? 'active-teal' : ''}" data-l-action="toggleTrail">
+          ${t(state.lang, 'lineTrailLabel')}
         </button>
 
         <button type="button" class="btn-pill ${state.lineValidateEtude ? 'active-voicing' : ''}" data-l-action="toggleEtudeValidate">
@@ -106,7 +239,6 @@ export function renderLineModeView(state) {
       ${state.lineError ? `<p class="line-error-banner">${state.lineError}</p>` : ''}
 
       <div class="line-telemetry-grid">
-        <!-- Main 24-TET Readout Card -->
         <div class="telemetry-card">
           <span class="control-label">${t(state.lang, 'lineDetected24')}</span>
           <div class="detected-note-big" id="liveNoteBig">—</div>
@@ -116,7 +248,6 @@ export function renderLineModeView(state) {
           </div>
         </div>
 
-        <!-- Micro-Bend Precision Gauge (-20c .. +100c) -->
         <div class="telemetry-card bend-gauge-card">
           <div class="bend-gauge-head">
             <span class="control-label">${t(state.lang, 'lineBendGaugeTitle')}</span>
@@ -124,7 +255,6 @@ export function renderLineModeView(state) {
           </div>
 
           <div class="bend-gauge-track">
-            <!-- Target sweet-spot zone centered at +50c (58.3% along -20..+100 scale) -->
             <div class="bend-zone-quarter" title="+50¢ (¼ tom)"></div>
             <div class="bend-tick" style="left:16.67%"><span>0¢</span></div>
             <div class="bend-tick is-quarter" style="left:58.33%"><span>+50¢ (¼)</span></div>
@@ -135,7 +265,6 @@ export function renderLineModeView(state) {
           <p class="mono-tag" style="margin:6px 0 0" id="liveBendAnchorTip">${t(state.lang, 'lineBendTip')}</p>
         </div>
 
-        <!-- Etude Target Validator Card -->
         <div class="telemetry-card">
           <div class="bend-gauge-head">
             <span class="control-label">${t(state.lang, 'lineEtudeTargetTitle')}</span>
@@ -174,7 +303,6 @@ export function renderLineModeView(state) {
     </div>
   `;
 
-  // Bind device, gain & gate controls cleanly
   container.querySelector('#selAudioInput').onchange = (e) => {
     const devId = e.target.value;
     setState({ lineDeviceId: devId });
@@ -210,6 +338,8 @@ export function renderLineModeView(state) {
     if (act === 'toggleStart') {
       if (st.lineModeRunning) stopLineMode();
       else startLineMode();
+    } else if (act === 'refreshDevices') {
+      refreshAudioDevices();
     } else if (act === 'setMode') {
       const nextMode = btn.dataset.val;
       setState({ lineInputMode: nextMode });
@@ -220,8 +350,15 @@ export function renderLineModeView(state) {
       setState({ lineChannel: nextCh });
     } else if (act === 'toggleNeckMirror') {
       const next = !st.lineShowOnNeck;
-      if (!next) highlightFretboardLivePitch(null, st);
+      if (!next) {
+        clearFretboardLiveTrail();
+        highlightFretboardLivePitch(null, { ...st, lineShowOnNeck: false });
+      }
       setState({ lineShowOnNeck: next });
+    } else if (act === 'toggleTrail') {
+      const next = !st.lineTrailOn;
+      if (!next) clearFretboardLiveTrail();
+      setState({ lineTrailOn: next });
     } else if (act === 'toggleEtudeValidate') {
       const next = !st.lineValidateEtude;
       const startIdx = next && st.etudeActiveIdx < 0 ? 0 : st.etudeActiveIdx;
@@ -247,6 +384,7 @@ function getCurrentEtudeTargetEvent(state) {
 
 export async function startLineMode() {
   const st = getState();
+  clearFretboardLiveTrail();
   setState({ lineError: '' });
 
   try {
@@ -259,6 +397,7 @@ export async function startLineMode() {
       onFrame: (frame) => handleLivePitchFrame(frame),
       onEnded: () => {
         const cur = getState();
+        clearFretboardLiveTrail();
         highlightFretboardLivePitch(null, cur);
         setState({
           lineModeRunning: false,
@@ -289,8 +428,9 @@ export async function startLineMode() {
 
 export function stopLineMode() {
   pitchDetector.stop();
+  clearFretboardLiveTrail();
   const st = getState();
-  highlightFretboardLivePitch(null, st);
+  highlightFretboardLivePitch(null, { ...st, lineShowOnNeck: false });
   targetLockStartMs = 0;
   lastValidatedIdx = -1;
   setState({ lineModeRunning: false, lineInputMeta: null });
@@ -312,19 +452,22 @@ function updateLineHeaderBadge(running, pitch) {
 
 /**
  * High-frequency zero-thrash DOM updater called via requestAnimationFrame from YIN detector.
+ * Syncs Live Stage HUD, Deck VU meter, Virtual Fretboard Tracker/Trail, Tuner Pegs, Zen HUD & Etude Validator.
  */
 function handleLivePitchFrame({ rms, pitch }) {
   const st = getState();
+  const vuPct = Math.min(100, Math.round(Math.sqrt(rms) * 230));
+  const aboveGate = rms >= st.lineRmsGate;
 
-  // 1. Update input level meter
-  const fillEl = document.getElementById('lineLevelFill');
-  if (fillEl) {
-    const pct = Math.min(100, Math.round(Math.sqrt(rms) * 230));
-    fillEl.style.width = `${pct}%`;
-    fillEl.classList.toggle('is-above-gate', rms >= st.lineRmsGate);
-  }
+  // 1. Update all visible VU meters (Workbench, Upper Deck Compartment, Live Stage HUD)
+  ['lineLevelFill', 'deckLineLevelFill', 'stageVuFill'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.width = `${vuPct}%`;
+    el.classList.toggle('is-above-gate', aboveGate);
+  });
 
-  // 2. Mirror live note on fretboard SVG
+  // 2. Mirror live note + trail on virtual fretboard SVG (Horizontal & Vertical!)
   highlightFretboardLivePitch(pitch, st);
   updateLineHeaderBadge(st.lineModeRunning, pitch);
 
@@ -336,10 +479,21 @@ function handleLivePitchFrame({ rms, pitch }) {
   const anchorTipEl = document.getElementById('liveBendAnchorTip');
   const matchEl = document.getElementById('liveEtudeMatchStatus');
 
+  const stageNoteEl = document.getElementById('stageLiveNote');
+  const stageFreqEl = document.getElementById('stageLiveFreq');
+  const stageScaleEl = document.getElementById('stageLiveScaleTag');
+  const stageNeedleEl = document.getElementById('stageLiveNeedle');
+
   if (!pitch) {
     if (noteEl) noteEl.textContent = '—';
     if (freqEl) freqEl.textContent = '0.00 Hz';
     if (needleEl) needleEl.style.opacity = '0.25';
+    if (stageNoteEl) {
+      stageNoteEl.textContent = '—';
+      stageNoteEl.classList.remove('is-in-scale', 'is-root', 'is-micro', 'is-out');
+    }
+    if (stageFreqEl) stageFreqEl.textContent = '0.0 Hz';
+    if (stageNeedleEl) stageNeedleEl.style.opacity = '0.25';
     updateScordaturaTunerLive(null, st);
     targetLockStartMs = 0;
     return;
@@ -349,6 +503,7 @@ function handleLivePitchFrame({ rms, pitch }) {
   const scale = getActiveScale();
   const relIv = mod24(pitch.pc24 - st.rootQ);
   const inScale = scale.intervalsQ.includes(relIv);
+  const isRoot = relIv === 0;
   const c24 = Math.round(pitch.centsFrom24);
   const c24Txt = `${c24 >= 0 ? '+' : ''}${c24}¢`;
 
@@ -368,6 +523,29 @@ function handleLivePitchFrame({ rms, pitch }) {
     statusEl.style.color = inScale ? 'var(--accent-live)' : 'var(--text-muted)';
   }
 
+  // 3b. Update Live Stage HUD above the virtual fretboard
+  if (stageNoteEl) {
+    stageNoteEl.textContent = pitch.noteName24;
+    stageNoteEl.classList.toggle('is-root', isRoot);
+    stageNoteEl.classList.toggle('is-in-scale', inScale && !isRoot);
+    stageNoteEl.classList.toggle('is-micro', pitch.isQuarterTone && inScale);
+    stageNoteEl.classList.toggle('is-out', !inScale);
+  }
+  if (stageFreqEl) {
+    stageFreqEl.textContent = `${pitch.freq.toFixed(1)} Hz · ${c24Txt}`;
+  }
+  if (stageScaleEl) {
+    stageScaleEl.textContent = inScale
+      ? `${intervalQToLabel(relIv)} · ${t(st.lang, 'lineInScale')}`
+      : t(st.lang, 'lineOutOfScale');
+    stageScaleEl.style.borderColor = isRoot
+      ? 'var(--accent-root)'
+      : (inScale ? 'var(--accent-live)' : 'var(--accent-danger)');
+    stageScaleEl.style.color = isRoot
+      ? 'var(--accent-root)'
+      : (inScale ? 'var(--accent-live)' : 'var(--accent-danger)');
+  }
+
   // 4. Micro-Bend Precision Gauge (-20c .. +100c -> 0% .. 100%)
   const clampedBend = Math.max(-20, Math.min(100, pitch.bendCentsFromAnchor));
   const pctX = ((clampedBend + 20) / 120) * 100;
@@ -380,6 +558,29 @@ function handleLivePitchFrame({ rms, pitch }) {
     needleEl.classList.toggle('is-quarter-lock', inQuarterZone);
     needleEl.classList.toggle('is-zero-lock', inZeroZone);
   }
+
+  // Stage HUD needle: either Chromatic/Scordatura Tuner (-50..+50c) OR Micro-Bend (-20..+100c)
+  if (stageNeedleEl) {
+    if (st.lineHudMode === 'microbend') {
+      stageNeedleEl.style.left = `${pctX.toFixed(1)}%`;
+      stageNeedleEl.style.opacity = '1';
+      stageNeedleEl.classList.toggle('is-lock', inQuarterZone);
+      const stageAdv = document.getElementById('stageTunerAdvice');
+      if (stageAdv) {
+        const bRound = Math.round(pitch.bendCentsFromAnchor);
+        stageAdv.textContent = inQuarterZone
+          ? `${pitch.bendAnchorName} +${bRound}¢ · ${t(st.lang, 'lineQuarterLocked')}`
+          : `${pitch.bendAnchorName} ${bRound >= 0 ? '+' : ''}${bRound}¢ · ${t(st.lang, 'lineBendTip')}`;
+      }
+    } else {
+      const clampedTuner = Math.max(-50, Math.min(50, pitch.centsFrom12));
+      const tunerPct = ((clampedTuner + 50) / 100) * 100;
+      stageNeedleEl.style.left = `${tunerPct.toFixed(1)}%`;
+      stageNeedleEl.style.opacity = '1';
+      stageNeedleEl.classList.toggle('is-lock', Math.abs(pitch.centsFrom12) <= 6);
+    }
+  }
+
   const zenNote = document.getElementById('zenLiveNote');
   const zenNeedle = document.getElementById('zenBendNeedle');
   if (zenNote) {
@@ -399,10 +600,10 @@ function handleLivePitchFrame({ rms, pitch }) {
       : t(st.lang, 'lineBendTip');
   }
 
-  // 4b. Update 6-String Scordatura Tuner Strip
+  // 4b. Update Scordatura Tuner (both Stage HUD Peg Strip & Workbench Grid)
   updateScordaturaTunerLive(pitch, st);
 
-  // 5. Etude Target Real-Time Validation (Auto-Advance on ±16c pitch lock for 160ms)
+  // 5. Etude Target Real-Time Validation (Auto-Advance on ±18c pitch lock for 160ms)
   if (st.lineValidateEtude && st.currentEtude?.events?.length) {
     const events = st.currentEtude.events;
     const curIdx = st.etudeActiveIdx >= 0 ? st.etudeActiveIdx : 0;
@@ -413,7 +614,6 @@ function handleLivePitchFrame({ rms, pitch }) {
       24 - Math.abs(mod24(pitch.nearestQ - targetEv.q))
     ) * 50 + Math.abs(pitch.centsFrom24);
 
-    // Match exact pitch or octave-equivalent pitch class cleanly
     const isHit = diffCents <= 18 || pcDiffCents <= 18;
     const now = performance.now();
 
@@ -430,7 +630,6 @@ function handleLivePitchFrame({ rms, pitch }) {
         const nextIdx = (curIdx + 1) % events.length;
         const nextEv = events[nextIdx];
 
-        // Update all cursors + target card smoothly
         highlightEtudeStep(nextIdx);
         highlightNotationStep(nextIdx);
         highlightFretboardEtudeEvent(nextEv, st.microMode);
@@ -458,20 +657,27 @@ function handleLivePitchFrame({ rms, pitch }) {
   }
 }
 
-
 function updateScordaturaTunerLive(pitch, st) {
   const grid = document.getElementById('scordaturaTunerGrid');
   const adviceEl = document.getElementById('tunerLiveAdvice');
-  if (!grid) return;
+  const stagePegs = document.getElementById('stageTunerPegs');
+  const stageAdvice = st.lineHudMode !== 'microbend' ? document.getElementById('stageTunerAdvice') : null;
+  const stageNeedle = st.lineHudMode !== 'microbend' ? document.getElementById('stageLiveNeedle') : null;
 
   if (!pitch) {
-    grid.querySelectorAll('.tuner-str-card').forEach((card) => {
-      card.classList.remove('is-nearest', 'is-in-tune');
-    });
+    if (grid) {
+      grid.querySelectorAll('.tuner-str-card').forEach((card) => {
+        card.classList.remove('is-nearest', 'is-in-tune');
+      });
+    }
+    if (stagePegs) {
+      stagePegs.querySelectorAll('.stage-peg-btn').forEach((peg) => {
+        peg.classList.remove('is-nearest', 'is-in-tune');
+      });
+    }
     return;
   }
 
-  // Locate closest open string of active tuning within ±350 cents
   let bestIdx = -1;
   let bestDeltaCents = Infinity;
   st.customStringsQ.forEach((sq, idx) => {
@@ -485,32 +691,65 @@ function updateScordaturaTunerLive(pitch, st) {
   const withinRange = bestIdx >= 0 && Math.abs(bestDeltaCents) <= 350;
   const inTune = withinRange && Math.abs(bestDeltaCents) <= 6;
 
-  grid.querySelectorAll('.tuner-str-card').forEach((card) => {
-    const idx = Number(card.dataset.tunerIdx);
-    const isHit = withinRange && idx === bestIdx;
-    card.classList.toggle('is-nearest', isHit);
-    card.classList.toggle('is-in-tune', isHit && inTune);
-    const deltaEl = card.querySelector(`[data-tuner-delta="${idx}"]`);
-    if (deltaEl) {
-      if (isHit) {
-        const r = Math.round(bestDeltaCents);
-        deltaEl.textContent = inTune ? `✔ ${r >= 0 ? '+' : ''}${r}¢` : `${r >= 0 ? '+' : ''}${r}¢`;
-      } else {
-        deltaEl.textContent = '—';
-      }
-    }
-  });
-
-  if (adviceEl) {
-    if (!withinRange) {
-      adviceEl.textContent = t(st.lang, 'tunerStripHint');
-    } else if (inTune) {
-      const strName = qToNoteName(st.customStringsQ[bestIdx], true);
-      adviceEl.textContent = `✔ ${t(st.lang, 'inspString')} ${st.customStringsQ.length - bestIdx} (${strName}) · ${t(st.lang, 'tunerInTune')}`;
-    } else {
-      const strName = qToNoteName(st.customStringsQ[bestIdx], true);
-      const dir = bestDeltaCents < 0 ? t(st.lang, 'tunerTighten') : t(st.lang, 'tunerLoosen');
-      adviceEl.textContent = `${t(st.lang, 'inspString')} ${st.customStringsQ.length - bestIdx} (${strName}): ${dir} (${Math.round(bestDeltaCents)}¢)`;
-    }
+  // When locked close to a target open string in Tuner mode, point the Stage HUD needle straight at that string!
+  if (withinRange && stageNeedle && Math.abs(bestDeltaCents) <= 65) {
+    const clamped = Math.max(-50, Math.min(50, bestDeltaCents));
+    stageNeedle.style.left = `${(((clamped + 50) / 100) * 100).toFixed(1)}%`;
+    stageNeedle.style.opacity = '1';
+    stageNeedle.classList.toggle('is-lock', inTune);
   }
+
+  if (grid) {
+    grid.querySelectorAll('.tuner-str-card').forEach((card) => {
+      const idx = Number(card.dataset.tunerIdx);
+      const isHit = withinRange && idx === bestIdx;
+      card.classList.toggle('is-nearest', isHit);
+      card.classList.toggle('is-in-tune', isHit && inTune);
+      const deltaEl = card.querySelector(`[data-tuner-delta="${idx}"]`);
+      if (deltaEl) {
+        if (isHit) {
+          const r = Math.round(bestDeltaCents);
+          deltaEl.textContent = inTune ? `✔ ${r >= 0 ? '+' : ''}${r}¢` : `${r >= 0 ? '+' : ''}${r}¢`;
+        } else {
+          deltaEl.textContent = '—';
+        }
+      }
+    });
+  }
+
+  if (stagePegs) {
+    stagePegs.querySelectorAll('.stage-peg-btn').forEach((peg) => {
+      const idx = Number(peg.dataset.pegIdx);
+      const isHit = withinRange && idx === bestIdx;
+      peg.classList.toggle('is-nearest', isHit);
+      peg.classList.toggle('is-in-tune', isHit && inTune);
+      const deltaEl = peg.querySelector(`[data-peg-delta="${idx}"]`);
+      if (deltaEl) {
+        if (isHit) {
+          const r = Math.round(bestDeltaCents);
+          deltaEl.textContent = inTune ? '✔' : `${r >= 0 ? '+' : ''}${r}¢`;
+        } else {
+          deltaEl.textContent = '—';
+        }
+      }
+    });
+  }
+
+  let adviceText = t(st.lang, 'tunerStripHint');
+  if (withinRange) {
+    const strName = qToNoteName(st.customStringsQ[bestIdx], true);
+    const strNum = st.customStringsQ.length - bestIdx;
+    if (inTune) {
+      adviceText = `✔ ${t(st.lang, 'inspString')} ${strNum} (${strName}) · ${t(st.lang, 'tunerInTune')}`;
+    } else {
+      const dir = bestDeltaCents < 0 ? t(st.lang, 'tunerTighten') : t(st.lang, 'tunerLoosen');
+      adviceText = `${t(st.lang, 'inspString')} ${strNum} (${strName}): ${dir} (${Math.round(bestDeltaCents)}¢)`;
+    }
+  } else {
+    const c12 = Math.round(pitch.centsFrom12);
+    adviceText = `${pitch.nearest12Name} (${c12 >= 0 ? '+' : ''}${c12}¢)`;
+  }
+
+  if (adviceEl) adviceEl.textContent = adviceText;
+  if (stageAdvice) stageAdvice.textContent = adviceText;
 }

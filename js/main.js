@@ -35,7 +35,9 @@ import { renderHeaderMenuDrawer } from './views/headerMenuView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
 import { renderGlossaryView, refreshGlossaryListInPlace } from './views/glossaryView.js';
 import {
+  initAudioDeviceWatcher,
   renderLineModeView,
+  renderLiveStageHud,
   startLineMode,
   stopLineMode
 } from './views/lineModeView.js';
@@ -272,6 +274,12 @@ function renderAll(state, patch = null) {
       renderGlossaryView(state);
       return;
     }
+    if (keys.every((k) => ['lineHudMode', 'lineTrailOn', 'lineClampToWindow', 'lineShowOnNeck', 'lineChannel', 'audioInputDevices'].includes(k))) {
+      renderDeckPanel(state);
+      renderLiveStageHud(state);
+      renderLineModeView(state);
+      return;
+    }
     if (keys.length === 1 && keys[0] === 'rhythmBpm') {
       updateRhythmBadge(state);
       return;
@@ -291,6 +299,7 @@ function renderAll(state, patch = null) {
     }
     if (keys.length === 1 && keys[0] === 'playingPcQ') {
       renderFretboard(state);
+  renderLiveStageHud(state);
       return;
     }
     if (keys.every((k) => k === 'deckCompartment' || k === 'headerMenuOpen' || k === 'themeDrawerOpen' || k === 'snapshotsOpen')) {
@@ -336,6 +345,7 @@ function renderAll(state, patch = null) {
     }
     if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoomOverride', 'fretOrientationMode', 'viewportTick'].includes(k))) {
       renderFretboard(state);
+  renderLiveStageHud(state);
       renderDeckPanel(state);
       renderZenBar(state);
       renderMobileBottomNav(state);
@@ -349,6 +359,7 @@ function renderAll(state, patch = null) {
       renderMobileBottomNav(state);
       if ('theme' in patch) {
         renderFretboard(state);
+  renderLiveStageHud(state);
       }
       return;
     }
@@ -372,11 +383,13 @@ function renderAll(state, patch = null) {
     if (keys.every((k) => k.startsWith('scala'))) {
       renderScalaView(state);
       renderFretboard(state);
+  renderLiveStageHud(state);
       return;
     }
     if (keys.every((k) => ['radarPivotFilter', 'radarCompareScaleId', 'radarCompareRootQ', 'radarOverlayOnNeck'].includes(k))) {
       renderRadarView(state);
       renderFretboard(state);
+  renderLiveStageHud(state);
       return;
     }
   }
@@ -388,6 +401,7 @@ function renderAll(state, patch = null) {
   renderZenBar(state);
   renderDeckPanel(state);
   renderFretboard(state);
+  renderLiveStageHud(state);
   renderNotationPanel(state);
   renderLabTabs(state);
   renderRadarView(state);
@@ -507,10 +521,7 @@ function bindGlobalControls() {
       setState({ zenMode: !st.zenMode });
     } else if (key === 'l') {
       if (st.lineModeRunning) stopLineMode();
-      else {
-        setState({ activeTab: 'line', workspaceOpen: true });
-        startLineMode();
-      }
+      else startLineMode();
     } else if (key === 'd') {
       const next = !st.droneOn;
       synthEngine.updateDrone(next, st.rootQ, st.droneFifth);
@@ -556,6 +567,7 @@ function boot() {
   bindGlobalControls();
   bindResponsiveViewportListener();
   initMobilePwaInstall();
+  initAudioDeviceWatcher();
   renderAll(initial);
   registerServiceWorker();
 }

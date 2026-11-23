@@ -597,42 +597,121 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
   triggerFretboardStringPluck({ strIdx: ev.strIdx, x: pt.x, y: pt.y, color: 'var(--accent-etude)' });
 }
 
+const LIVE_TRAIL_MAX = 5;
+const LIVE_TRAIL_TTL_MS = 3800;
+let liveNoteTrail = [];
+let lastLiveQ = null;
+
+export function clearFretboardLiveTrail() {
+  liveNoteTrail = [];
+  lastLiveQ = null;
+}
+
 export function highlightFretboardLivePitch(pitch, state) {
   const layer = document.getElementById('livePitchLayer');
   if (!layer) return;
-  if (!pitch || !state.lineShowOnNeck) {
+  if (!state.lineShowOnNeck) {
     layer.innerHTML = '';
     return;
   }
 
+  const now = performance.now();
   const numStrings = state.customStringsQ.length;
   const layout = getBoardLayout(state, numStrings);
-  const hits = [];
+  const winMin = Math.min(state.fretWindowStart, layout.maxFrets);
+  const winMax = Math.min(layout.maxFrets, state.fretWindowStart + state.fretWindowSpan);
 
-  for (let strIdx = 0; strIdx < numStrings; strIdx += 1) {
-    const openQ = state.customStringsQ[strIdx];
-    const stepQ = pitch.nearestQ - openQ;
-    if (stepQ < 0 || stepQ > layout.maxFrets * 2) continue;
-    if (stepQ === 1 && state.microMode === 'bend') continue;
-    hits.push(layout.pointFromStepQ(strIdx, stepQ, state.microMode));
+  // Prune expired trail notes
+  liveNoteTrail = liveNoteTrail.filter((item) => now - item.ts <= LIVE_TRAIL_TTL_MS);
+
+  const findHitsForQ = (qVal) => {
+    const allHits = [];
+    for (let strIdx = 0; strIdx < numStrings; strIdx += 1) {
+      const openQ = state.customStringsQ[strIdx];
+      const stepQ = qVal - openQ;
+      if (stepQ < 0 || stepQ > layout.maxFrets * 2) continue;
+      if (stepQ === 1 && state.microMode === 'bend') continue;
+      const fretNum = Math.floor(stepQ / 2);
+      const pt = layout.pointFromStepQ(strIdx, stepQ, state.microMode);
+      allHits.push({ ...pt, strIdx, fretNum });
+    }
+    if (state.fretWindowOn && state.lineClampToWindow && allHits.length > 1) {
+      const inWin = allHits.filter((h) => h.fretNum >= winMin && h.fretNum <= winMax);
+      if (inWin.length) return inWin;
+    }
+    return allHits;
+  };
+
+  const parts = [];
+
+  // 1. Render fading melodic trail of recent notes played on the real instrument
+  if (state.lineTrailOn && liveNoteTrail.length) {
+    liveNoteTrail.forEach((entry) => {
+      if (pitch && entry.q === pitch.nearestQ) return;
+      const ageRatio = Math.max(0, 1 - (now - entry.ts) / LIVE_TRAIL_TTL_MS);
+      const opacity = (0.14 + ageRatio * 0.42).toFixed(2);
+      const trailHits = findHitsForQ(entry.q);
+      trailHits.forEach(({ x, y }) => {
+        parts.push(
+          `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="15.5" fill="${entry.stroke}" fill-opacity="${(Number(opacity) * 0.25).toFixed(2)}" stroke="${entry.stroke}" stroke-opacity="${opacity}" stroke-width="2" stroke-dasharray="3 3"/>`
+        );
+      });
+    });
   }
 
-  if (!hits.length) {
-    layer.innerHTML = '';
+  if (!pitch) {
+    layer.innerHTML = parts.join('');
+    lastLiveQ = null;
     return;
   }
 
-  const inTune = Math.abs(pitch.centsFrom24) <= 14;
-  const stroke = inTune ? 'var(--accent-live)' : 'var(--accent-micro)';
+  const hits = findHitsForQ(pitch.nearestQ);
+  if (!hits.length) {
+    layer.innerHTML = parts.join('');
+    return;
+  }
 
-  layer.innerHTML = hits
-    .map(
-      ({ x, y }) => `
-        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="19" fill="none" stroke="${stroke}" stroke-width="3" stroke-dasharray="5 3" class="live-pitch-ring"/>
-        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${stroke}" fill-opacity="0.35"/>
-      `
-    )
-    .join('');
+  // Determine musical role color relative to active Scale / Maqam
+  const scale = getActiveScale();
+  const relIv = mod24(pitch.pc24 - state.rootQ);
+  const inScale = scale.intervalsQ.includes(relIv);
+  const isRoot = relIv === 0;
+  const inTune = Math.abs(pitch.centsFrom24) <= 14;
+
+  let stroke = 'var(--accent-danger)';
+  if (isRoot) stroke = 'var(--accent-root)';
+  else if (pitch.isQuarterTone && inScale) stroke = 'var(--accent-micro)';
+  else if (inScale) stroke = 'var(--accent-live)';
+
+  // Record note into trail when pitch changes stably
+  if (state.lineTrailOn && pitch.nearestQ !== lastLiveQ) {
+    lastLiveQ = pitch.nearestQ;
+    liveNoteTrail = [
+      { q: pitch.nearestQ, stroke, ts: now },
+      ...liveNoteTrail.filter((item) => item.q !== pitch.nearestQ)
+    ].slice(0, LIVE_TRAIL_MAX);
+  }
+
+  const cRound = Math.round(pitch.centsFrom24);
+  const cLabel = `${pitch.noteShort24} ${cRound >= 0 ? '+' : ''}${cRound}¢`;
+
+  hits.forEach(({ x, y }, idx) => {
+    parts.push(`
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="20.5" fill="${stroke}" fill-opacity="0.18" stroke="${stroke}" stroke-width="${inTune ? 3.2 : 2.5}" stroke-dasharray="${inTune ? 'none' : '5 3'}" class="live-pitch-ring"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14.5" fill="none" stroke="#ffffff" stroke-opacity="0.65" stroke-width="1.2"/>
+    `);
+    // Attach crisp floating pitch tag to the primary hit (or up to 2 hits) without visual clutter
+    if (idx === 0) {
+      const tagY = Math.max(18, y - 24);
+      const tagW = Math.max(48, cLabel.length * 6.4);
+      parts.push(`
+        <rect x="${(x - tagW / 2).toFixed(1)}" y="${(tagY - 10).toFixed(1)}" width="${tagW.toFixed(1)}" height="15" rx="4" fill="#0d1017" stroke="${stroke}" stroke-width="1.1"/>
+        <text x="${x.toFixed(1)}" y="${(tagY + 1).toFixed(1)}" text-anchor="middle" fill="${stroke}" font-size="8.8" font-weight="800" font-family="ui-monospace, monospace">${cLabel}</text>
+      `);
+    }
+  });
+
+  layer.innerHTML = parts.join('');
 }
 
 export function renderFretboard(state) {

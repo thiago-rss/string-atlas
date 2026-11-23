@@ -3,17 +3,17 @@
  * ========================================================================= */
 
 /* --- Symmetric 4-Column Studio Compartment Rails (Desktop & Mobile) --- */
-.compartment-dock.rail-grid-4 {
+.compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4 {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
   margin-top: 0;
   padding-top: 0;
   border-top: none;
   width: 100%;
 }
 
-.compartment-dock.rail-grid-4 .dock-btn {
+.compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4 .dock-btn {
   width: 100%;
   min-width: 0;
   justify-content: space-between;
@@ -306,11 +306,11 @@
     padding: 7px;
   }
 
-  .compartment-dock.rail-grid-4 {
+  .compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4 {
     gap: 5px;
   }
 
-  .compartment-dock.rail-grid-4 .dock-btn {
+  .compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4 .dock-btn {
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -331,7 +331,7 @@
   }
 
   .dock-label-full,
-  .compartment-dock.rail-grid-4 .dock-meta {
+  .compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4 .dock-meta {
     display: none;
   }
 
@@ -487,10 +487,10 @@
     justify-content: space-between;
   }
 
-  /* Clean Oud-Visualizer-Style 4-Button Mobile Bottom Action Bar */
+  /* Clean Oud-Visualizer-Style 5-Button Mobile Bottom Action Bar (with 1-Tap Mic/Line) */
   .mobile-bottom-nav {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 4px;
     position: fixed;
     left: 0;
@@ -551,7 +551,7 @@
     border-right-width: 4px;
   }
 
-  [data-theme="rock70s"] .compartment-dock.rail-grid-4,
+  [data-theme="rock70s"] .compartment-dock.rail-grid-5, .compartment-dock.rail-grid-4,
   [data-theme="rock70s"] .zone-pills-group.zone-grid-4 {
     padding: 4px;
     gap: 4px;
@@ -563,5 +563,57 @@
 
   body[data-zen="true"] .app-shell {
     padding-bottom: 14px;
+  }
+}
+
+/* Phase 8.6 Mobile Live Mic/Interface Refinements */
+@media (max-width: 980px) {
+  .compartment-dock.rail-grid-5 .dock-btn {
+    padding: 7px 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .compartment-dock.rail-grid-5 {
+    gap: 4px;
+  }
+
+  .compartment-dock.rail-grid-5 .dock-btn {
+    padding: 7px 2px !important;
+  }
+
+  .dock-label-short {
+    font-size: 0.64rem;
+  }
+
+  .mob-nav-btn.is-live {
+    color: var(--accent-live);
+    background: rgba(82, 242, 156, 0.16);
+    border-color: var(--accent-live);
+  }
+
+  .stage-hud-top {
+    gap: 8px;
+  }
+
+  .stage-hud-readout {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .stage-hud-note {
+    font-size: 1.25rem;
+    min-width: 54px;
+    padding: 3px 6px;
+  }
+
+  .stage-hud-gauge-wrap {
+    width: 100%;
+    min-width: 100%;
+    order: 3;
+  }
+
+  .stage-tuner-pegs {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

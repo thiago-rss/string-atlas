@@ -96,7 +96,7 @@ const state = {
   headerMenuOpen: false,
   pwaInstallable: false,
   themeDrawerOpen: false,
-  deckCompartment: null, // null | 'setup' | 'neck' | 'audio'
+  deckCompartment: null, // null | 'setup' | 'neck' | 'input' | 'audio'
   notationOpen: false,
   workspaceOpen: false,
   zenMode: false,
@@ -204,6 +204,9 @@ const state = {
   lineInputGain: 1.4,
   lineRmsGate: 0.014,
   lineShowOnNeck: true,
+  lineTrailOn: true,
+  lineClampToWindow: true,
+  lineHudMode: 'tuner', // 'tuner' | 'microbend'
   lineValidateEtude: false,
   lineError: '',
 

@@ -1,11 +1,11 @@
 /**
- * Mobile-First 4-Button Thumb Action Bar & PWA Install Controller (v8.2)
- * Directly inspired by Oud Visualizer's clean 4-action mobile bar:
- *   ▶ Tocar  |  🎛 Escala  |  🧭 Estúdio  |  ☰ Opções
+ * Mobile-First 5-Button Thumb Action Bar & PWA Install Controller (v8.6 — Oud Visualizer Model)
+ *   ▶ Tocar  |  🎛 Escala  |  🎙 Mic/Line (1-tap ON/OFF)  |  🧭 Estúdio  |  ☰ Opções
  */
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
 import { toggleScalePlayback } from './deckPanelsView.js';
+import { startLineMode, stopLineMode } from './lineModeView.js';
 
 let deferredInstallPrompt = null;
 let installReady = false;
@@ -50,30 +50,41 @@ export function renderMobileBottomNav(state) {
       id: 'play',
       icon: state.isPlayingScale ? '■' : '▶',
       label: state.isPlayingScale ? t(state.lang, 'mobNavStop') : t(state.lang, 'mobNavPlay'),
-      active: Boolean(state.isPlayingScale)
+      active: Boolean(state.isPlayingScale),
+      live: false
     },
     {
       id: 'setup',
       icon: '🎛',
       label: t(state.lang, 'mobNavScale'),
-      active: state.deckCompartment === 'setup'
+      active: state.deckCompartment === 'setup',
+      live: false
+    },
+    {
+      id: 'mic',
+      icon: state.lineModeRunning ? '●' : '🎙',
+      label: state.lineModeRunning ? 'LIVE' : t(state.lang, 'mobNavMic'),
+      active: Boolean(state.lineModeRunning || state.deckCompartment === 'input'),
+      live: Boolean(state.lineModeRunning)
     },
     {
       id: 'studio',
       icon: '🧭',
       label: t(state.lang, 'mobNavStudio'),
-      active: Boolean(state.workspaceOpen)
+      active: Boolean(state.workspaceOpen),
+      live: false
     },
     {
       id: 'menu',
       icon: '☰',
       label: t(state.lang, 'headerMenuBtn'),
-      active: Boolean(state.headerMenuOpen || state.themeDrawerOpen || state.snapshotsOpen)
+      active: Boolean(state.headerMenuOpen || state.themeDrawerOpen || state.snapshotsOpen),
+      live: false
     }
   ];
 
   nav.innerHTML = items.map((it) => `
-    <button type="button" class="mob-nav-btn ${it.active ? 'is-active' : ''}" data-mob-nav="${it.id}">
+    <button type="button" class="mob-nav-btn ${it.active ? 'is-active' : ''} ${it.live ? 'is-live' : ''}" data-mob-nav="${it.id}">
       <span class="mob-nav-icon">${it.icon}</span>
       <span class="mob-nav-label">${it.label}</span>
     </button>
@@ -98,6 +109,15 @@ export function renderMobileBottomNav(state) {
       if (opening) {
         requestAnimationFrame(() => {
           document.querySelector('.deck-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    } else if (id === 'mic') {
+      if (st.lineModeRunning) {
+        stopLineMode();
+      } else {
+        startLineMode();
+        requestAnimationFrame(() => {
+          document.querySelector('.fretboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       }
     } else if (id === 'studio') {

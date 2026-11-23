@@ -195,6 +195,16 @@ class PitchDetectorService {
     }
   }
 
+  watchDeviceChanges(onChange) {
+    if (!navigator.mediaDevices?.addEventListener || typeof onChange !== 'function') return () => {};
+    const handler = async () => {
+      const devices = await this.listInputDevices();
+      onChange(devices);
+    };
+    navigator.mediaDevices.addEventListener('devicechange', handler);
+    return () => navigator.mediaDevices.removeEventListener('devicechange', handler);
+  }
+
   setGate(rmsGate) {
     this.rmsGate = Math.max(0.003, Math.min(0.12, rmsGate));
   }
