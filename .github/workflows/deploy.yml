@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  validate:
-    name: Integrity & DSP Unit Checks
+  build:
+    name: Validate & Build PWA Artifact
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,22 +32,12 @@ jobs:
       - name: Run String Atlas Integrity Validator
         run: node scripts/check.mjs
 
-  deploy:
-    name: Deploy PWA to GitHub Pages
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Configure GitHub Pages
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Assemble clean static PWA bundle
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
         run: |
           mkdir -p _site
           cp index.html manifest.json sw.js .nojekyll _site/
@@ -55,10 +45,20 @@ jobs:
           if [ -d docs ]; then cp -r docs _site/; fi
 
       - name: Upload Pages artifact
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: "_site"
 
+  deploy:
+    name: Deploy PWA to GitHub Pages
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
