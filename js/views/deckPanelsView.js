@@ -13,6 +13,7 @@ import { getThemeById } from '../core/themes.js';
 import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import { buildScalaPlayFrequencies, getScalaPresetById, parseSclText } from '../core/scalaEngine.js';
 import {
+  A4_PRESETS,
   NOTE_NAMES_24,
   formatStepFormula,
   intervalQToLabel,
@@ -35,6 +36,7 @@ import {
 import { synthEngine } from '../audio/synthEngine.js';
 import { pitchDetector } from '../audio/pitchDetector.js';
 import { refreshAudioDevices, startLineMode, stopLineMode } from './lineModeView.js';
+import { showToast } from './toastView.js';
 
 function groupScalesBySubfamily(scales, lang) {
   const isEn = lang === 'en';
@@ -499,7 +501,8 @@ export function renderDeckPanel(state) {
 
           <div class="pill-row">
             <span class="control-label">${t(state.lang, 'hudModeLabel')}:</span>
-            <button type="button" class="btn-mini ${state.lineHudMode !== 'microbend' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="tuner">${t(state.lang, 'hudModeTuner')}</button>
+            <button type="button" class="btn-mini ${state.lineHudMode === 'tuner' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="tuner">${t(state.lang, 'hudModeTuner')}</button>
+            <button type="button" class="btn-mini ${state.lineHudMode === 'strobe' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="strobe">${t(state.lang, 'hudModeStrobe')}</button>
             <button type="button" class="btn-mini ${state.lineHudMode === 'microbend' ? 'active-mini' : ''}" data-action="setLineHudMode" data-val="microbend">${t(state.lang, 'hudModeBend')}</button>
           </div>
         </div>
@@ -547,6 +550,7 @@ export function renderDeckPanel(state) {
 
           <div class="pill-row">
             ${[
+              { id: 'karplus', key: 'fxKarplus' },
               { id: 'clean', key: 'fxClean' },
               { id: 'swell', key: 'fxSwell' },
               { id: 'crunch', key: 'fxCrunch' },
@@ -588,6 +592,22 @@ export function renderDeckPanel(state) {
             <span>${t(state.lang, 'fxMasterVol')}</span>
             <input type="range" id="rngFxVol" min="0.15" max="1.0" step="0.05" value="${state.masterVolume}" />
             <strong id="valFxVol">${Math.round(state.masterVolume * 100)}%</strong>
+          </label>
+        </div>
+
+        <div class="comp-subsection a4-ref-row">
+          <span class="control-label">${t(state.lang, 'refA4Label')}</span>
+          <div class="pill-row">
+            ${A4_PRESETS.map((hz) => `
+              <button type="button" class="btn-mini ${Math.abs((state.refA4Hz || 440) - hz) < 0.05 ? 'active-mini' : ''}" data-action="setRefA4" data-val="${hz}">
+                ${hz} Hz
+              </button>
+            `).join('')}
+          </div>
+          <label class="bpm-control">
+            <span>A4</span>
+            <input type="range" id="rngRefA4" min="415" max="446" step="0.5" value="${state.refA4Hz || 440}" />
+            <strong id="valRefA4">${(state.refA4Hz || 440).toFixed((state.refA4Hz || 440) % 1 === 0 ? 0 : 1)} Hz</strong>
           </label>
         </div>
       </div>
@@ -643,7 +663,7 @@ export function renderDeckPanel(state) {
           <span class="dock-label-full">${t(state.lang, 'dockAudio')}</span>
           <span class="dock-label-short">${t(state.lang, 'dockAudioShort')}</span>
         </span>
-        <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
+        <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}${state.refA4Hz && state.refA4Hz !== 440 ? ` · ${state.refA4Hz}Hz` : ''}</span>
         ${audioLiveDot}
       </button>
 
@@ -750,6 +770,22 @@ export function renderDeckPanel(state) {
   bindFxRange('#rngFxTremDepth', '#valFxTremDepth', 'tremoloDepth', (v) => `${Math.round(v * 100)}%`);
   bindFxRange('#rngFxTremRate', '#valFxTremRate', 'tremoloRate', (v) => `${v.toFixed(1)}Hz`);
   bindFxRange('#rngFxVol', '#valFxVol', 'masterVolume', (v) => `${Math.round(v * 100)}%`);
+
+  const rngA4 = panel.querySelector('#rngRefA4');
+  const valA4 = panel.querySelector('#valRefA4');
+  if (rngA4) {
+    rngA4.oninput = (e) => {
+      const hz = Number(e.target.value);
+      if (valA4) valA4.textContent = `${hz.toFixed(hz % 1 === 0 ? 0 : 1)} Hz`;
+      setState({ refA4Hz: hz });
+      const cur = getState();
+      if (cur.droneOn) synthEngine.updateDrone(true, cur.rootQ, cur.droneFifth);
+    };
+    rngA4.onchange = () => {
+      rngA4.blur();
+      setState({ refA4Hz: Number(rngA4.value) });
+    };
+  }
 
   // Delegated click actions
   panel.onclick = (e) => {
@@ -891,9 +927,17 @@ export function renderDeckPanel(state) {
       setState({ harmonicsOn: !st.harmonicsOn });
     } else if (action === 'toggleScalaOverlay') {
       setState({ scalaOverlayOn: !st.scalaOverlayOn, inspectedNote: null });
+    } else if (action === 'setRefA4') {
+      const hz = Number(btn.dataset.val);
+      setState({ refA4Hz: hz });
+      const cur = getState();
+      if (cur.droneOn) synthEngine.updateDrone(true, cur.rootQ, cur.droneFifth);
+      synthEngine.pluckQ(114, { duration: 1.1, velocity: 0.3 });
+      showToast(`${t(cur.lang, 'toastRefA4')}: A4 = ${hz} Hz`, 'info');
     } else if (action === 'recoverAudio') {
       synthEngine.recoverAudioEngine().then(() => {
         synthEngine.pluckQ(96 + mod24(st.rootQ), { duration: 1.0, velocity: 0.28 });
+        showToast(t(st.lang, 'toastAudioRecovered'), 'success');
       });
     } else if (action === 'tonePreset') {
       const preset = btn.dataset.val;
@@ -913,6 +957,7 @@ export function renderDeckPanel(state) {
         stringCount: created.stringsQ.length,
         customStringsQ: [...created.stringsQ]
       });
+      showToast(`${t(st.lang, 'toastScordSaved')}: ${created.short}`, 'success');
     } else if (action === 'deleteCustomTuning') {
       const delId = btn.dataset.id;
       const nextList = (st.customTunings || []).filter((x) => x.id !== delId);
@@ -923,6 +968,7 @@ export function renderDeckPanel(state) {
         patch.customStringsQ = [...fallback.stringsQ];
       }
       setState(patch);
+      showToast(t(st.lang, 'toastScordDeleted'), 'info');
     } else if (action === 'resetTuning') {
       const tun = getActiveTuning();
       setState({ customStringsQ: [...tun.stringsQ] });

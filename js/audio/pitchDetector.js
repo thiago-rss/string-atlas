@@ -6,7 +6,7 @@
  * - Extended low-frequency range down to 34 Hz (8-String E1 41.2 Hz, A1 55 Hz, B1 61.7 Hz)
  * - Adapts seamlessly to 16 kHz / 24 kHz Bluetooth HFP rates as well as 44.1 / 48 / 96 kHz interfaces
  */
-import { A4_HZ, A4_Q, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
+import { A4_Q, getReferenceA4, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
 import {
   disableLockScreenMediaSession,
   isBluetoothDeviceLabel,
@@ -129,8 +129,8 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
 /**
  * Converts a detected frequency (Hz) into rich 24-TET & 12-TET micro-bend telemetry.
  */
-export function analyzePitch24(freq) {
-  const exactQ = A4_Q + 24 * Math.log2(freq / A4_HZ);
+export function analyzePitch24(freq, a4Hz = getReferenceA4()) {
+  const exactQ = A4_Q + 24 * Math.log2(freq / a4Hz);
   const nearestQ = Math.round(exactQ);
   const centsFrom24 = (exactQ - nearestQ) * 50;
 
@@ -144,6 +144,7 @@ export function analyzePitch24(freq) {
 
   return {
     freq,
+    a4Hz,
     exactQ,
     nearestQ,
     pc24: mod24(nearestQ),
@@ -156,8 +157,86 @@ export function analyzePitch24(freq) {
     bendAnchorQ,
     bendAnchorName: qToNoteName(bendAnchorQ, true),
     bendCentsFromAnchor,
-    targetFreq24: qToFreq(nearestQ)
+    targetFreq24: qToFreq(nearestQ, a4Hz)
   };
+}
+
+/**
+ * Adaptive Pitch Stabilizer for Low Bass (E1/A1/B1) & Micro-Bend Readability:
+ * - Median window (7 frames < 115 Hz, 5 frames otherwise) rejects single-frame octave glitches
+ * - Exponential smoothing calms needle jitter without lagging fast note changes (> 70c snaps instantly)
+ * - Hysteresis deadband prevents note-label flickering near ±25c / ±50c boundaries
+ */
+export class PitchStabilizer {
+  constructor() {
+    this.history = [];
+    this.smoothedFreq = null;
+    this.lockedQ = null;
+    this.silenceFrames = 0;
+  }
+
+  reset() {
+    this.history = [];
+    this.smoothedFreq = null;
+    this.lockedQ = null;
+    this.silenceFrames = 0;
+  }
+
+  push(rawFreq, a4Hz = getReferenceA4()) {
+    if (!rawFreq) {
+      this.silenceFrames += 1;
+      if (this.history.length > 0) this.history.shift();
+      if (this.silenceFrames >= 6) {
+        this.smoothedFreq = null;
+        this.lockedQ = null;
+      }
+      return null;
+    }
+
+    this.silenceFrames = 0;
+    const isLowBass = rawFreq < 115;
+    const winSize = isLowBass ? 7 : 5;
+    this.history.push(rawFreq);
+    while (this.history.length > winSize) this.history.shift();
+
+    const sorted = [...this.history].sort((a, b) => a - b);
+    const medianFreq = sorted[Math.floor(sorted.length / 2)];
+
+    if (this.smoothedFreq === null) {
+      this.smoothedFreq = medianFreq;
+    } else {
+      const jumpCents = Math.abs(1200 * Math.log2(medianFreq / this.smoothedFreq));
+      if (jumpCents > 70) {
+        this.smoothedFreq = medianFreq;
+        this.history = [medianFreq];
+        this.lockedQ = null;
+      } else {
+        const alpha = isLowBass ? 0.22 : 0.36;
+        this.smoothedFreq = this.smoothedFreq + alpha * (medianFreq - this.smoothedFreq);
+      }
+    }
+
+    const analysis = analyzePitch24(this.smoothedFreq, a4Hz);
+
+    if (this.lockedQ !== null && analysis.nearestQ !== this.lockedQ) {
+      const distFromLockedCents = Math.abs((analysis.exactQ - this.lockedQ) * 50);
+      if (distFromLockedCents < 31) {
+        analysis.nearestQ = this.lockedQ;
+        analysis.pc24 = mod24(this.lockedQ);
+        analysis.noteName24 = qToNoteName(this.lockedQ, true);
+        analysis.noteShort24 = qToNoteName(this.lockedQ, false);
+        analysis.isQuarterTone = mod24(this.lockedQ) % 2 !== 0;
+        analysis.centsFrom24 = (analysis.exactQ - this.lockedQ) * 50;
+        analysis.targetFreq24 = qToFreq(this.lockedQ, a4Hz);
+      } else {
+        this.lockedQ = analysis.nearestQ;
+      }
+    } else {
+      this.lockedQ = analysis.nearestQ;
+    }
+
+    return analysis;
+  }
 }
 
 class PitchDetectorService {
@@ -175,7 +254,7 @@ class PitchDetectorService {
     this.rmsGate = 0.014;
     this.inputGain = 1.4;
     this.channel = 'mix'; // 'mix' | 'ch1' | 'ch2'
-    this.history = [];
+    this.stabilizer = new PitchStabilizer();
     this.onFrame = null;
     this.onEnded = null;
   }
@@ -272,7 +351,7 @@ class PitchDetectorService {
     this.channel = ['mix', 'ch1', 'ch2'].includes(channel) ? channel : 'mix';
     this.onFrame = onFrame;
     this.onEnded = onEnded;
-    this.history = [];
+    this.stabilizer.reset();
 
     // Switch iOS audio session to duplex mode cleanly before opening mic/interface
     setIOSAudioSessionType('play-and-record');
@@ -352,16 +431,7 @@ class PitchDetectorService {
         this.analyser.getFloatTimeDomainData(this.timeBuf);
         const raw = detectPitchYIN(this.timeBuf, this.ctx.sampleRate, this.rmsGate);
 
-        let analysis = null;
-        if (raw.freq) {
-          this.history.push(raw.freq);
-          if (this.history.length > 5) this.history.shift();
-          const sorted = [...this.history].sort((a, b) => a - b);
-          const medianFreq = sorted[Math.floor(sorted.length / 2)];
-          analysis = analyzePitch24(medianFreq);
-        } else if (this.history.length > 0) {
-          this.history.shift();
-        }
+        const analysis = this.stabilizer.push(raw.freq, getReferenceA4());
 
         if (this.onFrame) {
           this.onFrame({
@@ -420,7 +490,7 @@ class PitchDetectorService {
     this.source = null;
     this.gainNode = null;
     this.analyser = null;
-    this.history = [];
+    this.stabilizer.reset();
 
     // Restore stereo A2DP / mute-switch-friendly playback session on iOS
     setIOSAudioSessionType('playback');

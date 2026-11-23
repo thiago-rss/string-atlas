@@ -2,6 +2,7 @@
  * Reactive Unidirectional Store v5.0
  */
 import { DB } from '../core/database.js';
+import { setReferenceA4 } from '../core/theory24.js';
 import { VALID_THEME_IDS } from '../core/themes.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
@@ -30,6 +31,7 @@ function savePrefs(state) {
         theme: state.theme,
         tuningId: state.tuningId,
         tonePreset: state.tonePreset,
+        refA4Hz: state.refA4Hz,
         completedLessons: state.completedLessons,
         earStats: state.earStats,
         leftHanded: state.leftHanded
@@ -62,6 +64,7 @@ export function getEffectiveFretZoom(st = state) {
 }
 
 const saved = loadSavedPrefs();
+const initialRefA4 = setReferenceA4(saved.refA4Hz || 440);
 const hashPayload = typeof window !== 'undefined' ? decodeSessionHash(window.location.hash) : null;
 
 const validScaleIds = new Set(DB.scales.map((s) => s.id));
@@ -206,7 +209,7 @@ const state = {
   lineShowOnNeck: true,
   lineTrailOn: true,
   lineClampToWindow: true,
-  lineHudMode: 'tuner', // 'tuner' | 'microbend'
+  lineHudMode: 'tuner', // 'tuner' | 'strobe' | 'microbend'
   lineValidateEtude: false,
   lineError: '',
 
@@ -230,7 +233,8 @@ const state = {
 
   // Phase 6: Studio Electric Guitar Tone & FX Rack
   fxOpen: false,
-  tonePreset: ['clean', 'swell', 'crunch', 'fuzz'].includes(saved.tonePreset) ? saved.tonePreset : 'clean',
+  refA4Hz: initialRefA4,
+  tonePreset: ['karplus', 'clean', 'swell', 'crunch', 'fuzz'].includes(saved.tonePreset) ? saved.tonePreset : 'clean',
   delayMix: 0.22,
   delayTime: 0.28,
   tremoloDepth: 0.0,
@@ -436,6 +440,9 @@ export function setState(patch) {
   if ('activeTab' in patch && !('workspaceOpen' in patch)) {
     state.workspaceOpen = true;
   }
+  if ('refA4Hz' in patch) {
+    patch = { ...patch, refA4Hz: setReferenceA4(patch.refA4Hz) };
+  }
   Object.assign(state, patch);
 
   const patchKeys = Object.keys(patch);
@@ -457,7 +464,7 @@ export function setState(patch) {
   if ('customTunings' in patch) {
     saveCustomTunings(state.customTunings);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'refA4Hz' in patch || 'earStats' in patch || 'leftHanded' in patch) {
     savePrefs(state);
   }
 

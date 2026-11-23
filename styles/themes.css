@@ -1795,3 +1795,82 @@ body[data-zen="true"] .footer-ornament-bar {
 
 [data-theme="bluenote"] .stage-title::before,
 [data-theme="bluenote"] .section-heading > span:first-child::before { content: "◉"; }
+
+/* =========================================================================
+ * Phase 8.8 UX Polish: Native color-scheme, Light-World Contrast & Mobile Perf
+ * ========================================================================= */
+
+[data-theme="layl"],
+[data-theme="rock70s"],
+[data-theme="doom"],
+[data-theme="djent"],
+[data-theme="shoegaze"],
+[data-theme="bluenote"] {
+  color-scheme: dark;
+}
+
+[data-theme="nahar"],
+[data-theme="experimental"],
+[data-theme="brazilian"],
+[data-theme="kintsugi"] {
+  color-scheme: light;
+}
+
+/* Crisp select & input readability across all 4 light worlds */
+[data-theme="nahar"] select,
+[data-theme="nahar"] input[type="text"],
+[data-theme="nahar"] input[type="search"],
+[data-theme="nahar"] input[type="number"],
+[data-theme="experimental"] select,
+[data-theme="experimental"] input[type="text"],
+[data-theme="experimental"] input[type="search"],
+[data-theme="experimental"] input[type="number"],
+[data-theme="brazilian"] select,
+[data-theme="brazilian"] input[type="text"],
+[data-theme="brazilian"] input[type="search"],
+[data-theme="brazilian"] input[type="number"],
+[data-theme="kintsugi"] select,
+[data-theme="kintsugi"] input[type="text"],
+[data-theme="kintsugi"] input[type="search"],
+[data-theme="kintsugi"] input[type="number"] {
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* High-contrast Live Stage HUD & Pegs on light themes (Nahar, Avant, Brasilidade, Kintsugi) */
+[data-theme="nahar"] .live-stage-hud,
+[data-theme="experimental"] .live-stage-hud,
+[data-theme="brazilian"] .live-stage-hud,
+[data-theme="kintsugi"] .live-stage-hud {
+  box-shadow: 0 6px 18px rgba(34, 26, 16, 0.14);
+}
+
+[data-theme="nahar"] .stage-tuner-center-zone,
+[data-theme="experimental"] .stage-tuner-center-zone,
+[data-theme="brazilian"] .stage-tuner-center-zone,
+[data-theme="kintsugi"] .stage-tuner-center-zone {
+  background: rgba(24, 122, 103, 0.18);
+}
+
+[data-theme="nahar"] .stage-peg-btn.is-in-tune,
+[data-theme="experimental"] .stage-peg-btn.is-in-tune,
+[data-theme="brazilian"] .stage-peg-btn.is-in-tune,
+[data-theme="kintsugi"] .stage-peg-btn.is-in-tune {
+  background: rgba(24, 122, 103, 0.16);
+}
+
+[data-theme="nahar"] .sa-toast,
+[data-theme="experimental"] .sa-toast,
+[data-theme="brazilian"] .sa-toast,
+[data-theme="kintsugi"] .sa-toast {
+  box-shadow: 0 10px 24px rgba(30, 22, 14, 0.16);
+}
+
+/* Relieve GPU blur overhead on mobile Safari for Shoegaze panels */
+@media (max-width: 768px) {
+  [data-theme="shoegaze"] .panel {
+    backdrop-filter: none;
+    background-color: rgba(20, 13, 35, 0.96);
+  }
+}

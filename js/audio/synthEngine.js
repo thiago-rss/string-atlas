@@ -28,6 +28,86 @@ function makeDriveCurve(amount, asymmetric = false) {
   return curve;
 }
 
+
+/**
+ * Pure Karplus-Strong Physical Plucked-String Waveguide Synthesizer (v8.8)
+ * - Uses 1st-order Thiran allpass fractional delay for exact 24-TET & Scala (.scl) pitch accuracy
+ * - Pick-position comb filtering (~22% from bridge) + frequency-aware string damping
+ */
+export function synthesizeKarplusStrongSamples(freq, sampleRate = 48000, durationSec = 1.65) {
+  const safeFreq = Math.max(36, Math.min(2200, Number(freq) || 220));
+  const totalSamples = Math.max(256, Math.floor(sampleRate * Math.max(0.25, Math.min(3.2, durationSec))));
+  const out = new Float32Array(totalSamples);
+
+  const exactDelay = sampleRate / safeFreq - 0.5;
+  let N = Math.floor(exactDelay);
+  let frac = exactDelay - N;
+  if (frac < 0.12 && N > 4) {
+    N -= 1;
+    frac += 1;
+  }
+  N = Math.max(4, N);
+  const allpassC = (1 - frac) / (1 + frac);
+
+  const rawNoise = new Float32Array(N);
+  let lpPrev = 0;
+  let mean = 0;
+  for (let i = 0; i < N; i += 1) {
+    const w = Math.random() * 2 - 1;
+    lpPrev = 0.58 * w + 0.42 * lpPrev;
+    rawNoise[i] = lpPrev;
+    mean += lpPrev;
+  }
+  mean /= N;
+
+  const ring = new Float32Array(N);
+  const pickDelay = Math.max(1, Math.min(N - 1, Math.round(N * 0.22)));
+  let peak = 1e-6;
+  for (let i = 0; i < N; i += 1) {
+    const a = rawNoise[i] - mean;
+    const b = i >= pickDelay ? (rawNoise[i - pickDelay] - mean) : 0;
+    const v = a - 0.65 * b;
+    ring[i] = v;
+    if (Math.abs(v) > peak) peak = Math.abs(v);
+  }
+  const norm = 0.9 / peak;
+  for (let i = 0; i < N; i += 1) {
+    ring[i] *= norm;
+  }
+
+  const decay = safeFreq < 110 ? 0.9982 : (safeFreq < 300 ? 0.9968 : (safeFreq < 650 ? 0.9952 : 0.993));
+  const blend = safeFreq < 140 ? 0.42 : 0.5;
+
+  let idx = 0;
+  let prevSample = ring[N - 1];
+  let apPrevIn = 0;
+  let apPrevOut = 0;
+  const fadeSamples = Math.min(Math.floor(sampleRate * 0.08), Math.floor(totalSamples * 0.2));
+  const fadeStart = totalSamples - fadeSamples;
+
+  for (let i = 0; i < totalSamples; i += 1) {
+    const cur = ring[idx];
+    const damped = decay * ((1 - blend) * cur + blend * prevSample);
+    prevSample = cur;
+
+    const apOut = allpassC * (damped - apPrevOut) + apPrevIn;
+    apPrevIn = damped;
+    apPrevOut = apOut;
+
+    ring[idx] = apOut;
+    idx += 1;
+    if (idx >= N) idx = 0;
+
+    let sample = apOut;
+    if (i >= fadeStart && fadeSamples > 0) {
+      sample *= (totalSamples - i) / fadeSamples;
+    }
+    out[i] = Math.max(-1, Math.min(1, sample));
+  }
+
+  return out;
+}
+
 class SynthEngine {
   constructor() {
     this.ctx = null;
@@ -47,10 +127,11 @@ class SynthEngine {
 
     this.droneNodes = null;
     this.scaleTimerIds = [];
+    this.ksBufferCache = new Map();
 
     // Phase 6 Studio Tone & FX State
     this.fxConfig = {
-      tonePreset: 'clean', // 'clean' | 'swell' | 'crunch' | 'fuzz'
+      tonePreset: 'clean', // 'karplus' | 'clean' | 'swell' | 'crunch' | 'fuzz'
       delayMix: 0.22,
       delayTime: 0.28,
       tremoloDepth: 0.0,
@@ -224,7 +305,12 @@ class SynthEngine {
     let asym = false;
     let fb = 0.26;
 
-    if (cfg.tonePreset === 'swell') {
+    if (cfg.tonePreset === 'karplus') {
+      pre = 1.08;
+      post = 1.05;
+      cabHz = 7600;
+      fb = 0.24;
+    } else if (cfg.tonePreset === 'swell') {
       pre = 1.0;
       post = 1.05;
       cabHz = 4400;
@@ -261,9 +347,49 @@ class SynthEngine {
     this.masterGain.gain.setTargetAtTime(Math.max(0.1, Math.min(1.0, cfg.masterVolume)), now, 0.03);
   }
 
+  getKarplusBuffer(ctx, freq, duration) {
+    const key = `${Math.round(freq * 10)}:${Math.round(duration * 10)}:${ctx.sampleRate}`;
+    if (this.ksBufferCache.has(key)) {
+      return this.ksBufferCache.get(key);
+    }
+    const samples = synthesizeKarplusStrongSamples(freq, ctx.sampleRate, duration);
+    const buf = ctx.createBuffer(1, samples.length, ctx.sampleRate);
+    buf.getChannelData(0).set(samples);
+    if (this.ksBufferCache.size >= 40) {
+      const oldestKey = this.ksBufferCache.keys().next().value;
+      this.ksBufferCache.delete(oldestKey);
+    }
+    this.ksBufferCache.set(key, buf);
+    return buf;
+  }
+
   pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false, when = null, bendFromRatio = null } = {}) {
     const ctx = this.ensureContext();
     const now = when !== null ? when : ctx.currentTime;
+
+    if (!harmonicBell && this.fxConfig.tonePreset === 'karplus') {
+      const effDur = Math.max(0.75, Math.min(2.6, duration * 1.15));
+      const src = ctx.createBufferSource();
+      src.buffer = this.getKarplusBuffer(ctx, freq, effDur);
+      if (bendFromRatio) {
+        src.playbackRate.setValueAtTime(bendFromRatio, now);
+        src.playbackRate.exponentialRampToValueAtTime(1.0, now + 0.085);
+      }
+
+      const bodyEq = ctx.createBiquadFilter();
+      bodyEq.type = 'peaking';
+      bodyEq.frequency.value = 195;
+      bodyEq.Q.value = 1.1;
+      bodyEq.gain.value = 3.2;
+
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.setValueAtTime(Math.min(0.85, velocity * 1.65), now);
+
+      src.connect(bodyEq).connect(voiceGain).connect(this.guitarBus);
+      src.start(now);
+      src.stop(now + effDur + 0.04);
+      return;
+    }
     const isSwell = !harmonicBell && this.fxConfig.tonePreset === 'swell';
     const effDuration = isSwell ? Math.max(duration, 2.2) : duration;
 

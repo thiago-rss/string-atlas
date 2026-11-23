@@ -33,6 +33,7 @@ import {
   setState
 } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { showToast } from './toastView.js';
 
 function ensureSyncedGauges(state) {
   const n = state.customStringsQ.length;
@@ -867,6 +868,7 @@ export function renderTensionView(state) {
         tensionPackId: curB.packId,
         tensionGauges: curB.gauges.map((x) => ({ ...x }))
       });
+      showToast(t(st.lang, 'toastAppliedB'), 'success');
     } else if (act === 'recommendB') {
       const curB = ensureSyncedCompareB(st);
       const recB = recommendBalancedGauges({
@@ -918,9 +920,7 @@ export function renderTensionView(state) {
       if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(lines.join('\n')).catch(() => {});
       }
-      const orig = btn.textContent;
-      btn.textContent = t(st.lang, 'tensCopiedSetup');
-      setTimeout(() => { btn.textContent = orig; }, 1600);
+      showToast(t(st.lang, 'tensCopiedSetup'), 'success');
     } else if (act === 'saveCustomTuning') {
       const inp = container.querySelector('#inpTensCustomTunName');
       const created = createCustomTuning({ name: inp?.value || '', stringsQ: st.customStringsQ });
@@ -932,6 +932,7 @@ export function renderTensionView(state) {
         stringCount: created.stringsQ.length,
         customStringsQ: [...created.stringsQ]
       });
+      showToast(`${t(st.lang, 'toastScordSaved')}: ${created.short}`, 'success');
     } else if (act === 'setUnit') {
       setState({ tensionUnit: btn.dataset.val });
     } else if (act === 'toggleMultiScale') {
@@ -995,9 +996,7 @@ export function renderTensionView(state) {
       if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(lines.join('\n')).catch(() => {});
       }
-      const orig = btn.textContent;
-      btn.textContent = t(st.lang, 'tensCopiedSetup');
-      setTimeout(() => { btn.textContent = orig; }, 1600);
+      showToast(t(st.lang, 'tensCopiedSetup'), 'success');
     }
   };
 }

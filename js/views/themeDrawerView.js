@@ -13,6 +13,7 @@ import {
 } from '../core/themeGraphics.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
+import { showToast } from './toastView.js';
 
 const INLAY_PREVIEW_GLYPH = {
   pearl_dot: '●',
@@ -170,4 +171,5 @@ export function cycleNextTheme() {
   const idx = THEMES.findIndex((th) => th.id === st.theme);
   const next = THEMES[(idx + 1) % THEMES.length];
   setState({ theme: next.id });
+  showToast(st.lang === 'en' ? next.nameEn : next.namePt, 'info', 1700);
 }

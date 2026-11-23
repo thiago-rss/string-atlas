@@ -262,6 +262,17 @@ function renderAll(state, patch = null) {
       updateVampBadge(state);
       return;
     }
+    if (keys.length === 1 && keys[0] === 'refA4Hz') {
+      if (document.activeElement?.id !== 'rngRefA4') {
+        renderDeckPanel(state);
+      }
+      renderLiveStageHud(state);
+      renderLineModeView(state);
+      renderTensionView(state);
+      renderScalaView(state);
+      renderInspector(state);
+      return;
+    }
     if (keys.length === 1 && keys[0] === 'scaleSearch') {
       refreshScaleBrowserInPlace(state);
       return;

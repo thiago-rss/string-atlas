@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.7.0",
+  "version": "8.8.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.7.0: 10 Sculptural Musical Worlds — Shoegaze Mist & Offset, Kintsugi Ceramic & Silence, Blue Note Vinyl & Brass)",
+  "description": "String Atlas — Modal Guitar Lab (v8.8.0: Configurable A4 Reference 415–446 Hz, Karplus-Strong Physical String Synthesis, Adaptive Bass Stabilizer & Optical Strobe Tuner, Global Toasts & 10-World UX Contrast Polish)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

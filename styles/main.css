@@ -3563,3 +3563,178 @@ body[data-zen="true"] .header-menu-drawer {
   font-size: 0.68rem;
   font-weight: 700;
 }
+
+/* =========================================================================
+ * Phase 8.8 Additions: Acoustic Refinement (A4 / Strobe) & UX Polish (Toasts / Focus)
+ * ========================================================================= */
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-root);
+  outline-offset: 2px;
+}
+
+.a4-ref-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Optical Strobe Tuner inside Live Stage HUD */
+.stage-strobe-track {
+  position: relative;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1.5px solid var(--border-strong);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-strobe-bands {
+  position: absolute;
+  inset: 0;
+  opacity: 0.48;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--accent-root) 0px,
+    var(--accent-root) 18px,
+    transparent 18px,
+    transparent 48px
+  );
+  background-size: 48px 100%;
+  transition: opacity 0.12s ease;
+}
+
+.stage-strobe-track.is-flat .stage-strobe-bands {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--accent-scale) 0px,
+    var(--accent-scale) 18px,
+    transparent 18px,
+    transparent 48px
+  );
+  opacity: 0.62;
+}
+
+.stage-strobe-track.is-sharp .stage-strobe-bands {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--accent-micro) 0px,
+    var(--accent-micro) 18px,
+    transparent 18px,
+    transparent 48px
+  );
+  opacity: 0.62;
+}
+
+.stage-strobe-track.is-locked {
+  border-color: var(--accent-live);
+  box-shadow: 0 0 12px rgba(82, 242, 156, 0.28);
+}
+
+.stage-strobe-track.is-locked .stage-strobe-bands {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--accent-live) 0px,
+    var(--accent-live) 22px,
+    transparent 22px,
+    transparent 48px
+  );
+  opacity: 0.52;
+}
+
+.stage-strobe-center-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text-primary);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.stage-strobe-status {
+  position: relative;
+  z-index: 2;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.stage-strobe-track.is-locked .stage-strobe-status {
+  color: var(--accent-live);
+  border-color: var(--accent-live);
+}
+
+/* Global Toast Notification Stack */
+.sa-toast-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  max-width: min(340px, calc(100vw - 28px));
+}
+
+.sa-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sa-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.sa-toast.is-success {
+  border-color: var(--accent-live);
+}
+
+.sa-toast.is-warn {
+  border-color: var(--accent-danger);
+}
+
+.sa-toast-icon {
+  font-size: 0.88rem;
+  color: var(--accent-root);
+  flex-shrink: 0;
+}
+
+.sa-toast.is-success .sa-toast-icon {
+  color: var(--accent-live);
+}
+
+.sa-toast.is-warn .sa-toast-icon {
+  color: var(--accent-danger);
+}

@@ -6,6 +6,23 @@
 export const Q_PER_OCTAVE = 24;
 export const A4_Q = 138;
 export const A4_HZ = 440;
+export const A4_MIN_HZ = 415;
+export const A4_MAX_HZ = 446;
+export const A4_PRESETS = [415, 432, 440, 442];
+
+let currentReferenceA4 = A4_HZ;
+
+export function getReferenceA4() {
+  return currentReferenceA4;
+}
+
+export function setReferenceA4(hz) {
+  const num = Number(hz);
+  if (!Number.isFinite(num)) return currentReferenceA4;
+  const clamped = Math.max(A4_MIN_HZ, Math.min(A4_MAX_HZ, Math.round(num * 2) / 2));
+  currentReferenceA4 = clamped;
+  return currentReferenceA4;
+}
 
 export const NOTE_NAMES_24 = [
   'C', 'C½♯', 'C♯', 'D½♭',
@@ -72,8 +89,8 @@ export function mod24(n) {
   return ((n % Q_PER_OCTAVE) + Q_PER_OCTAVE) % Q_PER_OCTAVE;
 }
 
-export function qToFreq(q) {
-  return A4_HZ * Math.pow(2, (q - A4_Q) / Q_PER_OCTAVE);
+export function qToFreq(q, a4Hz = currentReferenceA4) {
+  return a4Hz * Math.pow(2, (q - A4_Q) / Q_PER_OCTAVE);
 }
 
 export function qToPitchClass(q) {

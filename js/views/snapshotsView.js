@@ -10,6 +10,7 @@ import { t } from '../core/i18n.js';
 import { sanitizeCustomTuning } from '../core/customTunings.js';
 import { findTuningById, getActiveScale, getActiveTuning, getEffectiveFretZoom, getEffectiveOrientation, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { showToast } from './toastView.js';
 import { toggleVampPlayback, stopVampPlayback } from './vampView.js';
 
 export function renderSnapshotsDrawer(state) {
@@ -77,9 +78,7 @@ export function renderSnapshotsDrawer(state) {
       if (navigator.clipboard?.writeText) {
         navigator.clipboard.writeText(url).catch(() => {});
       }
-      const orig = btn.textContent;
-      btn.textContent = t(st.lang, 'snapCopiedUrl');
-      setTimeout(() => { btn.textContent = orig; }, 1600);
+      showToast(t(st.lang, 'snapCopiedUrl'), 'success');
     } else if (act === 'save') {
       const inp = drawer.querySelector('#inpSnapName');
       const sc = getActiveScale();
@@ -94,6 +93,7 @@ export function renderSnapshotsDrawer(state) {
         payload: extractShareablePayload(st)
       };
       setState({ snapshots: [newSnap, ...st.snapshots] });
+      showToast(`${t(st.lang, 'toastSnapSaved')}: ${name}`, 'success');
     } else if (act === 'delete') {
       const idx = Number(btn.dataset.idx);
       setState({ snapshots: st.snapshots.filter((_, i) => i !== idx) });
@@ -116,6 +116,7 @@ export function renderSnapshotsDrawer(state) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      showToast(t(st.lang, 'toastBackupExported'), 'success');
     } else if (act === 'importBackup') {
       const fileInp = drawer.querySelector('#inpImportBackup');
       if (fileInp) fileInp.click();
@@ -142,6 +143,7 @@ export function renderSnapshotsDrawer(state) {
           if (Array.isArray(parsed.completedLessons)) patch.completedLessons = parsed.completedLessons;
           if (parsed.earStats && typeof parsed.earStats === 'object') patch.earStats = parsed.earStats;
           setState(patch);
+          showToast(t(getState().lang, 'toastBackupImported'), 'success');
         } catch {
           // Ignore malformed JSON gracefully
         }

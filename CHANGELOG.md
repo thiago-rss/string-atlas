@@ -2,6 +2,14 @@
 
 Todas as entregas estruturais do projeto, da fundação 24-TET ao lançamento PWA de produção (`v8.4.0`).
 
+## [8.8.0] — 2026-11-23 · Refinamento Acústico & Polimento de UX
+### Adicionado
+- **Diapasão Global `A4` Configurável (`415–446 Hz` em `theory24.js`, `deckPanelsView.js`, `store.js`):** presets rápidos (`415`, `432`, `440`, `442 Hz`) e slider fino no compartimento `🔊 Áudio & FX`, recalculando em cascata síntese, Drone, Scala `.scl`, calculadora de tensão e afinador YIN com persistência em `localStorage`.
+- **Timbre Físico *Karplus-Strong* (`Corda Física` em `synthEngine.js`):** síntese física por guia de onda com atraso fracionário *allpass* de 1ª ordem (precisão 24-TET/Scala), filtro pente de palheta, amortecimento adaptativo por frequência, ressonância de corpo e cache LRU de buffers.
+- **Estabilizador Adaptativo de Graves (`PitchStabilizer`) & Modo Estroboscópico (`Estrobo`):** janela mediana adaptativa (7 quadros abaixo de `115 Hz`), suavização exponencial com *snap* instantâneo em saltos `> 70¢`, histerese de troca de nota e faixas ópticas estroboscópicas no HUD Vivo que travam paradas em verde dentro de `±4¢`.
+- **Sistema Global de Notificações (*Toasts* em `toastView.js`):** feedback discreto e temático para salvar/excluir scordaturas, copiar links/relatórios, aplicar Setup B, alternar designs (`T`), exportar PNG/SVG, ajustar `A4`, silenciar áudio (`Esc`) e reativar áudio mobile.
+- **Polimento de Contraste nos 10 Mundos & Manual `v8.8.0`:** `color-scheme` nativo para `<select>`/scrollbars, contraste reforçado nos 4 temas claros (*Nahar*, *Avant*, *Brasilidade*, *Kintsugi*), anéis `:focus-visible`, alívio de `backdrop-filter` do *Shoegaze* no Safari mobile e manual PDF atualizado em `docs/manual_do_usuario.pdf`.
+
 ## [8.7.0] — 2026-11-23 · Galeria Expandida: 10 Mundos Visuais Esculturais
 ### Adicionado
 - **Shoegaze · Névoa & Offset (`shoegaze`):** atmosfera 4AD/anos 90 em índigo e ameixa com rosa-quartzo e azul-lunar, inlays de blocos perolados de guitarra *offset* (`offset_block`), marcadores com halo *bloom* (`bloom`), medalhão de fita magnética e cantoneiras de ondas de *reverb*.

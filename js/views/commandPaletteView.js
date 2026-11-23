@@ -14,6 +14,7 @@ import { GLOSSARY_TERMS } from '../core/glossary.js';
 import { t } from '../core/i18n.js';
 import { findTuningById, getAllTunings, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { showToast } from './toastView.js';
 import { rhythmEngine } from '../audio/rhythmEngine.js';
 import { stopEtudePlayback } from './etudeView.js';
 import { stopVampPlayback } from './vampView.js';
@@ -527,6 +528,11 @@ export function renderAudioTransportDock(state) {
  * Global Panic Button (Esc): halts every running audio generator cleanly in 1 shot.
  */
 export function stopAllAudioEngines() {
+  const prev = getState();
+  const wasActive = Boolean(
+    prev.droneOn || prev.isPlayingScale || prev.etudePlaying ||
+    prev.vampPlaying || prev.rhythmPlaying || prev.lineModeRunning
+  );
   synthEngine.stopScaleSequence();
   synthEngine.stopDrone();
   stopEtudePlayback();
@@ -546,4 +552,5 @@ export function stopAllAudioEngines() {
     vampPlaying: false
   });
   updateRhythmBadge(getState());
+  if (wasActive) showToast(t(prev.lang, 'toastAllStopped'), 'info', 1600);
 }

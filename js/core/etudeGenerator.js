@@ -5,6 +5,7 @@
  */
 import {
   SPECTRAL_HARMONICS,
+  getReferenceA4,
   mod24,
   qToFreq,
   qToNoteName,
@@ -499,7 +500,7 @@ function buildHarmonicWeaveEtude({ pool, stringsQ, length, direction, rng }) {
       const openQ = stringsQ[hStrIdx];
       const hFreq = qToFreq(openQ) * h.ratio;
       // Approximate nearest 24-TET pitch for staff rendering
-      const approxQ = Math.round(138 + 24 * Math.log2(hFreq / 440));
+      const approxQ = Math.round(138 + 24 * Math.log2(hFreq / getReferenceA4()));
       out.push({
         kind: 'harmonic',
         strIdx: hStrIdx,

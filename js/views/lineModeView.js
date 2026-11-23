@@ -20,6 +20,8 @@ import { highlightNotationStep } from './notationView.js';
 
 let targetLockStartMs = 0;
 let lastValidatedIdx = -1;
+let strobePhasePx = 0;
+let lastStrobeTs = 0;
 let deviceWatcherAttached = false;
 
 export async function refreshAudioDevices() {
@@ -50,16 +52,29 @@ export function renderLiveStageHud(state) {
   }
   hud.hidden = false;
 
-  const isTuner = state.lineHudMode !== 'microbend';
+  const hudMode = ['tuner', 'strobe', 'microbend'].includes(state.lineHudMode) ? state.lineHudMode : 'tuner';
+  const isTuner = hudMode === 'tuner';
+  const isStrobe = hudMode === 'strobe';
+  const isTuningView = isTuner || isStrobe;
   const srcLabel = state.lineInputMode === 'line'
     ? `🔌 LINE · ${state.lineChannel.toUpperCase()}`
     : '🎙 MIC';
   const rateTxt = state.lineInputMeta?.sampleRate
     ? `${(state.lineInputMeta.sampleRate / 1000).toFixed(1)}kHz`
     : '';
+  const a4Tag = state.refA4Hz && state.refA4Hz !== 440 ? ` · A4=${state.refA4Hz}Hz` : '';
 
-  const gaugeHtml = isTuner
-    ? `
+  let gaugeHtml = '';
+  if (isStrobe) {
+    gaugeHtml = `
+      <div class="stage-strobe-track" id="stageStrobeTrack" aria-label="Strobe Tuner">
+        <div class="stage-strobe-bands" id="stageStrobeBands"></div>
+        <div class="stage-strobe-center-mark"></div>
+        <span class="stage-strobe-status" id="stageStrobeStatus">${t(state.lang, 'strobeIdle')}</span>
+      </div>
+    `;
+  } else if (isTuner) {
+    gaugeHtml = `
       <div class="stage-gauge-track is-tuner-mode">
         <div class="stage-tuner-center-zone" title="±6¢"></div>
         <span class="stage-gauge-tick" style="left:8%">−50¢</span>
@@ -67,8 +82,9 @@ export function renderLiveStageHud(state) {
         <span class="stage-gauge-tick" style="left:92%">+50¢</span>
         <div class="stage-gauge-needle" id="stageLiveNeedle" style="left:50%;opacity:0.25"></div>
       </div>
-    `
-    : `
+    `;
+  } else {
+    gaugeHtml = `
       <div class="stage-gauge-track is-bend-mode">
         <div class="bend-zone-quarter" title="+50¢ (¼ tom)"></div>
         <span class="stage-gauge-tick" style="left:16.7%">0¢</span>
@@ -77,8 +93,9 @@ export function renderLiveStageHud(state) {
         <div class="stage-gauge-needle" id="stageLiveNeedle" style="left:16.7%;opacity:0.25"></div>
       </div>
     `;
+  }
 
-  const pegsHtml = isTuner
+  const pegsHtml = isTuningView
     ? `
       <div class="stage-tuner-pegs" id="stageTunerPegs">
         ${state.customStringsQ.map((sq, idx) => {
@@ -104,7 +121,7 @@ export function renderLiveStageHud(state) {
             <span class="mono-tag" id="stageLiveFreq">0.0 Hz</span>
             <span class="soft-tag" id="stageLiveScaleTag">${t(state.lang, 'lineWaiting')}</span>
           </div>
-          <span class="mono-tag stage-hud-advice" id="stageTunerAdvice">${srcLabel}${rateTxt ? ` · ${rateTxt}` : ''} · ${t(state.lang, isTuner ? 'tunerStripHint' : 'lineBendTip')}</span>
+          <span class="mono-tag stage-hud-advice" id="stageTunerAdvice">${srcLabel}${rateTxt ? ` · ${rateTxt}` : ''}${a4Tag} · ${t(state.lang, isTuningView ? 'tunerStripHint' : 'lineBendTip')}</span>
         </div>
       </div>
 
@@ -117,7 +134,8 @@ export function renderLiveStageHud(state) {
 
       <div class="stage-hud-actions">
         <button type="button" class="btn-mini ${isTuner ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="tuner">${t(state.lang, 'hudModeTuner')}</button>
-        <button type="button" class="btn-mini ${!isTuner ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="microbend">${t(state.lang, 'hudModeBend')}</button>
+        <button type="button" class="btn-mini ${isStrobe ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="strobe">${t(state.lang, 'hudModeStrobe')}</button>
+        <button type="button" class="btn-mini ${hudMode === 'microbend' ? 'active-mini' : ''}" data-sh-action="setHudMode" data-val="microbend">${t(state.lang, 'hudModeBend')}</button>
         <button type="button" class="btn-mini" data-sh-action="openConfig" title="${t(state.lang, 'dockInput')}">⚙</button>
         <button type="button" class="btn-danger stage-stop-btn" data-sh-action="stop">■</button>
       </div>
@@ -494,6 +512,7 @@ function handleLivePitchFrame({ rms, pitch }) {
     }
     if (stageFreqEl) stageFreqEl.textContent = '0.0 Hz';
     if (stageNeedleEl) stageNeedleEl.style.opacity = '0.25';
+    updateStrobeDisplay(null, st.lang);
     updateScordaturaTunerLive(null, st);
     targetLockStartMs = 0;
     return;
@@ -691,7 +710,11 @@ function updateScordaturaTunerLive(pitch, st) {
   const withinRange = bestIdx >= 0 && Math.abs(bestDeltaCents) <= 350;
   const inTune = withinRange && Math.abs(bestDeltaCents) <= 6;
 
-  // When locked close to a target open string in Tuner mode, point the Stage HUD needle straight at that string!
+  // Point needle OR strobe smoothly at the closest open string when within ±65c, otherwise chromatic 12-TET!
+  const strobeDelta = (withinRange && Math.abs(bestDeltaCents) <= 65) ? bestDeltaCents : pitch.centsFrom12;
+  if (st.lineHudMode === 'strobe') {
+    updateStrobeDisplay(strobeDelta, st.lang);
+  }
   if (withinRange && stageNeedle && Math.abs(bestDeltaCents) <= 65) {
     const clamped = Math.max(-50, Math.min(50, bestDeltaCents));
     stageNeedle.style.left = `${(((clamped + 50) / 100) * 100).toFixed(1)}%`;
@@ -752,4 +775,45 @@ function updateScordaturaTunerLive(pitch, st) {
 
   if (adviceEl) adviceEl.textContent = adviceText;
   if (stageAdvice) stageAdvice.textContent = adviceText;
+}
+
+/**
+ * Drives the Optical Strobe Tuner band phase in real time:
+ * - Flat (< -4c): drifts smoothly left; Sharp (> +4c): drifts smoothly right
+ * - Locked (<= 4c): freezes motionless & illuminates emerald green
+ */
+function updateStrobeDisplay(deltaCents, lang) {
+  const track = document.getElementById('stageStrobeTrack');
+  const bands = document.getElementById('stageStrobeBands');
+  const statusEl = document.getElementById('stageStrobeStatus');
+  if (!track || !bands) return;
+
+  const now = performance.now();
+  const dt = lastStrobeTs ? Math.min(0.08, (now - lastStrobeTs) / 1000) : 0.016;
+  lastStrobeTs = now;
+
+  if (deltaCents === null || !Number.isFinite(deltaCents)) {
+    track.classList.remove('is-locked', 'is-flat', 'is-sharp');
+    if (statusEl) statusEl.textContent = t(lang, 'strobeIdle');
+    return;
+  }
+
+  const locked = Math.abs(deltaCents) <= 4.0;
+  track.classList.toggle('is-locked', locked);
+  track.classList.toggle('is-flat', !locked && deltaCents < 0);
+  track.classList.toggle('is-sharp', !locked && deltaCents > 0);
+
+  if (!locked) {
+    const clamped = Math.max(-50, Math.min(50, deltaCents));
+    const pxPerSec = clamped * 4.4;
+    strobePhasePx = (strobePhasePx + pxPerSec * dt) % 48;
+    bands.style.backgroundPosition = `${strobePhasePx.toFixed(1)}px 0`;
+  }
+
+  if (statusEl) {
+    const r = Math.round(deltaCents);
+    statusEl.textContent = locked
+      ? `✔ ${t(lang, 'strobeLocked')} (${r >= 0 ? '+' : ''}${r}¢)`
+      : `${r < 0 ? '◀ ' : ''}${r >= 0 ? '+' : ''}${r}¢${r > 0 ? ' ▶' : ''}`;
+  }
 }

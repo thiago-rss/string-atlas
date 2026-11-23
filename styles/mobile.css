@@ -617,3 +617,18 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Phase 8.8 Mobile Toast Positioning & A4 Row */
+@media (max-width: 768px) {
+  .sa-toast-stack {
+    right: 12px;
+    left: 12px;
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+  }
+
+  .a4-ref-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

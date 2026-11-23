@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { A4_Q, getReferenceA4, qToFreq, setReferenceA4 } from '../js/core/theory24.js';
 import { DB } from '../js/core/database.js';
 import { THEMES } from '../js/core/themes.js';
 import { getThemeBackdropWatermarkSvg, getThemeBrandMedallionSvg, getThemeCornerFiligreeSvg, getThemeFooterOrnamentSvg, getThemeHeaderBannerSvg, getThemePanelCrownSvg } from '../js/core/themeGraphics.js';
@@ -26,7 +27,8 @@ import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js
 import { STUDY_LESSONS, STUDY_LEVELS, STUDY_MODULES } from '../js/core/studyGuide.js';
 import { GLOSSARY_CATEGORIES, GLOSSARY_TERMS } from '../js/core/glossary.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
-import { analyzePitch24, buildConstraintFallbackChain, detectPitchYIN } from '../js/audio/pitchDetector.js';
+import { PitchStabilizer, analyzePitch24, buildConstraintFallbackChain, detectPitchYIN } from '../js/audio/pitchDetector.js';
+import { synthesizeKarplusStrongSamples } from '../js/audio/synthEngine.js';
 import { isBluetoothDeviceLabel } from '../js/audio/mobileAudioGuard.js';
 
 const ROOT = process.cwd();
@@ -73,6 +75,7 @@ const jsFiles = [
   'js/views/notationView.js',
   'js/views/themeDrawerView.js',
   'js/views/headerMenuView.js',
+  'js/views/toastView.js',
   'js/views/radarView.js',
   'js/views/scalaView.js',
   'js/views/mobileNavView.js',
@@ -402,6 +405,39 @@ if (sanitizeCustomTuning({ stringsQ: [80, 90] }) !== null) {
 }
 ok(`Unit-tested Advanced Luthier (A/B Comparator Δ=+${cmpAB.deltaTotalLbs.toFixed(1)} lbs for 25.5"→27.0", Truss Advisory & Saved Scordaturas)`);
 
+// 5i. Unit-test v8.8 Acoustic Refinement (A4 Reference Calibration, Karplus-Strong Waveguide & PitchStabilizer)
+setReferenceA4(432);
+if (getReferenceA4() !== 432 || Math.abs(qToFreq(A4_Q) - 432) > 0.001) {
+  fail(`Reference A4 calibration failed: got ${getReferenceA4()} / ${qToFreq(A4_Q)}`);
+}
+const a432Analysis = analyzePitch24(432, 432);
+if (a432Analysis.noteName24 !== 'A4' || Math.abs(a432Analysis.centsFrom24) > 0.05) {
+  fail(`analyzePitch24 failed for A4=432 Hz: got ${a432Analysis.noteName24} (${a432Analysis.centsFrom24}c)`);
+}
+setReferenceA4(440); // Restore standard concert pitch
+
+// Verify Karplus-Strong physical string waveguide generates clean pitched samples (A2 = 110 Hz)
+const ksBuf = synthesizeKarplusStrongSamples(110.0, 48000, 0.45);
+if (!(ksBuf instanceof Float32Array) || ksBuf.length < 18000) {
+  fail('synthesizeKarplusStrongSamples produced invalid buffer');
+}
+const ksTail = ksBuf.subarray(4096, 8192);
+const ksDet = detectPitchYIN(ksTail, 48000, 0.005);
+if (!ksDet.freq || Math.abs(ksDet.freq - 110.0) > 1.2) {
+  fail(`Karplus-Strong pitch accuracy failed for 110 Hz: detected ${ksDet.freq}`);
+}
+
+// Verify PitchStabilizer rejects single-frame octave glitch on low baritone A1 (55 Hz)
+const stab = new PitchStabilizer();
+stab.push(55.0);
+stab.push(55.1);
+stab.push(54.9);
+const afterGlitch = stab.push(110.0); // single-frame 2nd-harmonic jump
+if (!afterGlitch || Math.abs(afterGlitch.freq - 55.0) > 1.0) {
+  fail(`PitchStabilizer failed to reject single-frame octave glitch: got ${afterGlitch?.freq}`);
+}
+ok('Unit-tested v8.8 Acoustic Refinement (A4 415–446Hz, Karplus-Strong 110Hz YIN lock & Bass PitchStabilizer)');
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -416,4 +452,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.7 integrity checks passed.');
+console.log('\nAll String Atlas v8.8 integrity checks passed.');
