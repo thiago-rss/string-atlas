@@ -7,11 +7,11 @@ import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v5';
+const STORAGE_KEY = 'string_atlas_prefs_v6';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -26,7 +26,9 @@ function savePrefs(state) {
         lang: state.lang,
         theme: state.theme,
         tuningId: state.tuningId,
-        completedLessons: state.completedLessons
+        tonePreset: state.tonePreset,
+        completedLessons: state.completedLessons,
+        earStats: state.earStats
       })
     );
   } catch {
@@ -96,7 +98,7 @@ const state = {
   inspectedNote: null,
 
   // Workspace tab ('vamp' | 'study' | 'line' | 'etude' | 'harmony' | 'rhythm' | 'dossier')
-  activeTab: 'vamp',
+  activeTab: 'radar',
 
   // Phase 5: Modal Vamp & Sayr Modulation Lab
   vampPresetId: initialVamp.id,
@@ -163,6 +165,31 @@ const state = {
   activeLessonId: null,
   openDossierLessonId: null,
   completedLessons: Array.isArray(saved.completedLessons) ? saved.completedLessons : [],
+
+  // Phase 6: Studio Electric Guitar Tone & FX Rack
+  fxOpen: false,
+  tonePreset: ['clean', 'swell', 'crunch', 'fuzz'].includes(saved.tonePreset) ? saved.tonePreset : 'clean',
+  delayMix: 0.22,
+  delayTime: 0.28,
+  tremoloDepth: 0.0,
+  tremoloRate: 4.2,
+  masterVolume: 0.72,
+
+  // Phase 6: 24-TET Modal Radar & Pivot Explorer
+  radarPivotFilter: 'all',
+  radarCompareScaleId: null,
+  radarCompareRootQ: 0,
+  radarOverlayOnNeck: false,
+
+  // Phase 6: 24-TET Ear Training Lab
+  earMode: 'micro_intervals',
+  earIntervalSet: 'seconds',
+  earScalePool: 'arabic',
+  earQuestion: null,
+  earSelectedId: null,
+  earStats: (saved.earStats && typeof saved.earStats === 'object')
+    ? saved.earStats
+    : { correct: 0, total: 0, streak: 0, bestStreak: 0 },
 
   // Oblique Lab
   obliqueIndex: 0
@@ -325,7 +352,7 @@ export function setState(patch) {
   if ('snapshots' in patch) {
     saveSnapshots(state.snapshots);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch) {
     savePrefs(state);
   }
 

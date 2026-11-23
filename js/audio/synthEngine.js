@@ -1,16 +1,60 @@
 /**
- * Pure Web Audio API 24-TET Electric Guitar, Modal Drone & Procedural Etude Synth v3.0
+ * Pure Web Audio API 24-TET Electric Guitar, Studio Tone/FX Rack, Modal Drone,
+ * Procedural Etude & Vamp/Sayr Synth Engine v6.0
  */
 import { qToFreq } from '../core/theory24.js';
+
+function makeDriveCurve(amount, asymmetric = false) {
+  const samples = 2048;
+  const curve = new Float32Array(samples);
+  if (amount <= 0.01) {
+    for (let i = 0; i < samples; i += 1) {
+      curve[i] = (i * 2) / samples - 1;
+    }
+    return curve;
+  }
+  const k = amount;
+  for (let i = 0; i < samples; i += 1) {
+    const x = (i * 2) / samples - 1;
+    if (asymmetric) {
+      // Thick fuzz with slight even-harmonic asymmetry
+      const shifted = x + 0.14;
+      curve[i] = Math.tanh(shifted * k) - Math.tanh(0.14 * k) * 0.4;
+    } else {
+      curve[i] = Math.tanh(x * k);
+    }
+  }
+  return curve;
+}
 
 class SynthEngine {
   constructor() {
     this.ctx = null;
     this.masterGain = null;
+    this.guitarBus = null;
+    this.driveShaper = null;
+    this.drivePreGain = null;
+    this.drivePostGain = null;
+    this.cabFilter = null;
+    this.tremoloGain = null;
+    this.tremoloLfo = null;
+    this.tremoloDepthGain = null;
     this.delayNode = null;
     this.delayFeedback = null;
+    this.delayWet = null;
+
     this.droneNodes = null;
     this.scaleTimerIds = [];
+
+    // Phase 6 Studio Tone & FX State
+    this.fxConfig = {
+      tonePreset: 'clean', // 'clean' | 'swell' | 'crunch' | 'fuzz'
+      delayMix: 0.22,
+      delayTime: 0.28,
+      tremoloDepth: 0.0,
+      tremoloRate: 4.2,
+      masterVolume: 0.72
+    };
 
     // Lookahead Procedural Etude Sequencer state
     this.etudeTimerId = null;
@@ -35,29 +79,65 @@ class SynthEngine {
       this.ctx = new AudioCtx();
 
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.value = 0.72;
+      this.masterGain.gain.value = this.fxConfig.masterVolume;
 
-      this.delayNode = this.ctx.createDelay(1.0);
-      this.delayNode.delayTime.value = 0.28;
+      // Guitar voice processing chain: guitarBus -> drivePre -> shaper -> drivePost -> cab -> tremolo -> master + delay
+      this.guitarBus = this.ctx.createGain();
+      this.drivePreGain = this.ctx.createGain();
+      this.driveShaper = this.ctx.createWaveShaper();
+      this.driveShaper.oversample = '2x';
+      this.drivePostGain = this.ctx.createGain();
+
+      this.cabFilter = this.ctx.createBiquadFilter();
+      this.cabFilter.type = 'lowpass';
+      this.cabFilter.Q.value = 0.85;
+
+      // Optical-style Tremolo stage
+      this.tremoloGain = this.ctx.createGain();
+      this.tremoloGain.gain.value = 1.0;
+
+      this.tremoloLfo = this.ctx.createOscillator();
+      this.tremoloLfo.type = 'sine';
+      this.tremoloLfo.frequency.value = this.fxConfig.tremoloRate;
+
+      this.tremoloDepthGain = this.ctx.createGain();
+      this.tremoloDepthGain.gain.value = 0.0;
+      this.tremoloLfo.connect(this.tremoloDepthGain);
+      this.tremoloDepthGain.connect(this.tremoloGain.gain);
+      this.tremoloLfo.start();
+
+      // Parallel Ambient Delay Bus
+      this.delayNode = this.ctx.createDelay(1.2);
+      this.delayNode.delayTime.value = this.fxConfig.delayTime;
 
       this.delayFeedback = this.ctx.createGain();
-      this.delayFeedback.gain.value = 0.22;
+      this.delayFeedback.gain.value = 0.28;
 
       const delayFilter = this.ctx.createBiquadFilter();
       delayFilter.type = 'lowpass';
-      delayFilter.frequency.value = 2400;
+      delayFilter.frequency.value = 2500;
 
-      const delayWet = this.ctx.createGain();
-      delayWet.gain.value = 0.2;
+      this.delayWet = this.ctx.createGain();
+      this.delayWet.gain.value = this.fxConfig.delayMix;
+
+      this.guitarBus
+        .connect(this.drivePreGain)
+        .connect(this.driveShaper)
+        .connect(this.drivePostGain)
+        .connect(this.cabFilter)
+        .connect(this.tremoloGain);
+
+      this.tremoloGain.connect(this.masterGain);
+      this.tremoloGain.connect(this.delayNode);
 
       this.delayNode.connect(delayFilter);
       delayFilter.connect(this.delayFeedback);
       this.delayFeedback.connect(this.delayNode);
-      delayFilter.connect(delayWet);
+      delayFilter.connect(this.delayWet);
+      this.delayWet.connect(this.masterGain);
 
       this.masterGain.connect(this.ctx.destination);
-      delayWet.connect(this.ctx.destination);
-      this.masterGain.connect(this.delayNode);
+      this.applyToneFxToNodes();
     }
 
     if (this.ctx.state === 'suspended') {
@@ -66,9 +146,70 @@ class SynthEngine {
     return this.ctx;
   }
 
+  /**
+   * Smoothly updates Studio Tone Preset & FX Rack parameters live
+   */
+  updateToneFx(patch = {}) {
+    Object.assign(this.fxConfig, patch);
+    if (this.ctx) {
+      this.applyToneFxToNodes();
+    }
+  }
+
+  applyToneFxToNodes() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const cfg = this.fxConfig;
+
+    let pre = 1.0;
+    let post = 1.0;
+    let cabHz = 6800;
+    let curveAmt = 0;
+    let asym = false;
+    let fb = 0.26;
+
+    if (cfg.tonePreset === 'swell') {
+      pre = 1.0;
+      post = 1.05;
+      cabHz = 4400;
+      fb = 0.44;
+    } else if (cfg.tonePreset === 'crunch') {
+      pre = 2.4;
+      post = 0.72;
+      cabHz = 3400;
+      curveAmt = 3.2;
+      fb = 0.24;
+    } else if (cfg.tonePreset === 'fuzz') {
+      pre = 4.5;
+      post = 0.56;
+      cabHz = 2250;
+      curveAmt = 8.5;
+      asym = true;
+      fb = 0.22;
+    }
+
+    this.drivePreGain.gain.setTargetAtTime(pre, now, 0.03);
+    this.driveShaper.curve = makeDriveCurve(curveAmt, asym);
+    this.drivePostGain.gain.setTargetAtTime(post, now, 0.03);
+    this.cabFilter.frequency.setTargetAtTime(cabHz, now, 0.04);
+
+    this.delayNode.delayTime.setTargetAtTime(Math.max(0.08, Math.min(0.85, cfg.delayTime)), now, 0.06);
+    this.delayWet.gain.setTargetAtTime(Math.max(0, Math.min(0.7, cfg.delayMix)), now, 0.03);
+    this.delayFeedback.gain.setTargetAtTime(fb, now, 0.04);
+
+    const depth = Math.max(0, Math.min(0.85, cfg.tremoloDepth));
+    this.tremoloGain.gain.setTargetAtTime(1.0 - depth * 0.48, now, 0.03);
+    this.tremoloDepthGain.gain.setTargetAtTime(depth * 0.48, now, 0.03);
+    this.tremoloLfo.frequency.setTargetAtTime(Math.max(1.0, Math.min(10.0, cfg.tremoloRate)), now, 0.04);
+
+    this.masterGain.gain.setTargetAtTime(Math.max(0.1, Math.min(1.0, cfg.masterVolume)), now, 0.03);
+  }
+
   pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false, when = null, bendFromRatio = null } = {}) {
     const ctx = this.ensureContext();
     const now = when !== null ? when : ctx.currentTime;
+    const isSwell = !harmonicBell && this.fxConfig.tonePreset === 'swell';
+    const effDuration = isSwell ? Math.max(duration, 2.2) : duration;
 
     const voiceGain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
@@ -78,8 +219,13 @@ class SynthEngine {
     const startCutoff = harmonicBell ? Math.min(freq * 6, 9000) : Math.min(freq * 7.5, 5800);
     const endCutoff = harmonicBell ? Math.min(freq * 2.5, 3600) : Math.max(freq * 1.4, 420);
 
-    filter.frequency.setValueAtTime(startCutoff, now);
-    filter.frequency.exponentialRampToValueAtTime(endCutoff, now + duration * 0.65);
+    filter.frequency.setValueAtTime(isSwell ? endCutoff : startCutoff, now);
+    if (isSwell) {
+      filter.frequency.exponentialRampToValueAtTime(startCutoff * 0.72, now + 0.32);
+      filter.frequency.exponentialRampToValueAtTime(endCutoff, now + effDuration * 0.85);
+    } else {
+      filter.frequency.exponentialRampToValueAtTime(endCutoff, now + effDuration * 0.65);
+    }
 
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -93,7 +239,6 @@ class SynthEngine {
       osc1.type = 'triangle';
       osc2.type = 'sawtooth';
       if (bendFromRatio) {
-        // Subtle 50-cent expressive pitch scoop into the quarter-tone target
         osc1.frequency.setValueAtTime(freq * bendFromRatio, now);
         osc1.frequency.exponentialRampToValueAtTime(freq, now + 0.085);
         osc2.frequency.setValueAtTime(freq * bendFromRatio * 1.0018, now);
@@ -105,29 +250,61 @@ class SynthEngine {
     }
 
     const mix2 = ctx.createGain();
-    mix2.gain.value = harmonicBell ? 0.14 : 0.22;
+    mix2.gain.value = harmonicBell ? 0.14 : (this.fxConfig.tonePreset === 'fuzz' ? 0.38 : 0.22);
 
     osc1.connect(filter);
     osc2.connect(mix2);
     mix2.connect(filter);
     filter.connect(voiceGain);
-    voiceGain.connect(this.masterGain);
+    voiceGain.connect(this.guitarBus);
 
+    const attack = isSwell ? 0.24 : 0.009;
     voiceGain.gain.setValueAtTime(0.0001, now);
-    voiceGain.gain.linearRampToValueAtTime(velocity, now + 0.009);
-    voiceGain.gain.exponentialRampToValueAtTime(0.0008, now + duration);
+    voiceGain.gain.linearRampToValueAtTime(velocity, now + attack);
+    voiceGain.gain.exponentialRampToValueAtTime(0.0008, now + effDuration);
 
     osc1.start(now);
     osc2.start(now);
-    osc1.stop(now + duration + 0.05);
-    osc2.stop(now + duration + 0.05);
+    osc1.stop(now + effDuration + 0.05);
+    osc2.stop(now + effDuration + 0.05);
   }
 
   pluckQ(q, opts = {}) {
     this.pluckFreq(qToFreq(q), opts);
   }
 
-  /** Auditions a single etude event with authentic articulation timbre (bend scoop / harmonic bell / accent) */
+  /** Auditions an Ear Trainer prompt spec cleanly (interval, scale, or chord) */
+  playEarPrompt(spec) {
+    if (!spec) return;
+    const ctx = this.ensureContext();
+    const now = ctx.currentTime + 0.03;
+
+    if (spec.type === 'interval') {
+      this.pluckQ(spec.baseQ, { duration: 1.5, velocity: 0.34, when: now });
+      this.pluckQ(spec.targetQ, { duration: 1.8, velocity: 0.36, when: now + 0.65 });
+      return;
+    }
+
+    if (spec.type === 'chord') {
+      this.playModalPad({
+        rootQ: spec.rootQ,
+        intervalsQ: spec.intervalsQ,
+        duration: 2.3,
+        when: now,
+        style: 'strum'
+      });
+      return;
+    }
+
+    if (spec.type === 'scale') {
+      const baseQ = 96 + (spec.rootQ % 24);
+      const seq = [...spec.intervalsQ, 24].map((iv) => baseQ + iv);
+      seq.forEach((q, idx) => {
+        this.pluckQ(q, { duration: 0.9, velocity: 0.34, when: now + idx * 0.28 });
+      });
+    }
+  }
+
   triggerEtudeEvent(ev, { when = null, stepDur = 0.35 } = {}) {
     const isHarmonic = ev.kind === 'harmonic';
     const isBend = ev.articulation === 'B↑¼';
@@ -139,7 +316,6 @@ class SynthEngine {
       velocity: vel,
       harmonicBell: isHarmonic,
       when,
-      // -50 cents ratio = 2^(-1/24) ≈ 0.97153
       bendFromRatio: isBend ? 0.97153 : null
     });
   }
@@ -158,10 +334,6 @@ class SynthEngine {
     osc.stop(time + 0.04);
   }
 
-  /**
-   * Starts precision Web Audio lookahead playback for Procedural Etudes
-   * Supports live BPM changes, continuous looping, and Auto-BPM (+4 BPM per completed loop).
-   */
   startEtudeSequencer(getConfig, { onStep, onLoopBump, onComplete } = {}) {
     this.stopEtudeSequencer();
     const ctx = this.ensureContext();
@@ -202,7 +374,7 @@ class SynthEngine {
 
         const freshCfg = getConfig();
         const bpm = Math.max(40, Math.min(220, freshCfg.bpm || 92));
-        const stepDur = (60 / bpm) * 0.5; // eighth-note steps
+        const stepDur = (60 / bpm) * 0.5;
         const idx = this.etudeStepIdx;
         const ev = events[idx];
 
@@ -227,14 +399,9 @@ class SynthEngine {
     }, 25);
   }
 
-
-  /**
-   * Warm 24-TET electric pad / modal backing chord for Vamp & Sayr accompaniment
-   */
   playModalPad({ rootQ, intervalsQ, duration = 2.6, when = null, style = 'pad' } = {}) {
     const ctx = this.ensureContext();
     const now = when !== null ? when : ctx.currentTime;
-    // Place bass firmly in guitar low-mid register (octave 2: q = 72 + rootQ)
     const bassQ = 72 + (rootQ % 24);
     const upperBaseQ = 96 + (rootQ % 24);
     const chordQs = [bassQ, ...intervalsQ.slice(0, 5).map((iv) => upperBaseQ + iv)];
@@ -251,7 +418,6 @@ class SynthEngine {
       return;
     }
 
-    // Lush filtered saw/triangle pad envelope
     const padGain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
@@ -279,9 +445,6 @@ class SynthEngine {
     });
   }
 
-  /**
-   * Starts precision Web Audio lookahead playback for Modal Vamps & Sayr Modulations
-   */
   startVampSequencer(getConfig, { onBeat } = {}) {
     this.stopVampSequencer();
     const ctx = this.ensureContext();
@@ -313,7 +476,6 @@ class SynthEngine {
         const isStepStart = this.vampBarInStep === 0 && this.vampBeatInBar === 0;
         const isBarStart = this.vampBeatInBar === 0;
 
-        // Trigger chord pad on bar 1 of step (or every bar in strum mode)
         if (isStepStart || (fresh.style === 'strum' && isBarStart)) {
           const chordDur = fresh.style === 'strum' ? beatDur * beatsPerBar : beatDur * beatsPerBar * totalBars;
           this.playModalPad({
@@ -324,7 +486,6 @@ class SynthEngine {
             style: fresh.style || 'pad'
           });
         } else if (isBarStart) {
-          // Gentle bass pulse re-articulation on subsequent bars inside multi-bar steps
           this.pluckQ(72 + (step.rootQ % 24), {
             duration: beatDur * 1.8,
             velocity: 0.24,
@@ -347,7 +508,6 @@ class SynthEngine {
         }, uiDelay);
         this.vampUiTimeouts.push(tid);
 
-        // Advance beat -> bar -> step
         this.vampBeatInBar += 1;
         if (this.vampBeatInBar >= beatsPerBar) {
           this.vampBeatInBar = 0;

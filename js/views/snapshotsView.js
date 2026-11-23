@@ -44,6 +44,9 @@ export function renderSnapshotsDrawer(state) {
         <span>${t(state.lang, 'snapTitle')}</span>
         <div class="pill-row">
           <button type="button" class="btn-pill active-teal" id="btnCopyShareUrl" data-sn-action="copyUrl">${t(state.lang, 'snapCopyUrl')}</button>
+          <button type="button" class="btn-mini" data-sn-action="exportBackup">${t(state.lang, 'snapExportJson')}</button>
+          <button type="button" class="btn-mini" data-sn-action="importBackup">${t(state.lang, 'snapImportJson')}</button>
+          <input type="file" id="inpImportBackup" accept="application/json,.json" hidden />
           <button type="button" class="btn-mini" data-sn-action="close">${t(state.lang, 'atlasClose')}</button>
         </div>
       </div>
@@ -92,6 +95,27 @@ export function renderSnapshotsDrawer(state) {
     } else if (act === 'delete') {
       const idx = Number(btn.dataset.idx);
       setState({ snapshots: st.snapshots.filter((_, i) => i !== idx) });
+    } else if (act === 'exportBackup') {
+      const bundle = {
+        app: 'string-atlas',
+        version: '6.0.0',
+        exportedAt: new Date().toISOString(),
+        snapshots: st.snapshots || [],
+        completedLessons: st.completedLessons || [],
+        earStats: st.earStats || { correct: 0, total: 0, streak: 0, bestStreak: 0 }
+      };
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'string-atlas-backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (act === 'importBackup') {
+      const fileInp = drawer.querySelector('#inpImportBackup');
+      if (fileInp) fileInp.click();
     } else if (act === 'load') {
       const idx = Number(btn.dataset.idx);
       const snap = st.snapshots[idx];
@@ -99,6 +123,28 @@ export function renderSnapshotsDrawer(state) {
       applySnapshotPayload(snap.payload);
     }
   };
+
+  const importInp = drawer.querySelector('#inpImportBackup');
+  if (importInp) {
+    importInp.onchange = (ev) => {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || '{}'));
+          const patch = {};
+          if (Array.isArray(parsed.snapshots)) patch.snapshots = parsed.snapshots.slice(0, 24);
+          if (Array.isArray(parsed.completedLessons)) patch.completedLessons = parsed.completedLessons;
+          if (parsed.earStats && typeof parsed.earStats === 'object') patch.earStats = parsed.earStats;
+          setState(patch);
+        } catch {
+          // Ignore malformed JSON gracefully
+        }
+      };
+      reader.readAsText(file);
+    };
+  }
 }
 
 function applySnapshotPayload(p) {

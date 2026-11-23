@@ -188,6 +188,58 @@ export function renderDeckPanel(state) {
     </div>
   ` : '';
 
+  const fxRackHtml = state.fxOpen ? `
+    <div class="fx-rack-box">
+      <div class="rhythm-track-head" style="margin-bottom:8px;flex-wrap:wrap;gap:8px">
+        <span class="control-label">${t(state.lang, 'fxRackTitle')}</span>
+        <div class="pill-row">
+          ${[
+            { id: 'clean', key: 'fxClean' },
+            { id: 'swell', key: 'fxSwell' },
+            { id: 'crunch', key: 'fxCrunch' },
+            { id: 'fuzz', key: 'fxFuzz' }
+          ].map((tp) => `
+            <button type="button" class="btn-mini ${state.tonePreset === tp.id ? 'active-mini' : ''}" data-action="tonePreset" data-val="${tp.id}">
+              ${t(state.lang, tp.key)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="fx-sliders-grid">
+        <label class="bpm-control">
+          <span>${t(state.lang, 'fxDelayMix')}</span>
+          <input type="range" id="rngFxDelayMix" min="0" max="0.65" step="0.05" value="${state.delayMix}" />
+          <strong id="valFxDelayMix">${Math.round(state.delayMix * 100)}%</strong>
+        </label>
+
+        <label class="bpm-control">
+          <span>${t(state.lang, 'fxDelayTime')}</span>
+          <input type="range" id="rngFxDelayTime" min="0.12" max="0.68" step="0.02" value="${state.delayTime}" />
+          <strong id="valFxDelayTime">${Math.round(state.delayTime * 1000)}ms</strong>
+        </label>
+
+        <label class="bpm-control">
+          <span>${t(state.lang, 'fxTremDepth')}</span>
+          <input type="range" id="rngFxTremDepth" min="0" max="0.85" step="0.05" value="${state.tremoloDepth}" />
+          <strong id="valFxTremDepth">${Math.round(state.tremoloDepth * 100)}%</strong>
+        </label>
+
+        <label class="bpm-control">
+          <span>${t(state.lang, 'fxTremRate')}</span>
+          <input type="range" id="rngFxTremRate" min="1.5" max="9.0" step="0.3" value="${state.tremoloRate}" />
+          <strong id="valFxTremRate">${state.tremoloRate.toFixed(1)}Hz</strong>
+        </label>
+
+        <label class="bpm-control">
+          <span>${t(state.lang, 'fxMasterVol')}</span>
+          <input type="range" id="rngFxVol" min="0.15" max="1.0" step="0.05" value="${state.masterVolume}" />
+          <strong id="valFxVol">${Math.round(state.masterVolume * 100)}%</strong>
+        </label>
+      </div>
+    </div>
+  ` : '';
+
   const retunerHtml = state.retunerOpen ? `
     <div class="retuner-box">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -317,12 +369,17 @@ export function renderDeckPanel(state) {
           ${state.harmonicsOn ? t(state.lang, 'harmonicsOn') : t(state.lang, 'harmonicsOff')}
         </button>
 
+        <button type="button" class="btn-pill ${state.fxOpen ? 'active-teal' : ''}" data-action="toggleFx">
+          ${t(state.lang, 'fxToggleBtn')} (${t(state.lang, `fx_${state.tonePreset}`)})
+        </button>
+
         <button type="button" class="btn-pill ${state.retunerOpen ? 'active' : ''}" data-action="toggleRetuner">
           ${t(state.lang, 'retunerToggle')}
         </button>
       </div>
     </div>
 
+    ${fxRackHtml}
     ${retunerHtml}
   `;
 
@@ -356,6 +413,23 @@ export function renderDeckPanel(state) {
     bpmVal.textContent = e.target.value;
     setState({ bpm: Number(e.target.value) });
   };
+
+  const bindFxRange = (id, valId, key, fmt) => {
+    const el = panel.querySelector(id);
+    const out = panel.querySelector(valId);
+    if (!el) return;
+    el.oninput = (ev) => {
+      const v = Number(ev.target.value);
+      if (out) out.textContent = fmt(v);
+      synthEngine.updateToneFx({ [key]: v });
+      setState({ [key]: v });
+    };
+  };
+  bindFxRange('#rngFxDelayMix', '#valFxDelayMix', 'delayMix', (v) => `${Math.round(v * 100)}%`);
+  bindFxRange('#rngFxDelayTime', '#valFxDelayTime', 'delayTime', (v) => `${Math.round(v * 1000)}ms`);
+  bindFxRange('#rngFxTremDepth', '#valFxTremDepth', 'tremoloDepth', (v) => `${Math.round(v * 100)}%`);
+  bindFxRange('#rngFxTremRate', '#valFxTremRate', 'tremoloRate', (v) => `${v.toFixed(1)}Hz`);
+  bindFxRange('#rngFxVol', '#valFxVol', 'masterVolume', (v) => `${Math.round(v * 100)}%`);
 
   panel.onclick = (e) => {
     const btn = e.target.closest('button[data-action]');
@@ -412,6 +486,15 @@ export function renderDeckPanel(state) {
       setState({ voicingOverlayOn: !st.voicingOverlayOn });
     } else if (action === 'toggleHarmonics') {
       setState({ harmonicsOn: !st.harmonicsOn });
+    } else if (action === 'toggleFx') {
+      setState({ fxOpen: !st.fxOpen });
+    } else if (action === 'tonePreset') {
+      const preset = btn.dataset.val;
+      const delayMix = preset === 'swell' ? Math.max(st.delayMix, 0.42) : st.delayMix;
+      synthEngine.updateToneFx({ tonePreset: preset, delayMix });
+      // Audition root chord tone so user immediately hears the new amp/FX character
+      synthEngine.pluckQ(96 + mod24(st.rootQ), { duration: 1.4, velocity: 0.35 });
+      setState({ tonePreset: preset, delayMix });
     } else if (action === 'toggleRetuner') {
       setState({ retunerOpen: !st.retunerOpen });
     } else if (action === 'resetTuning') {

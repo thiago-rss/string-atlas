@@ -1,5 +1,5 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v5.0
+ * String Atlas — Modal Guitar Lab Bootstrap v6.0
  */
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
@@ -15,7 +15,9 @@ import {
   highlightFretboardEtudeEvent
 } from './views/fretboardView.js';
 import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
+import { renderRadarView } from './views/radarView.js';
 import { renderVampView, toggleVampPlayback, updateVampBadge } from './views/vampView.js';
+import { renderEarLabView } from './views/earLabView.js';
 import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
 import {
@@ -59,7 +61,9 @@ function renderLabTabs(state) {
   if (!nav) return;
 
   const tabs = [
+    { id: 'radar', label: t(state.lang, 'tabRadar') },
     { id: 'vamp', label: t(state.lang, 'tabVamp') },
+    { id: 'ear', label: t(state.lang, 'tabEarLab') },
     { id: 'study', label: t(state.lang, 'tabStudyGuide') },
     { id: 'line', label: t(state.lang, 'tabLineMode') },
     { id: 'etude', label: t(state.lang, 'tabEtude') },
@@ -80,7 +84,9 @@ function renderLabTabs(state) {
     setState({ activeTab: btn.dataset.tab });
   };
 
+  document.getElementById('tabRadar').hidden = state.activeTab !== 'radar';
   document.getElementById('tabVamp').hidden = state.activeTab !== 'vamp';
+  document.getElementById('tabEarLab').hidden = state.activeTab !== 'ear';
   document.getElementById('tabStudyGuide').hidden = state.activeTab !== 'study';
   document.getElementById('tabLineMode').hidden = state.activeTab !== 'line';
   document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
@@ -89,15 +95,16 @@ function renderLabTabs(state) {
   document.getElementById('tabDossier').hidden = state.activeTab !== 'dossier';
 }
 
+const SILENT_SLIDER_KEYS = new Set([
+  'bpm', 'etudeBpm', 'lineInputGain', 'lineRmsGate',
+  'delayMix', 'delayTime', 'tremoloDepth', 'tremoloRate', 'masterVolume'
+]);
+
 function renderAll(state, patch = null) {
   if (patch) {
     const keys = Object.keys(patch);
 
-    // Fast paths: live sliders, search input & cursors never tear down DOM inputs
-    if (
-      keys.length === 1 &&
-      ['bpm', 'etudeBpm', 'lineInputGain', 'lineRmsGate'].includes(keys[0])
-    ) {
+    if (keys.length === 1 && SILENT_SLIDER_KEYS.has(keys[0])) {
       return;
     }
     if (keys.length === 1 && keys[0] === 'vampBpm') {
@@ -149,6 +156,15 @@ function renderAll(state, patch = null) {
       renderStudyGuideView(state);
       return;
     }
+    if (keys.every((k) => ['earMode', 'earIntervalSet', 'earScalePool', 'earQuestion', 'earSelectedId', 'earStats'].includes(k))) {
+      renderEarLabView(state);
+      return;
+    }
+    if (keys.every((k) => ['radarPivotFilter', 'radarCompareScaleId', 'radarCompareRootQ', 'radarOverlayOnNeck'].includes(k))) {
+      renderRadarView(state);
+      renderFretboard(state);
+      return;
+    }
   }
 
   applyStaticI18nAndTheme(state);
@@ -158,7 +174,9 @@ function renderAll(state, patch = null) {
   renderFretboard(state);
   renderNotationPanel(state);
   renderLabTabs(state);
+  renderRadarView(state);
   renderVampView(state);
+  renderEarLabView(state);
   renderStudyGuideView(state);
   renderLineModeView(state);
   renderHarmonyView(state);
@@ -234,9 +252,18 @@ function registerServiceWorker() {
 }
 
 function boot() {
+  const initial = getState();
+  synthEngine.updateToneFx({
+    tonePreset: initial.tonePreset,
+    delayMix: initial.delayMix,
+    delayTime: initial.delayTime,
+    tremoloDepth: initial.tremoloDepth,
+    tremoloRate: initial.tremoloRate,
+    masterVolume: initial.masterVolume
+  });
   subscribe(renderAll);
   bindGlobalControls();
-  renderAll(getState());
+  renderAll(initial);
   registerServiceWorker();
 }
 

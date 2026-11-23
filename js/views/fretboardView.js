@@ -14,6 +14,7 @@ import {
   intervalQToCents
 } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
+import { DB } from '../core/database.js';
 import { getActiveScale, getActiveVoicing, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 
@@ -171,6 +172,7 @@ export function renderFretboard(state) {
     ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
     ${state.activeTab === 'etude' ? `<span class="legend-item"><span class="legend-ring etude"></span>${t(state.lang, 'legendEtudeCursor')}</span>` : ''}
     ${state.lineModeRunning ? `<span class="legend-item"><span class="legend-ring live"></span>${t(state.lang, 'legendLivePitch')}</span>` : ''}
+    ${state.radarOverlayOnNeck && state.radarCompareScaleId ? `<span class="legend-item"><span class="legend-ring radar-b"></span>${t(state.lang, 'legendRadarB')}</span>` : ''}
     ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
   `;
 
@@ -187,6 +189,17 @@ export function renderFretboard(state) {
     activeVoicing.notes.forEach((n) => {
       voicingMap.set(`${n.strIdx}:${n.stepQ}`, n);
     });
+  }
+
+  // Optional Phase 6 Radar Comparison Scale B lookup (pc -> intervalQ relative to Scale B root)
+  const radarBMap = new Map();
+  if (state.radarOverlayOnNeck && state.radarCompareScaleId) {
+    const scB = DB.scales.find((s) => s.id === state.radarCompareScaleId);
+    if (scB) {
+      scB.intervalsQ.forEach((iv) => {
+        radarBMap.set(mod24(state.radarCompareRootQ + iv), iv);
+      });
+    }
   }
 
   const parts = [];
@@ -300,9 +313,12 @@ export function renderFretboard(state) {
       const pc = mod24(absQ);
       const inScale = allowedMap.has(pc);
       const voicingHit = voicingMap.get(`${stringArrIdx}:${stepQ}`);
-      if (!inScale && !voicingHit) continue;
+      const inRadarB = radarBMap.has(pc);
+      if (!inScale && !voicingHit && !inRadarB) continue;
 
-      const intervalQ = inScale ? allowedMap.get(pc) : voicingHit.intervalQ;
+      const intervalQ = inScale
+        ? allowedMap.get(pc)
+        : (voicingHit ? voicingHit.intervalQ : radarBMap.get(pc));
       const isMicroStep = stepQ % 2 !== 0;
       const fretNum = Math.floor(stepQ / 2);
 
@@ -318,6 +334,9 @@ export function renderFretboard(state) {
       if (!inScale && voicingHit) {
         fill = 'var(--accent-voicing)';
         ink = '#111318';
+      } else if (!inScale && inRadarB) {
+        fill = 'var(--accent-radar-b)';
+        ink = '#ffffff';
       } else if (isRoot) {
         fill = 'var(--accent-root)';
         ink = 'var(--accent-root-ink)';
@@ -338,6 +357,8 @@ export function renderFretboard(state) {
 
       if (voicingHit) {
         parts.push(`<circle cx="${cx}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
+      } else if (inScale && inRadarB) {
+        parts.push(`<circle cx="${cx}" cy="${y}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
       }
 
       if (isMicroStep && state.microMode === 'slide') {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d1017" />
-  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET microtonal, Arabic Maqamat & Sayr Vamps, Baritone B/A Standard, Scordatura Tuner, Line Mode, Voicings, Procedural Etudes & Study Guide." />
+  <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET Modal Radar, Studio Tone/FX Rack, 24-TET Ear Trainer, Arabic Maqamat & Sayr Vamps, Baritone B/A Standard, Line Mode, Voicings & Procedural Etudes." />
   <title>String Atlas — Modal Guitar Lab</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg" />
@@ -33,14 +33,14 @@
       </div>
     </header>
 
-    <!-- Collapsible Session Snapshots & Shareable URL Drawer -->
+    <!-- Collapsible Session Snapshots, JSON Backup & Shareable URL Drawer -->
     <section id="snapshotsDrawer" class="snapshots-drawer" hidden></section>
 
     <!-- Floating Zen Practice Bar (only visible in Zen Mode) -->
     <div id="zenPracticeBar" class="zen-practice-bar" hidden></div>
 
     <main class="workspace">
-      <!-- Control Deck -->
+      <!-- Control Deck + Studio Tone & FX Rack -->
       <section class="panel deck-panel" id="deckPanel" aria-label="Lab Controls"></section>
 
       <!-- Fretboard Stage -->
@@ -65,11 +65,13 @@
       <!-- Synchronized 24-TET Staff + 6-String Tablature -->
       <section class="panel notation-panel" id="notationPanel" aria-label="24-TET Staff and Guitar Tablature"></section>
 
-      <!-- Phase 5 Lab Module Navigation -->
+      <!-- Phase 6 Lab Module Navigation -->
       <nav class="lab-tabs" id="labTabs" aria-label="Laboratory Modules"></nav>
 
       <!-- Active Lab Workspace Views -->
-      <section id="tabVamp" class="tab-section"></section>
+      <section id="tabRadar" class="tab-section"></section>
+      <section id="tabVamp" class="tab-section" hidden></section>
+      <section id="tabEarLab" class="tab-section" hidden></section>
       <section id="tabStudyGuide" class="tab-section" hidden></section>
       <section id="tabLineMode" class="tab-section" hidden></section>
       <section id="tabEtude" class="tab-section" hidden></section>
@@ -83,7 +85,7 @@
 
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v5.0.0 · 24-TET · Vamp, Sayr &amp; Zen Studio</span>
+      <span class="mono-tag">v6.0.0 · 24-TET · Modal Radar, Tone FX &amp; Ear Lab</span>
     </footer>
   </div>
 
