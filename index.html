@@ -2,7 +2,10 @@
 <html lang="pt-BR" data-theme="layl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0d1017" />
   <meta name="description" content="String Atlas — Modal Guitar Lab: 24-TET Modal Radar, Studio Tone/FX Rack, 24-TET Ear Trainer, Arabic Maqamat & Sayr Vamps, Baritone B/A Standard, Line Mode, Voicings & Procedural Etudes." />
   <title>String Atlas — Modal Guitar Lab</title>
@@ -14,6 +17,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,700;9..144,800&family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=Work+Sans:wght@400;500;600&display=swap" />
   <link rel="stylesheet" href="./styles/main.css" />
   <link rel="stylesheet" href="./styles/themes.css" />
+  <link rel="stylesheet" href="./styles/mobile.css" />
 </head>
 <body data-zen="false">
   <div id="themeStageBackdrop" class="theme-stage-backdrop" aria-hidden="true"></div>
@@ -33,6 +37,7 @@
         <span class="pill-badge vamp-badge" id="vampStatusBadge" hidden>⟳ VAMP</span>
         <span class="pill-badge" id="rhythmStatusBadge" hidden>♪ —</span>
         <span class="pill-badge" id="tuningSummaryBadge">EADGBE</span>
+        <button type="button" class="btn-ghost btn-pwa-install" id="btnPwaInstall" hidden>⬇ App</button>
         <button type="button" class="btn-ghost" id="btnCmdPalette" data-i18n="cpBtnHeader">⌘K Buscar</button>
         <button type="button" class="btn-ghost" id="btnSnapshotsToggle" data-i18n="snapBtnHeader">Presets / Link</button>
         <button type="button" class="btn-ghost" id="btnZenToggle" data-i18n="zenEnter">Zen</button>
@@ -72,6 +77,7 @@
 
         <div class="legend-strip fretboard-sub-legend" id="fretboardLegend"></div>
 
+        <div class="mobile-swipe-hint"><span data-i18n="mobSwipeHint">⇄ Deslize o braço · toque para ouvir</span><span>24-TET / .scl</span></div>
         <div class="fretboard-scroll" id="fretboardContainer"></div>
 
         <div class="inspector-strip" id="inspectorStrip">
@@ -87,6 +93,7 @@
 
       <!-- Active Lab Workspace Views -->
       <section id="tabRadar" class="tab-section"></section>
+      <section id="tabScala" class="tab-section" hidden></section>
       <section id="tabVamp" class="tab-section" hidden></section>
       <section id="tabEarLab" class="tab-section" hidden></section>
       <section id="tabStudyGuide" class="tab-section" hidden></section>
@@ -104,9 +111,12 @@
     <div id="themeFooterOrnament" class="footer-ornament-bar" aria-hidden="true"></div>
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v7.8.0 · 24-TET · Living Instrument &amp; Command Studio</span>
+      <span class="mono-tag">v8.0.0 · 24-TET · Scala .scl · 32 Lessons · Mobile PWA</span>
     </footer>
   </div>
+
+  <!-- Native Mobile Bottom Thumb Dock (visible <= 768px) -->
+  <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="Mobile Navigation"></nav>
 
   <!-- Floating Global Audio Transport Dock -->
   <div id="audioTransportDock" class="audio-transport-dock" hidden></div>

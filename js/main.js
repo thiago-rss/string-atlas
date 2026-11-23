@@ -16,6 +16,8 @@ import {
 } from './views/fretboardView.js';
 import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
 import { renderRadarView } from './views/radarView.js';
+import { renderScalaView } from './views/scalaView.js';
+import { initMobilePwaInstall, renderMobileBottomNav } from './views/mobileNavView.js';
 import { renderVampView, toggleVampPlayback, updateVampBadge } from './views/vampView.js';
 import { renderEarLabView } from './views/earLabView.js';
 import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
@@ -56,6 +58,7 @@ const WORKSPACE_ZONES = [
     labelKey: 'zoneExplore',
     tools: [
       { id: 'radar', labelKey: 'tabRadar' },
+      { id: 'scala', labelKey: 'tabScala' },
       { id: 'harmony', labelKey: 'tabHarmony' },
       { id: 'dossier', labelKey: 'tabDossier' }
     ]
@@ -92,6 +95,7 @@ const WORKSPACE_ZONES = [
 
 const TAB_TO_SECTION_ID = {
   radar: 'tabRadar',
+  scala: 'tabScala',
   vamp: 'tabVamp',
   ear: 'tabEarLab',
   study: 'tabStudyGuide',
@@ -307,7 +311,7 @@ function renderAll(state, patch = null) {
       return;
     }
 
-    if (keys.every((k) => k === 'studyModuleFilter' || k === 'openDossierLessonId' || k === 'completedLessons')) {
+    if (keys.every((k) => ['studyModuleFilter', 'studyStatusFilter', 'openDossierLessonId', 'completedLessons'].includes(k))) {
       renderStudyGuideView(state);
       return;
     }
@@ -319,8 +323,14 @@ function renderAll(state, patch = null) {
       renderTensionView(state);
       return;
     }
+    if (keys.every((k) => k.startsWith('scala'))) {
+      renderScalaView(state);
+      renderFretboard(state);
+      return;
+    }
     if (keys.every((k) => ['radarPivotFilter', 'radarCompareScaleId', 'radarCompareRootQ', 'radarOverlayOnNeck'].includes(k))) {
       renderRadarView(state);
+  renderScalaView(state);
       renderFretboard(state);
       return;
     }
@@ -335,6 +345,7 @@ function renderAll(state, patch = null) {
   renderNotationPanel(state);
   renderLabTabs(state);
   renderRadarView(state);
+  renderScalaView(state);
   renderVampView(state);
   renderEarLabView(state);
   renderStudyGuideView(state);
@@ -347,6 +358,7 @@ function renderAll(state, patch = null) {
   renderAudioTransportDock(state);
   renderCommandPalette(state);
   renderShortcutsModal(state);
+  renderMobileBottomNav(state);
 }
 
 function bindGlobalControls() {
@@ -472,6 +484,7 @@ function boot() {
   });
   subscribe(renderAll);
   bindGlobalControls();
+  initMobilePwaInstall();
   renderAll(initial);
   registerServiceWorker();
 }

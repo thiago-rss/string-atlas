@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v7.8.0';
+const CACHE_NAME = 'string-atlas-v8.0.0';
 
 const CORE_ASSETS = [
   './',
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   './manifest.json',
   './styles/main.css',
   './styles/themes.css',
+  './styles/mobile.css',
   './assets/icons/icon.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
@@ -25,6 +26,7 @@ const CORE_ASSETS = [
   './js/core/earTrainer.js',
   './js/core/exportEngine.js',
   './js/core/plateExporter.js',
+  './js/core/scalaEngine.js',
   './js/core/sessionCodec.js',
   './js/core/studyGuide.js',
   './js/core/studyDossiers.js',
@@ -36,6 +38,8 @@ const CORE_ASSETS = [
   './js/views/notationView.js',
   './js/views/themeDrawerView.js',
   './js/views/radarView.js',
+  './js/views/scalaView.js',
+  './js/views/mobileNavView.js',
   './js/views/vampView.js',
   './js/views/earLabView.js',
   './js/views/snapshotsView.js',

@@ -20,6 +20,7 @@ import {
   exportVampToMidi
 } from '../js/core/exportEngine.js';
 import { buildEditorialPlateSvg, resolveCssVarsInSvg } from '../js/core/plateExporter.js';
+import { SCALA_PRESETS, exportToSclText, mapScalaToFretboard, parseSclText } from '../js/core/scalaEngine.js';
 import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js';
 import { STUDY_LESSONS, STUDY_MODULES } from '../js/core/studyGuide.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
@@ -54,6 +55,7 @@ const jsFiles = [
   'js/core/earTrainer.js',
   'js/core/exportEngine.js',
   'js/core/plateExporter.js',
+  'js/core/scalaEngine.js',
   'js/core/sessionCodec.js',
   'js/core/studyGuide.js',
   'js/core/studyDossiers.js',
@@ -65,6 +67,8 @@ const jsFiles = [
   'js/views/notationView.js',
   'js/views/themeDrawerView.js',
   'js/views/radarView.js',
+  'js/views/scalaView.js',
+  'js/views/mobileNavView.js',
   'js/views/vampView.js',
   'js/views/earLabView.js',
   'js/views/snapshotsView.js',
@@ -292,6 +296,38 @@ if (!plateOut.includes('D Maqam Bayati') || !plateOut.includes('STRING ATLAS')) 
 }
 ok('Unit-tested Editorial Plate SVG Exporter & CSS var resolver');
 
+// 5e. Unit-test Scala (.scl) Parser, 53-TET, 5-Limit JI, Bohlen-Pierce & Fretboard Mapper
+const scalaIds = new Set();
+for (const sp of SCALA_PRESETS) {
+  if (scalaIds.has(sp.id)) fail(`Duplicate Scala preset id: ${sp.id}`);
+  scalaIds.add(sp.id);
+  const parsed = parseSclText(sp.scl);
+  if (!parsed.ok) {
+    fail(`Scala preset ${sp.id} failed parsing: ${parsed.error}`);
+    continue;
+  }
+  const roundTrip = parseSclText(exportToSclText(parsed));
+  if (!roundTrip.ok || roundTrip.noteCount !== parsed.noteCount) {
+    fail(`Scala export round-trip failed for ${sp.id}`);
+  }
+  const mapped = mapScalaToFretboard({ parsed, rootQ: 0, stringsQ: stdTun.stringsQ, maxFrets: 12 });
+  if (!mapped.length) fail(`Scala fretboard mapper returned 0 markers for ${sp.id}`);
+}
+const ji5 = parseSclText(SCALA_PRESETS.find((p) => p.id === 'ji_5limit').scl);
+if (Math.abs(ji5.degrees[2].cents - 386.3137) > 0.05) {
+  fail(`Expected 5/4 Just Major 3rd = 386.31c, got ${ji5.degrees[2].cents}`);
+}
+const bp13 = parseSclText(SCALA_PRESETS.find((p) => p.id === 'bohlen_pierce_13').scl);
+if (bp13.isOctave || Math.abs(bp13.periodCents - 1901.955) > 0.2) {
+  fail(`Expected Bohlen-Pierce 3/1 tritave = 1901.96c, got ${bp13.periodCents}`);
+}
+for (const l of STUDY_LESSONS) {
+  if (l.preset.scalaPresetId && !scalaIds.has(l.preset.scalaPresetId)) {
+    fail(`Study lesson ${l.id} references unknown scalaPresetId: ${l.preset.scalaPresetId}`);
+  }
+}
+ok(`Unit-tested Scala (.scl) Engine (${SCALA_PRESETS.length} presets: JI 5/7-limit, 53-TET, Bohlen-Pierce 3/1, Gamelan) & ${STUDY_LESSONS.length} lessons across ${STUDY_MODULES.length} chapters`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -306,4 +342,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.8 integrity checks passed.');
+console.log('\nAll String Atlas v8.0 integrity checks passed.');

@@ -9,11 +9,11 @@ import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v78';
+const STORAGE_KEY = 'string_atlas_prefs_v8';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v78') || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -104,7 +104,7 @@ const state = {
   fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
   fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
   leftHanded: Boolean(saved.leftHanded),
-  fretZoom: saved.fretZoom === 12 ? 12 : 22,
+  fretZoom: saved.fretZoom ? (saved.fretZoom === 12 ? 12 : 22) : (typeof window !== 'undefined' && window.innerWidth <= 640 ? 12 : 22),
 
   // Audio state
   droneOn: false,
@@ -177,8 +177,16 @@ const state = {
   lineValidateEtude: false,
   lineError: '',
 
-  // Phase 4: Progressive Study Guide
+  // Phase 8.0: Scala (.scl) Microtonal Frontier
+  scalaPresetId: 'ji_5limit',
+  scalaCustomText: '',
+  scalaOverlayOn: false,
+  scalaEditorOpen: false,
+  scalaParseError: '',
+
+  // Phase 4 & 8: Complete 8-Chapter Progressive Study Guide
   studyModuleFilter: 'all',
+  studyStatusFilter: 'all', // 'all' | 'pending' | 'done'
   activeLessonId: null,
   openDossierLessonId: null,
   completedLessons: Array.isArray(saved.completedLessons) ? saved.completedLessons : [],

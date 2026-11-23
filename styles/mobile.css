@@ -1,0 +1,396 @@
+/* =========================================================================
+ * String Atlas v8.0 — Scala (.scl) Microtonal Lab & Native Mobile PWA UI
+ * ========================================================================= */
+
+/* --- Scala (.scl) Microtonal Frontier Lab --- */
+.scala-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.scala-editor-box {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+}
+
+.scala-textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.scala-textarea:focus {
+  outline: none;
+  border-color: var(--accent-root);
+}
+
+.scala-degrees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 8px;
+}
+
+.scala-deg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.14s ease;
+}
+
+.scala-deg-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-root);
+}
+
+.scala-deg-card.is-root {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1px var(--accent-root);
+}
+
+.scala-deg-top,
+.scala-deg-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.scala-dev-pill {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.scala-dev-pill.is-pure {
+  background: rgba(76, 201, 176, 0.16);
+  color: var(--accent-scale);
+}
+
+.scala-dev-pill.is-micro {
+  background: rgba(240, 140, 75, 0.2);
+  color: var(--accent-micro);
+}
+
+.scala-dev-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+}
+
+.scala-dev-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.scala-dev-dot {
+  position: absolute;
+  top: -2px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--accent-micro);
+}
+
+.scala-deg-card.is-pure .scala-dev-dot {
+  background: var(--accent-scale);
+}
+
+/* Study Guide 8-Chapter Scrollable Rail */
+.sg-chapter-rail {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.sg-chapter-rail .btn-pill {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* =========================================================================
+ * NATIVE MOBILE PWA EXPERIENCE (<= 768px)
+ * - Fixed Bottom Thumb Navigation Dock with iOS safe-area insets
+ * - 44px touch targets, clean single-column flow, zero horizontal page overflow
+ * ========================================================================= */
+.mobile-bottom-nav {
+  display: none;
+}
+
+.mobile-swipe-hint {
+  display: none;
+}
+
+.btn-pwa-install {
+  border-color: var(--accent-live);
+  color: var(--accent-live);
+  font-weight: 700;
+}
+
+.btn-pwa-install[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overflow-x: clip;
+  }
+
+  .app-shell {
+    padding: 8px 10px calc(84px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+
+  .theme-ornament-bar {
+    min-height: 26px;
+  }
+
+  .ornament-art-svg {
+    height: 26px;
+  }
+
+  .topbar {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .brand-medallion,
+  .brand-medallion svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-title {
+    font-size: 1.18rem !important;
+  }
+
+  .brand-subtitle {
+    font-size: 0.72rem;
+  }
+
+  /* Compact, scrollable topbar actions on mobile */
+  .topbar-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .topbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topbar-actions > * {
+    flex-shrink: 0;
+  }
+
+  #btnCmdPalette,
+  #btnShortcutsHelp,
+  #tuningSummaryBadge {
+    display: none;
+  }
+
+  /* Touch-friendly 40-44px minimum target heights */
+  select,
+  .search-input,
+  .btn-primary,
+  .btn-ghost,
+  .dock-btn,
+  .zone-tab-btn {
+    min-height: 40px;
+  }
+
+  .deck-shell .deck-panel {
+    padding: 13px 12px;
+  }
+
+  .fretboard-panel {
+    padding: 14px 10px 12px;
+    margin-top: 2px;
+  }
+
+  .fretboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stage-title {
+    font-size: 1.05rem;
+  }
+
+  .fretboard-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    padding: 8px 4px;
+  }
+
+  .fretboard-svg {
+    min-width: 820px;
+  }
+
+  .mobile-swipe-hint {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 2px 0 6px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+
+  /* Horizontal single-row Compartment Dock & Workspace Zones on Mobile */
+  .compartment-dock,
+  .zone-pills-group,
+  .zone-subtools-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .compartment-dock::-webkit-scrollbar,
+  .zone-pills-group::-webkit-scrollbar,
+  .zone-subtools-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .compartment-dock > *,
+  .zone-pills-group > *,
+  .zone-subtools-bar > * {
+    flex-shrink: 0;
+  }
+
+  .zone-collapse-btn {
+    display: none;
+  }
+
+  /* Float Global Audio Dock cleanly ABOVE the Mobile Bottom Nav */
+  .audio-transport-dock {
+    left: 10px;
+    right: 10px;
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .transport-dock-inner {
+    justify-content: space-between;
+  }
+
+  /* Fixed Native Mobile Bottom Thumb Dock */
+  .mobile-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-panel);
+    border-top: 1.5px solid var(--border-strong);
+    box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .mob-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 46px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 4px 2px;
+  }
+
+  .mob-nav-btn.is-active {
+    color: var(--accent-root);
+    background: rgba(229, 169, 85, 0.12);
+  }
+
+  .mob-nav-icon {
+    font-size: 1.08rem;
+    line-height: 1;
+  }
+
+  .mob-nav-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 0.72rem;
+  }
+
+  /* Hide Bottom Nav cleanly in Zen Mode */
+  body[data-zen="true"] .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body[data-zen="true"] .app-shell {
+    padding-bottom: 16px;
+  }
+}
+
+/* Keep small phones (< 480px) crisp by hiding large outer corner finials that crowd padding */
+@media (max-width: 480px) {
+  .corner-finial,
+  .stage-crown-crest {
+    display: none !important;
+  }
+
+  [data-theme="rock70s"] .deck-panel,
+  [data-theme="rock70s"] .fretboard-panel {
+    border-left-width: 4px;
+    border-right-width: 4px;
+  }
+}

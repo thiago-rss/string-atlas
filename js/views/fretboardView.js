@@ -7,6 +7,7 @@
  * - Direct Editorial Plate Export (SVG & 2x Retina PNG) matching the active studio design
  */
 import { DB } from '../core/database.js';
+import { getScalaPresetById, mapScalaToFretboard, parseSclText } from '../core/scalaEngine.js';
 import { getThemeById } from '../core/themes.js';
 import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import {
@@ -517,12 +518,24 @@ export function renderFretboard(state) {
   const scale = getActiveScale();
   const rootName = qToNoteName(state.rootQ, false);
   const scaleName = state.lang === 'en' ? scale.nameEn : scale.namePt;
-  titleEl.textContent = `${rootName} ${scaleName}`;
-  formulaEl.textContent = scale.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · ');
+
+  const activeScala = state.scalaOverlayOn
+    ? parseSclText(state.scalaCustomText || getScalaPresetById(state.scalaPresetId).scl)
+    : null;
+  const scalaActive = Boolean(activeScala && activeScala.ok);
+
+  if (scalaActive) {
+    titleEl.textContent = `${rootName} · ${activeScala.description}`;
+    formulaEl.textContent = `Scala .scl · ${activeScala.noteCount} ${t(state.lang, 'notesUnit')} · ${activeScala.periodCents.toFixed(1)}¢`;
+  } else {
+    titleEl.textContent = `${rootName} ${scaleName}`;
+    formulaEl.textContent = scale.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · ');
+  }
 
   const activeVoicing = state.voicingOverlayOn ? getActiveVoicing() : null;
 
   legendEl.innerHTML = `
+    ${scalaActive ? `<span class="legend-item" style="color:var(--accent-micro);font-weight:700">✦ SCALA .SCL (${activeScala.periodCents.toFixed(0)}¢)</span>` : ''}
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-root)"></span>${t(state.lang, 'legendRoot')}</span>
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-char)"></span>${t(state.lang, 'legendChar')}</span>
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-scale)"></span>${t(state.lang, 'legendScale')}</span>
@@ -690,7 +703,65 @@ export function renderFretboard(state) {
     }
   }
 
-  // Open Strings, Harmonics, Scale, Voicing & Radar B Nodes
+  // Open Strings, Harmonics, Scale (24-TET or Arbitrary Scala .scl), Voicing & Radar B Nodes
+  if (scalaActive) {
+    const scalaMarkers = mapScalaToFretboard({
+      parsed: activeScala,
+      rootQ: state.rootQ,
+      stringsQ: state.customStringsQ,
+      maxFrets
+    });
+
+    // Always render subtle open-string tuning reference badges on headstock
+    for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
+      const stringArrIdx = (numStrings - 1) - visIdx;
+      const openQ = state.customStringsQ[stringArrIdx];
+      const y = TOP_Y + visIdx * STRING_GAP;
+      const openCx = tx(NUT_X - 38);
+      parts.push(`
+        <g class="note-node" filter="url(#saNoteShadow)" data-kind="note" data-pc="${mod24(openQ)}" data-vis-str="${visIdx}" data-cx="${openCx.toFixed(1)}" data-cy="${y}" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="-1" data-micro="0">
+          <circle cx="${openCx.toFixed(1)}" cy="${y}" r="12.5" fill="var(--bg-elevated)" stroke="var(--border-strong)" stroke-width="1"/>
+          <text x="${openCx.toFixed(1)}" y="${y + 4}" text-anchor="middle" fill="var(--text-secondary)" font-size="10" font-weight="700">${qToNoteName(openQ, false)}</text>
+        </g>
+      `);
+    }
+
+    // Plot every Scala .scl pitch with exact ±¢ deviation badge!
+    scalaMarkers.forEach((m) => {
+      if (m.nearestFret === 0 && m.fretFloat < 0.35 && Math.abs(m.devCents) > 30) return;
+      const visIdx = (numStrings - 1) - m.strIdx;
+      const y = TOP_Y + visIdx * STRING_GAP;
+      const rawX = state.microMode === 'bend'
+        ? fretCenterRawX(m.nearestFret, fretXs)
+        : (m.fretFloat <= 0.12 ? NUT_X - 38 : fretPosToRawX(m.fretFloat, fretXs, maxFrets));
+      const cx = tx(rawX);
+
+      const devRound = Math.round(m.devCents);
+      const devTxt = devRound === 0 ? '0¢' : `${devRound > 0 ? '+' : ''}${devRound}¢`;
+      const fill = m.isRoot ? 'var(--accent-root)' : (m.isPure12 ? 'var(--accent-scale)' : 'var(--accent-micro)');
+      const ink = m.isRoot ? 'var(--accent-root-ink)' : (m.isPure12 ? 'var(--accent-scale-ink)' : 'var(--accent-micro-ink)');
+      const lbl = state.labelMode === 'cents'
+        ? `${Math.round(m.centsInPeriod)}`
+        : (state.labelMode === 'degree' ? `${m.degreeIndex + 1}` : m.raw.slice(0, 4));
+      const fSize = lbl.length >= 4 ? 7.8 : 9.2;
+      const outsideWin = state.fretWindowOn && (m.nearestFret < winMin || m.nearestFret > winMax);
+
+      parts.push(`
+        <g class="note-node ${outsideWin ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="scala" data-vis-str="${visIdx}" data-cx="${cx.toFixed(1)}" data-cy="${y}" data-freq="${m.freq.toFixed(3)}" data-raw="${m.raw}" data-cents="${m.centsInPeriod.toFixed(1)}" data-dev="${m.devCents.toFixed(1)}" data-deg="${m.degreeIndex + 1}" data-string="${visIdx + 1}" data-fret="${m.nearestFret}">
+          ${m.isRoot ? `<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.8" fill="none" stroke="var(--accent-root)" stroke-width="1.4" stroke-opacity="0.78"/>` : ''}
+          ${renderThemedNoteMarker({
+            cx, y, fill, ink, label: lbl, fontSize: fSize,
+            isRoot: m.isRoot, isChar: false, isMicroStep: false,
+            microMode: 'frets24', nodeShape: fbSkin.nodeShape || 'jewel'
+          })}
+          ${Math.abs(devRound) >= 3 ? `
+            <rect x="${(cx + 3).toFixed(1)}" y="${y - 19}" width="24" height="11" rx="3" fill="#0d1017" stroke="${fill}" stroke-width="0.85"/>
+            <text x="${(cx + 15).toFixed(1)}" y="${y - 11}" text-anchor="middle" fill="${fill}" font-size="7.3" font-weight="800" font-family="ui-monospace, monospace">${devTxt}</text>
+          ` : ''}
+        </g>
+      `);
+    });
+  } else {
   for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
     const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
@@ -801,6 +872,8 @@ export function renderFretboard(state) {
     }
   }
 
+  }
+
   // Dedicated top layers for Pluck Ripple FX, Etude Playhead & Live Pitch Mirror
   parts.push('<g id="fxPulseLayer" style="pointer-events:none"></g>');
   parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
@@ -839,6 +912,22 @@ export function renderFretboard(state) {
     const nx = Number(node.dataset.cx);
     const ny = Number(node.dataset.cy);
     const kind = node.dataset.kind;
+
+    if (kind === 'scala') {
+      const freq = Number(node.dataset.freq);
+      const raw = node.dataset.raw;
+      const cents = Number(node.dataset.cents);
+      const dev = Number(node.dataset.dev);
+      const deg = Number(node.dataset.deg);
+      const strNum = Number(node.dataset.string);
+      const fret = node.dataset.fret;
+      synthEngine.pluckFreq(freq, { duration: 1.9, velocity: 0.36 });
+      triggerFretboardStringPluck({ visIdx, x: nx, y: ny, color: Math.abs(dev) <= 4 ? 'var(--accent-scale)' : 'var(--accent-micro)' });
+      setState({
+        inspectedNote: { kind: 'scala', freq, raw, cents, dev, deg, stringNum: strNum, fret }
+      });
+      return;
+    }
 
     if (kind === 'harmonic') {
       const freq = Number(node.dataset.freq);
@@ -898,6 +987,18 @@ export function renderInspector(state) {
   const info = state.inspectedNote;
   if (!info) {
     strip.innerHTML = `<span class="inspector-hint">${t(state.lang, 'inspectorHint')}</span>`;
+    return;
+  }
+
+  if (info.kind === 'scala') {
+    const sign = info.dev >= 0 ? `+${info.dev.toFixed(1)}` : `${info.dev.toFixed(1)}`;
+    strip.innerHTML = `
+      <span class="inspector-kv">Scala: <strong>#${info.deg} (${info.raw})</strong></span>
+      <span class="inspector-kv">${t(state.lang, 'inspCents')}: <strong>${info.cents.toFixed(1)}¢</strong></span>
+      <span class="inspector-kv">${t(state.lang, 'inspFreq')}: <strong>${info.freq.toFixed(2)} Hz</strong></span>
+      <span class="inspector-kv">Δ 12-TET: <strong style="color:var(--accent-micro)">${sign}¢</strong></span>
+      <span class="inspector-kv">${t(state.lang, 'inspPos')}: <strong>${t(state.lang, 'inspString')} ${info.stringNum} · ${t(state.lang, 'inspFret')} ${info.fret}</strong></span>
+    `;
     return;
   }
 

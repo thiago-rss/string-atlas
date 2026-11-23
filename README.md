@@ -1,14 +1,13 @@
-# String Atlas — Modal Guitar Lab (`v7.8.0`)
+# String Atlas — Modal Guitar Lab (`v8.0.0`)
 
-Laboratório PWA offline-first de experimentação modal, microtonal (**24-TET**), estendida (**6, 7 e 8 cordas**), luthieria, harmonia, ritmo e escuta para guitarra elétrica — **zero dependências externas** (Vanilla JS ES Modules, HTML5, CSS3 e Web Audio API).
+Laboratório PWA offline-first (desktop e **mobile nativo**) de experimentação modal, microtonal (**24-TET + Scala `.scl` / 53-TET / Entonação Justa / Bohlen-Pierce**), estendida (**6, 7 e 8 cordas**), engenharia de tensão, harmonia não-tercial e polimetria para guitarra elétrica — **zero dependências externas**.
 
-## Destaques da Plataforma
+## Destaques da Plataforma (`v8.0.0`)
 
-- **Braço Vivo de Luthieria (6, 7 e 8 Cordas):** vibração física da corda + *ripple* luminoso ao tocar, destaque de oitavas no *hover*, **Zoom `0–12` / `0–22` casas**, **Modo Canhoto (`⇄`)**, janela móvel de formas fechadas, 3 modos microtonais (*Bend +50¢*, *Slide/Fretless*, *Trastes 24-TET*) e **Harmônicos Espectrais** (2º–7º parciais).
-- **7 Mundos Visuais Esculturais (`T`):** *Layl · Astrolábio*, *Nahar · Códice*, *70s Analog · Console Valvulado*, *Doom Ritual · Catedral*, *Djent Poly · Lâmina CNC*, *Avant · Partitura Gráfica* e *Brasilidade · Curvas & Cordel* — cada um com fontes próprias, filigranas de 4 cantos, medalhão de marca e geometria própria dos nós e inlays no braço.
-- **Exportação Completa:** **Pranchas Didáticas em PNG (2× Retina) & SVG**, **MIDI 24-TET (`.mid` com Pitch Bend +50¢ e canais MPE nos Vamps)**, **MusicXML 4.0 (`.musicxml` com tablatura 6/7/8 cordas)** e **Tablatura ASCII (`.txt`)**.
-- **Navegação de Estúdio & Compartimentos:** **Command Palette (`⌘K` / `/`)**, **Mini-Dock Flutuante de Áudio Global (`Esc` = Parar Tudo)**, **Modal de Atalhos (`?`)**, **Modo Zen (`Z`) com mini-HUD de Vamp e Micro-Bend**, Snapshots com URL `#sa=...` e backup `.json`.
-- **Atlas & Laboratórios Integrados:** **74 escalas/modos** em 7 domínios, **39 afinações** (incl. **B Standard**, **A Standard**, 7c e 8c), **Calculadora Física de Tensão de Cordas** (Multi-Scale + Solver de Calibres), **Radar Modal 24-TET**, **Vamps & Sayr**, **Etudes Procedurais**, **Iqa’at & Polimetria**, **Treino Auditivo 24-TET**, **Line Mode (YIN 34–1480 Hz)** e **Guia de Estudos (16 lições PT/EN)**.
+- **Fronteira Microtonal — Scala (`.scl`) & Sistemas Avançados:** 12 presets prontos (**Entonação Justa 5/7/11-limit**, **53-TET Otomano** Rast/Uşşak/Hicaz em commas, **Bohlen-Pierce 3/1 Tritava**, **Gamelan Pelog/Slendro reais**, **Mesotônico ¼-comma**, **19-EDO** e **Wendy Carlos Alpha**), importação/exportação de arquivos `.scl`, editor embutido, síntese em Hz puros e projeção direta no braço SVG exibindo o desvio exato `±¢` em cada casa.
+- **Currículo Completo (8 Capítulos · 32 Lições + 32 Dossiês PT/EN):** cobre *Maqamat 24-TET*, *Barítono B/A Standard & Scordatura*, *Messiaen & Pitch Sets*, *Harmonia Não-Tercial & Iqa’at*, *Alcance Estendido 7 & 8 Cordas*, *Modulação Radar & Sayr*, *Fronteira Microtonal Scala/53-TET/JI* e *Treino Auditivo, Polimetria 11/8 & Engenharia de Tensão*.
+- **Versão Mobile PWA Nativa:** barra inferior ergonômica para o polegar (*Braço*, *Deck*, *Estúdio*, *Buscar*, *Design*), suporte a `safe-area-inset-bottom`, zoom inteligente `0–12` em telas estreitas, toque tátil 44px, rolagem suave horizontal, modo paisagem otimizado e botão de instalação PWA (`beforeinstallprompt`).
+- **Braço Vivo de Luthieria (6/7/8 Cordas) & 7 Mundos Visuais Esculturais (`T`):** vibração física da corda + *ripple*, ressonância de oitavas no *hover*, modo canhoto (`⇄`), 7 designs autorais com fontes e filigranas dedicadas e exportação de pranchas em **PNG (2× Retina) & SVG**, **MIDI 24-TET** e **MusicXML 4.0**.
 
 ## Execução Local & Validação
 

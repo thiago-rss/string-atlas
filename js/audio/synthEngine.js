@@ -704,6 +704,31 @@ class SynthEngine {
     this.scaleTimerIds.push(endId);
   }
 
+
+  /**
+   * Plays an arbitrary sequence of pure Hz frequencies (e.g. Scala .scl / 53-TET / Bohlen-Pierce)
+   */
+  playFreqSequence(items, { bpm = 92, onStep = null, onComplete = null } = {}) {
+    if (!items || !items.length) return;
+    this.stopScaleSequence();
+    this.ensureContext();
+
+    const stepMs = Math.max(150, Math.round((60000 / bpm) * 0.58));
+    items.forEach((item, idx) => {
+      const id = setTimeout(() => {
+        this.pluckFreq(item.freq, { duration: Math.max(0.85, stepMs / 520), velocity: 0.35 });
+        if (onStep) onStep(item, idx);
+      }, idx * stepMs);
+      this.scaleTimerIds.push(id);
+    });
+
+    const endId = setTimeout(() => {
+      this.scaleTimerIds = [];
+      if (onComplete) onComplete();
+    }, items.length * stepMs + 240);
+    this.scaleTimerIds.push(endId);
+  }
+
   stopScaleSequence() {
     this.scaleTimerIds.forEach((id) => clearTimeout(id));
     this.scaleTimerIds = [];

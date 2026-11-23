@@ -8,6 +8,7 @@
  *     4. Partitura & Tab   (Independent toggle for Synchronized 24-TET Staff & Tablature)
  */
 import { DB } from '../core/database.js';
+import { buildScalaPlayFrequencies, getScalaPresetById, parseSclText } from '../core/scalaEngine.js';
 import {
   NOTE_NAMES_24,
   formatStepFormula,
@@ -605,6 +606,19 @@ export function toggleScalePlayback(state) {
   if (state.isPlayingScale) {
     stopPlaybackIfNeeded();
     return;
+  }
+
+  if (state.scalaOverlayOn) {
+    const parsed = parseSclText(state.scalaCustomText || getScalaPresetById(state.scalaPresetId).scl);
+    if (parsed.ok) {
+      const seq = buildScalaPlayFrequencies({ parsed, rootQ: state.rootQ });
+      setState({ isPlayingScale: true });
+      synthEngine.playFreqSequence(seq, {
+        bpm: state.bpm,
+        onComplete: () => setState({ isPlayingScale: false, playingPcQ: null })
+      });
+      return;
+    }
   }
 
   const scale = getActiveScale();

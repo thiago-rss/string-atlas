@@ -9,6 +9,7 @@ import { DB } from '../core/database.js';
 import { THEMES } from '../core/themes.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { STUDY_LESSONS } from '../core/studyGuide.js';
+import { SCALA_PRESETS } from '../core/scalaEngine.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
@@ -20,6 +21,7 @@ import { stopLineMode } from './lineModeView.js';
 
 const TOOL_COMMANDS = [
   { id: 'radar',   key: 'tabRadar',      icon: '🧭' },
+  { id: 'scala',   key: 'tabScala',      icon: '∞' },
   { id: 'vamp',    key: 'tabVamp',       icon: '⟳' },
   { id: 'etude',   key: 'tabEtude',      icon: '⚡' },
   { id: 'harmony', key: 'tabHarmony',    icon: '◈' },
@@ -109,7 +111,21 @@ export function buildCommandIndex(lang = 'pt') {
     });
   });
 
-  // 6. Study Lessons (16)
+  // 5b. Scala (.scl) Microtonal Presets (12)
+  SCALA_PRESETS.forEach((sp) => {
+    items.push({
+      uid: `scala:${sp.id}`,
+      type: 'scala',
+      badge: '.scl',
+      icon: '∞',
+      title: isEn ? sp.nameEn : sp.namePt,
+      sub: isEn ? 'Scala Microtonal System' : 'Sistema Microtonal Scala',
+      search: `${sp.namePt} ${sp.nameEn} scala scl microtonal 53-tet ji bohlen gamelan ${sp.id}`.toLowerCase(),
+      payload: { scalaPresetId: sp.id }
+    });
+  });
+
+  // 6. Study Lessons (32)
   STUDY_LESSONS.forEach((l) => {
     items.push({
       uid: `lesson:${l.id}`,
@@ -208,6 +224,19 @@ export function executeCommandItem(item) {
       ...(first ? { scaleId: first.scaleId, customScaleIntervalsQ: null, rootQ: first.rootQ, chordId: first.chordId } : {}),
       ...(tun ? { stringCount: tun.stringsQ.length, tuningId: tun.id, customStringsQ: [...tun.stringsQ] } : {}),
       activeTab: 'vamp',
+      workspaceOpen: true,
+      paletteOpen: false,
+      paletteQuery: ''
+    });
+    return;
+  }
+
+  if (item.type === 'scala') {
+    setState({
+      scalaPresetId: item.payload.scalaPresetId,
+      scalaCustomText: '',
+      scalaOverlayOn: true,
+      activeTab: 'scala',
       workspaceOpen: true,
       paletteOpen: false,
       paletteQuery: ''
