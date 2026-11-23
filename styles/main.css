@@ -2129,3 +2129,14 @@ body[data-zen="true"] .fretboard-panel {
   border-color: var(--accent-danger);
   background: rgba(224, 82, 96, 0.16);
 }
+
+/* =========================================================================
+ * Phase 7 Additions: 6/7/8-String Extended Range Selector
+ * ========================================================================= */
+
+.tuning-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}

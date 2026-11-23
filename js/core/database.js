@@ -1,8 +1,8 @@
 /**
- * String Atlas Unified Database v3.1
+ * String Atlas Unified Database v7.0
  * - 74 Scales & Modes organized across 7 domains and subfamilies
- * - 26 Tunings across 4 groups (incl. B Standard, A Standard, Drops, Symmetric & Drone)
- * - 12 Non-tercial/Post-tonal/Microtonal chords · 11 Iqa'at & Aksak cycles
+ * - 39 Tunings across 6-String, 7-String & 8-String guitars
+ * - 12 Experimental chords · 11 Iqa'at & Aksak cycles
  */
 
 export const DB = {
@@ -68,6 +68,16 @@ export const DB = {
       "id": "modal_drone",
       "labelPt": "Modais, Abertas & Drones",
       "labelEn": "Modal, Open & Drone"
+    },
+    {
+      "id": "ext_7",
+      "labelPt": "7 Cordas (Barítono, Drop & Simétricas)",
+      "labelEn": "7-String (Baritone, Drop & Symmetric)"
+    },
+    {
+      "id": "ext_8",
+      "labelPt": "8 Cordas (F♯/F Std, Drop E & Simétricas)",
+      "labelEn": "8-String (F♯/F Std, Drop E & Symmetric)"
     }
   ],
   "tunings": [
@@ -485,6 +495,233 @@ export const DB = {
         108,
         128,
         142
+      ]
+    },
+    {
+      "id": "7_b_standard",
+      "group": "ext_7",
+      "pinned": true,
+      "namePt": "7c B Standard (B E A D G B E)",
+      "nameEn": "7-Str B Standard (B E A D G B E)",
+      "short": "7c B Std",
+      "stringsQ": [
+        70,
+        80,
+        90,
+        100,
+        110,
+        118,
+        128
+      ]
+    },
+    {
+      "id": "7_a_standard",
+      "group": "ext_7",
+      "pinned": true,
+      "namePt": "7c A Standard (A D G C F A D)",
+      "nameEn": "7-Str A Standard (A D G C F A D)",
+      "short": "7c A Std",
+      "stringsQ": [
+        66,
+        76,
+        86,
+        96,
+        106,
+        114,
+        124
+      ]
+    },
+    {
+      "id": "7_drop_a",
+      "group": "ext_7",
+      "pinned": true,
+      "namePt": "7c Drop A (A E A D G B E)",
+      "nameEn": "7-Str Drop A (A E A D G B E)",
+      "short": "7c Drop A",
+      "stringsQ": [
+        66,
+        80,
+        90,
+        100,
+        110,
+        118,
+        128
+      ]
+    },
+    {
+      "id": "7_drop_g",
+      "group": "ext_7",
+      "pinned": true,
+      "namePt": "7c Drop G (G D G C F A D)",
+      "nameEn": "7-Str Drop G (G D G C F A D)",
+      "short": "7c Drop G",
+      "stringsQ": [
+        62,
+        76,
+        86,
+        96,
+        106,
+        114,
+        124
+      ]
+    },
+    {
+      "id": "7_all_fourths",
+      "group": "ext_7",
+      "pinned": true,
+      "namePt": "7c All Fourths (B E A D G C F)",
+      "nameEn": "7-Str All Fourths (B E A D G C F)",
+      "short": "7c 4ths",
+      "stringsQ": [
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130
+      ]
+    },
+    {
+      "id": "7_dadgad_low_a",
+      "group": "ext_7",
+      "pinned": false,
+      "namePt": "7c Modal Drone (A D A D G A D)",
+      "nameEn": "7-Str Modal Drone (A D A D G A D)",
+      "short": "7c DADGAD",
+      "stringsQ": [
+        66,
+        76,
+        90,
+        100,
+        110,
+        114,
+        124
+      ]
+    },
+    {
+      "id": "7_oud_extended",
+      "group": "ext_7",
+      "pinned": false,
+      "namePt": "7c Oud-Mapped (G C F A D G C)",
+      "nameEn": "7-Str Oud-Mapped (G C F A D G C)",
+      "short": "7c Oud",
+      "stringsQ": [
+        62,
+        72,
+        82,
+        90,
+        100,
+        110,
+        120
+      ]
+    },
+    {
+      "id": "8_fs_standard",
+      "group": "ext_8",
+      "pinned": true,
+      "namePt": "8c F♯ Standard (F♯ B E A D G B E)",
+      "nameEn": "8-Str F♯ Standard (F♯ B E A D G B E)",
+      "short": "8c F♯ Std",
+      "stringsQ": [
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        118,
+        128
+      ]
+    },
+    {
+      "id": "8_f_meshuggah",
+      "group": "ext_8",
+      "pinned": true,
+      "namePt": "8c F Standard / Meshuggah (F B♭ E♭ A♭ D♭ G♭ B♭ E♭)",
+      "nameEn": "8-Str F Standard / Meshuggah (F B♭ E♭ A♭ D♭ G♭ B♭ E♭)",
+      "short": "8c F Std",
+      "stringsQ": [
+        58,
+        68,
+        78,
+        88,
+        98,
+        108,
+        116,
+        126
+      ]
+    },
+    {
+      "id": "8_drop_e",
+      "group": "ext_8",
+      "pinned": true,
+      "namePt": "8c Drop E (E B E A D G B E)",
+      "nameEn": "8-Str Drop E (E B E A D G B E)",
+      "short": "8c Drop E",
+      "stringsQ": [
+        56,
+        70,
+        80,
+        90,
+        100,
+        110,
+        118,
+        128
+      ]
+    },
+    {
+      "id": "8_hybrid_ea",
+      "group": "ext_8",
+      "pinned": true,
+      "namePt": "8c Hybrid E-A (E A E A D G B E)",
+      "nameEn": "8-Str Hybrid E-A (E A E A D G B E)",
+      "short": "8c E-A",
+      "stringsQ": [
+        56,
+        66,
+        80,
+        90,
+        100,
+        110,
+        118,
+        128
+      ]
+    },
+    {
+      "id": "8_all_fourths",
+      "group": "ext_8",
+      "pinned": true,
+      "namePt": "8c All Fourths (F♯ B E A D G C F)",
+      "nameEn": "8-Str All Fourths (F♯ B E A D G C F)",
+      "short": "8c 4ths",
+      "stringsQ": [
+        60,
+        70,
+        80,
+        90,
+        100,
+        110,
+        120,
+        130
+      ]
+    },
+    {
+      "id": "8_drop_eb",
+      "group": "ext_8",
+      "pinned": false,
+      "namePt": "8c Drop E♭ (E♭ B♭ E♭ A♭ D♭ G♭ B♭ E♭)",
+      "nameEn": "8-Str Drop E♭ (E♭ B♭ E♭ A♭ D♭ G♭ B♭ E♭)",
+      "short": "8c Drop E♭",
+      "stringsQ": [
+        54,
+        68,
+        78,
+        88,
+        98,
+        108,
+        116,
+        126
       ]
     }
   ],

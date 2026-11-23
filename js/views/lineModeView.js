@@ -142,7 +142,7 @@ export function renderLineModeView(state) {
         </div>
         <div class="tuner-strings-grid" id="scordaturaTunerGrid">
           ${state.customStringsQ.map((sq, idx) => {
-            const gStr = 6 - idx;
+            const gStr = state.customStringsQ.length - idx;
             const hz = qToFreq(sq);
             return `
               <button type="button" class="tuner-str-card" data-l-action="auditionString" data-q="${sq}" data-tuner-idx="${idx}">
@@ -467,11 +467,11 @@ function updateScordaturaTunerLive(pitch, st) {
       adviceEl.textContent = t(st.lang, 'tunerStripHint');
     } else if (inTune) {
       const strName = qToNoteName(st.customStringsQ[bestIdx], true);
-      adviceEl.textContent = `✔ ${t(st.lang, 'inspString')} ${6 - bestIdx} (${strName}) · ${t(st.lang, 'tunerInTune')}`;
+      adviceEl.textContent = `✔ ${t(st.lang, 'inspString')} ${st.customStringsQ.length - bestIdx} (${strName}) · ${t(st.lang, 'tunerInTune')}`;
     } else {
       const strName = qToNoteName(st.customStringsQ[bestIdx], true);
       const dir = bestDeltaCents < 0 ? t(st.lang, 'tunerTighten') : t(st.lang, 'tunerLoosen');
-      adviceEl.textContent = `${t(st.lang, 'inspString')} ${6 - bestIdx} (${strName}): ${dir} (${Math.round(bestDeltaCents)}¢)`;
+      adviceEl.textContent = `${t(st.lang, 'inspString')} ${st.customStringsQ.length - bestIdx} (${strName}): ${dir} (${Math.round(bestDeltaCents)}¢)`;
     }
   }
 }

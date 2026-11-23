@@ -20,7 +20,9 @@ import { synthEngine } from '../audio/synthEngine.js';
 
 const NUM_FRETS = 22;
 const SVG_W = 1220;
-const SVG_H = 266;
+function computeSvgH(numStrings) {
+  return TOP_Y + (numStrings - 1) * STRING_GAP + 48;
+}
 const NUT_X = 76;
 const RIGHT_PAD = 24;
 const TOP_Y = 38;
@@ -90,7 +92,8 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
     return;
   }
 
-  const visIdx = 5 - ev.strIdx;
+  const numStrings = getState().customStringsQ.length;
+  const visIdx = (numStrings - 1) - ev.strIdx;
   const y = TOP_Y + visIdx * STRING_GAP;
   const x = ev.kind === 'harmonic'
     ? fretPosToX(ev.fret)
@@ -119,8 +122,9 @@ export function highlightFretboardLivePitch(pitch, state) {
   }
 
   const hits = [];
-  for (let visIdx = 0; visIdx < 6; visIdx += 1) {
-    const stringArrIdx = 5 - visIdx;
+  const numStrings = state.customStringsQ.length;
+  for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
+    const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const stepQ = pitch.nearestQ - openQ;
     if (stepQ < 0 || stepQ > NUM_FRETS * 2) continue;
@@ -202,12 +206,15 @@ export function renderFretboard(state) {
     }
   }
 
+  const numStrings = state.customStringsQ.length;
+  const svgH = computeSvgH(numStrings);
+  const boardH = STRING_GAP * (numStrings - 1) + 28;
   const parts = [];
-  parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${SVG_H}" role="img" aria-label="${rootName} ${scaleName}">`);
+  parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${svgH}" role="img" aria-label="${rootName} ${scaleName}">`);
 
   // Fretboard wood & nut
-  parts.push(`<rect x="${NUT_X}" y="${TOP_Y - 14}" width="${SVG_W - NUT_X - RIGHT_PAD}" height="${STRING_GAP * 5 + 28}" rx="4" fill="var(--bg-fretboard)"/>`);
-  parts.push(`<rect x="${NUT_X - 7}" y="${TOP_Y - 14}" width="7" height="${STRING_GAP * 5 + 28}" fill="var(--bg-nut)"/>`);
+  parts.push(`<rect x="${NUT_X}" y="${TOP_Y - 14}" width="${SVG_W - NUT_X - RIGHT_PAD}" height="${boardH}" rx="4" fill="var(--bg-fretboard)"/>`);
+  parts.push(`<rect x="${NUT_X - 7}" y="${TOP_Y - 14}" width="7" height="${boardH}" fill="var(--bg-nut)"/>`);
 
   // Closed-Position Fretboard Window highlight box
   const winMin = state.fretWindowStart;
@@ -215,16 +222,16 @@ export function renderFretboard(state) {
   if (state.fretWindowOn) {
     const wx1 = winMin === 0 ? NUT_X - 50 : FRET_XS[Math.max(0, winMin - 1)];
     const wx2 = FRET_XS[winMax];
-    parts.push(`<rect x="${wx1}" y="${TOP_Y - 14}" width="${Math.max(12, wx2 - wx1)}" height="${STRING_GAP * 5 + 28}" rx="4" fill="var(--accent-scale)" fill-opacity="0.11" stroke="var(--accent-scale)" stroke-width="1.5" stroke-dasharray="5 3"/>`);
+    parts.push(`<rect x="${wx1}" y="${TOP_Y - 14}" width="${Math.max(12, wx2 - wx1)}" height="${boardH}" rx="4" fill="var(--accent-scale)" fill-opacity="0.11" stroke="var(--accent-scale)" stroke-width="1.5" stroke-dasharray="5 3"/>`);
   }
 
-  // Fret inlays
-  const midY = TOP_Y + STRING_GAP * 2.5;
+  // Fret inlays (centered dynamically for 6, 7, or 8 strings)
+  const midY = TOP_Y + STRING_GAP * ((numStrings - 1) / 2);
   INLAY_FRETS.forEach((f) => {
     const cx = fretCenterX(f);
     if (f === 12) {
       parts.push(`<circle cx="${cx}" cy="${TOP_Y + STRING_GAP * 1.5}" r="5.5" fill="var(--inlay-color)"/>`);
-      parts.push(`<circle cx="${cx}" cy="${TOP_Y + STRING_GAP * 3.5}" r="5.5" fill="var(--inlay-color)"/>`);
+      parts.push(`<circle cx="${cx}" cy="${TOP_Y + STRING_GAP * (numStrings - 2.5)}" r="5.5" fill="var(--inlay-color)"/>`);
     } else {
       parts.push(`<circle cx="${cx}" cy="${midY}" r="5.5" fill="var(--inlay-color)"/>`);
     }
@@ -233,18 +240,18 @@ export function renderFretboard(state) {
   // Semitone fret wires & numbers
   for (let f = 1; f <= NUM_FRETS; f += 1) {
     const x = FRET_XS[f];
-    parts.push(`<line x1="${x}" y1="${TOP_Y - 14}" x2="${x}" y2="${TOP_Y + STRING_GAP * 5 + 14}" stroke="var(--fret-wire)" stroke-width="1.6"/>`);
-    parts.push(`<text x="${fretCenterX(f)}" y="${SVG_H - 12}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="ui-monospace, monospace">${f}</text>`);
+    parts.push(`<line x1="${x}" y1="${TOP_Y - 14}" x2="${x}" y2="${TOP_Y + STRING_GAP * (numStrings - 1) + 14}" stroke="var(--fret-wire)" stroke-width="1.6"/>`);
+    parts.push(`<text x="${fretCenterX(f)}" y="${svgH - 12}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="ui-monospace, monospace">${f}</text>`);
 
     if (state.microMode === 'frets24') {
       const microX = (FRET_XS[f - 1] + FRET_XS[f]) / 2;
-      parts.push(`<line x1="${microX}" y1="${TOP_Y - 12}" x2="${microX}" y2="${TOP_Y + STRING_GAP * 5 + 12}" stroke="var(--fret-micro)" stroke-width="1.2" stroke-dasharray="4 4"/>`);
+      parts.push(`<line x1="${microX}" y1="${TOP_Y - 12}" x2="${microX}" y2="${TOP_Y + STRING_GAP * (numStrings - 1) + 12}" stroke="var(--fret-micro)" stroke-width="1.2" stroke-dasharray="4 4"/>`);
     }
   }
 
   // Strings
-  for (let visIdx = 0; visIdx < 6; visIdx += 1) {
-    const stringArrIdx = 5 - visIdx;
+  for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
+    const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const y = TOP_Y + visIdx * STRING_GAP;
     const strokeW = 1.2 + visIdx * 0.42;
@@ -260,7 +267,7 @@ export function renderFretboard(state) {
   if (activeVoicing && activeVoicing.notes.length >= 2) {
     const pts = activeVoicing.notes
       .map((n) => {
-        const visIdx = 5 - n.strIdx;
+        const visIdx = (numStrings - 1) - n.strIdx;
         const x = stepQToX(n.stepQ, state.microMode);
         const y = TOP_Y + visIdx * STRING_GAP;
         return `${x.toFixed(1)},${y.toFixed(1)}`;
@@ -270,8 +277,8 @@ export function renderFretboard(state) {
   }
 
   // Open Strings, Harmonics, Scale & Voicing Nodes
-  for (let visIdx = 0; visIdx < 6; visIdx += 1) {
-    const stringArrIdx = 5 - visIdx;
+  for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
+    const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const y = TOP_Y + visIdx * STRING_GAP;
     const openPc = mod24(openQ);

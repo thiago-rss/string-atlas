@@ -13,6 +13,7 @@ import { qToNoteName } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
 import { getActiveScale, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { exportEventsToMidi, exportEventsToMusicXML, triggerFileDownload } from '../core/exportEngine.js';
 import { highlightFretboardEtudeEvent } from './fretboardView.js';
 import { highlightNotationStep } from './notationView.js';
 
@@ -145,6 +146,8 @@ export function renderEtudeView(state) {
           <button type="button" class="btn-mini" data-e-action="showInTab">${t(state.lang, 'etudeShowInTab')}</button>
           <button type="button" class="btn-mini" id="btnCopyAsciiTab" data-e-action="copyTab">${t(state.lang, 'etudeCopyTab')}</button>
           <button type="button" class="btn-mini" data-e-action="downloadTab">${t(state.lang, 'etudeDownloadTab')}</button>
+          <button type="button" class="btn-mini active-mini" data-e-action="exportMidi">${t(state.lang, 'exportMidiBtn')}</button>
+          <button type="button" class="btn-mini" data-e-action="exportXml">${t(state.lang, 'exportXmlBtn')}</button>
         </div>
       </div>
 
@@ -223,6 +226,23 @@ export function renderEtudeView(state) {
       handleCopyAsciiTab(st, btn);
     } else if (act === 'downloadTab') {
       handleDownloadAsciiTab(st);
+    } else if (act === 'exportMidi') {
+      const sc = getActiveScale();
+      const bytes = exportEventsToMidi({
+        events: st.currentEtude.events,
+        bpm: st.etudeBpm,
+        title: `${qToNoteName(st.rootQ, false)} ${sc.nameEn} - ${st.currentEtude.nameEn}`
+      });
+      triggerFileDownload(bytes, `string-atlas-etude-seed-${st.currentEtude.seed}.mid`, 'audio/midi');
+    } else if (act === 'exportXml') {
+      const sc = getActiveScale();
+      const xml = exportEventsToMusicXML({
+        events: st.currentEtude.events,
+        stringsQ: st.customStringsQ,
+        bpm: st.etudeBpm,
+        title: `${qToNoteName(st.rootQ, false)} ${sc.nameEn} - ${st.currentEtude.nameEn}`
+      });
+      triggerFileDownload(xml, `string-atlas-etude-seed-${st.currentEtude.seed}.musicxml`, 'application/vnd.recordare.musicxml+xml');
     }
   };
 }

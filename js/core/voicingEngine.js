@@ -18,6 +18,7 @@ const MAX_HAND_SPAN = 4; // semitones between lowest and highest fretted notes
  * @returns {Array<Object>} sorted voicings
  */
 export function generateVoicings({ rootQ, intervalsQ, stringsQ, limit = 12 }) {
+  const numStrings = stringsQ.length;
   const uniqueIv = [...new Set(intervalsQ.map(mod24))].sort((a, b) => a - b);
   if (uniqueIv.length < 2) return [];
 
@@ -41,7 +42,7 @@ export function generateVoicings({ rootQ, intervalsQ, stringsQ, limit = 12 }) {
 
       cands.push({
         strIdx,          // 0 (Str 6) .. 5 (Str 1)
-        guitarStr: 6 - strIdx,
+        guitarStr: numStrings - strIdx,
         stepQ,
         fret: Math.floor(stepQ / 2),
         isMicro,
@@ -80,14 +81,14 @@ export function generateVoicings({ rootQ, intervalsQ, stringsQ, limit = 12 }) {
       if (chosen.length >= requiredCount) {
         const coveredCount = chosen.reduce((acc, n) => acc.add(n.pc), new Set()).size;
         if (coveredCount >= requiredCount) {
-          evaluateAndStore(chosen, uniqueIv.length, rootQ, seen);
+          evaluateAndStore(chosen, uniqueIv.length, rootQ, seen, numStrings);
         }
         if (chosen.length >= maxNotes) return;
       }
 
-      if (strIdx >= 6) return;
+      if (strIdx >= numStrings) return;
       // Pruning: if remaining strings cannot even reach requiredCount, stop
-      if (chosen.length + (6 - strIdx) < requiredCount) return;
+      if (chosen.length + (numStrings - strIdx) < requiredCount) return;
 
       // Branch 1: pick a candidate on strIdx
       for (const cand of winCands[strIdx]) {
@@ -126,7 +127,7 @@ export function generateVoicings({ rootQ, intervalsQ, stringsQ, limit = 12 }) {
   return selected;
 }
 
-function evaluateAndStore(notes, targetCard, rootQ, seen) {
+function evaluateAndStore(notes, targetCard, rootQ, seen, numStrings) {
   // Check fretted span strictly <= MAX_HAND_SPAN
   const fretted = notes.filter((n) => n.stepQ > 0);
   let minFret = 0;
@@ -144,7 +145,7 @@ function evaluateAndStore(notes, targetCard, rootQ, seen) {
   if (mutedInside > 2) return;
 
   // Build canonical signature
-  const frets = [null, null, null, null, null, null];
+  const frets = Array(numStrings).fill(null);
   notes.forEach((n) => {
     frets[n.strIdx] = n.isMicro ? `${n.fret}+¼` : `${n.fret}`;
   });
@@ -212,7 +213,8 @@ export function buildScaleTabSequence({ rootQ, intervalsQ, stringsQ }) {
 
   for (const absQ of targetQs) {
     let best = null;
-    for (let strIdx = 0; strIdx < 6; strIdx += 1) {
+    const numStrings = stringsQ.length;
+    for (let strIdx = 0; strIdx < numStrings; strIdx += 1) {
       const stepQ = absQ - stringsQ[strIdx];
       if (stepQ < 0 || stepQ > 40) continue;
       if (stepQ === 1) continue;
@@ -222,7 +224,7 @@ export function buildScaleTabSequence({ rootQ, intervalsQ, stringsQ }) {
       if (!best || dist < best.dist) {
         best = {
           strIdx,
-          guitarStr: 6 - strIdx,
+          guitarStr: numStrings - strIdx,
           stepQ,
           fret,
           isMicro,

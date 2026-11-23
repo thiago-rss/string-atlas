@@ -188,6 +188,7 @@ function applyLessonPreset(lessonId, jumpToLineMode = false) {
     customScaleIntervalsQ: null,
     scaleId: p.scaleId,
     rootQ: p.rootQ,
+    stringCount: tun.stringsQ.length,
     tuningId: tun.id,
     customStringsQ: [...tun.stringsQ],
     microMode: p.microMode || 'bend',

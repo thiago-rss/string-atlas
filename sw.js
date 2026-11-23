@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v6.0.0';
+const CACHE_NAME = 'string-atlas-v7.0.0';
 
 const CORE_ASSETS = [
   './',
@@ -6,6 +6,9 @@ const CORE_ASSETS = [
   './manifest.json',
   './styles/main.css',
   './assets/icons/icon.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/apple-touch-icon.png',
   './js/main.js',
   './js/state/store.js',
   './js/core/theory24.js',
@@ -16,6 +19,7 @@ const CORE_ASSETS = [
   './js/core/vampEngine.js',
   './js/core/modulationRadar.js',
   './js/core/earTrainer.js',
+  './js/core/exportEngine.js',
   './js/core/sessionCodec.js',
   './js/core/studyGuide.js',
   './js/core/studyDossiers.js',

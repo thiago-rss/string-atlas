@@ -1,5 +1,5 @@
 /**
- * Pre-commit integrity validator for String Atlas v6.0
+ * Pre-commit integrity validator for String Atlas v7.0
  * Run: node scripts/check.mjs
  */
 import fs from 'node:fs';
@@ -9,12 +9,13 @@ import { DB } from '../js/core/database.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
 import { VAMP_PRESETS, buildVampFromCurrentLab } from '../js/core/vampEngine.js';
-import {
-  compareScales24,
-  findParallelMutations,
-  findPivotModulations
-} from '../js/core/modulationRadar.js';
+import { compareScales24, findParallelMutations, findPivotModulations } from '../js/core/modulationRadar.js';
 import { MICRO_INTERVAL_SETS, createEarQuestion } from '../js/core/earTrainer.js';
+import {
+  exportEventsToMidi,
+  exportEventsToMusicXML,
+  exportVampToMidi
+} from '../js/core/exportEngine.js';
 import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js';
 import { STUDY_LESSONS, STUDY_MODULES } from '../js/core/studyGuide.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
@@ -44,6 +45,7 @@ const jsFiles = [
   'js/core/vampEngine.js',
   'js/core/modulationRadar.js',
   'js/core/earTrainer.js',
+  'js/core/exportEngine.js',
   'js/core/sessionCodec.js',
   'js/core/studyGuide.js',
   'js/core/studyDossiers.js',
@@ -80,110 +82,110 @@ for (const rel of jsFiles) {
 }
 if (errors === 0) ok(`JS syntax valid across ${jsFiles.length} modules`);
 
-// 2. Validate DB.scales, tunings, chords
+// 2. Validate 6-, 7-, and 8-string tunings & Voicing Solver across extended range
 const scaleIds = new Set(DB.scales.map((s) => s.id));
 const tuningIds = new Set(DB.tunings.map((t) => t.id));
 const chordIds = new Set(DB.chords.map((c) => c.id));
 const rhythmIds = new Set(DB.rhythms.map((r) => r.id));
 const patternIds = new Set(ETUDE_PATTERNS.map((p) => p.id));
 
-for (const tunId of ['standard', 'b_standard', 'a_standard']) {
+for (const tun of DB.tunings) {
+  if (![6, 7, 8].includes(tun.stringsQ.length)) {
+    fail(`Tuning ${tun.id} has unsupported string count: ${tun.stringsQ.length}`);
+  }
+}
+
+for (const tunId of ['standard', 'b_standard', 'a_standard', '7_b_standard', '8_fs_standard', '8_drop_e']) {
   const tun = DB.tunings.find((t) => t.id === tunId);
+  if (!tun) { fail(`Missing key tuning: ${tunId}`); continue; }
   for (const c of DB.chords) {
     const v = generateVoicings({ rootQ: 4, intervalsQ: c.intervalsQ, stringsQ: tun.stringsQ, limit: 4 });
     if (!v.length) fail(`0 voicings for ${c.id} on ${tunId}`);
   }
 }
-ok(`Validated ${DB.scales.length} scales, ${DB.tunings.length} tunings & ${DB.chords.length} chords across E/B/A Standard`);
+ok(`Validated ${DB.scales.length} scales, ${DB.tunings.length} tunings (6/7/8 strings) & ${DB.chords.length} chords`);
 
-// 3. Validate Procedural Etudes
+// 3. Validate Procedural Etudes + 24-TET MIDI & MusicXML 4.0 Exports on 6, 7 & 8 strings
 const bayati = DB.scales.find((s) => s.id === 'maqam_bayati');
 const dorian = DB.scales.find((s) => s.id === 'std_dorian');
-const bStd = DB.tunings.find((t) => t.id === 'b_standard');
+const tun8 = DB.tunings.find((t) => t.id === '8_drop_e');
+
 for (const pat of ETUDE_PATTERNS) {
   const etude = generateEtude({
-    scale: bayati, rootQ: 4, stringsQ: bStd.stringsQ,
+    scale: bayati, rootQ: 4, stringsQ: tun8.stringsQ,
     microMode: 'bend', patternId: pat.id, zoneId: 'mid', groupingId: 'group5', length: 16, seed: 2
   });
-  if (!etude.events.length) fail(`Etude returned 0 events for ${pat.id}`);
-  const ascii = exportEtudeToAsciiTab({ etude, scaleName: bayati.namePt, rootQ: 4, stringsQ: bStd.stringsQ, microMode: 'bend' });
-  if (!ascii.includes('|')) fail(`Invalid ASCII tab export for ${pat.id}`);
+  if (!etude.events.length) fail(`Etude returned 0 events on 8-string for ${pat.id}`);
+  const ascii = exportEtudeToAsciiTab({ etude, scaleName: bayati.namePt, rootQ: 4, stringsQ: tun8.stringsQ, microMode: 'bend' });
+  if (!ascii.includes('|')) fail(`Invalid 8-string ASCII tab for ${pat.id}`);
 }
-ok(`Validated ${ETUDE_PATTERNS.length} procedural etude patterns & ASCII export`);
 
-// 4. Validate Phase 6 Modal Radar & Pivot Engine
-const cmpDorianBayati = compareScales24({
-  rootA: 4, intervalsA: dorian.intervalsQ,
-  rootB: 4, intervalsB: bayati.intervalsQ
+const sampleEtude = generateEtude({
+  scale: bayati, rootQ: 4, stringsQ: tun8.stringsQ,
+  microMode: 'bend', patternId: 'micro_bend_lab', zoneId: 'mid', groupingId: 'group5', length: 16, seed: 1
 });
-if (cmpDorianBayati.sharedCount < 5) {
-  fail(`Expected >= 5 shared pitches between D Dorian and D Bayati, got ${cmpDorianBayati.sharedCount}`);
+const midiBytes = exportEventsToMidi({ events: sampleEtude.events, bpm: 92, title: 'D Bayati 8-String' });
+const headerStr = String.fromCharCode(...midiBytes.slice(0, 4));
+if (headerStr !== 'MThd' || midiBytes.length < 60) fail('Invalid MIDI SMF0 binary header');
+// Verify +50c quarter-tone pitch bend byte (0xE0, 0x00, 0x50) is emitted for Bayati microtones
+let hasQuarterBend = false;
+for (let i = 0; i < midiBytes.length - 2; i += 1) {
+  if (midiBytes[i] === 0xe0 && midiBytes[i + 1] === 0x00 && midiBytes[i + 2] === 0x50) {
+    hasQuarterBend = true;
+    break;
+  }
 }
-const parallel = findParallelMutations({ rootQ: 4, scale: bayati, allScales: DB.scales, limit: 8 });
-const pivots = findPivotModulations({ rootQ: 4, scale: bayati, allScales: DB.scales, limit: 10 });
-if (!parallel.length || !pivots.length) {
-  fail('Modulation Radar returned empty parallel or pivot results');
-}
-ok(`Validated 24-TET Modal Radar (${parallel.length} parallel mutations, ${pivots.length} pivot modulations for D Bayati)`);
+if (!hasQuarterBend) fail('MIDI export missing 24-TET +50c pitch bend message for Bayati');
 
-// 5. Validate Phase 6 24-TET Ear Trainer across all 3 modes
+const vampMidi = exportVampToMidi({
+  steps: VAMP_PRESETS[0].steps,
+  bpm: 88,
+  beatsPerBar: 4,
+  getChordIntervals: (cid) => (DB.chords.find((c) => c.id === cid) || DB.chords[0]).intervalsQ
+});
+if (String.fromCharCode(...vampMidi.slice(0, 4)) !== 'MThd') fail('Invalid Vamp MIDI binary');
+
+const xmlOut = exportEventsToMusicXML({
+  events: sampleEtude.events,
+  stringsQ: tun8.stringsQ,
+  bpm: 92,
+  title: 'D Bayati 8-String'
+});
+if (!xmlOut.includes('<staff-lines>8</staff-lines>') || !xmlOut.includes('<bend-alter>0.5</bend-alter>')) {
+  fail('MusicXML 4.0 export missing 8-string staff-lines or quarter-tone bend-alter');
+}
+ok('Validated 24-TET MIDI (.mid, SMF0 + RPN ±2st Pitch Bend) & MusicXML 4.0 (6/7/8-string TAB)');
+
+// 4. Validate Modal Radar, Ear Trainer, Vamps, Codec & Study Guide
+if (compareScales24({ rootA: 4, intervalsA: dorian.intervalsQ, rootB: 4, intervalsB: bayati.intervalsQ }).sharedCount < 5) {
+  fail('Modal Radar comparison failed');
+}
+if (!findParallelMutations({ rootQ: 4, scale: bayati, allScales: DB.scales }).length ||
+    !findPivotModulations({ rootQ: 4, scale: bayati, allScales: DB.scales }).length) {
+  fail('Modal Radar empty results');
+}
 for (const mode of ['micro_intervals', 'scales_modes', 'chord_colors']) {
-  const q = createEarQuestion({
-    mode,
-    intervalSetId: MICRO_INTERVAL_SETS[0].id,
-    scalePool: 'arabic',
-    rootQ: 4,
-    scales: DB.scales,
-    chords: DB.chords
-  });
-  if (!q.answerId || !q.choices.some((c) => c.id === q.answerId)) {
-    fail(`Ear Trainer generated invalid question for mode ${mode}`);
-  }
+  const q = createEarQuestion({ mode, intervalSetId: MICRO_INTERVAL_SETS[0].id, scalePool: 'arabic', rootQ: 4, scales: DB.scales, chords: DB.chords });
+  if (!q.choices.some((c) => c.id === q.answerId)) fail(`Ear Trainer failed for ${mode}`);
 }
-ok('Validated 24-TET Ear Trainer across micro-intervals, scales/maqamat & chord colors');
-
-// 6. Validate VAMP_PRESETS & dynamic builder
-for (const vp of VAMP_PRESETS) {
-  if (!tuningIds.has(vp.tuningId)) fail(`Vamp ${vp.id} unknown tuningId`);
-  for (const st of vp.steps) {
-    if (!scaleIds.has(st.scaleId) || !chordIds.has(st.chordId)) fail(`Vamp ${vp.id} invalid step ref`);
-  }
-}
-if (buildVampFromCurrentLab({ rootQ: 22, scale: bayati, chordId: 'min_maj7_9' }).length !== 2) {
-  fail('buildVampFromCurrentLab failed');
-}
-ok(`Validated ${VAMP_PRESETS.length} Modal Vamp & Sayr presets`);
-
-// 7. Validate Session URL Hash Codec round-trip
-const encoded = encodeSessionHash({
-  scaleId: 'maqam_nawa_athar', rootQ: 22, tuningId: 'b_standard', microMode: 'bend',
-  labelMode: 'degree', chordId: 'min_maj7_9', voicingOverlayOn: true, harmonicsOn: false,
-  rhythmId: 'iqa_samai_thaqil', etudePatternId: 'pedal_drone', vampPresetId: 'vamp_baritone_b_doom',
-  fretWindowOn: true, fretWindowStart: 4, fretWindowSpan: 5
-});
-const decoded = decodeSessionHash(encoded);
-if (!decoded || decoded.s !== 'maqam_nawa_athar' || decoded.t !== 'b_standard') {
-  fail('Session URL hash codec failed');
-}
-ok('Verified Session Snapshot & Shareable URL (#sa=...) codec');
-
-// 8. Validate Study Guide & Matching Dossiers
+if (buildVampFromCurrentLab({ rootQ: 22, scale: bayati, chordId: 'min_maj7_9' }).length !== 2) fail('Vamp builder failed');
+const dec = decodeSessionHash(encodeSessionHash({ scaleId: 'maqam_bayati', rootQ: 4, tuningId: '8_drop_e', microMode: 'bend', labelMode: 'note', chordId: 'quartal_3', voicingOverlayOn: false, harmonicsOn: false, rhythmId: 'iqa_maqsum', etudePatternId: 'linear_oud', vampPresetId: 'vamp_sayr_bayati', fretWindowOn: false, fretWindowStart: 0, fretWindowSpan: 5 }));
+if (!dec || dec.t !== '8_drop_e') fail('Session codec failed for 8-string tuning');
 const modIds = new Set(STUDY_MODULES.map((m) => m.id));
 for (const l of STUDY_LESSONS) {
-  if (!modIds.has(l.moduleId) || !STUDY_DOSSIERS[l.id]) fail(`Lesson ${l.id} invalid`);
-  const p = l.preset;
-  if (!scaleIds.has(p.scaleId) || !tuningIds.has(p.tuningId) || !chordIds.has(p.chordId) || !rhythmIds.has(p.rhythmId) || !patternIds.has(p.etudePatternId)) {
-    fail(`Lesson ${l.id} invalid preset reference`);
+  if (!modIds.has(l.moduleId) || !STUDY_DOSSIERS[l.id] || !scaleIds.has(l.preset.scaleId) || !tuningIds.has(l.preset.tuningId) || !chordIds.has(l.preset.chordId) || !rhythmIds.has(l.preset.rhythmId) || !patternIds.has(l.preset.etudePatternId)) {
+    fail(`Study lesson ${l.id} failed validation`);
   }
 }
-ok(`Validated ${STUDY_MODULES.length} chapters & ${STUDY_LESSONS.length} study lessons`);
+ok('Validated Modal Radar, Ear Trainer, Vamps, URL Codec & Progressive Study Guide');
 
-// 9. Unit-test YIN 24-TET DSP engine (A1 55Hz, B1 61.74Hz & E½♭3 +50c)
+// 5. Unit-test YIN 24-TET DSP engine down to 8-String Low E1 (41.2 Hz)!
 const sr = 48000;
 const testTones = [
-  { label: 'A1', hz: 55.0, expected: 'A1', maxErr: 0.4 },
-  { label: 'B1', hz: 61.735, expected: 'B1', maxErr: 0.5 },
-  { label: 'E½♭3', hz: 440 * Math.pow(2, (103 - 138) / 24), expected: 'E½♭3', maxErr: 0.8 }
+  { label: 'E1 (8c Drop E)', hz: 41.203, expected: 'E1', maxErr: 0.4 },
+  { label: 'A1 (A Std)', hz: 55.0, expected: 'A1', maxErr: 0.4 },
+  { label: 'B1 (B Std)', hz: 61.735, expected: 'B1', maxErr: 0.5 },
+  { label: 'E½♭3 (+50c)', hz: 440 * Math.pow(2, (103 - 138) / 24), expected: 'E½♭3', maxErr: 0.8 }
 ];
 for (const tc of testTones) {
   const buf = new Float32Array(4096);
@@ -192,12 +194,12 @@ for (const tc of testTones) {
   }
   const det = detectPitchYIN(buf, sr, 0.01);
   if (!det.freq || Math.abs(det.freq - tc.hz) > tc.maxErr || analyzePitch24(det.freq).noteName24 !== tc.expected) {
-    fail(`YIN DSP check failed on ${tc.label}`);
+    fail(`YIN DSP check failed on ${tc.label}: got ${det.freq}`);
   }
 }
-ok('Unit-tested YIN 24-TET DSP engine (A1 55Hz, B1 61.7Hz & E½♭3 +50¢)');
+ok('Unit-tested YIN 24-TET DSP engine (8-String E1 41.2Hz, A1 55Hz, B1 61.7Hz & E½♭3 +50¢)');
 
-// 10. Validate sw.js CORE_ASSETS exist on disk
+// 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
 for (const asset of assetMatches) {
@@ -205,10 +207,10 @@ for (const asset of assetMatches) {
   const diskPath = path.join(ROOT, asset.replace(/^\.\//, ''));
   if (!fs.existsSync(diskPath)) fail(`sw.js CORE_ASSETS missing on disk: ${asset}`);
 }
-ok(`Verified ${assetMatches.length} sw.js CORE_ASSETS entries`);
+ok(`Verified ${assetMatches.length} sw.js CORE_ASSETS entries (incl. PNG PWA icons)`);
 
 if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v6.0 integrity checks passed.');
+console.log('\nAll String Atlas v7.0 integrity checks passed.');

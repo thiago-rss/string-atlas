@@ -104,9 +104,10 @@ function buildScaleAtlasBodyHtml(filteredScales, state) {
 
 function buildTuningOptionsHtml(state) {
   const isEn = state.lang === 'en';
+  const count = state.stringCount || state.customStringsQ.length;
   return DB.tuningGroups.map((grp) => {
     const label = isEn ? grp.labelEn : grp.labelPt;
-    const list = DB.tunings.filter((tun) => tun.group === grp.id);
+    const list = DB.tunings.filter((tun) => tun.group === grp.id && tun.stringsQ.length === count);
     if (!list.length) return '';
     const opts = list.map((tun) => `
       <option value="${tun.id}" ${tun.id === state.tuningId ? 'selected' : ''}>
@@ -174,7 +175,8 @@ export function renderDeckPanel(state) {
   }).join('');
 
   const tuningOptions = buildTuningOptionsHtml(state);
-  const pinnedTunings = DB.tunings.filter((tun) => tun.pinned);
+  const activeStrCount = state.stringCount || state.customStringsQ.length;
+  const pinnedTunings = DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount);
 
   const atlasDrawerHtml = state.atlasOpen ? `
     <div class="atlas-drawer" id="scaleAtlasDrawer">
@@ -248,7 +250,7 @@ export function renderDeckPanel(state) {
       </div>
       <div class="retuner-grid">
         ${state.customStringsQ.map((sq, idx) => {
-          const guitarStrNum = 6 - idx;
+          const guitarStrNum = state.customStringsQ.length - idx;
           const inScale = allowedPcs.has(mod24(sq));
           return `
             <div class="retuner-string ${inScale ? 'in-scale' : ''}">
@@ -309,7 +311,14 @@ export function renderDeckPanel(state) {
       </div>
 
       <div class="control-group">
-        <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
+        <div class="tuning-label-row">
+          <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
+          <div class="pill-row">
+            ${[6, 7, 8].map((cnt) => `
+              <button type="button" class="btn-mini ${activeStrCount === cnt ? 'active-mini' : ''}" data-action="setStringCount" data-val="${cnt}">${cnt}${t(state.lang, 'strSuffix')}</button>
+            `).join('')}
+          </div>
+        </div>
         <select id="selTuning">${tuningOptions}</select>
         <div class="quick-tunings-row" aria-label="${t(state.lang, 'quickTuningsLabel')}">
           ${pinnedTunings.map((tun) => `
@@ -466,6 +475,18 @@ export function renderDeckPanel(state) {
       });
     } else if (action === 'clearFilters') {
       setState({ category: 'all', temperamentFilter: 'all', scaleSearch: '' });
+    } else if (action === 'setStringCount') {
+      const nextCnt = Number(btn.dataset.val);
+      const firstMatch = DB.tunings.find((tun) => tun.stringsQ.length === nextCnt);
+      if (firstMatch) {
+        stopPlaybackIfNeeded();
+        setState({
+          stringCount: nextCnt,
+          tuningId: firstMatch.id,
+          customStringsQ: [...firstMatch.stringsQ],
+          inspectedNote: null
+        });
+      }
     } else if (action === 'quickTuning') {
       applyTuningById(btn.dataset.id);
     } else if (action === 'microMode') {
@@ -519,7 +540,7 @@ export function renderDeckPanel(state) {
 function applyTuningById(tuningId) {
   stopPlaybackIfNeeded();
   const tun = DB.tunings.find((item) => item.id === tuningId) || DB.tunings[0];
-  setState({ tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
+  setState({ stringCount: tun.stringsQ.length, tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
 }
 
 export function stopPlaybackIfNeeded() {

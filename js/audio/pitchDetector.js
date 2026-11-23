@@ -7,7 +7,7 @@
 import { A4_HZ, A4_Q, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
 
 const BUFFER_SIZE = 4096; // ~85ms @ 48kHz -> clean tracking down to ~42 Hz
-const MIN_FREQ_HZ = 42;
+const MIN_FREQ_HZ = 34;
 const MAX_FREQ_HZ = 1480;
 const YIN_THRESHOLD = 0.14;
 
@@ -202,7 +202,7 @@ class PitchDetectorService {
     // Gentle high-pass @ 36 Hz to remove DC rumble without hurting A1 (55 Hz) or G1 (49 Hz)
     const hpf = this.ctx.createBiquadFilter();
     hpf.type = 'highpass';
-    hpf.frequency.value = 36;
+    hpf.frequency.value = 26;
 
     // Gentle low-pass @ 1.8 kHz to suppress pick scrape & upper fret harmonics for cleaner YIN lock
     const lpf = this.ctx.createBiquadFilter();

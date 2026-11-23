@@ -7,11 +7,11 @@ import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v6';
+const STORAGE_KEY = 'string_atlas_prefs_v7';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -77,6 +77,7 @@ const state = {
   customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
+  stringCount: initialTuning.stringsQ.length,
   tuningId: initialTuning.id,
   customStringsQ: [...initialTuning.stringsQ],
   retunerOpen: false,

@@ -160,6 +160,7 @@ function applySnapshotPayload(p) {
     scaleId: DB.scales.some((x) => x.id === p.s) ? p.s : 'maqam_bayati',
     customScaleIntervalsQ: null,
     rootQ: Number.isInteger(p.r) ? p.r : 4,
+    stringCount: tun.stringsQ.length,
     tuningId: tun.id,
     customStringsQ: [...tun.stringsQ],
     microMode: p.m || 'bend',

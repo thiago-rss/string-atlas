@@ -10,6 +10,7 @@ import { VAMP_PRESETS, buildVampFromCurrentLab } from '../core/vampEngine.js';
 import { t } from '../core/i18n.js';
 import { getActiveScale, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { exportVampToMidi, triggerFileDownload } from '../core/exportEngine.js';
 
 export function renderVampView(state) {
   const container = document.getElementById('tabVamp');
@@ -87,6 +88,7 @@ export function renderVampView(state) {
         <div class="pill-row">
           <button type="button" class="btn-mini" data-v-action="buildFromCurrent">${t(state.lang, 'vampBuildFromLab')}</button>
           <button type="button" class="btn-mini" data-v-action="addStep">+ ${t(state.lang, 'vampAddStep')}</button>
+          <button type="button" class="btn-mini active-mini" data-v-action="exportVampMidi">${t(state.lang, 'vampExportMidi')}</button>
         </div>
       </div>
 
@@ -215,6 +217,15 @@ export function renderVampView(state) {
       const last = st.vampSteps[st.vampSteps.length - 1] || { rootQ: st.rootQ, scaleId: st.scaleId, chordId: st.chordId, bars: 2 };
       const nextStepObj = { ...last };
       setState({ vampSteps: [...st.vampSteps, nextStepObj] });
+    } else if (act === 'exportVampMidi') {
+      const bytes = exportVampToMidi({
+        steps: st.vampSteps,
+        bpm: st.vampBpm,
+        beatsPerBar: st.vampBeatsPerBar,
+        getChordIntervals: (cid) => (DB.chords.find((c) => c.id === cid) || DB.chords[0]).intervalsQ,
+        title: `String Atlas Vamp (${st.vampPresetId})`
+      });
+      triggerFileDownload(bytes, `string-atlas-vamp-24tet.mid`, 'audio/midi');
     } else if (act === 'buildFromCurrent') {
       stopVampPlayback();
       const freshSteps = buildVampFromCurrentLab({
@@ -254,6 +265,7 @@ function loadVampPreset(presetId) {
     patch.voicingOverlayOn = true;
   }
   if (tun) {
+    patch.stringCount = tun.stringsQ.length;
     patch.tuningId = tun.id;
     patch.customStringsQ = [...tun.stringsQ];
   }

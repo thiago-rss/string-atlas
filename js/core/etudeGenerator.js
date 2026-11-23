@@ -87,7 +87,8 @@ function collectPositions({ rootQ, intervalsQ, stringsQ, minFret, maxFret, micro
   const allowedMap = new Map(intervalsQ.map((iv) => [mod24(rootQ + iv), iv]));
   const positions = [];
 
-  for (let strIdx = 0; strIdx < 6; strIdx += 1) {
+  const numStrings = stringsQ.length;
+  for (let strIdx = 0; strIdx < numStrings; strIdx += 1) {
     const openQ = stringsQ[strIdx];
     const startStep = minFret === 0 ? 0 : minFret * 2;
     const endStep = maxFret * 2;
@@ -105,7 +106,7 @@ function collectPositions({ rootQ, intervalsQ, stringsQ, minFret, maxFret, micro
       positions.push({
         kind: 'note',
         strIdx,
-        guitarStr: 6 - strIdx,
+        guitarStr: numStrings - strIdx,
         stepQ,
         fret,
         isMicro,
@@ -281,8 +282,10 @@ export function generateEtude({
 
 function buildLinearOudEtude({ scale, rootQ, stringsQ, microMode, length, direction, rng }) {
   // Choose one expressive string (bias towards strings 2, 3, 4 = indices 2, 3, 4)
-  const candidateStrs = [2, 3, 4, 1, 5];
-  const chosenStr = candidateStrs[Math.floor(rng() * 3)];
+  const numStrings = stringsQ.length;
+  const midStart = Math.max(1, numStrings - 4);
+  const candidateStrs = [midStart, midStart + 1, midStart + 2].filter((x) => x < numStrings);
+  const chosenStr = candidateStrs[Math.floor(rng() * candidateStrs.length)];
   const openQ = stringsQ[chosenStr];
   const allowedMap = new Map(scale.intervalsQ.map((iv) => [mod24(rootQ + iv), iv]));
 
@@ -297,7 +300,7 @@ function buildLinearOudEtude({ scale, rootQ, stringsQ, microMode, length, direct
     line.push({
       kind: 'note',
       strIdx: chosenStr,
-      guitarStr: 6 - chosenStr,
+      guitarStr: numStrings - chosenStr,
       stepQ,
       fret,
       isMicro,
@@ -334,7 +337,8 @@ function buildLinearOudEtude({ scale, rootQ, stringsQ, microMode, length, direct
 }
 
 function buildStringSkipEtude({ pool, length, direction, rng }) {
-  const byStr = [[], [], [], [], [], []];
+  const maxStrIdx = pool.reduce((m, p) => Math.max(m, p.strIdx), 5);
+  const byStr = Array.from({ length: maxStrIdx + 1 }, () => []);
   pool.forEach((p) => byStr[p.strIdx].push(p));
   const populated = byStr.map((arr, idx) => ({ idx, arr })).filter((x) => x.arr.length > 0);
   if (populated.length < 2) return sortPositionsByContour(pool, direction, rng).slice(0, length);
@@ -429,7 +433,7 @@ function buildPedalDroneEtude({ pool, scale, rootQ, stringsQ, length, direction,
   const pedalNote = {
     kind: 'note',
     strIdx: pedalStrIdx,
-    guitarStr: 6 - pedalStrIdx,
+    guitarStr: stringsQ.length - pedalStrIdx,
     stepQ: 0,
     fret: 0,
     isMicro: false,
@@ -490,7 +494,7 @@ function buildHarmonicWeaveEtude({ pool, stringsQ, length, direction, rng }) {
   for (let i = 0; i < length; i += 1) {
     if (i % 3 === 2) {
       // Insert a sparkling natural harmonic on a resonant upper/mid string
-      const hStrIdx = 1 + Math.floor(rng() * 4); // strings 5..2
+      const hStrIdx = Math.min(stringsQ.length - 2, 1 + Math.floor(rng() * Math.max(2, stringsQ.length - 2)));
       const h = usableHarmonics[Math.floor(rng() * usableHarmonics.length)];
       const openQ = stringsQ[hStrIdx];
       const hFreq = qToFreq(openQ) * h.ratio;
@@ -499,7 +503,7 @@ function buildHarmonicWeaveEtude({ pool, stringsQ, length, direction, rng }) {
       out.push({
         kind: 'harmonic',
         strIdx: hStrIdx,
-        guitarStr: 6 - hStrIdx,
+        guitarStr: stringsQ.length - hStrIdx,
         stepQ: Math.round(h.fretPos * 2),
         fret: Math.round(h.fretPos),
         fretDisplay: `⟨${h.fretPos === 12 || h.fretPos === 5 ? h.fretPos : h.fretPos.toFixed(1)}⟩`,
@@ -545,7 +549,8 @@ export function exportEtudeToAsciiTab({ etude, scaleName, rootQ, stringsQ, micro
     const colW = Math.max(cell.length, ev.articulation.length, 2) + 1;
     artRow.push(ev.articulation.padEnd(colW, ' '));
 
-    for (let lineIdx = 0; lineIdx < 6; lineIdx += 1) {
+    const numStrings = stringsQ.length;
+    for (let lineIdx = 0; lineIdx < numStrings; lineIdx += 1) {
       const targetLine = ev.guitarStr - 1;
       if (lineIdx === targetLine) {
         rows[lineIdx].push(cell.padEnd(colW, '-'));

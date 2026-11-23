@@ -7,9 +7,12 @@ import { buildScaleTabSequence } from '../core/voicingEngine.js';
 import { t } from '../core/i18n.js';
 import { getActiveScale, getActiveVoicing, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+import { exportEventsToMidi, exportEventsToMusicXML, triggerFileDownload } from '../core/exportEngine.js';
 import { highlightFretboardEtudeEvent } from './fretboardView.js';
 
-const SVG_H = 266;
+function computeNotationSvgH(numStrings) {
+  return TAB_TOP_Y + (numStrings - 1) * TAB_GAP + 28;
+}
 const STAFF_LEFT = 54;
 const E4_Y = 96;
 const HALF_STEP_Y = 4.6;
@@ -38,18 +41,19 @@ function renderLedgerLines(cx, stepFromE4) {
 }
 
 function renderStaffAndTabBase(svgW, staffRight, tuningNamesHighToLow) {
+  const numStrings = tuningNamesHighToLow.length;
   const p = [];
   for (let s = 0; s <= 8; s += 2) {
     const y = stepToStaffY(s);
     p.push(`<line x1="${STAFF_LEFT}" y1="${y}" x2="${staffRight}" y2="${y}" stroke="var(--border-strong)" stroke-width="1.1"/>`);
   }
-  p.push(`<line x1="${STAFF_LEFT}" y1="${stepToStaffY(8)}" x2="${STAFF_LEFT}" y2="${TAB_TOP_Y + TAB_GAP * 5}" stroke="var(--text-muted)" stroke-width="2"/>`);
-  p.push(`<line x1="${staffRight}" y1="${stepToStaffY(8)}" x2="${staffRight}" y2="${TAB_TOP_Y + TAB_GAP * 5}" stroke="var(--text-muted)" stroke-width="1.6"/>`);
+  p.push(`<line x1="${STAFF_LEFT}" y1="${stepToStaffY(8)}" x2="${STAFF_LEFT}" y2="${TAB_TOP_Y + TAB_GAP * (numStrings - 1)}" stroke="var(--text-muted)" stroke-width="2"/>`);
+  p.push(`<line x1="${staffRight}" y1="${stepToStaffY(8)}" x2="${staffRight}" y2="${TAB_TOP_Y + TAB_GAP * (numStrings - 1)}" stroke="var(--text-muted)" stroke-width="1.6"/>`);
 
   p.push(`<text x="${STAFF_LEFT + 10}" y="${E4_Y - 8}" fill="var(--accent-root)" font-size="38" font-family="Georgia, serif">𝄞</text>`);
   p.push(`<text x="${STAFF_LEFT + 15}" y="${E4_Y + 13}" fill="var(--text-muted)" font-size="9.5" font-weight="700" font-family="ui-monospace, monospace">8vb</text>`);
 
-  for (let i = 0; i < 6; i += 1) {
+  for (let i = 0; i < numStrings; i += 1) {
     const y = TAB_TOP_Y + i * TAB_GAP;
     p.push(`<line x1="${STAFF_LEFT}" y1="${y}" x2="${staffRight}" y2="${y}" stroke="var(--border-strong)" stroke-width="1"/>`);
     p.push(`<text x="${STAFF_LEFT - 10}" y="${y + 3.5}" text-anchor="end" fill="var(--text-muted)" font-size="9.5" font-family="ui-monospace, monospace">${tuningNamesHighToLow[i]}</text>`);
@@ -72,14 +76,14 @@ function formatTabFret(n, microMode) {
   return microMode === 'bend' ? `${baseFret}↑¼` : `${baseFret}.5`;
 }
 
-function drawNoteColumn({ x, notes, microMode, colIdx = null, articulation = null, accent = false }) {
+function drawNoteColumn({ x, notes, microMode, numStrings = 6, svgH = 268, colIdx = null, articulation = null, accent = false }) {
   const parts = [];
   const clickableAttr = colIdx !== null ? `class="not-col" data-etude-col="${colIdx}" style="cursor:pointer"` : '';
   parts.push(`<g ${clickableAttr}>`);
 
   // Subtle highlight backdrop box toggled via .is-active-col during playback
   if (colIdx !== null) {
-    parts.push(`<rect class="not-col-bg" x="${x - 20}" y="12" width="40" height="${SVG_H - 18}" rx="6" fill="var(--accent-etude)" fill-opacity="0"/>`);
+    parts.push(`<rect class="not-col-bg" x="${x - 20}" y="12" width="40" height="${svgH - 18}" rx="6" fill="var(--accent-etude)" fill-opacity="0"/>`);
   }
 
   // Articulation & accent header above treble staff
@@ -120,7 +124,7 @@ function drawNoteColumn({ x, notes, microMode, colIdx = null, articulation = nul
       parts.push(`<text x="${accX}" y="${y + 4}" fill="${pos.isMicro ? 'var(--accent-micro)' : 'var(--accent-scale)'}" font-size="${pos.accidental.length > 1 ? 10 : 12.5}" font-weight="700" font-family="ui-monospace, monospace">${pos.accidental}</text>`);
     }
 
-    const strLine = Math.max(0, Math.min(5, (n.guitarStr || 1) - 1));
+    const strLine = Math.max(0, Math.min(numStrings - 1, (n.guitarStr || 1) - 1));
     const ty = TAB_TOP_Y + strLine * TAB_GAP;
     const fretText = formatTabFret(n, microMode);
     const pillW = Math.max(18, fretText.length * 6.8 + 6);
@@ -133,7 +137,7 @@ function drawNoteColumn({ x, notes, microMode, colIdx = null, articulation = nul
     const caption = sorted[0].kind === 'harmonic'
       ? `${sorted[0].partial}º`
       : qToNoteName(sorted[0].q, false);
-    parts.push(`<text x="${x}" y="${SVG_H - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="9.2" font-family="ui-monospace, monospace">${caption}</text>`);
+    parts.push(`<text x="${x}" y="${svgH - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="9.2" font-family="ui-monospace, monospace">${caption}</text>`);
   }
 
   parts.push('</g>');
@@ -157,20 +161,28 @@ export function renderNotationPanel(state) {
   if (!panel) return;
 
   const mode = state.notationMode;
+  const numStrings = state.customStringsQ.length;
+  const svgH = computeNotationSvgH(numStrings);
   const tuningHighToLow = [...state.customStringsQ].reverse().map((q) => qToNoteName(q, false));
 
   let bodyHtml = '';
   let extraActions = '';
 
-  if (mode === 'phrase') {
-    extraActions = `
-      <div class="pill-row">
-        <button type="button" class="btn-mini" data-not-action="playPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phrasePlay')}</button>
-        <button type="button" class="btn-mini" data-not-action="undoPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phraseUndo')}</button>
-        <button type="button" class="btn-mini" data-not-action="clearPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phraseClear')}</button>
-      </div>
-    `;
-  }
+  const phraseBtns = mode === 'phrase' ? `
+    <button type="button" class="btn-mini" data-not-action="playPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phrasePlay')}</button>
+    <button type="button" class="btn-mini" data-not-action="undoPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phraseUndo')}</button>
+    <button type="button" class="btn-mini" data-not-action="clearPhrase" ${state.phraseEvents.length ? '' : 'disabled'}>${t(state.lang, 'phraseClear')}</button>
+  ` : '';
+  const hasExportable = mode === 'etude'
+    ? Boolean(state.currentEtude?.events?.length)
+    : (mode === 'phrase' ? state.phraseEvents.length > 0 : (mode === 'voicing' ? Boolean(getActiveVoicing()) : true));
+  extraActions = `
+    <div class="pill-row">
+      ${phraseBtns}
+      <button type="button" class="btn-mini" data-not-action="exportMidi" ${hasExportable ? '' : 'disabled'}>${t(state.lang, 'exportMidiBtn')}</button>
+      <button type="button" class="btn-mini" data-not-action="exportXml" ${hasExportable ? '' : 'disabled'}>${t(state.lang, 'exportXmlBtn')}</button>
+    </div>
+  `;
 
   if (mode === 'phrase' && state.phraseEvents.length === 0) {
     bodyHtml = `<p class="empty-hint">${t(state.lang, 'phraseEmpty')}</p>`;
@@ -182,7 +194,7 @@ export function renderNotationPanel(state) {
     const svgW = mode === 'etude' ? Math.max(1040, 180 + etudeEvents.length * 52) : 1040;
     const staffRight = svgW - 22;
 
-    const svgParts = [`<svg class="notation-svg" style="min-width:${Math.min(svgW, 1280)}px" viewBox="0 0 ${svgW} ${SVG_H}" role="img">`];
+    const svgParts = [`<svg class="notation-svg" style="min-width:${Math.min(svgW, 1280)}px" viewBox="0 0 ${svgW} ${svgH}" role="img">`];
     svgParts.push(renderStaffAndTabBase(svgW, staffRight, tuningHighToLow));
 
     const startX = STAFF_LEFT + 76;
@@ -195,7 +207,7 @@ export function renderNotationPanel(state) {
           drawNoteColumn({
             x: startX + idx * stepW,
             notes: [ev],
-            microMode: state.microMode,
+            microMode: state.microMode, numStrings, svgH,
             colIdx: idx,
             articulation: ev.articulation,
             accent: ev.accent
@@ -211,14 +223,14 @@ export function renderNotationPanel(state) {
         isMicro: n.isMicro,
         intervalQ: n.intervalQ
       }));
-      svgParts.push(drawNoteColumn({ x: startX + 18, notes: chordNotes, microMode: state.microMode }));
+      svgParts.push(drawNoteColumn({ x: startX + 18, notes: chordNotes, microMode: state.microMode, numStrings, svgH }));
 
       const sepX = startX + 74;
-      svgParts.push(`<line x1="${sepX}" y1="${stepToStaffY(8)}" x2="${sepX}" y2="${TAB_TOP_Y + TAB_GAP * 5}" stroke="var(--border-strong)" stroke-dasharray="3 3"/>`);
+      svgParts.push(`<line x1="${sepX}" y1="${stepToStaffY(8)}" x2="${sepX}" y2="${TAB_TOP_Y + TAB_GAP * (numStrings - 1)}" stroke="var(--border-strong)" stroke-dasharray="3 3"/>`);
 
       const stepW = Math.min(92, (staffRight - sepX - 40) / Math.max(1, chordNotes.length));
       chordNotes.forEach((cn, idx) => {
-        svgParts.push(drawNoteColumn({ x: sepX + 44 + idx * stepW, notes: [cn], microMode: state.microMode }));
+        svgParts.push(drawNoteColumn({ x: sepX + 44 + idx * stepW, notes: [cn], microMode: state.microMode, numStrings, svgH }));
       });
     } else if (mode === 'scale') {
       const scale = getActiveScale();
@@ -239,7 +251,9 @@ export function renderNotationPanel(state) {
               isMicro: item.isMicro,
               intervalQ: item.intervalQ
             }],
-            microMode: state.microMode
+            microMode: state.microMode,
+            numStrings,
+            svgH
           })
         );
       });
@@ -250,7 +264,9 @@ export function renderNotationPanel(state) {
           drawNoteColumn({
             x: startX + idx * stepW,
             notes: [ev],
-            microMode: state.microMode
+            microMode: state.microMode,
+            numStrings,
+            svgH
           })
         );
       });
@@ -315,6 +331,39 @@ export function renderNotationPanel(state) {
       setState({ phraseEvents: state.phraseEvents.slice(0, -1) });
     } else if (act === 'clearPhrase') {
       setState({ phraseEvents: [] });
+    } else if (act === 'exportMidi' || act === 'exportXml') {
+      const st = getState();
+      const events = collectActiveNotationEvents(st);
+      if (!events.length) return;
+      const scale = getActiveScale();
+      const title = `${qToNoteName(st.rootQ, false)} ${scale.nameEn} (${st.notationMode})`;
+      if (act === 'exportMidi') {
+        const bytes = exportEventsToMidi({ events, bpm: st.notationMode === 'etude' ? st.etudeBpm : st.bpm, title });
+        triggerFileDownload(bytes, `string-atlas-${st.notationMode}-24tet.mid`, 'audio/midi');
+      } else {
+        const xml = exportEventsToMusicXML({ events, stringsQ: st.customStringsQ, bpm: st.notationMode === 'etude' ? st.etudeBpm : st.bpm, title });
+        triggerFileDownload(xml, `string-atlas-${st.notationMode}.musicxml`, 'application/vnd.recordare.musicxml+xml');
+      }
     }
   };
+}
+
+
+function collectActiveNotationEvents(st) {
+  if (st.notationMode === 'etude') {
+    return st.currentEtude?.events || [];
+  }
+  if (st.notationMode === 'phrase') {
+    return st.phraseEvents || [];
+  }
+  if (st.notationMode === 'voicing') {
+    const v = getActiveVoicing();
+    return v ? v.notes.map((n) => ({ q: n.absQ, guitarStr: n.guitarStr, fret: n.fret, isMicro: n.isMicro, kind: 'note' })) : [];
+  }
+  const sc = getActiveScale();
+  return buildScaleTabSequence({
+    rootQ: st.rootQ,
+    intervalsQ: sc.intervalsQ,
+    stringsQ: st.customStringsQ
+  }).map((item) => ({ ...item, q: item.absQ, kind: 'note' }));
 }
