@@ -1,16 +1,17 @@
-# macOS / Sistema
+# macOS & OS clutter
 .DS_Store
-.AppleDouble
-.LSOverride
+._*
 Thumbs.db
 
-# Editores e IDEs
+# Dependencies & build staging
+node_modules/
+_site/
+dist/
+
+# Release archives & logs
+*.zip
+*.log
+
+# Editor caches
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Dependências e builds temporários
-node_modules/
-dist/
-*.log

@@ -1,0 +1,64 @@
+name: Validate & Deploy String Atlas PWA
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-string-atlas"
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Integrity & DSP Unit Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run String Atlas Integrity Validator
+        run: node scripts/check.mjs
+
+  deploy:
+    name: Deploy PWA to GitHub Pages
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Assemble clean static PWA bundle
+        run: |
+          mkdir -p _site
+          cp index.html manifest.json sw.js .nojekyll _site/
+          cp -r assets styles js _site/
+          if [ -d docs ]; then cp -r docs _site/; fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
