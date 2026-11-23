@@ -350,6 +350,15 @@ function handleLivePitchFrame({ rms, pitch }) {
     needleEl.classList.toggle('is-quarter-lock', inQuarterZone);
     needleEl.classList.toggle('is-zero-lock', inZeroZone);
   }
+  const zenNote = document.getElementById('zenLiveNote');
+  const zenNeedle = document.getElementById('zenBendNeedle');
+  if (zenNote) {
+    zenNote.textContent = `${pitch.noteName24} (${Math.round(pitch.bendCentsFromAnchor) >= 0 ? '+' : ''}${Math.round(pitch.bendCentsFromAnchor)}¢)`;
+  }
+  if (zenNeedle) {
+    zenNeedle.style.left = `${pctX.toFixed(1)}%`;
+    zenNeedle.classList.toggle('is-quarter-lock', inQuarterZone);
+  }
   if (bendReadEl) {
     const bRound = Math.round(pitch.bendCentsFromAnchor);
     bendReadEl.textContent = `${pitch.bendAnchorName} ${bRound >= 0 ? '+' : ''}${bRound}¢`;

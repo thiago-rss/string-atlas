@@ -33,10 +33,12 @@
         <span class="pill-badge vamp-badge" id="vampStatusBadge" hidden>⟳ VAMP</span>
         <span class="pill-badge" id="rhythmStatusBadge" hidden>♪ —</span>
         <span class="pill-badge" id="tuningSummaryBadge">EADGBE</span>
+        <button type="button" class="btn-ghost" id="btnCmdPalette" data-i18n="cpBtnHeader">⌘K Buscar</button>
         <button type="button" class="btn-ghost" id="btnSnapshotsToggle" data-i18n="snapBtnHeader">Presets / Link</button>
         <button type="button" class="btn-ghost" id="btnZenToggle" data-i18n="zenEnter">Zen</button>
         <button type="button" class="btn-ghost" id="btnLangToggle" aria-label="Switch language">PT / EN</button>
         <button type="button" class="btn-ghost btn-theme-studio" id="btnThemeToggle" aria-label="Choose visual design">Layl</button>
+        <button type="button" class="btn-ghost btn-help-q" id="btnShortcutsHelp" aria-label="Keyboard shortcuts">?</button>
       </div>
     </header>
 
@@ -102,9 +104,18 @@
     <div id="themeFooterOrnament" class="footer-ornament-bar" aria-hidden="true"></div>
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v7.7.0 · 24-TET · Ornate Mystic &amp; Luthier Edition</span>
+      <span class="mono-tag">v7.8.0 · 24-TET · Living Instrument &amp; Command Studio</span>
     </footer>
   </div>
+
+  <!-- Floating Global Audio Transport Dock -->
+  <div id="audioTransportDock" class="audio-transport-dock" hidden></div>
+
+  <!-- High-Speed Command Palette Modal (Cmd+K / /) -->
+  <div id="commandPaletteModal" class="modal-root" hidden></div>
+
+  <!-- Keyboard Shortcuts Modal (?) -->
+  <div id="shortcutsModal" class="modal-root" hidden></div>
 
   <script type="module" src="./js/main.js"></script>
 </body>

@@ -41,6 +41,13 @@ import {
 } from './views/rhythmView.js';
 import { renderTensionView } from './views/tensionView.js';
 import { renderDossierAndOblique } from './views/dossierView.js';
+import {
+  renderAudioTransportDock,
+  renderCommandPalette,
+  renderShortcutsModal,
+  stopAllAudioEngines,
+  updatePaletteResultsList
+} from './views/commandPaletteView.js';
 
 const WORKSPACE_ZONES = [
   {
@@ -270,6 +277,23 @@ function renderAll(state, patch = null) {
       renderZenBar(state);
       return;
     }
+    if (keys.length === 1 && keys[0] === 'paletteQuery') {
+      updatePaletteResultsList(state);
+      return;
+    }
+    if (keys.every((k) => k === 'paletteOpen' || k === 'paletteQuery')) {
+      renderCommandPalette(state);
+      return;
+    }
+    if (keys.length === 1 && keys[0] === 'shortcutsOpen') {
+      renderShortcutsModal(state);
+      return;
+    }
+    if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoom'].includes(k))) {
+      renderFretboard(state);
+      renderZenBar(state);
+      return;
+    }
     if (keys.every((k) => k === 'theme' || k === 'themeDrawerOpen')) {
       document.documentElement.setAttribute('data-theme', state.theme);
       renderThemeDrawer(state);
@@ -282,11 +306,7 @@ function renderAll(state, patch = null) {
       renderSnapshotsDrawer(state);
       return;
     }
-    if (keys.every((k) => k === 'fretWindowOn' || k === 'fretWindowStart' || k === 'fretWindowSpan')) {
-      renderFretboard(state);
-      renderZenBar(state);
-      return;
-    }
+
     if (keys.every((k) => k === 'studyModuleFilter' || k === 'openDossierLessonId' || k === 'completedLessons')) {
       renderStudyGuideView(state);
       return;
@@ -324,6 +344,9 @@ function renderAll(state, patch = null) {
   renderRhythmView(state);
   renderTensionView(state);
   renderDossierAndOblique(state);
+  renderAudioTransportDock(state);
+  renderCommandPalette(state);
+  renderShortcutsModal(state);
 }
 
 function bindGlobalControls() {
@@ -341,14 +364,57 @@ function bindGlobalControls() {
     setState({ zenMode: !getState().zenMode });
   });
 
+  document.getElementById('btnCmdPalette')?.addEventListener('click', () => {
+    setState({ paletteOpen: !getState().paletteOpen, shortcutsOpen: false });
+  });
+
+  document.getElementById('btnShortcutsHelp')?.addEventListener('click', () => {
+    setState({ shortcutsOpen: !getState().shortcutsOpen, paletteOpen: false });
+  });
+
   document.getElementById('btnSnapshotsToggle')?.addEventListener('click', () => {
     setState({ snapshotsOpen: !getState().snapshotsOpen, themeDrawerOpen: false });
   });
 
   window.addEventListener('keydown', (ev) => {
+    const st = getState();
+
+    // Global Cmd+K / Ctrl+K opens Command Palette even when focused inside inputs!
+    if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') {
+      ev.preventDefault();
+      setState({ paletteOpen: !st.paletteOpen, shortcutsOpen: false });
+      return;
+    }
+
+    if (ev.key === 'Escape') {
+      if (st.paletteOpen || st.shortcutsOpen || st.themeDrawerOpen || st.snapshotsOpen) {
+        setState({ paletteOpen: false, paletteQuery: '', shortcutsOpen: false, themeDrawerOpen: false, snapshotsOpen: false });
+        return;
+      }
+      if (st.droneOn || st.vampPlaying || st.etudePlaying || st.rhythmPlaying || st.isPlayingScale || st.lineModeRunning) {
+        stopAllAudioEngines();
+        return;
+      }
+      if (st.zenMode) {
+        setState({ zenMode: false });
+      }
+      return;
+    }
+
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
 
-    const st = getState();
+    if (ev.key === '/' && !ev.metaKey && !ev.ctrlKey) {
+      ev.preventDefault();
+      setState({ paletteOpen: true, shortcutsOpen: false });
+      return;
+    }
+
+    if (ev.key === '?') {
+      ev.preventDefault();
+      setState({ shortcutsOpen: !st.shortcutsOpen, paletteOpen: false });
+      return;
+    }
+
     const key = ev.key.toLowerCase();
     if (ev.code === 'Space') {
       ev.preventDefault();

@@ -2584,3 +2584,333 @@ body[data-zen="true"] .fretboard-panel {
 body[data-zen="true"] .workspace-compartments {
   display: none !important;
 }
+
+/* =========================================================================
+ * Phase 7.8 Additions: Living Fretboard FX, Command Palette, Audio Dock & Mobile
+ * ========================================================================= */
+
+@keyframes saStringVibe {
+  0%   { transform: translateY(0); }
+  14%  { transform: translateY(-2.4px); }
+  28%  { transform: translateY(2.1px); }
+  44%  { transform: translateY(-1.5px); }
+  62%  { transform: translateY(1.1px); }
+  80%  { transform: translateY(-0.5px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes saPluckRipple {
+  0%   { r: 12; stroke-opacity: 0.95; stroke-width: 3; }
+  100% { r: 34; stroke-opacity: 0; stroke-width: 0.6; }
+}
+
+@keyframes saCompartmentReveal {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sa-string-wire.is-vibrating {
+  animation: saStringVibe 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.sa-pluck-ripple {
+  animation: saPluckRipple 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+/* Hover Octave / Pitch-Class Resonance Highlight */
+.note-node.is-same-pc {
+  filter: drop-shadow(0 0 10px var(--accent-root)) brightness(1.16);
+}
+
+.note-node.is-same-pc circle:first-of-type,
+.note-node.is-same-pc polygon:first-of-type,
+.note-node.is-same-pc rect:first-of-type {
+  stroke: #ffffff;
+  stroke-width: 2.2;
+}
+
+/* Smooth Compartment & Modal Entrances */
+.deck-compartment-body,
+.theme-gallery-panel,
+.tab-section:not([hidden]),
+.modal-dialog {
+  animation: saCompartmentReveal 0.18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sa-string-wire.is-vibrating,
+  .sa-pluck-ripple,
+  .deck-compartment-body,
+  .theme-gallery-panel,
+  .tab-section:not([hidden]),
+  .modal-dialog {
+    animation: none !important;
+  }
+}
+
+.stage-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-strong);
+  margin: 0 2px;
+  display: inline-block;
+}
+
+.btn-help-q {
+  font-weight: 800;
+  min-width: 32px;
+  padding-inline: 8px;
+}
+
+/* Modals (Command Palette & Keyboard Shortcuts) */
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 9vh 16px 24px;
+}
+
+.modal-root[hidden] {
+  display: none !important;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 600px;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.palette-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.palette-icon {
+  font-size: 1.05rem;
+  color: var(--accent-root);
+  font-weight: 800;
+}
+
+.palette-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  padding: 4px;
+}
+
+.palette-input:focus {
+  outline: none;
+}
+
+.palette-results {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 50vh;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--bg-elevated);
+  text-align: left;
+  cursor: pointer;
+}
+
+.palette-item:hover,
+.palette-item.is-focused {
+  border-color: var(--accent-root);
+  background: var(--bg-panel);
+}
+
+.palette-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.palette-item-icon {
+  font-size: 0.95rem;
+  width: 22px;
+  text-align: center;
+  color: var(--accent-root);
+}
+
+.palette-item-sub {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.palette-footer {
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Shortcuts Reference Modal Grid */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.82rem;
+}
+
+.kbd-key {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--accent-root);
+  white-space: nowrap;
+}
+
+/* Floating Global Audio Transport Dock */
+.audio-transport-dock {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1050;
+}
+
+.audio-transport-dock[hidden] {
+  display: none !important;
+}
+
+.transport-dock-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+  border: 1.5px solid var(--accent-root);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.live-pill {
+  background: var(--accent-live);
+  color: #09130c;
+  border-color: var(--accent-live);
+  font-weight: 700;
+}
+
+.transport-stop-all {
+  padding: 4px 10px;
+  font-size: 0.76rem;
+}
+
+/* Enriched Zen Mode Live Micro-Bend Mini-HUD */
+.zen-live-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent-live);
+}
+
+.zen-mini-gauge {
+  position: relative;
+  width: 78px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+
+.zen-mini-quarter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 46.7%;
+  width: 23.3%;
+  background: rgba(82, 242, 156, 0.28);
+}
+
+.zen-mini-needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  margin-left: -2px;
+  background: var(--accent-root);
+  transition: left 0.05s linear;
+}
+
+.zen-mini-needle.is-quarter-lock {
+  background: var(--accent-live);
+}
+
+/* Mobile & Tablet Landscape Ergonomic Optimization */
+@media (max-height: 540px) and (orientation: landscape) {
+  .theme-ornament-bar,
+  .footer-ornament-bar,
+  .stage-crown-crest {
+    display: none !important;
+  }
+  .app-shell {
+    padding: 8px 10px 18px;
+    gap: 10px;
+  }
+  .topbar {
+    padding: 6px 10px;
+  }
+  .fretboard-panel {
+    padding: 12px 12px 10px;
+  }
+  .fretboard-scroll {
+    padding: 6px 4px;
+  }
+}

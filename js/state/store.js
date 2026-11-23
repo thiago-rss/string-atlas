@@ -9,11 +9,11 @@ import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v7';
+const STORAGE_KEY = 'string_atlas_prefs_v78';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -30,7 +30,9 @@ function savePrefs(state) {
         tuningId: state.tuningId,
         tonePreset: state.tonePreset,
         completedLessons: state.completedLessons,
-        earStats: state.earStats
+        earStats: state.earStats,
+        leftHanded: state.leftHanded,
+        fretZoom: state.fretZoom
       })
     );
   } catch {
@@ -73,6 +75,9 @@ const state = {
   notationOpen: false,
   workspaceOpen: true,
   zenMode: false,
+  paletteOpen: false,
+  paletteQuery: '',
+  shortcutsOpen: false,
   snapshotsOpen: false,
   snapshots: loadSnapshots(),
 
@@ -98,6 +103,8 @@ const state = {
   fretWindowOn: hashPayload ? Boolean(hashPayload.fw) : false,
   fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
   fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
+  leftHanded: Boolean(saved.leftHanded),
+  fretZoom: saved.fretZoom === 12 ? 12 : 22,
 
   // Audio state
   droneOn: false,
@@ -381,7 +388,7 @@ export function setState(patch) {
   if ('snapshots' in patch) {
     saveSnapshots(state.snapshots);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretZoom' in patch) {
     savePrefs(state);
   }
 

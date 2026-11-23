@@ -1,17 +1,14 @@
-# String Atlas — Modal Guitar Lab (`v7.0.0`)
+# String Atlas — Modal Guitar Lab (`v7.8.0`)
 
-Laboratório PWA offline-first de experimentação modal, microtonal (**24-TET**), estendida (**6, 7 e 8 cordas**), harmônica, rítmica e auditiva para guitarra elétrica — com **zero dependências externas** (Vanilla JS ES Modules, HTML5, CSS3 e Web Audio API).
+Laboratório PWA offline-first de experimentação modal, microtonal (**24-TET**), estendida (**6, 7 e 8 cordas**), luthieria, harmonia, ritmo e escuta para guitarra elétrica — **zero dependências externas** (Vanilla JS ES Modules, HTML5, CSS3 e Web Audio API).
 
-## Principais Módulos
+## Destaques da Plataforma
 
-- **Braço Interativo 24-TET para 6, 7 e 8 Cordas (22 casas):** 3 modos microtonais (*Bend +50¢*, *Slide/Fretless* e *Trastes 24-TET*), janela móvel de formas fechadas (`4–6` casas), destaque de cordas soltas na escala e camada de **Harmônicos Espectrais** (2º ao 7º parciais em Entonação Justa).
-- **Atlas Expandido:** **74 escalas e modos** em 7 domínios e subfamílias + **39 afinações** (26 de 6 cordas incl. **B Standard** e **A Standard**, 7 de **7 cordas** e 6 de **8 cordas** incl. *F♯ Standard*, *Meshuggah F Standard*, *Drop E* e *All Fourths 8*).
-- **Exportação DAW & Partitura (`v7.0`):**
-  - **MIDI 24-TET (`.mid`, SMF Type 0):** codifica quartos de tom exatos via RPN ±2st + Pitch Bend `+50¢` (e canais independentes por voz nos Vamps para harmonia microtonal em DAWs);
-  - **MusicXML 4.0 (`.musicxml`):** pauta dupla (notação 24-TET 8vb com `<alter>±0.5</alter>` + tablatura dinâmica de 6/7/8 cordas com `<bend>` e `<harmonic/>`) pronta para MuseScore, Guitar Pro e Dorico.
-- **Radar Modal 24-TET, Rack de Timbre/FX & Treino Auditivo:** relógio polar de 24 alturas, mutações paralelas e pivôs *Sayr*, 4 timbres Web Audio (*Clean Studio*, *Ambient Swell*, *Warm Crunch*, *Doom Fuzz*) e treinamento perceptual de microtons/modos/acordes.
-- **Line Mode Estendido (YIN 34–1480 Hz):** rastreia de `E1 (41,2 Hz)` e `A1 (55 Hz)` até o registro agudo, com medidor de precisão de micro-bend (`+50¢`), afinador de scordatura de 6/7/8 cordas e validação de Etudes.
-- **Guia de Estudos, Modo Zen & PWA Pronto para Produção:** 4 capítulos (16 lições PT/EN), ícones PNG (`192×192`, `512×512`, Apple Touch `180×180`), Snapshots com URL `#sa=...` e backup `.json`.
+- **Braço Vivo de Luthieria (6, 7 e 8 Cordas):** vibração física da corda + *ripple* luminoso ao tocar, destaque de oitavas no *hover*, **Zoom `0–12` / `0–22` casas**, **Modo Canhoto (`⇄`)**, janela móvel de formas fechadas, 3 modos microtonais (*Bend +50¢*, *Slide/Fretless*, *Trastes 24-TET*) e **Harmônicos Espectrais** (2º–7º parciais).
+- **7 Mundos Visuais Esculturais (`T`):** *Layl · Astrolábio*, *Nahar · Códice*, *70s Analog · Console Valvulado*, *Doom Ritual · Catedral*, *Djent Poly · Lâmina CNC*, *Avant · Partitura Gráfica* e *Brasilidade · Curvas & Cordel* — cada um com fontes próprias, filigranas de 4 cantos, medalhão de marca e geometria própria dos nós e inlays no braço.
+- **Exportação Completa:** **Pranchas Didáticas em PNG (2× Retina) & SVG**, **MIDI 24-TET (`.mid` com Pitch Bend +50¢ e canais MPE nos Vamps)**, **MusicXML 4.0 (`.musicxml` com tablatura 6/7/8 cordas)** e **Tablatura ASCII (`.txt`)**.
+- **Navegação de Estúdio & Compartimentos:** **Command Palette (`⌘K` / `/`)**, **Mini-Dock Flutuante de Áudio Global (`Esc` = Parar Tudo)**, **Modal de Atalhos (`?`)**, **Modo Zen (`Z`) com mini-HUD de Vamp e Micro-Bend**, Snapshots com URL `#sa=...` e backup `.json`.
+- **Atlas & Laboratórios Integrados:** **74 escalas/modos** em 7 domínios, **39 afinações** (incl. **B Standard**, **A Standard**, 7c e 8c), **Calculadora Física de Tensão de Cordas** (Multi-Scale + Solver de Calibres), **Radar Modal 24-TET**, **Vamps & Sayr**, **Etudes Procedurais**, **Iqa’at & Polimetria**, **Treino Auditivo 24-TET**, **Line Mode (YIN 34–1480 Hz)** e **Guia de Estudos (16 lições PT/EN)**.
 
 ## Execução Local & Validação
 

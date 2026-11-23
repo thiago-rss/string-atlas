@@ -1,14 +1,14 @@
 /**
- * Interactive 22-Fret Luthier-Grade SVG Fretboard Renderer v7.2
- * - Dynamic 6, 7, or 8 strings
- * - Theme-matched woodgrain / carbon-fiber / matte surfaces, 3D neck curvature gradients,
- *   neck binding with side-dot markers, slotted nut, 3D metallic fret wires,
- *   cast string shadows, wound bass strings, and 6 distinct thematic inlay styles!
- * - 3 Microtonal Modes ('bend', 'slide', 'frets24'), Spectral Harmonics, Voicing Overlay,
- *   Closed-Position Fret Window, Radar Scale B Overlay, Etude Playhead & Live Pitch Mirror.
+ * Interactive Luthier-Grade Living SVG Fretboard Renderer v7.8
+ * - Dynamic 6, 7, or 8 strings + 22-Fret Full View or 12-Fret Zoom View
+ * - True Left-Handed Flip (flips physical neck geometry while keeping all text crisp & readable)
+ * - Living Instrument Micro-Interactions: physical damped string vibration + luminous pluck ripple,
+ *   and zero-thrash hover pitch-class/octave resonance pulse across all strings!
+ * - Direct Editorial Plate Export (SVG & 2x Retina PNG) matching the active studio design
  */
 import { DB } from '../core/database.js';
 import { getThemeById } from '../core/themes.js';
+import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import {
   SPECTRAL_HARMONICS,
   mod24,
@@ -18,10 +18,15 @@ import {
   intervalQToCents
 } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
-import { getActiveScale, getActiveVoicing, getState, setState } from '../state/store.js';
+import {
+  getActiveScale,
+  getActiveTuning,
+  getActiveVoicing,
+  getState,
+  setState
+} from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 
-const NUM_FRETS = 22;
 const SVG_W = 1240;
 const NUT_X = 86;
 const RIGHT_PAD = 24;
@@ -34,48 +39,59 @@ function computeSvgH(numStrings) {
   return TOP_Y + (numStrings - 1) * STRING_GAP + 54;
 }
 
-function buildFretXs() {
+function buildFretXsForCount(maxFrets) {
   const xs = [NUT_X];
   const usableW = SVG_W - NUT_X - RIGHT_PAD;
+  const decay = maxFrets <= 12 ? 0.968 : 0.958;
   let totalWeight = 0;
   const weights = [];
-  for (let f = 1; f <= NUM_FRETS; f += 1) {
-    const w = Math.pow(0.958, f - 1);
+  for (let f = 1; f <= maxFrets; f += 1) {
+    const w = Math.pow(decay, f - 1);
     weights.push(w);
     totalWeight += w;
   }
   let acc = NUT_X;
-  for (let f = 1; f <= NUM_FRETS; f += 1) {
+  for (let f = 1; f <= maxFrets; f += 1) {
     acc += (weights[f - 1] / totalWeight) * usableW;
     xs.push(acc);
   }
   return xs;
 }
 
-const FRET_XS = buildFretXs();
+const FRET_XS_22 = buildFretXsForCount(22);
+const FRET_XS_12 = buildFretXsForCount(12);
 
-function fretPosToX(pos) {
-  if (pos <= 0) return NUT_X - 36;
+function getLayoutMetrics(state) {
+  const maxFrets = state.fretZoom === 12 ? 12 : 22;
+  const fretXs = maxFrets === 12 ? FRET_XS_12 : FRET_XS_22;
+  const leftHanded = Boolean(state.leftHanded);
+  const tx = (x) => (leftHanded ? SVG_W - x : x);
+  const txRect = (x, w) => (leftHanded ? SVG_W - x - w : x);
+  return { maxFrets, fretXs, leftHanded, tx, txRect };
+}
+
+function fretPosToRawX(pos, fretXs, maxFrets) {
+  if (pos <= 0) return NUT_X - 38;
   const fLow = Math.floor(pos);
   const frac = pos - fLow;
-  if (fLow >= NUM_FRETS) return FRET_XS[NUM_FRETS];
-  return FRET_XS[fLow] + (FRET_XS[fLow + 1] - FRET_XS[fLow]) * frac;
+  if (fLow >= maxFrets) return fretXs[maxFrets];
+  return fretXs[fLow] + (fretXs[fLow + 1] - fretXs[fLow]) * frac;
 }
 
-function fretCenterX(f) {
+function fretCenterRawX(f, fretXs) {
   if (f === 0) return NUT_X - 38;
-  return (FRET_XS[f - 1] + FRET_XS[f]) / 2;
+  return (fretXs[f - 1] + fretXs[f]) / 2;
 }
 
-function stepQToX(stepQ, microMode) {
+function stepQToRawX(stepQ, microMode, fretXs) {
   if (stepQ === 0) return NUT_X - 38;
   const isMicro = stepQ % 2 !== 0;
   const fretNum = Math.floor(stepQ / 2);
-  if (!isMicro) return fretCenterX(fretNum);
-  if (microMode === 'bend') return fretCenterX(fretNum) + 4;
-  if (microMode === 'slide') return FRET_XS[fretNum];
-  const lowerWire = FRET_XS[fretNum];
-  const microWire = (FRET_XS[fretNum] + FRET_XS[fretNum + 1]) / 2;
+  if (!isMicro) return fretCenterRawX(fretNum, fretXs);
+  if (microMode === 'bend') return fretCenterRawX(fretNum, fretXs) + 4;
+  if (microMode === 'slide') return fretXs[fretNum];
+  const lowerWire = fretXs[fretNum];
+  const microWire = (fretXs[fretNum] + fretXs[fretNum + 1]) / 2;
   return (lowerWire + microWire) / 2;
 }
 
@@ -86,9 +102,39 @@ function getMarkerLabel(q, intervalQ, labelMode) {
 }
 
 /**
- * Builds rich SVG <defs> for the active theme's fretboard material, metallic frets,
- * slotted nut, carbon/wood grain pattern, and marker shadows.
+ * Fires a damped physical string vibration + luminous SVG ripple wave on the active neck (zero rebuild!).
  */
+export function triggerFretboardStringPluck({ visIdx, x, y, color = 'var(--accent-root)' }) {
+  const svg = document.querySelector('#fretboardContainer svg');
+  if (!svg) return;
+
+  // 1. Oscillate the exact string wire
+  const wire = svg.querySelector(`.sa-string-wire[data-vis-str="${visIdx}"]`);
+  if (wire) {
+    wire.classList.remove('is-vibrating');
+    // Force quick style flush so rapid repeated plucks re-trigger cleanly
+    void wire.getBoundingClientRect();
+    wire.classList.add('is-vibrating');
+  }
+
+  // 2. Emit an expanding luminous ripple wave inside #fxPulseLayer
+  const layer = svg.querySelector('#fxPulseLayer');
+  if (!layer) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  const ring = document.createElementNS(ns, 'circle');
+  ring.setAttribute('cx', x.toFixed(1));
+  ring.setAttribute('cy', y.toFixed(1));
+  ring.setAttribute('r', '14');
+  ring.setAttribute('fill', 'none');
+  ring.setAttribute('stroke', color);
+  ring.setAttribute('stroke-width', '2.8');
+  ring.setAttribute('class', 'sa-pluck-ripple');
+  layer.appendChild(ring);
+  setTimeout(() => {
+    ring.remove();
+  }, 520);
+}
+
 function buildFretboardDefs(fbSkin) {
   const [w0, w1, w2] = fbSkin.woodStops;
   const [n0, n1, n2] = fbSkin.nutStops;
@@ -178,24 +224,21 @@ function buildFretboardDefs(fbSkin) {
   `;
 }
 
-/**
- * Renders theme-specific fretboard inlays (Pearl Dots, 70s Trapezoids, Doom Monoliths,
- * Djent Sharktooth, Avant Crosshairs, or Brazilian Armorial Sunbursts).
- */
-function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
+function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH, metrics }) {
+  const { maxFrets, fretXs, tx } = metrics;
   const out = [];
   const midY = TOP_Y + STRING_GAP * ((numStrings - 1) / 2);
   const style = fbSkin.inlayStyle || 'pearl_dot';
 
-  INLAY_FRETS.forEach((f) => {
-    const cx = fretCenterX(f);
-    const fretW = FRET_XS[f] - FRET_XS[f - 1];
+  INLAY_FRETS.filter((f) => f <= maxFrets).forEach((f) => {
+    const rawCx = fretCenterRawX(f, fretXs);
+    const cx = tx(rawCx);
+    const fretW = fretXs[f] - fretXs[f - 1];
 
     if (style === 'vintage_trapezoid') {
-      // Classic 70s Les Paul / SG pearloid trapezoids scaled to each fret width
       const h = f === 12 ? boardH * 0.56 : boardH * 0.48;
-      const wTop = Math.min(20, fretW * 0.42);
-      const wBot = Math.min(26, fretW * 0.54);
+      const wTop = Math.min(22, fretW * 0.42);
+      const wBot = Math.min(28, fretW * 0.54);
       const y1 = midY - h / 2;
       const y2 = midY + h / 2;
       out.push(`
@@ -205,9 +248,8 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         />
       `);
     } else if (style === 'doom_monolith') {
-      // Gothic elongated pointed diamond / double monolith at 12th fret
       const drawGlyph = (gy, scale = 1) => {
-        const rx = Math.min(9.5, fretW * 0.24) * scale;
+        const rx = Math.min(10, fretW * 0.24) * scale;
         const ry = 18 * scale;
         return `
           <polygon points="${cx.toFixed(1)},${(gy - ry).toFixed(1)} ${(cx + rx).toFixed(1)},${gy.toFixed(1)} ${cx.toFixed(1)},${(gy + ry).toFixed(1)} ${(cx - rx).toFixed(1)},${gy.toFixed(1)}"
@@ -222,17 +264,15 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         out.push(drawGlyph(midY, 1));
       }
     } else if (style === 'djent_sharktooth') {
-      // Aggressive precision angled sharktooth inlays hugging the bass side
-      const xL = FRET_XS[f - 1] + fretW * 0.22;
-      const xR = FRET_XS[f] - fretW * 0.2;
+      const x1 = tx(fretXs[f - 1] + fretW * 0.22);
+      const x2 = tx(fretXs[f] - fretW * 0.2);
       const yBot = boardTop + boardH - 10;
       const yPeak = f === 12 ? boardTop + 14 : boardTop + boardH * 0.42;
       out.push(`
-        <polygon points="${xL.toFixed(1)},${yBot.toFixed(1)} ${xR.toFixed(1)},${yBot.toFixed(1)} ${xR.toFixed(1)},${yPeak.toFixed(1)}"
+        <polygon points="${x1.toFixed(1)},${yBot.toFixed(1)} ${x2.toFixed(1)},${yBot.toFixed(1)} ${x2.toFixed(1)},${yPeak.toFixed(1)}"
           fill="${fbSkin.inlayFill}" stroke="${fbSkin.inlayStroke}" stroke-width="1" stroke-opacity="0.65"/>
       `);
     } else if (style === 'avant_crosshair') {
-      // Fluxus / John Cage technical score crosshairs + registration circles
       const drawCross = (gy) => `
         <g stroke="${fbSkin.inlayStroke}" stroke-width="1" fill="none">
           <circle cx="${cx.toFixed(1)}" cy="${gy.toFixed(1)}" r="7.5"/>
@@ -247,7 +287,6 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         out.push(drawCross(midY));
       }
     } else if (style === 'armorial_sun') {
-      // Brazilian Armorial woodcut 4-pointed sunburst star inlaid in warm pearl & terracotta rim
       const drawStar = (gy, rOut, rIn) => {
         const pts = [];
         for (let k = 0; k < 8; k += 1) {
@@ -264,7 +303,6 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         out.push(drawStar(midY, Math.min(14, fretW * 0.34), 4.8));
       }
     } else {
-      // Heirloom 8-Pointed Andalusian / Oud Mother-of-Pearl & Gold Star Inlays (Rub el Hizb)
       const drawOudStar = (gy, r) => `
         <g transform="translate(${cx.toFixed(1)},${gy.toFixed(1)})">
           <rect x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(r * 2).toFixed(1)}" height="${(r * 2).toFixed(1)}" fill="url(#saPearlGrad)" fill-opacity="0.28" stroke="${fbSkin.bindingColor}" stroke-opacity="0.58" stroke-width="0.85"/>
@@ -276,12 +314,11 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         out.push(drawOudStar(TOP_Y + STRING_GAP * 1.5, 6.8));
         out.push(drawOudStar(TOP_Y + STRING_GAP * (numStrings - 2.5), 6.8));
       } else {
-        out.push(drawOudStar(midY, Math.min(7.2, fretW * 0.19)));
+        out.push(drawOudStar(midY, Math.min(7.5, fretW * 0.19)));
       }
     }
 
-    // Side-dot marker embedded along the top neck binding strip!
-    const bindDotY = boardTop - 3;
+    const bindDotY = boardTop - 3.5;
     if (f === 12) {
       out.push(`<circle cx="${(cx - 4.5).toFixed(1)}" cy="${bindDotY}" r="1.9" fill="${fbSkin.sideDotColor}"/>`);
       out.push(`<circle cx="${(cx + 4.5).toFixed(1)}" cy="${bindDotY}" r="1.9" fill="${fbSkin.sideDotColor}"/>`);
@@ -293,6 +330,103 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
   return out.join('');
 }
 
+function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep, microMode, nodeShape }) {
+  const xStr = cx.toFixed(1);
+
+  if (isMicroStep && microMode === 'slide') {
+    const r = 13.4;
+    return `
+      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
+      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (isMicroStep && microMode === 'bend') {
+    const rx = nodeShape === 'hex' || nodeShape === 'bauhaus' ? 2 : 7;
+    return `
+      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
+      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>
+      <text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>
+    `;
+  }
+
+  if (nodeShape === 'hex') {
+    const r = isRoot ? 13.6 : 12.6;
+    const pts = [];
+    for (let k = 0; k < 6; k += 1) {
+      const a = (k * Math.PI) / 3 - Math.PI / 6;
+      pts.push(`${(cx + Math.cos(a) * r).toFixed(1)},${(y + Math.sin(a) * r).toFixed(1)}`);
+    }
+    const pStr = pts.join(' ');
+    return `
+      <polygon points="${pStr}" fill="${fill}" stroke="rgba(0,0,0,0.72)" stroke-width="1.3"/>
+      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'rune') {
+    const r = isRoot ? 13.5 : 12.4;
+    const c = r * 0.44;
+    const pStr = [
+      `${(cx - c).toFixed(1)},${(y - r).toFixed(1)}`,
+      `${(cx + c).toFixed(1)},${(y - r).toFixed(1)}`,
+      `${(cx + r).toFixed(1)},${(y - c).toFixed(1)}`,
+      `${(cx + r).toFixed(1)},${(y + c).toFixed(1)}`,
+      `${(cx + c).toFixed(1)},${(y + r).toFixed(1)}`,
+      `${(cx - c).toFixed(1)},${(y + r).toFixed(1)}`,
+      `${(cx - r).toFixed(1)},${(y + c).toFixed(1)}`,
+      `${(cx - r).toFixed(1)},${(y - c).toFixed(1)}`
+    ].join(' ');
+    return `
+      <polygon points="${pStr}" fill="${fill}" stroke="rgba(219,163,66,0.55)" stroke-width="1.2"/>
+      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'bauhaus') {
+    if (isRoot) {
+      return `
+        <rect x="${(cx - 12.5).toFixed(1)}" y="${(y - 12.5).toFixed(1)}" width="25" height="25" rx="1" fill="${fill}" stroke="#ffffff" stroke-width="1.4"/>
+        <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      `;
+    }
+    return `
+      <circle cx="${xStr}" cy="${y}" r="12.2" fill="${fill}" stroke="${isChar ? '#ffffff' : 'rgba(255,255,255,0.45)'}" stroke-width="${isChar ? 2 : 1.1}"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'knob') {
+    return `
+      <circle cx="${xStr}" cy="${y}" r="13" fill="#18100a" stroke="rgba(240,210,150,0.48)" stroke-width="1"/>
+      <circle cx="${xStr}" cy="${y}" r="11.2" fill="${fill}"/>
+      <circle cx="${xStr}" cy="${y}" r="11.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      ${isRoot ? `<line x1="${xStr}" y1="${(y - 12.5).toFixed(1)}" x2="${xStr}" y2="${(y - 9.2).toFixed(1)}" stroke="#fff4cc" stroke-width="1.8" stroke-linecap="round"/>` : ''}
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'ceramic') {
+    return `
+      <circle cx="${xStr}" cy="${y}" r="12.8" fill="${fill}" stroke="#fff4dc" stroke-width="${isRoot ? 2 : 1.2}" stroke-opacity="${isRoot ? 0.9 : 0.65}"/>
+      <circle cx="${xStr}" cy="${y}" r="12.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  return `
+    <circle cx="${xStr}" cy="${y}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>
+    <circle cx="${xStr}" cy="${y}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+    <circle cx="${xStr}" cy="${y}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>
+    <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+  `;
+}
+
 export function highlightFretboardEtudeEvent(ev, microMode) {
   const layer = document.getElementById('etudePlayheadLayer');
   if (!layer) return;
@@ -301,12 +435,20 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
     return;
   }
 
-  const numStrings = getState().customStringsQ.length;
+  const st = getState();
+  const metrics = getLayoutMetrics(st);
+  if (ev.fret > metrics.maxFrets) {
+    layer.innerHTML = '';
+    return;
+  }
+
+  const numStrings = st.customStringsQ.length;
   const visIdx = (numStrings - 1) - ev.strIdx;
   const y = TOP_Y + visIdx * STRING_GAP;
-  const x = ev.kind === 'harmonic'
-    ? fretPosToX(ev.fret)
-    : stepQToX(ev.stepQ, microMode);
+  const rawX = ev.kind === 'harmonic'
+    ? fretPosToRawX(ev.fret, metrics.fretXs, metrics.maxFrets)
+    : stepQToRawX(ev.stepQ, microMode, metrics.fretXs);
+  const x = metrics.tx(rawX);
 
   const badgeText = ev.articulation || '';
   layer.innerHTML = `
@@ -315,6 +457,8 @@ export function highlightFretboardEtudeEvent(ev, microMode) {
     <rect x="${(x - 14).toFixed(1)}" y="${(y - 31).toFixed(1)}" width="28" height="14" rx="4" fill="var(--accent-etude)"/>
     <text x="${x.toFixed(1)}" y="${(y - 21).toFixed(1)}" text-anchor="middle" fill="#0d1017" font-size="9" font-weight="800" font-family="ui-monospace, monospace">${badgeText}</text>
   `;
+
+  triggerFretboardStringPluck({ visIdx, x, y, color: 'var(--accent-etude)' });
 }
 
 export function highlightFretboardLivePitch(pitch, state) {
@@ -325,16 +469,17 @@ export function highlightFretboardLivePitch(pitch, state) {
     return;
   }
 
+  const metrics = getLayoutMetrics(state);
   const hits = [];
   const numStrings = state.customStringsQ.length;
   for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
     const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const stepQ = pitch.nearestQ - openQ;
-    if (stepQ < 0 || stepQ > NUM_FRETS * 2) continue;
+    if (stepQ < 0 || stepQ > metrics.maxFrets * 2) continue;
     if (stepQ === 1 && state.microMode === 'bend') continue;
 
-    const x = stepQToX(stepQ, state.microMode);
+    const x = metrics.tx(stepQToRawX(stepQ, state.microMode, metrics.fretXs));
     const y = TOP_Y + visIdx * STRING_GAP;
     hits.push({ x, y });
   }
@@ -357,115 +502,6 @@ export function highlightFretboardLivePitch(pitch, state) {
     .join('');
 }
 
-
-/**
- * Renders theme-specific sculptural note marker geometry while preserving unmistakable
- * microtonal indicators (bend badge ↑¼ and slide diamond) and high label legibility.
- */
-function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep, microMode, nodeShape }) {
-  const xStr = cx.toFixed(1);
-
-  // Microtonal slide diamond & micro-bend pill remain unmistakable across all themes
-  if (isMicroStep && microMode === 'slide') {
-    const r = 13.4;
-    return `
-      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
-      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-    `;
-  }
-
-  if (isMicroStep && microMode === 'bend') {
-    const rx = nodeShape === 'hex' || nodeShape === 'bauhaus' ? 2 : 7;
-    return `
-      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
-      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-      <rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>
-      <text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>
-    `;
-  }
-
-  if (nodeShape === 'hex') {
-    // Djent CNC Machined Hexagon Node
-    const r = isRoot ? 13.6 : 12.6;
-    const pts = [];
-    for (let k = 0; k < 6; k += 1) {
-      const a = (k * Math.PI) / 3 - Math.PI / 6;
-      pts.push(`${(cx + Math.cos(a) * r).toFixed(1)},${(y + Math.sin(a) * r).toFixed(1)}`);
-    }
-    const pStr = pts.join(' ');
-    return `
-      <polygon points="${pStr}" fill="${fill}" stroke="rgba(0,0,0,0.72)" stroke-width="1.3"/>
-      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
-    `;
-  }
-
-  if (nodeShape === 'rune') {
-    // Doom Carved Octagonal Obsidian Stele Gem
-    const r = isRoot ? 13.5 : 12.4;
-    const c = r * 0.44;
-    const pStr = [
-      `${(cx - c).toFixed(1)},${(y - r).toFixed(1)}`,
-      `${(cx + c).toFixed(1)},${(y - r).toFixed(1)}`,
-      `${(cx + r).toFixed(1)},${(y - c).toFixed(1)}`,
-      `${(cx + r).toFixed(1)},${(y + c).toFixed(1)}`,
-      `${(cx + c).toFixed(1)},${(y + r).toFixed(1)}`,
-      `${(cx - c).toFixed(1)},${(y + r).toFixed(1)}`,
-      `${(cx - r).toFixed(1)},${(y + c).toFixed(1)}`,
-      `${(cx - r).toFixed(1)},${(y - c).toFixed(1)}`
-    ].join(' ');
-    return `
-      <polygon points="${pStr}" fill="${fill}" stroke="rgba(219,163,66,0.55)" stroke-width="1.2"/>
-      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-    `;
-  }
-
-  if (nodeShape === 'bauhaus') {
-    // Avant / Fluxus Graphic Score Geometry: Sharp Square for Root, Crisp Circle for Scale
-    if (isRoot) {
-      return `
-        <rect x="${(cx - 12.5).toFixed(1)}" y="${(y - 12.5).toFixed(1)}" width="25" height="25" rx="1" fill="${fill}" stroke="#ffffff" stroke-width="1.4"/>
-        <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
-      `;
-    }
-    return `
-      <circle cx="${xStr}" cy="${y}" r="12.2" fill="${fill}" stroke="${isChar ? '#ffffff' : 'rgba(255,255,255,0.45)'}" stroke-width="${isChar ? 2 : 1.1}"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-    `;
-  }
-
-  if (nodeShape === 'knob') {
-    // 70s Vintage Console Dome Knob with Brass Skirt Ring
-    return `
-      <circle cx="${xStr}" cy="${y}" r="13" fill="#18100a" stroke="rgba(240,210,150,0.48)" stroke-width="1"/>
-      <circle cx="${xStr}" cy="${y}" r="11.2" fill="${fill}"/>
-      <circle cx="${xStr}" cy="${y}" r="11.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      ${isRoot ? `<line x1="${xStr}" y1="${(y - 12.5).toFixed(1)}" x2="${xStr}" y2="${(y - 9.2).toFixed(1)}" stroke="#fff4cc" stroke-width="1.8" stroke-linecap="round"/>` : ''}
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
-    `;
-  }
-
-  if (nodeShape === 'ceramic') {
-    // Brazilian Glazed Ceramic Medallion with Warm Clay Rim
-    return `
-      <circle cx="${xStr}" cy="${y}" r="12.8" fill="${fill}" stroke="#fff4dc" stroke-width="${isRoot ? 2 : 1.2}" stroke-opacity="${isRoot ? 0.9 : 0.65}"/>
-      <circle cx="${xStr}" cy="${y}" r="12.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
-    `;
-  }
-
-  // Default ('jewel'): Luminous Celestial Studio Jewel
-  return `
-    <circle cx="${xStr}" cy="${y}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>
-    <circle cx="${xStr}" cy="${y}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-    <circle cx="${xStr}" cy="${y}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>
-    <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-  `;
-}
-
 export function renderFretboard(state) {
   const container = document.getElementById('fretboardContainer');
   const titleEl = document.getElementById('activeScaleTitle');
@@ -475,6 +511,8 @@ export function renderFretboard(state) {
 
   const activeTheme = getThemeById(state.theme);
   const fbSkin = activeTheme.fretboard;
+  const metrics = getLayoutMetrics(state);
+  const { maxFrets, fretXs, leftHanded, tx, txRect } = metrics;
 
   const scale = getActiveScale();
   const rootName = qToNoteName(state.rootQ, false);
@@ -531,74 +569,80 @@ export function renderFretboard(state) {
   parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${svgH}" role="img" aria-label="${rootName} ${scaleName}">`);
   parts.push(buildFretboardDefs(fbSkin));
 
-  // Engraved Headstock Transition Plaque (behind the nut)
-  parts.push(`<rect x="8" y="${boardTop - 6}" width="${NUT_X - 16}" height="${boardH + 12}" rx="6" fill="${fbSkin.headstockFill}" fill-opacity="0.92" stroke="${fbSkin.bindingColor}" stroke-opacity="0.35" stroke-width="1.2"/>`);
-  parts.push(`<rect x="12" y="${boardTop - 2}" width="${NUT_X - 24}" height="${boardH + 4}" rx="4" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.18" stroke-width="0.8" stroke-dasharray="3 3"/>`);
+  // Engraved Headstock Transition Plaque (flips to right side in Left-Handed mode)
+  parts.push(`<rect x="${txRect(8, NUT_X - 16)}" y="${boardTop - 6}" width="${NUT_X - 16}" height="${boardH + 12}" rx="6" fill="${fbSkin.headstockFill}" fill-opacity="0.92" stroke="${fbSkin.bindingColor}" stroke-opacity="0.35" stroke-width="1.2"/>`);
+  parts.push(`<rect x="${txRect(12, NUT_X - 24)}" y="${boardTop - 2}" width="${NUT_X - 24}" height="${boardH + 4}" rx="4" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.18" stroke-width="0.8" stroke-dasharray="3 3"/>`);
 
   // Top & Bottom Neck Binding Strips + Intricate Marquetry Purfling Line
-  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop - 7}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
-  parts.push(`<line x1="${NUT_X}" y1="${boardTop - 1.5}" x2="${SVG_W - RIGHT_PAD}" y2="${boardTop - 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
-  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop + boardH}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
-  parts.push(`<line x1="${NUT_X}" y1="${boardTop + boardH + 1.5}" x2="${SVG_W - RIGHT_PAD}" y2="${boardTop + boardH + 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
+  const bindX = txRect(NUT_X - 10, boardW + 10);
+  const boardX = txRect(NUT_X, boardW);
+  parts.push(`<rect x="${bindX}" y="${boardTop - 7}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  parts.push(`<line x1="${boardX}" y1="${boardTop - 1.5}" x2="${boardX + boardW}" y2="${boardTop - 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
+  parts.push(`<rect x="${bindX}" y="${boardTop + boardH}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  parts.push(`<line x1="${boardX}" y1="${boardTop + boardH + 1.5}" x2="${boardX + boardW}" y2="${boardTop + boardH + 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
 
-  // Right-Edge Instrument Body Ornament (Andalusian Soundhole Rosette Arc or Boutique Pickup Bezel)
-  const rightEndX = SVG_W - RIGHT_PAD;
-  const centerBoardY = boardTop + boardH / 2;
+  // Body End Ornament (Soundhole Rosette Arc or Boutique Pickup Bezel)
+  const bodyEndX = tx(SVG_W - RIGHT_PAD);
   if (['layl', 'nahar', 'brazilian'].includes(state.theme)) {
-    parts.push(`<path d="M${rightEndX} ${boardTop + 10} A 78 96 0 0 0 ${rightEndX} ${boardTop + boardH - 10}" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.52" stroke-width="2.2"/>`);
-    parts.push(`<path d="M${rightEndX} ${boardTop + 18} A 70 88 0 0 0 ${rightEndX} ${boardTop + boardH - 18}" fill="none" stroke="var(--accent-root)" stroke-opacity="0.55" stroke-width="1.3" stroke-dasharray="3 3"/>`);
+    const sweep = leftHanded ? 1 : 0;
+    parts.push(`<path d="M${bodyEndX} ${boardTop + 10} A 78 96 0 0 ${sweep} ${bodyEndX} ${boardTop + boardH - 10}" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.52" stroke-width="2.2"/>`);
+    parts.push(`<path d="M${bodyEndX} ${boardTop + 18} A 70 88 0 0 ${sweep} ${bodyEndX} ${boardTop + boardH - 18}" fill="none" stroke="var(--accent-root)" stroke-opacity="0.55" stroke-width="1.3" stroke-dasharray="3 3"/>`);
   } else {
-    parts.push(`<rect x="${rightEndX + 2}" y="${boardTop + 6}" width="14" height="${boardH - 12}" rx="3" fill="${fbSkin.headstockFill}" stroke="${fbSkin.bindingColor}" stroke-opacity="0.48" stroke-width="1"/>`);
+    const puX = txRect(SVG_W - RIGHT_PAD + 2, 14);
+    parts.push(`<rect x="${puX}" y="${boardTop + 6}" width="14" height="${boardH - 12}" rx="3" fill="${fbSkin.headstockFill}" stroke="${fbSkin.bindingColor}" stroke-opacity="0.48" stroke-width="1"/>`);
     for (let pi = 0; pi < numStrings; pi += 1) {
-      parts.push(`<circle cx="${rightEndX + 9}" cy="${TOP_Y + pi * STRING_GAP}" r="3.1" fill="url(#saFretGrad)" stroke="rgba(0,0,0,0.65)" stroke-width="0.8"/>`);
+      parts.push(`<circle cx="${puX + 7}" cy="${TOP_Y + pi * STRING_GAP}" r="3.1" fill="url(#saFretGrad)" stroke="rgba(0,0,0,0.65)" stroke-width="0.8"/>`);
     }
   }
 
-  // Main radiused wood / carbon fretboard surface + texture overlay
-  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saWoodGrad)"/>`);
-  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saBoardTexture)"/>`);
-  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckSheen)"/>`);
-  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckVignette)"/>`);
+  // Main radiused wood / carbon surface + texture + satin sheen + curvature vignette
+  parts.push(`<rect x="${boardX}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saWoodGrad)"/>`);
+  parts.push(`<rect x="${boardX}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saBoardTexture)"/>`);
+  parts.push(`<rect x="${boardX}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckSheen)"/>`);
+  parts.push(`<rect x="${boardX}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saNeckVignette)"/>`);
 
-  // Subtle dark shadow cast by the nut onto fret 1
-  parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="6" height="${boardH}" fill="#000000" fill-opacity="0.28"/>`);
-
-  // Realistic 3D Slotted Nut
-  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop}" width="10" height="${boardH}" rx="1.5" fill="url(#saNutGrad)" stroke="rgba(0,0,0,0.5)" stroke-width="0.9"/>`);
+  // Subtle nut cast shadow + Realistic 3D Slotted Nut
+  parts.push(`<rect x="${txRect(NUT_X, 6)}" y="${boardTop}" width="6" height="${boardH}" fill="#000000" fill-opacity="0.28"/>`);
+  parts.push(`<rect x="${txRect(NUT_X - 10, 10)}" y="${boardTop}" width="10" height="${boardH}" rx="1.5" fill="url(#saNutGrad)" stroke="rgba(0,0,0,0.5)" stroke-width="0.9"/>`);
 
   // Thematic Inlays + Binding Side Dots
-  parts.push(renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }));
+  parts.push(renderThematicInlays({ fbSkin, numStrings, boardTop, boardH, metrics }));
 
   // Closed-Position Fretboard Window highlight box
-  const winMin = state.fretWindowStart;
-  const winMax = Math.min(NUM_FRETS, state.fretWindowStart + state.fretWindowSpan);
-  if (state.fretWindowOn) {
-    const wx1 = winMin === 0 ? NUT_X - 58 : FRET_XS[Math.max(0, winMin - 1)];
-    const wx2 = FRET_XS[winMax];
-    parts.push(`<rect x="${wx1}" y="${boardTop}" width="${Math.max(12, wx2 - wx1)}" height="${boardH}" rx="3" fill="var(--accent-scale)" fill-opacity="0.13" stroke="var(--accent-scale)" stroke-width="1.6" stroke-dasharray="5 3"/>`);
+  const winMin = Math.min(state.fretWindowStart, maxFrets);
+  const winMax = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
+  if (state.fretWindowOn && winMin <= maxFrets) {
+    const rawWx1 = winMin === 0 ? NUT_X - 58 : fretXs[Math.max(0, winMin - 1)];
+    const rawWx2 = fretXs[winMax];
+    const winW = Math.max(12, rawWx2 - rawWx1);
+    parts.push(`<rect x="${txRect(rawWx1, winW)}" y="${boardTop}" width="${winW}" height="${boardH}" rx="3" fill="var(--accent-scale)" fill-opacity="0.13" stroke="var(--accent-scale)" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
 
   // 3D Metallic Fret Wires & Highlighted Fret Ruler Numbers
-  for (let f = 1; f <= NUM_FRETS; f += 1) {
-    const x = FRET_XS[f];
-    // Cast fret shadow
-    parts.push(`<line x1="${(x + 1.6).toFixed(1)}" y1="${boardTop}" x2="${(x + 1.6).toFixed(1)}" y2="${boardTop + boardH}" stroke="#000000" stroke-opacity="0.45" stroke-width="2"/>`);
-    // Metallic fret crown
+  for (let f = 1; f <= maxFrets; f += 1) {
+    const x = tx(fretXs[f]);
+    const shX = leftHanded ? x - 1.6 : x + 1.6;
+    parts.push(`<line x1="${shX.toFixed(1)}" y1="${boardTop}" x2="${shX.toFixed(1)}" y2="${boardTop + boardH}" stroke="#000000" stroke-opacity="0.45" stroke-width="2"/>`);
     parts.push(`<rect x="${(x - 1.3).toFixed(1)}" y="${boardTop}" width="2.6" height="${boardH}" rx="1" fill="url(#saFretGrad)"/>`);
 
     const isInlayFret = INLAY_SET.has(f);
     const numColor = isInlayFret ? 'var(--accent-root)' : 'var(--text-muted)';
-    parts.push(`<text x="${fretCenterX(f).toFixed(1)}" y="${svgH - 13}" text-anchor="middle" fill="${numColor}" font-size="${isInlayFret ? 11.5 : 10.2}" font-weight="${isInlayFret ? 700 : 500}" font-family="var(--font-mono, ui-monospace, monospace)">${f}</text>`);
+    parts.push(`<text x="${tx(fretCenterRawX(f, fretXs)).toFixed(1)}" y="${svgH - 13}" text-anchor="middle" fill="${numColor}" font-size="${isInlayFret ? 11.5 : 10.2}" font-weight="${isInlayFret ? 700 : 500}" font-family="var(--font-mono, ui-monospace, monospace)">${f}</text>`);
 
-    // 24-TET dashed quarter-tone frets
     if (state.microMode === 'frets24') {
-      const microX = (FRET_XS[f - 1] + FRET_XS[f]) / 2;
+      const microX = tx((fretXs[f - 1] + fretXs[f]) / 2);
       parts.push(`<line x1="${microX.toFixed(1)}" y1="${boardTop + 2}" x2="${microX.toFixed(1)}" y2="${boardTop + boardH - 2}" stroke="var(--fret-micro)" stroke-width="1.35" stroke-dasharray="4 4"/>`);
     }
   }
 
-  // Realistic Guitar Strings (Cast Shadow + Plain/Wound Metallic Gauge + Nut Slots)
-  const woundStartVisIdx = numStrings <= 6 ? 3 : (numStrings === 7 ? 3 : 3);
+  // Realistic Vibratable Guitar Strings
+  const woundStartVisIdx = 3;
+  const strStartX = tx(NUT_X - 24);
+  const strBoardStartX = tx(NUT_X);
+  const strEndX = tx(SVG_W - RIGHT_PAD);
+  const nutSlotX1 = tx(NUT_X - 10);
+  const nutSlotX2 = tx(NUT_X);
+
   for (let visIdx = 0; visIdx < numStrings; visIdx += 1) {
     const stringArrIdx = (numStrings - 1) - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
@@ -612,42 +656,38 @@ export function renderFretboard(state) {
       ? 'var(--accent-open)'
       : (isWound ? fbSkin.stringWound : fbSkin.stringPlain);
 
-    // Subtle string slot notch on the nut
-    parts.push(`<line x1="${NUT_X - 10}" y1="${y}" x2="${NUT_X}" y2="${y}" stroke="rgba(0,0,0,0.55)" stroke-width="${(strokeW + 1).toFixed(1)}"/>`);
+    parts.push(`<line x1="${nutSlotX1}" y1="${y}" x2="${nutSlotX2}" y2="${y}" stroke="rgba(0,0,0,0.55)" stroke-width="${(strokeW + 1).toFixed(1)}"/>`);
+    parts.push(`<line x1="${strBoardStartX}" y1="${(y + 2.4).toFixed(1)}" x2="${strEndX}" y2="${(y + 2.4).toFixed(1)}" stroke="#000000" stroke-opacity="0.45" stroke-width="${(strokeW + 0.6).toFixed(1)}"/>`);
 
-    // Cast shadow onto fretboard wood
-    parts.push(`<line x1="${NUT_X}" y1="${(y + 2.4).toFixed(1)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y + 2.4).toFixed(1)}" stroke="#000000" stroke-opacity="0.45" stroke-width="${(strokeW + 0.6).toFixed(1)}"/>`);
-
-    // Resonant glow for in-scale open string
+    parts.push(`<g class="sa-string-wire" data-vis-str="${visIdx}">`);
     if (openInScale) {
-      parts.push(`<line x1="${NUT_X - 8}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="var(--accent-open)" stroke-opacity="0.22" stroke-width="${(strokeW + 4).toFixed(1)}"/>`);
+      parts.push(`<line x1="${nutSlotX1}" y1="${y}" x2="${strEndX}" y2="${y}" stroke="var(--accent-open)" stroke-opacity="0.22" stroke-width="${(strokeW + 4).toFixed(1)}"/>`);
     }
-
-    // Core string wire
-    parts.push(`<line x1="${NUT_X - 24}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="${strColor}" stroke-width="${strokeW.toFixed(2)}" stroke-opacity="${openInScale ? '0.94' : '0.78'}"/>`);
-
-    // Specular highlight / wound ribbing sheen
+    parts.push(`<line x1="${strStartX}" y1="${y}" x2="${strEndX}" y2="${y}" stroke="${strColor}" stroke-width="${strokeW.toFixed(2)}" stroke-opacity="${openInScale ? '0.94' : '0.78'}"/>`);
     if (isWound) {
-      parts.push(`<line x1="${NUT_X}" y1="${(y - 0.35).toFixed(2)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.28" stroke-width="0.9" stroke-dasharray="2.2 2"/>`);
+      parts.push(`<line x1="${strBoardStartX}" y1="${(y - 0.35).toFixed(2)}" x2="${strEndX}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.28" stroke-width="0.9" stroke-dasharray="2.2 2"/>`);
     } else {
-      parts.push(`<line x1="${NUT_X}" y1="${(y - 0.35).toFixed(2)}" x2="${SVG_W - RIGHT_PAD}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.34" stroke-width="0.65"/>`);
+      parts.push(`<line x1="${strBoardStartX}" y1="${(y - 0.35).toFixed(2)}" x2="${strEndX}" y2="${(y - 0.35).toFixed(2)}" stroke="#ffffff" stroke-opacity="0.34" stroke-width="0.65"/>`);
     }
+    parts.push('</g>');
 
-    // String number badge on far left headstock edge
-    parts.push(`<text x="19" y="${y + 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10.2" font-weight="600" font-family="var(--font-mono, ui-monospace, monospace)">${visIdx + 1}</text>`);
+    parts.push(`<text x="${tx(19).toFixed(1)}" y="${y + 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10.2" font-weight="600" font-family="var(--font-mono, ui-monospace, monospace)">${visIdx + 1}</text>`);
   }
 
-  // Voicing spine connecting chord notes
+  // Voicing spine connecting chord notes inside visible fret range
   if (activeVoicing && activeVoicing.notes.length >= 2) {
-    const pts = activeVoicing.notes
-      .map((n) => {
-        const visIdx = (numStrings - 1) - n.strIdx;
-        const x = stepQToX(n.stepQ, state.microMode);
-        const y = TOP_Y + visIdx * STRING_GAP;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ');
-    parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3.2" stroke-opacity="0.52" stroke-linecap="round" stroke-linejoin="round"/>`);
+    const visibleNotes = activeVoicing.notes.filter((n) => n.fret <= maxFrets);
+    if (visibleNotes.length >= 2) {
+      const pts = visibleNotes
+        .map((n) => {
+          const visIdx = (numStrings - 1) - n.strIdx;
+          const x = tx(stepQToRawX(n.stepQ, state.microMode, fretXs));
+          const y = TOP_Y + visIdx * STRING_GAP;
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        })
+        .join(' ');
+      parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3.2" stroke-opacity="0.52" stroke-linecap="round" stroke-linejoin="round"/>`);
+    }
   }
 
   // Open Strings, Harmonics, Scale, Voicing & Radar B Nodes
@@ -666,24 +706,24 @@ export function renderFretboard(state) {
       : (openInVoicing ? 'var(--accent-voicing)' : 'var(--bg-elevated)');
     const openInk = (openInScale || openInVoicing) ? 'var(--accent-root-ink)' : 'var(--text-secondary)';
     const openLabel = qToNoteName(openQ, false);
-    const openCx = NUT_X - 38;
+    const openCx = tx(NUT_X - 38);
 
     parts.push(`
-      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
-        ${openInVoicing ? `<circle cx="${openCx}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
-        ${openInScale && openIv === 0 ? `<circle cx="${openCx}" cy="${y}" r="16" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.7"/>` : ''}
-        <circle cx="${openCx}" cy="${y}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.55)' : 'var(--border-strong)'}" stroke-width="1.1"/>
-        ${openInScale || openInVoicing ? `<circle cx="${openCx}" cy="${y}" r="13" fill="url(#saJewelGloss)" style="pointer-events:none"/>` : ''}
-        <text x="${openCx}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.2" font-weight="700">${openLabel}</text>
+      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${openPc}" data-vis-str="${visIdx}" data-cx="${openCx.toFixed(1)}" data-cy="${y}" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
+        ${openInVoicing ? `<circle cx="${openCx.toFixed(1)}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
+        ${openInScale && openIv === 0 ? `<circle cx="${openCx.toFixed(1)}" cy="${y}" r="16" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.72"/>` : ''}
+        <circle cx="${openCx.toFixed(1)}" cy="${y}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.55)' : 'var(--border-strong)'}" stroke-width="1.1"/>
+        ${openInScale || openInVoicing ? `<circle cx="${openCx.toFixed(1)}" cy="${y}" r="13" fill="url(#saJewelGloss)" style="pointer-events:none"/>` : ''}
+        <text x="${openCx.toFixed(1)}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.2" font-weight="700">${openLabel}</text>
       </g>
     `);
 
     if (state.harmonicsOn) {
-      SPECTRAL_HARMONICS.forEach((h) => {
-        const hx = fretPosToX(h.fretPos);
+      SPECTRAL_HARMONICS.filter((h) => h.fretPos <= maxFrets + 0.3).forEach((h) => {
+        const hx = tx(fretPosToRawX(h.fretPos, fretXs, maxFrets));
         const hFreq = qToFreq(openQ) * h.ratio;
         parts.push(`
-          <g class="note-node" filter="url(#saNoteShadow)" data-kind="harmonic" data-freq="${hFreq.toFixed(3)}" data-partial="${h.partial}" data-ji="${h.jiCentsOffset}" data-string="${visIdx + 1}" data-fretpos="${h.fretPos}" data-openq="${openQ}">
+          <g class="note-node" filter="url(#saNoteShadow)" data-kind="harmonic" data-vis-str="${visIdx}" data-cx="${hx.toFixed(1)}" data-cy="${(y - 12.5).toFixed(1)}" data-freq="${hFreq.toFixed(3)}" data-partial="${h.partial}" data-ji="${h.jiCentsOffset}" data-string="${visIdx + 1}" data-fretpos="${h.fretPos}" data-openq="${openQ}">
             <polygon points="${hx.toFixed(1)},${(y - 20).toFixed(1)} ${(hx + 7.5).toFixed(1)},${(y - 12.5).toFixed(1)} ${hx.toFixed(1)},${(y - 5).toFixed(1)} ${(hx - 7.5).toFixed(1)},${(y - 12.5).toFixed(1)}" fill="var(--accent-harmonic)" stroke="#0d1017" stroke-width="1.1"/>
             <text x="${hx.toFixed(1)}" y="${(y - 9.5).toFixed(1)}" text-anchor="middle" fill="#0c1220" font-size="8.2" font-weight="800">${h.partial}</text>
           </g>
@@ -691,7 +731,7 @@ export function renderFretboard(state) {
       });
     }
 
-    const maxStepQ = NUM_FRETS * 2;
+    const maxStepQ = maxFrets * 2;
     for (let stepQ = 1; stepQ <= maxStepQ; stepQ += 1) {
       const absQ = openQ + stepQ;
       const pc = mod24(absQ);
@@ -708,7 +748,7 @@ export function renderFretboard(state) {
 
       if (isMicroStep && fretNum === 0 && state.microMode === 'bend') continue;
 
-      const cx = stepQToX(stepQ, state.microMode);
+      const cx = tx(stepQToRawX(stepQ, state.microMode, fretXs));
       const isRoot = intervalQ === 0 && inScale;
       const isChar = inScale && charSet.has(intervalQ);
       const isPlaying = state.playingPcQ !== null && state.playingPcQ === pc;
@@ -737,14 +777,13 @@ export function renderFretboard(state) {
       const outsideWin = state.fretWindowOn && (fretNum < winMin || fretNum > winMax);
       const dimClass = outsideWin && !voicingHit ? 'is-outside-win' : (activeVoicing && !voicingHit ? 'is-dimmed' : '');
 
-      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" filter="url(#saNoteShadow)" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
+      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${pc}" data-vis-str="${visIdx}" data-cx="${cx.toFixed(1)}" data-cy="${y}" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
 
       if (voicingHit) {
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
       } else if (inScale && inRadarB) {
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
       } else if (isRoot) {
-        // Ornate Mystic Crown Halo with 4 Cardinal Star Points around every Tonic
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.8" fill="none" stroke="var(--accent-root)" stroke-width="1.4" stroke-opacity="0.78"/>`);
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${(y - 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${(y + 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
@@ -762,7 +801,8 @@ export function renderFretboard(state) {
     }
   }
 
-  // Dedicated top layers for live Etude Playhead & Live Pitch Mirror
+  // Dedicated top layers for Pluck Ripple FX, Etude Playhead & Live Pitch Mirror
+  parts.push('<g id="fxPulseLayer" style="pointer-events:none"></g>');
   parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
   parts.push('<g id="livePitchLayer" style="pointer-events:none"></g>');
   parts.push('</svg>');
@@ -773,11 +813,33 @@ export function renderFretboard(state) {
   }
 
   const svgEl = container.querySelector('svg');
+
+  // Delegated zero-thrash hover pitch-class octave resonance highlight
+  let hoveredPc = null;
+  svgEl.onmouseover = (ev) => {
+    const node = ev.target.closest('.note-node[data-pc]');
+    const nextPc = node ? node.dataset.pc : null;
+    if (nextPc === hoveredPc) return;
+    hoveredPc = nextPc;
+    svgEl.querySelectorAll('.note-node.is-same-pc').forEach((el) => el.classList.remove('is-same-pc'));
+    if (nextPc !== null) {
+      svgEl.querySelectorAll(`.note-node[data-pc="${nextPc}"]`).forEach((el) => el.classList.add('is-same-pc'));
+    }
+  };
+  svgEl.onmouseleave = () => {
+    hoveredPc = null;
+    svgEl.querySelectorAll('.note-node.is-same-pc').forEach((el) => el.classList.remove('is-same-pc'));
+  };
+
   svgEl.onclick = (ev) => {
     const node = ev.target.closest('.note-node');
     if (!node) return;
 
+    const visIdx = Number(node.dataset.visStr);
+    const nx = Number(node.dataset.cx);
+    const ny = Number(node.dataset.cy);
     const kind = node.dataset.kind;
+
     if (kind === 'harmonic') {
       const freq = Number(node.dataset.freq);
       const partial = Number(node.dataset.partial);
@@ -785,6 +847,7 @@ export function renderFretboard(state) {
       const strNum = Number(node.dataset.string);
       const fretPos = node.dataset.fretpos;
       synthEngine.pluckFreq(freq, { duration: 2.2, velocity: 0.32, harmonicBell: true });
+      triggerFretboardStringPluck({ visIdx, x: nx, y: ny, color: 'var(--accent-harmonic)' });
       setState({
         inspectedNote: { kind: 'harmonic', freq, partial, ji, stringNum: strNum, fretPos }
       });
@@ -798,6 +861,12 @@ export function renderFretboard(state) {
     const isMicro = node.dataset.micro === '1';
 
     synthEngine.pluckQ(q, { duration: 1.7, velocity: 0.36 });
+    triggerFretboardStringPluck({
+      visIdx,
+      x: nx,
+      y: ny,
+      color: isMicro ? 'var(--accent-micro)' : (iv === 0 ? 'var(--accent-root)' : 'var(--accent-scale)')
+    });
 
     const curState = getState();
     const nextPhrase = [
@@ -869,20 +938,34 @@ function renderFretWindowControls(state) {
   const bar = document.getElementById('fretWindowControls');
   if (!bar) return;
 
-  const endFret = Math.min(NUM_FRETS, state.fretWindowStart + state.fretWindowSpan);
+  const maxFrets = state.fretZoom === 12 ? 12 : 22;
+  const endFret = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
+
   bar.innerHTML = `
     <div class="fret-window-bar">
       <button type="button" class="btn-mini ${state.fretWindowOn ? 'active-mini' : ''}" data-fw-action="toggle">
         ${state.fretWindowOn ? `${t(state.lang, 'fretWinClosed')}: ${state.fretWindowStart}–${endFret}` : t(state.lang, 'fretWinFull')}
       </button>
       ${state.fretWindowOn ? `
-        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''}>◀ -1</button>
-        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= NUM_FRETS ? 'disabled' : ''}>+1 ▶</button>
-        <span class="mono-tag">${t(state.lang, 'fretWinSpanLabel')}:</span>
+        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''}>◀</button>
+        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= maxFrets ? 'disabled' : ''}>▶</button>
         ${[4, 5, 6].map((sp) => `
           <button type="button" class="btn-mini ${state.fretWindowSpan === sp ? 'active-mini' : ''}" data-fw-action="span" data-val="${sp}">${sp}</button>
         `).join('')}
       ` : ''}
+
+      <span class="stage-sep" aria-hidden="true"></span>
+
+      <button type="button" class="btn-mini ${state.fretZoom === 12 ? 'active-mini' : ''}" data-fw-action="toggleZoom" title="${t(state.lang, 'fretZoomTip')}">
+        ${state.fretZoom === 12 ? '🔍 0–12' : '🔍 0–22'}
+      </button>
+
+      <button type="button" class="btn-mini ${state.leftHanded ? 'active-mini' : ''}" data-fw-action="toggleLeftHand" title="${t(state.lang, 'leftHandTip')}">
+        ⇄ ${t(state.lang, 'leftHandShort')}
+      </button>
+
+      <button type="button" class="btn-mini" data-fw-action="exportPng" title="${t(state.lang, 'platePngTip')}">⬇ PNG</button>
+      <button type="button" class="btn-mini" data-fw-action="exportSvg" title="${t(state.lang, 'plateSvgTip')}">⬇ SVG</button>
     </div>
   `;
 
@@ -891,16 +974,36 @@ function renderFretWindowControls(state) {
     if (!btn) return;
     const act = btn.dataset.fwAction;
     const st = getState();
+    const curMax = st.fretZoom === 12 ? 12 : 22;
+
     if (act === 'toggle') {
       setState({ fretWindowOn: !st.fretWindowOn });
     } else if (act === 'shift') {
       const d = Number(btn.dataset.delta);
-      const maxStart = Math.max(0, NUM_FRETS - st.fretWindowSpan);
+      const maxStart = Math.max(0, curMax - st.fretWindowSpan);
       setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
     } else if (act === 'span') {
       const sp = Number(btn.dataset.val);
-      const maxStart = Math.max(0, NUM_FRETS - sp);
+      const maxStart = Math.max(0, curMax - sp);
       setState({ fretWindowSpan: sp, fretWindowStart: Math.min(st.fretWindowStart, maxStart) });
+    } else if (act === 'toggleZoom') {
+      const nextZoom = st.fretZoom === 12 ? 22 : 12;
+      const clampedStart = Math.min(st.fretWindowStart, Math.max(0, nextZoom - st.fretWindowSpan));
+      setState({ fretZoom: nextZoom, fretWindowStart: clampedStart });
+    } else if (act === 'toggleLeftHand') {
+      setState({ leftHanded: !st.leftHanded });
+    } else if (act === 'exportPng' || act === 'exportSvg') {
+      const sc = getActiveScale();
+      const tun = getActiveTuning();
+      const th = getThemeById(st.theme);
+      const meta = {
+        title: `${qToNoteName(st.rootQ, false)} ${st.lang === 'en' ? sc.nameEn : sc.namePt}`,
+        formula: sc.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · '),
+        tuningLabel: `${st.customStringsQ.length}c ${tun.short} (${st.customStringsQ.map((q) => qToNoteName(q, false)).join(' ')})`,
+        themeName: st.lang === 'en' ? th.nameEn : th.namePt
+      };
+      if (act === 'exportPng') exportFretboardPlatePng(meta);
+      else exportFretboardPlateSvg(meta);
     }
   };
 }

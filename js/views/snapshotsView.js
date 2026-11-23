@@ -193,6 +193,16 @@ export function renderZenBar(state) {
   bar.hidden = !state.zenMode;
   if (!state.zenMode) return;
 
+  const lineHudHtml = state.lineModeRunning ? `
+    <div class="zen-live-hud" id="zenLiveHud">
+      <strong class="mono-tag" id="zenLiveNote">● LIVE</strong>
+      <div class="zen-mini-gauge">
+        <span class="zen-mini-quarter"></span>
+        <span class="zen-mini-needle" id="zenBendNeedle" style="left:16.7%"></span>
+      </div>
+    </div>
+  ` : '';
+
   bar.innerHTML = `
     <div class="zen-bar-inner">
       <div class="pill-row">
@@ -205,7 +215,12 @@ export function renderZenBar(state) {
         <button type="button" class="btn-pill ${state.fretWindowOn ? 'active' : ''}" data-z-action="toggleWindow">
           ${state.fretWindowOn ? `${t(state.lang, 'fretWinShort')} ${state.fretWindowStart}–${state.fretWindowStart + state.fretWindowSpan}` : t(state.lang, 'fretWinFull')}
         </button>
+        <button type="button" class="btn-mini ${state.fretZoom === 12 ? 'active-mini' : ''}" data-z-action="toggleZoom">
+          ${state.fretZoom === 12 ? '0–12' : '0–22'}
+        </button>
+        <button type="button" class="btn-mini ${state.leftHanded ? 'active-mini' : ''}" data-z-action="toggleLeft">⇄</button>
         <span class="mono-tag" id="zenVampHud"></span>
+        ${lineHudHtml}
       </div>
       <button type="button" class="btn-ghost" data-z-action="exitZen">${t(state.lang, 'zenExit')}</button>
     </div>
@@ -226,6 +241,10 @@ export function renderZenBar(state) {
       setState({ droneOn: next });
     } else if (act === 'toggleWindow') {
       setState({ fretWindowOn: !st.fretWindowOn });
+    } else if (act === 'toggleZoom') {
+      setState({ fretZoom: st.fretZoom === 12 ? 22 : 12 });
+    } else if (act === 'toggleLeft') {
+      setState({ leftHanded: !st.leftHanded });
     }
   };
 }

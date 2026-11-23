@@ -19,6 +19,7 @@ import {
   exportEventsToMusicXML,
   exportVampToMidi
 } from '../js/core/exportEngine.js';
+import { buildEditorialPlateSvg, resolveCssVarsInSvg } from '../js/core/plateExporter.js';
 import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js';
 import { STUDY_LESSONS, STUDY_MODULES } from '../js/core/studyGuide.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
@@ -52,6 +53,7 @@ const jsFiles = [
   'js/core/modulationRadar.js',
   'js/core/earTrainer.js',
   'js/core/exportEngine.js',
+  'js/core/plateExporter.js',
   'js/core/sessionCodec.js',
   'js/core/studyGuide.js',
   'js/core/studyDossiers.js',
@@ -66,6 +68,7 @@ const jsFiles = [
   'js/views/vampView.js',
   'js/views/earLabView.js',
   'js/views/snapshotsView.js',
+  'js/views/commandPaletteView.js',
   'js/views/studyGuideView.js',
   'js/views/lineModeView.js',
   'js/views/harmonyView.js',
@@ -271,6 +274,24 @@ if (calc8Ms.rows[0].scaleIn !== 28.0 || calc8Ms.rows[7].scaleIn !== 25.5) {
 }
 ok(`Unit-tested String Tension Physics (E Std 10-46=${calcStd.totalLbs.toFixed(1)} lbs, A Std 27" Solver=${calcRecA.balanceScore}% balance, 8c Multi-Scale OK)`);
 
+// 5d. Unit-test Editorial Plate SVG Exporter & CSS Variable Resolver
+const resolvedSvg = resolveCssVarsInSvg('<rect fill="var(--accent-root)" stroke="var(--missing, #fff)"/>', (k) => (k === '--accent-root' ? '#e5a955' : ''));
+if (!resolvedSvg.includes('fill="#e5a955"') || !resolvedSvg.includes('stroke="#fff"')) {
+  fail('resolveCssVarsInSvg failed token substitution');
+}
+const plateOut = buildEditorialPlateSvg({
+  fretboardSvgMarkup: '<svg viewBox="0 0 1240 278"><rect width="1240" height="278" fill="#111"/></svg>',
+  title: 'D Maqam Bayati',
+  formula: '1 · 2½♭ · ♭3 · 4 · 5 · ♭6 · ♭7',
+  tuningLabel: '6c B Std',
+  themeName: 'Doom Ritual',
+  palette: {}
+});
+if (!plateOut.includes('D Maqam Bayati') || !plateOut.includes('STRING ATLAS')) {
+  fail('buildEditorialPlateSvg output incomplete');
+}
+ok('Unit-tested Editorial Plate SVG Exporter & CSS var resolver');
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -285,4 +306,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.7 integrity checks passed.');
+console.log('\nAll String Atlas v7.8 integrity checks passed.');
