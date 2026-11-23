@@ -218,7 +218,7 @@ for (const th of THEMES) {
   if (!getThemeHeaderBannerSvg(th.id).includes('<svg') || !getThemeBackdropWatermarkSvg(th.id).includes('<svg')) {
     fail(`Theme ${th.id} missing custom SVG artwork in themeGraphics.js`);
   }
-  if (!th.fretboard?.woodStops || th.fretboard.woodStops.length !== 3 || !th.fretboard.inlayStyle) {
+  if (!th.fretboard?.woodStops || th.fretboard.woodStops.length !== 3 || !th.fretboard.inlayStyle || !th.fretboard.nodeShape) {
     fail(`Theme ${th.id} missing luthier fretboard skin definition`);
   }
 }
@@ -285,4 +285,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v7.5 integrity checks passed.');
+console.log('\nAll String Atlas v7.6 integrity checks passed.');

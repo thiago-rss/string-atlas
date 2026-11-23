@@ -350,6 +350,115 @@ export function highlightFretboardLivePitch(pitch, state) {
     .join('');
 }
 
+
+/**
+ * Renders theme-specific sculptural note marker geometry while preserving unmistakable
+ * microtonal indicators (bend badge ↑¼ and slide diamond) and high label legibility.
+ */
+function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep, microMode, nodeShape }) {
+  const xStr = cx.toFixed(1);
+
+  // Microtonal slide diamond & micro-bend pill remain unmistakable across all themes
+  if (isMicroStep && microMode === 'slide') {
+    const r = 13.4;
+    return `
+      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
+      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (isMicroStep && microMode === 'bend') {
+    const rx = nodeShape === 'hex' || nodeShape === 'bauhaus' ? 2 : 7;
+    return `
+      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
+      <rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="${rx}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>
+      <text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>
+    `;
+  }
+
+  if (nodeShape === 'hex') {
+    // Djent CNC Machined Hexagon Node
+    const r = isRoot ? 13.6 : 12.6;
+    const pts = [];
+    for (let k = 0; k < 6; k += 1) {
+      const a = (k * Math.PI) / 3 - Math.PI / 6;
+      pts.push(`${(cx + Math.cos(a) * r).toFixed(1)},${(y + Math.sin(a) * r).toFixed(1)}`);
+    }
+    const pStr = pts.join(' ');
+    return `
+      <polygon points="${pStr}" fill="${fill}" stroke="rgba(0,0,0,0.72)" stroke-width="1.3"/>
+      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'rune') {
+    // Doom Carved Octagonal Obsidian Stele Gem
+    const r = isRoot ? 13.5 : 12.4;
+    const c = r * 0.44;
+    const pStr = [
+      `${(cx - c).toFixed(1)},${(y - r).toFixed(1)}`,
+      `${(cx + c).toFixed(1)},${(y - r).toFixed(1)}`,
+      `${(cx + r).toFixed(1)},${(y - c).toFixed(1)}`,
+      `${(cx + r).toFixed(1)},${(y + c).toFixed(1)}`,
+      `${(cx + c).toFixed(1)},${(y + r).toFixed(1)}`,
+      `${(cx - c).toFixed(1)},${(y + r).toFixed(1)}`,
+      `${(cx - r).toFixed(1)},${(y + c).toFixed(1)}`,
+      `${(cx - r).toFixed(1)},${(y - c).toFixed(1)}`
+    ].join(' ');
+    return `
+      <polygon points="${pStr}" fill="${fill}" stroke="rgba(219,163,66,0.55)" stroke-width="1.2"/>
+      <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'bauhaus') {
+    // Avant / Fluxus Graphic Score Geometry: Sharp Square for Root, Crisp Circle for Scale
+    if (isRoot) {
+      return `
+        <rect x="${(cx - 12.5).toFixed(1)}" y="${(y - 12.5).toFixed(1)}" width="25" height="25" rx="1" fill="${fill}" stroke="#ffffff" stroke-width="1.4"/>
+        <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      `;
+    }
+    return `
+      <circle cx="${xStr}" cy="${y}" r="12.2" fill="${fill}" stroke="${isChar ? '#ffffff' : 'rgba(255,255,255,0.45)'}" stroke-width="${isChar ? 2 : 1.1}"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'knob') {
+    // 70s Vintage Console Dome Knob with Brass Skirt Ring
+    return `
+      <circle cx="${xStr}" cy="${y}" r="13" fill="#18100a" stroke="rgba(240,210,150,0.48)" stroke-width="1"/>
+      <circle cx="${xStr}" cy="${y}" r="11.2" fill="${fill}"/>
+      <circle cx="${xStr}" cy="${y}" r="11.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      ${isRoot ? `<line x1="${xStr}" y1="${(y - 12.5).toFixed(1)}" x2="${xStr}" y2="${(y - 9.2).toFixed(1)}" stroke="#fff4cc" stroke-width="1.8" stroke-linecap="round"/>` : ''}
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'ceramic') {
+    // Brazilian Glazed Ceramic Medallion with Warm Clay Rim
+    return `
+      <circle cx="${xStr}" cy="${y}" r="12.8" fill="${fill}" stroke="#fff4dc" stroke-width="${isRoot ? 2 : 1.2}" stroke-opacity="${isRoot ? 0.9 : 0.65}"/>
+      <circle cx="${xStr}" cy="${y}" r="12.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  // Default ('jewel'): Luminous Celestial Studio Jewel
+  return `
+    <circle cx="${xStr}" cy="${y}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>
+    <circle cx="${xStr}" cy="${y}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+    <circle cx="${xStr}" cy="${y}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>
+    <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+  `;
+}
+
 export function renderFretboard(state) {
   const container = document.getElementById('fretboardContainer');
   const titleEl = document.getElementById('activeScaleTitle');
@@ -616,23 +725,11 @@ export function renderFretboard(state) {
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.2" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.72"/>`);
       }
 
-      if (isMicroStep && state.microMode === 'slide') {
-        const r = 13.2;
-        parts.push(`<polygon points="${cx.toFixed(1)},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${cx.toFixed(1)},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
-        parts.push(`<polygon points="${cx.toFixed(1)},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${y} ${cx.toFixed(1)},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${y}" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
-        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
-      } else if (isMicroStep && state.microMode === 'bend') {
-        parts.push(`<rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="7" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
-        parts.push(`<rect x="${(cx - 14).toFixed(1)}" y="${y - 12}" width="28" height="24" rx="7" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
-        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
-        parts.push(`<rect x="${(cx + 5).toFixed(1)}" y="${y - 18}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>`);
-        parts.push(`<text x="${(cx + 13).toFixed(1)}" y="${y - 10}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>`);
-      } else {
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>`);
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>`);
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>`);
-        parts.push(`<text x="${cx.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
-      }
+      parts.push(renderThemedNoteMarker({
+        cx, y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep,
+        microMode: state.microMode,
+        nodeShape: fbSkin.nodeShape || 'jewel'
+      }));
 
       parts.push('</g>');
     }

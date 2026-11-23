@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "7.5.0",
+  "version": "7.6.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v7.5.0: Tactile Dimensional Aesthetics, Bespoke SVG Theme Artwork, 3D Jewel Fretboard & Modular Compartments)",
+  "description": "String Atlas — Modal Guitar Lab (v7.6.0: 7 Radically Sculptural Musical Worlds, Theme-Morphed Fretboard Nodes, Flowing Viewport Art & Modular Compartments)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

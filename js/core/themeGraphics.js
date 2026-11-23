@@ -1,170 +1,155 @@
 /**
- * Bespoke Inline SVG Artwork & Architectural Watermarks for Each Musical Aesthetic
- * Zero external image requests — crisp vector rendering at any DPI, themed via CSS variables.
+ * Immersive Full-Viewport Vector Artworks & Emblem Banners per Musical World (v7.6)
+ * Transforms the entire spatial atmosphere behind the workspace with fluid, non-generic forms.
  */
 
 export function getThemeHeaderBannerSvg(themeId) {
   if (themeId === 'rock70s') {
-    // 70s Analog: Vinyl LP Disc + Vacuum Tube Glow + Vintage Analog VU Meter Arc
+    // 70s Analog: Psychedelic Ribbon Curves + Vinyl Disc + Analog VU Meter + Glowing Tube
     return `
-      <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
-          <linearGradient id="ornBrass" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#6b4b1e" stop-opacity="0"/>
-            <stop offset="18%" stop-color="#e8bd68"/>
-            <stop offset="50%" stop-color="#fff0c4"/>
-            <stop offset="82%" stop-color="#e8bd68"/>
-            <stop offset="100%" stop-color="#6b4b1e" stop-opacity="0"/>
+          <linearGradient id="orn70sWave" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#f27729" stop-opacity="0"/>
+            <stop offset="20%" stop-color="#f27729"/>
+            <stop offset="50%" stop-color="#f7cc54"/>
+            <stop offset="80%" stop-color="#6eb881"/>
+            <stop offset="100%" stop-color="#6eb881" stop-opacity="0"/>
           </linearGradient>
           <radialGradient id="ornTubeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#ff9b42" stop-opacity="0.9"/>
-            <stop offset="60%" stop-color="#f05a1a" stop-opacity="0.35"/>
+            <stop offset="0%" stop-color="#ffaa48" stop-opacity="0.95"/>
+            <stop offset="58%" stop-color="#f05a1a" stop-opacity="0.35"/>
             <stop offset="100%" stop-color="#f05a1a" stop-opacity="0"/>
           </radialGradient>
         </defs>
-        <line x1="20" y1="17" x2="360" y2="17" stroke="url(#ornBrass)" stroke-width="1.4"/>
-        <line x1="560" y1="17" x2="900" y2="17" stroke="url(#ornBrass)" stroke-width="1.4"/>
-        <!-- Left Vinyl Groove Disc -->
-        <g transform="translate(392,17)">
-          <circle r="12" fill="#18100a" stroke="#d9a852" stroke-width="1.1"/>
-          <circle r="9" fill="none" stroke="#a67c37" stroke-width="0.6" stroke-opacity="0.65"/>
-          <circle r="6.2" fill="none" stroke="#a67c37" stroke-width="0.6" stroke-opacity="0.55"/>
-          <circle r="3.4" fill="#f07428"/>
-          <circle r="1.1" fill="#18100a"/>
+        <!-- Flowing 70s Fillmore poster double ribbon -->
+        <path d="M16 24 C 130 4, 240 34, 376 19" fill="none" stroke="url(#orn70sWave)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M16 18 C 140 34, 250 4, 376 19" fill="none" stroke="#f7cc54" stroke-opacity="0.45" stroke-width="1.2"/>
+        <path d="M584 19 C 710 4, 820 34, 944 16" fill="none" stroke="url(#orn70sWave)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M584 19 C 720 34, 830 4, 944 22" fill="none" stroke="#f7cc54" stroke-opacity="0.45" stroke-width="1.2"/>
+        <!-- Vinyl Disc -->
+        <g transform="translate(412,19)">
+          <circle r="13" fill="#18100a" stroke="#e5b864" stroke-width="1.2"/>
+          <circle r="9.5" fill="none" stroke="#b38840" stroke-width="0.65" stroke-opacity="0.7"/>
+          <circle r="6.5" fill="none" stroke="#b38840" stroke-width="0.65" stroke-opacity="0.6"/>
+          <circle r="3.8" fill="#f27729"/>
+          <circle r="1.2" fill="#18100a"/>
         </g>
-        <!-- Center Analog VU Meter Arc + Tube Glow -->
-        <g transform="translate(460,17)">
-          <ellipse cx="0" cy="0" rx="44" ry="15" fill="url(#ornTubeGlow)"/>
-          <path d="M-26 6 A 28 28 0 0 1 26 6" fill="none" stroke="#f6e0ae" stroke-width="1.3"/>
-          <path d="M12 -4 A 28 28 0 0 1 26 6" fill="none" stroke="#e04332" stroke-width="2"/>
-          <line x1="0" y1="9" x2="9" y2="-7" stroke="#fff0c4" stroke-width="1.4" stroke-linecap="round"/>
-          <circle cx="0" cy="9" r="2.2" fill="#d9a852"/>
+        <!-- Center Analog VU Meter + Tube Glow -->
+        <g transform="translate(480,19)">
+          <ellipse cx="0" cy="0" rx="46" ry="16" fill="url(#ornTubeGlow)"/>
+          <path d="M-28 7 A 30 30 0 0 1 28 7" fill="none" stroke="#f9e6ba" stroke-width="1.5"/>
+          <path d="M13 -4 A 30 30 0 0 1 28 7" fill="none" stroke="#e04332" stroke-width="2.4"/>
+          <line x1="0" y1="10" x2="10" y2="-8" stroke="#fff3cc" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="0" cy="10" r="2.5" fill="#e5b864"/>
         </g>
-        <!-- Right Dual Vacuum Tube Filament Emblem -->
-        <g transform="translate(528,17)">
-          <rect x="-8" y="-11" width="16" height="22" rx="8" fill="#23140c" stroke="#e5b864" stroke-width="1"/>
-          <path d="M-3 5 L-3 -3 L0 -6 L3 -3 L3 5" fill="none" stroke="#ff9d42" stroke-width="1.4"/>
-          <line x1="-5" y1="7" x2="5" y2="7" stroke="#c89844" stroke-width="1.2"/>
+        <!-- Vacuum Tube Filament -->
+        <g transform="translate(548,19)">
+          <rect x="-8.5" y="-12" width="17" height="24" rx="8.5" fill="#23140c" stroke="#e5b864" stroke-width="1.1"/>
+          <path d="M-3.2 5 L-3.2 -3 L0 -6.5 L3.2 -3 L3.2 5" fill="none" stroke="#ff9d42" stroke-width="1.5"/>
+          <line x1="-5" y1="8" x2="5" y2="8" stroke="#c89844" stroke-width="1.2"/>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'doom') {
-    // Doom Ritual: Lunar Eclipse Phases & Monolithic Altar Sigil
+    // Doom Ritual: Gothic Lancet Arches + Lunar Eclipse Cycle + Obsidian Monolith Sigil
     return `
-      <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
           <linearGradient id="ornDoomLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#d9a13f" stop-opacity="0"/>
-            <stop offset="25%" stop-color="#d9a13f" stop-opacity="0.65"/>
-            <stop offset="50%" stop-color="#b57dff" stop-opacity="0.8"/>
-            <stop offset="75%" stop-color="#d9a13f" stop-opacity="0.65"/>
-            <stop offset="100%" stop-color="#d9a13f" stop-opacity="0"/>
+            <stop offset="0%" stop-color="#dba342" stop-opacity="0"/>
+            <stop offset="25%" stop-color="#dba342" stop-opacity="0.72"/>
+            <stop offset="50%" stop-color="#b880ff" stop-opacity="0.88"/>
+            <stop offset="75%" stop-color="#dba342" stop-opacity="0.72"/>
+            <stop offset="100%" stop-color="#dba342" stop-opacity="0"/>
           </linearGradient>
         </defs>
-        <line x1="30" y1="17" x2="345" y2="17" stroke="url(#ornDoomLine)" stroke-width="1"/>
-        <line x1="575" y1="17" x2="890" y2="17" stroke="url(#ornDoomLine)" stroke-width="1"/>
-        <!-- Moon Phases -->
-        <g transform="translate(460,17)" stroke="#d9a13f" fill="none" stroke-width="1.1">
-          <!-- Far Left Waxing Crescent -->
-          <path d="M-86 -7 A 7 7 0 1 0 -86 7 A 5 7 0 1 1 -86 -7 Z" fill="#d9a13f" fill-opacity="0.55" stroke="none"/>
-          <!-- Inner Left Half Moon -->
-          <circle cx="-46" cy="0" r="7.5" stroke-opacity="0.7"/>
-          <path d="M-46 -7.5 A 7.5 7.5 0 0 0 -46 7.5 Z" fill="#d9a13f" fill-opacity="0.7" stroke="none"/>
-          <!-- Center Obsidian Eclipse + Gothic Diamond Sigil -->
-          <circle cx="0" cy="0" r="13.5" stroke="#b57dff" stroke-opacity="0.5" stroke-dasharray="2 2"/>
-          <circle cx="0" cy="0" r="9.5" fill="#08060c" stroke="#e3b659" stroke-width="1.4"/>
-          <polygon points="0,-15 4.5,0 0,15 -4.5,0" fill="#d9a13f" fill-opacity="0.28" stroke="#e3b659" stroke-width="1"/>
-          <circle cx="0" cy="0" r="2.2" fill="#e33648" stroke="none"/>
-          <!-- Inner Right Half Moon -->
-          <circle cx="46" cy="0" r="7.5" stroke-opacity="0.7"/>
-          <path d="M46 -7.5 A 7.5 7.5 0 0 1 46 7.5 Z" fill="#d9a13f" fill-opacity="0.7" stroke="none"/>
-          <!-- Far Right Waning Crescent -->
-          <path d="M86 -7 A 7 7 0 1 1 86 7 A 5 7 0 1 0 86 -7 Z" fill="#d9a13f" fill-opacity="0.55" stroke="none"/>
+        <path d="M30 19 L342 19 M618 19 L930 19" stroke="url(#ornDoomLine)" stroke-width="1.1"/>
+        <path d="M120 19 L142 12 L164 19 L142 26 Z M796 19 L818 12 L840 19 L818 26 Z" fill="none" stroke="#dba342" stroke-opacity="0.45" stroke-width="1"/>
+        <g transform="translate(480,19)" stroke="#dba342" fill="none" stroke-width="1.1">
+          <path d="M-94 -7.5 A 7.5 7.5 0 1 0 -94 7.5 A 5.2 7.5 0 1 1 -94 -7.5 Z" fill="#dba342" fill-opacity="0.6" stroke="none"/>
+          <circle cx="-50" cy="0" r="8" stroke-opacity="0.75"/>
+          <path d="M-50 -8 A 8 8 0 0 0 -50 8 Z" fill="#dba342" fill-opacity="0.72" stroke="none"/>
+          <circle cx="0" cy="0" r="15.5" stroke="#b880ff" stroke-opacity="0.55" stroke-dasharray="2.5 2.5"/>
+          <polygon points="0,-17 11,0 0,17 -11,0" fill="#09060e" stroke="#e6b85c" stroke-width="1.3"/>
+          <polygon points="0,-10 5,0 0,10 -5,0" fill="#dba342" fill-opacity="0.28" stroke="#e6b85c" stroke-width="0.9"/>
+          <circle cx="0" cy="0" r="2.6" fill="#e33648" stroke="none"/>
+          <circle cx="50" cy="0" r="8" stroke-opacity="0.75"/>
+          <path d="M50 -8 A 8 8 0 0 1 50 8 Z" fill="#dba342" fill-opacity="0.72" stroke="none"/>
+          <path d="M94 -7.5 A 7.5 7.5 0 1 1 94 7.5 A 5.2 7.5 0 1 0 94 -7.5 Z" fill="#dba342" fill-opacity="0.6" stroke="none"/>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'djent') {
-    // Djent Poly: CNC Telemetry Waveform & Polymetric Pulse Matrix
+    // Djent Poly: Kinetic Polymetric Oscilloscope & Diagonal Polygon Chevrons
     return `
-      <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <line x1="16" y1="17" x2="290" y2="17" stroke="#00e5ff" stroke-opacity="0.25" stroke-width="1"/>
-        <line x1="630" y1="17" x2="904" y2="17" stroke="#00e5ff" stroke-opacity="0.25" stroke-width="1"/>
-        <!-- Left Precision Step Ticks -->
+      <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M16 19 L290 19 M670 19 L944 19" stroke="#00e5ff" stroke-opacity="0.28" stroke-width="1"/>
         <g fill="#00e5ff">
-          <rect x="24" y="14" width="18" height="6" rx="1" fill-opacity="0.85"/>
-          <rect x="46" y="15" width="6" height="4" rx="1" fill-opacity="0.45"/>
-          <rect x="56" y="15" width="6" height="4" rx="1" fill-opacity="0.45"/>
-          <rect x="66" y="14" width="12" height="6" rx="1" fill="#34f599" fill-opacity="0.85"/>
+          <polygon points="20,14 44,14 38,24 14,24" fill-opacity="0.9"/>
+          <polygon points="48,15 62,15 58,23 44,23" fill="#34f599" fill-opacity="0.8"/>
+          <polygon points="66,16 76,16 73,22 63,22" fill-opacity="0.45"/>
         </g>
-        <!-- Center Polymetric Oscilloscope Waveform -->
         <polyline
-          points="300,17 324,17 334,7 346,27 360,5 374,29 388,11 400,23 414,17 444,17 456,6 468,28 480,9 492,25 504,17 534,17 546,8 560,26 574,10 586,24 598,17 620,17"
-          fill="none" stroke="#00e5ff" stroke-width="1.5" stroke-linejoin="bevel"
+          points="300,19 326,19 338,7 352,31 368,4 384,34 400,12 414,26 428,19 462,19 476,6 490,32 504,9 518,29 532,19 566,19 580,8 594,30 610,11 624,27 638,19 662,19"
+          fill="none" stroke="#00e5ff" stroke-width="1.6" stroke-linejoin="bevel"
         />
         <polyline
-          points="300,17 336,17 348,11 362,23 376,17 440,17 456,10 472,24 488,17 540,17 556,11 572,23 588,17 620,17"
-          fill="none" stroke="#34f599" stroke-width="1" stroke-opacity="0.7"
+          points="300,19 342,19 356,11 372,27 388,19 458,19 476,11 494,27 512,19 574,19 592,12 610,26 628,19 662,19"
+          fill="none" stroke="#34f599" stroke-width="1.1" stroke-opacity="0.75"
         />
-        <!-- Right CNC Telemetry Label -->
-        <text x="896" y="20" text-anchor="end" fill="#00e5ff" font-size="9.5" font-weight="700" letter-spacing="2" font-family="var(--font-mono, monospace)">24-TET // POLY-CNC</text>
+        <text x="940" y="22" text-anchor="end" fill="#00e5ff" font-size="9.5" font-weight="700" letter-spacing="2.2" font-family="var(--font-mono, monospace)">24-TET // POLY-CNC</text>
       </svg>
     `;
   }
 
   if (themeId === 'experimental') {
-    // Avant / Experimental: John Cage / Fontana Mix Graphic Score Fragment
+    // Avant / Experimental: John Cage / Fontana Mix Graphic Score Ribbon
     return `
-      <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <line x1="12" y1="8" x2="908" y2="8" stroke="#141414" stroke-width="1.4"/>
-        <line x1="12" y1="26" x2="908" y2="26" stroke="#141414" stroke-width="0.9"/>
-        <!-- Graphic score sweeping arcs, points & Bauhaus vectors -->
-        <path d="M120 26 Q 230 2, 340 20 T 560 11 T 780 24" fill="none" stroke="#1e4fd6" stroke-width="1.5"/>
-        <path d="M170 10 C 260 32, 380 4, 490 25 C 590 36, 680 6, 760 14" fill="none" stroke="#dc3826" stroke-width="1.3" stroke-dasharray="5 3"/>
-        <circle cx="242" cy="13" r="4.5" fill="#dc3826"/>
-        <polygon points="460,5 468,21 452,21" fill="none" stroke="#141414" stroke-width="1.5"/>
-        <circle cx="460" cy="16" r="2.2" fill="#1e4fd6"/>
-        <rect x="650" y="11" width="10" height="10" fill="#141414"/>
-        <text x="18" y="21" fill="#141414" font-size="9.5" font-weight="700" font-family="var(--font-mono, monospace)">⊕ FIG. 01 · GRAPHIC SCORE</text>
-        <text x="902" y="21" text-anchor="end" fill="#dc3826" font-size="9.5" font-weight="700" font-family="var(--font-mono, monospace)">24-TET // FLUXUS ⊕</text>
+      <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <line x1="12" y1="8" x2="948" y2="8" stroke="#141414" stroke-width="1.5"/>
+        <line x1="12" y1="30" x2="948" y2="30" stroke="#141414" stroke-width="1"/>
+        <path d="M130 30 Q 245 2, 360 22 T 590 11 T 820 26" fill="none" stroke="#1e4fd6" stroke-width="1.6"/>
+        <path d="M185 10 C 280 35, 400 3, 515 27 C 620 38, 710 6, 795 15" fill="none" stroke="#dc3826" stroke-width="1.4" stroke-dasharray="5 3"/>
+        <circle cx="255" cy="14" r="4.8" fill="#dc3826"/>
+        <polygon points="480,6 489,23 471,23" fill="none" stroke="#141414" stroke-width="1.6"/>
+        <circle cx="480" cy="18" r="2.3" fill="#1e4fd6"/>
+        <rect x="680" y="12" width="11" height="11" fill="#141414"/>
+        <text x="18" y="23" fill="#141414" font-size="9.5" font-weight="700" font-family="var(--font-mono, monospace)">⊕ FIG. 01 · GRAPHIC SCORE</text>
+        <text x="942" y="23" text-anchor="end" fill="#dc3826" font-size="9.5" font-weight="700" font-family="var(--font-mono, monospace)">24-TET // FLUXUS ⊕</text>
       </svg>
     `;
   }
 
   if (themeId === 'brazilian') {
-    // Brasilidade · Tropicália: Armorial Xilogravura Sunburst & Bahian Azulejo Tile Frieze
+    // Brasilidade: Sweeping Copacabana / Niemeyer Fluid Waves + Armorial Sunburst Medallion
     return `
-      <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        <defs>
-          <pattern id="azulejoTile" width="44" height="22" patternUnits="userSpaceOnUse">
-            <rect width="44" height="22" fill="#2c150c"/>
-            <polygon points="22,2 32,11 22,20 12,11" fill="#d68a12"/>
-            <polygon points="22,5.5 27.5,11 22,16.5 16.5,11" fill="#0e7c5d"/>
-            <polygon points="0,11 9,2 9,20" fill="#c84b26"/>
-            <polygon points="44,11 35,2 35,20" fill="#c84b26"/>
-            <circle cx="22" cy="11" r="2.2" fill="#fffbf2"/>
-          </pattern>
-        </defs>
-        <rect x="14" y="6" width="892" height="22" rx="5" fill="url(#azulejoTile)" stroke="#c84b26" stroke-width="1.2"/>
-        <!-- Center Armorial Sun Medallion -->
-        <g transform="translate(460,17)">
-          <circle r="15.5" fill="#fffbf2" stroke="#c84b26" stroke-width="1.6"/>
-          <polygon points="0,-12 3,-3 12,0 3,3 0,12 -3,3 -12,0 -3,-3" fill="#d68a12" stroke="#8a3316" stroke-width="0.7"/>
-          <circle r="3.4" fill="#0e7c5d"/>
+      <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <!-- Flowing Copacabana/Niemeyer double waves -->
+        <path d="M14 26 C 90 6, 170 36, 250 16 C 320 0, 385 32, 444 19" fill="none" stroke="#0e7c5d" stroke-width="3" stroke-linecap="round"/>
+        <path d="M14 19 C 95 36, 175 6, 255 24 C 325 36, 390 8, 444 19" fill="none" stroke="#d68a12" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M516 19 C 575 6, 640 36, 710 16 C 790 0, 870 34, 946 14" fill="none" stroke="#0e7c5d" stroke-width="3" stroke-linecap="round"/>
+        <path d="M516 19 C 570 32, 635 4, 705 24 C 785 36, 865 6, 946 22" fill="none" stroke="#c84b26" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Center Armorial Woodcut Sunburst Medallion -->
+        <g transform="translate(480,19)">
+          <circle r="16.5" fill="#fffbf2" stroke="#c84b26" stroke-width="1.8"/>
+          <polygon points="0,-13.5 3.2,-3.2 13.5,0 3.2,3.2 0,13.5 -3.2,3.2 -13.5,0 -3.2,-3.2" fill="#d68a12" stroke="#8a3316" stroke-width="0.7"/>
+          <circle r="3.6" fill="#0e7c5d"/>
         </g>
       </svg>
     `;
   }
 
-  // Default: Layl & Nahar (Oud Visualizer Andalusian / Mashrabiya Rosette & Gold Filigree)
+  // Layl & Nahar: Andalusian / Oud Astrolabe Arc & 8-Pointed Rub el Hizb Rosette
   const isLight = themeId === 'nahar';
-  const mainStroke = isLight ? '#b87216' : '#e5a955';
-  const secStroke = isLight ? '#1d8a75' : '#4cc9b0';
+  const mainStroke = isLight ? '#b85c1b' : '#e5a955';
+  const secStroke = isLight ? '#1d7a68' : '#4cc9b0';
   return `
-    <svg class="ornament-art-svg" viewBox="0 0 920 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <svg class="ornament-art-svg" viewBox="0 0 960 38" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
         <linearGradient id="ornOudLine" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stop-color="${mainStroke}" stop-opacity="0"/>
@@ -174,108 +159,140 @@ export function getThemeHeaderBannerSvg(themeId) {
           <stop offset="100%" stop-color="${mainStroke}" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <line x1="40" y1="17" x2="424" y2="17" stroke="url(#ornOudLine)" stroke-width="1.2"/>
-      <line x1="496" y1="17" x2="880" y2="17" stroke="url(#ornOudLine)" stroke-width="1.2"/>
-      <!-- 8-Pointed Andalusian / Oud Rosette Star (Rub el Hizb) -->
-      <g transform="translate(460,17)" fill="none">
-        <circle r="14" stroke="${mainStroke}" stroke-width="0.9" stroke-opacity="0.55" stroke-dasharray="2.5 2.5"/>
-        <rect x="-8.5" y="-8.5" width="17" height="17" stroke="${mainStroke}" stroke-width="1.2"/>
-        <rect x="-8.5" y="-8.5" width="17" height="17" transform="rotate(45)" stroke="${secStroke}" stroke-width="1.2"/>
-        <circle r="3.2" fill="${mainStroke}"/>
+      <path d="M40 19 Q 240 6, 442 19 M518 19 Q 720 32, 920 19" fill="none" stroke="url(#ornOudLine)" stroke-width="1.3"/>
+      <line x1="80" y1="19" x2="442" y2="19" stroke="url(#ornOudLine)" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line x1="518" y1="19" x2="880" y2="19" stroke="url(#ornOudLine)" stroke-width="0.9" stroke-opacity="0.55"/>
+      <g transform="translate(480,19)" fill="none">
+        <circle r="15.5" stroke="${mainStroke}" stroke-width="0.9" stroke-opacity="0.6" stroke-dasharray="2.5 2.5"/>
+        <rect x="-9.5" y="-9.5" width="19" height="19" stroke="${mainStroke}" stroke-width="1.25"/>
+        <rect x="-9.5" y="-9.5" width="19" height="19" transform="rotate(45)" stroke="${secStroke}" stroke-width="1.25"/>
+        <circle r="3.4" fill="${mainStroke}"/>
       </g>
     </svg>
   `;
 }
 
 /**
- * Large, ultra-subtle architectural backdrop emblem rendered behind the top workspace
- * to lend unmistakable editorial & instrument-craft depth without hurting readability.
+ * Full-Viewport Sweeping Artistic Backdrop Composition (sits behind the glass/sculpted workspace)
  */
 export function getThemeBackdropWatermarkSvg(themeId) {
   if (themeId === 'rock70s') {
+    // Flowing 1970s Psychedelic Liquid Ribbon Curves + Giant Vinyl Grooves
     return `
-      <svg viewBox="0 0 420 420" aria-hidden="true">
-        <g transform="translate(210,210)" fill="none" stroke="#f0a848">
-          <circle r="190" stroke-width="1.4" stroke-opacity="0.22"/>
-          <circle r="165" stroke-width="0.8" stroke-opacity="0.16"/>
-          <circle r="140" stroke-width="0.8" stroke-opacity="0.14"/>
-          <circle r="115" stroke-width="0.8" stroke-opacity="0.12"/>
-          <circle r="90" stroke-width="1" stroke-opacity="0.16"/>
-          <circle r="56" stroke="#f07428" stroke-width="2" stroke-opacity="0.28"/>
-          <circle r="10" stroke-width="1.5" stroke-opacity="0.35"/>
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg70s" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f27729" stop-opacity="0.16"/>
+            <stop offset="50%" stop-color="#f7cc54" stop-opacity="0.09"/>
+            <stop offset="100%" stop-color="#6eb881" stop-opacity="0.06"/>
+          </linearGradient>
+        </defs>
+        <path d="M-80 260 C 280 40, 560 440, 960 190 C 1200 40, 1360 180, 1520 120 L 1520 260 C 1320 340, 1140 160, 920 300 C 520 550, 240 180, -80 390 Z" fill="url(#bg70s)"/>
+        <path d="M-60 660 C 340 480, 740 840, 1180 560 C 1340 460, 1440 520, 1520 490" fill="none" stroke="#f27729" stroke-opacity="0.14" stroke-width="3"/>
+        <g transform="translate(1240,190)" fill="none" stroke="#f7cc54">
+          <circle r="240" stroke-width="1.2" stroke-opacity="0.14"/>
+          <circle r="205" stroke-width="0.9" stroke-opacity="0.11"/>
+          <circle r="170" stroke-width="0.9" stroke-opacity="0.1"/>
+          <circle r="135" stroke-width="0.9" stroke-opacity="0.09"/>
+          <circle r="72" stroke="#f27729" stroke-width="2" stroke-opacity="0.18"/>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'doom') {
+    // Cathedral Lancet Arch Silhouette + Celestial Occult Geometry
     return `
-      <svg viewBox="0 0 420 420" aria-hidden="true">
-        <g transform="translate(210,210)" fill="none" stroke="#d9a13f">
-          <circle r="182" stroke-width="1.2" stroke-opacity="0.2"/>
-          <circle r="154" stroke="#b57dff" stroke-width="1" stroke-opacity="0.16" stroke-dasharray="6 6"/>
-          <polygon points="0,-170 147,85 -147,85" stroke-width="1.2" stroke-opacity="0.16"/>
-          <polygon points="0,170 147,-85 -147,-85" stroke="#b57dff" stroke-width="1.1" stroke-opacity="0.14"/>
-          <line x1="0" y1="-195" x2="0" y2="195" stroke-width="0.9" stroke-opacity="0.18"/>
-          <circle r="48" stroke-width="1.5" stroke-opacity="0.24"/>
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#dba342">
+          <!-- Pointed Cathedral Arch framing the viewport -->
+          <path d="M120 900 L120 380 Q 120 120, 720 30 Q 1320 120, 1320 380 L1320 900" stroke-opacity="0.1" stroke-width="1.8"/>
+          <path d="M170 900 L170 400 Q 170 175, 720 88 Q 1270 175, 1270 400 L1270 900" stroke="#b880ff" stroke-opacity="0.08" stroke-width="1.2" stroke-dasharray="6 8"/>
+          <!-- Giant Eclipse Rose Window -->
+          <g transform="translate(720,250)">
+            <circle r="190" stroke-opacity="0.14" stroke-width="1.3"/>
+            <circle r="158" stroke="#b880ff" stroke-opacity="0.11" stroke-width="1" stroke-dasharray="5 6"/>
+            <polygon points="0,-185 160,92 -160,92" stroke-opacity="0.12" stroke-width="1.1"/>
+            <polygon points="0,185 160,-92 -160,-92" stroke="#b880ff" stroke-opacity="0.1" stroke-width="1.1"/>
+            <line x1="0" y1="-220" x2="0" y2="220" stroke-opacity="0.12" stroke-width="1"/>
+          </g>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'djent') {
+    // Isometric Polygonal Architecture + Kinetic Vector Horizon
     return `
-      <svg viewBox="0 0 420 420" aria-hidden="true">
-        <g transform="translate(210,210)" fill="none" stroke="#00e5ff">
-          <polygon points="0,-185 160,-92 160,92 0,185 -160,92 -160,-92" stroke-width="1.2" stroke-opacity="0.2"/>
-          <polygon points="0,-132 114,-66 114,66 0,132 -114,66 -114,-66" stroke="#34f599" stroke-width="1" stroke-opacity="0.16"/>
-          <line x1="-195" y1="0" x2="195" y2="0" stroke-width="0.8" stroke-opacity="0.14"/>
-          <line x1="0" y1="-195" x2="0" y2="195" stroke-width="0.8" stroke-opacity="0.14"/>
-          <circle r="76" stroke-width="1" stroke-opacity="0.16" stroke-dasharray="4 4"/>
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="#00e5ff">
+          <polygon points="1220,30 1400,134 1400,342 1220,446 1040,342 1040,134" stroke-opacity="0.16" stroke-width="1.4"/>
+          <polygon points="1220,90 1348,164 1348,312 1220,386 1092,312 1092,164" stroke="#34f599" stroke-opacity="0.13" stroke-width="1.1"/>
+          <polygon points="140,560 280,640 280,800 140,880 0,800 0,640" stroke-opacity="0.11" stroke-width="1.2"/>
+          <path d="M-40 520 L380 520 L460 440 L1020 440 L1100 520 L1480 520" stroke-opacity="0.12" stroke-width="1.2"/>
+          <path d="M-40 544 L390 544 L470 464 L1010 464 L1090 544 L1480 544" stroke="#34f599" stroke-opacity="0.08" stroke-width="0.9"/>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'experimental') {
+    // Large-Scale Graphic Score Composition (Sweeping Gestural Arcs & Geometric Coordinates)
     return `
-      <svg viewBox="0 0 420 420" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <g fill="none">
-          <circle cx="210" cy="210" r="165" stroke="#141414" stroke-width="1.2" stroke-opacity="0.12"/>
-          <path d="M20 310 Q 150 40, 260 220 T 400 90" stroke="#1e4fd6" stroke-width="1.6" stroke-opacity="0.16"/>
-          <line x1="30" y1="120" x2="390" y2="320" stroke="#dc3826" stroke-width="1.3" stroke-opacity="0.16"/>
-          <rect x="130" y="130" width="160" height="160" stroke="#141414" stroke-width="1" stroke-opacity="0.1" stroke-dasharray="8 6"/>
+          <path d="M-40 680 C 310 140, 740 820, 1480 180" stroke="#1e4fd6" stroke-opacity="0.13" stroke-width="2"/>
+          <path d="M-40 260 C 420 560, 880 60, 1480 540" stroke="#dc3826" stroke-opacity="0.12" stroke-width="1.6" stroke-dasharray="10 8"/>
+          <circle cx="1180" cy="240" r="180" stroke="#141414" stroke-opacity="0.08" stroke-width="1.2"/>
+          <line x1="940" y1="240" x2="1420" y2="240" stroke="#141414" stroke-opacity="0.07" stroke-width="1"/>
+          <line x1="1180" y1="20" x2="1180" y2="460" stroke="#141414" stroke-opacity="0.07" stroke-width="1"/>
         </g>
       </svg>
     `;
   }
 
   if (themeId === 'brazilian') {
+    // Sweeping Niemeyer Concrete Arches + Copacabana Waves + Radiant Armorial Sun
     return `
-      <svg viewBox="0 0 420 420" aria-hidden="true">
-        <g transform="translate(210,210)" fill="none">
-          <circle r="176" stroke="#c84b26" stroke-width="1.3" stroke-opacity="0.16"/>
-          <circle r="134" stroke="#0e7c5d" stroke-width="1.2" stroke-opacity="0.16" stroke-dasharray="10 6"/>
-          <polygon points="0,-168 28,-28 168,0 28,28 0,168 -28,28 -168,0 -28,-28" stroke="#d68a12" stroke-width="1.4" stroke-opacity="0.2"/>
-          <polygon points="0,-120 20,-20 120,0 20,20 0,120 -20,20 -120,0 -20,-20" transform="rotate(45)" stroke="#0e7c5d" stroke-width="1.2" stroke-opacity="0.18"/>
-          <circle r="32" stroke="#c84b26" stroke-width="1.5" stroke-opacity="0.22"/>
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="brWave" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#d68a12" stop-opacity="0.14"/>
+            <stop offset="50%" stop-color="#0e7c5d" stop-opacity="0.11"/>
+            <stop offset="100%" stop-color="#c84b26" stop-opacity="0.08"/>
+          </linearGradient>
+        </defs>
+        <!-- Sweeping Niemeyer modernist parabola & fluid wave -->
+        <path d="M-80 760 C 260 520, 620 880, 1040 580 C 1240 440, 1380 540, 1520 460 L 1520 920 L -80 920 Z" fill="url(#brWave)"/>
+        <path d="M-60 220 Q 340 -40, 740 160 T 1500 120" fill="none" stroke="#c84b26" stroke-opacity="0.14" stroke-width="2.4"/>
+        <!-- Radiant Armorial Sunburst on Upper Right -->
+        <g transform="translate(1240,180)" fill="none">
+          <circle r="190" stroke="#d68a12" stroke-opacity="0.15" stroke-width="1.4"/>
+          <circle r="142" stroke="#0e7c5d" stroke-opacity="0.14" stroke-width="1.2" stroke-dasharray="10 7"/>
+          <polygon points="0,-175 26,-26 175,0 26,26 0,175 -26,26 -175,0 -26,-26" stroke="#c84b26" stroke-opacity="0.14" stroke-width="1.4"/>
         </g>
       </svg>
     `;
   }
 
-  // Layl & Nahar: 12-petal Oud Soundhole Rosette (Shamsa)
-  const col = themeId === 'nahar' ? '#b87216' : '#e5a955';
-  const sec = themeId === 'nahar' ? '#1d8a75' : '#4cc9b0';
+  // Layl & Nahar: Expansive Brass Astrolabe Celestial Arcs & Shamsa Rosette
+  const col = themeId === 'nahar' ? '#b85c1b' : '#e5a955';
+  const sec = themeId === 'nahar' ? '#1d7a68' : '#4cc9b0';
   return `
-    <svg viewBox="0 0 420 420" aria-hidden="true">
-      <g transform="translate(210,210)" fill="none">
-        <circle r="184" stroke="${col}" stroke-width="1.2" stroke-opacity="0.18"/>
-        <circle r="168" stroke="${sec}" stroke-width="0.9" stroke-opacity="0.15" stroke-dasharray="4 4"/>
-        <rect x="-112" y="-112" width="224" height="224" stroke="${col}" stroke-width="1.1" stroke-opacity="0.15"/>
-        <rect x="-112" y="-112" width="224" height="224" transform="rotate(30)" stroke="${sec}" stroke-width="1" stroke-opacity="0.13"/>
-        <rect x="-112" y="-112" width="224" height="224" transform="rotate(60)" stroke="${col}" stroke-width="1" stroke-opacity="0.13"/>
-        <circle r="68" stroke="${col}" stroke-width="1.2" stroke-opacity="0.2"/>
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none">
+        <!-- Giant Celestial Astrolabe Arcs -->
+        <circle cx="1220" cy="180" r="340" stroke="${col}" stroke-opacity="0.11" stroke-width="1.2"/>
+        <circle cx="1220" cy="180" r="280" stroke="${sec}" stroke-opacity="0.1" stroke-width="1" stroke-dasharray="5 7"/>
+        <circle cx="1220" cy="180" r="210" stroke="${col}" stroke-opacity="0.12" stroke-width="1.1"/>
+        <circle cx="200" cy="760" r="300" stroke="${sec}" stroke-opacity="0.09" stroke-width="1.2"/>
+        <path d="M-40 420 Q 720 120, 1480 460" stroke="${col}" stroke-opacity="0.09" stroke-width="1.2"/>
+        <!-- Subtle Shamsa Star -->
+        <g transform="translate(1220,180)">
+          <rect x="-120" y="-120" width="240" height="240" stroke="${col}" stroke-opacity="0.11" stroke-width="1"/>
+          <rect x="-120" y="-120" width="240" height="240" transform="rotate(30)" stroke="${sec}" stroke-opacity="0.09" stroke-width="1"/>
+          <rect x="-120" y="-120" width="240" height="240" transform="rotate(60)" stroke="${col}" stroke-opacity="0.09" stroke-width="1"/>
+        </g>
       </g>
     </svg>
   `;

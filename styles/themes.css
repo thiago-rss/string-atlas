@@ -1,7 +1,8 @@
 /* =========================================================================
- * String Atlas — Tactile Dimensional Aesthetics & 7 Musical Worlds (v7.5.0)
- * Eliminates flat digital surfaces via layered depth, specular bevels,
- * subtle analog/paper grain, custom sculpted controls, and theme-specific SVG art.
+ * String Atlas — Sculptural Artistic Worlds (v7.6.0)
+ * Abstracts away from generic web-app buttons & boxes: each aesthetic
+ * transforms silhouette, button hardware, tab architecture, panel craft,
+ * typography, fretboard node geometry, and full-viewport spatial atmosphere.
  * ========================================================================= */
 
 :root {
@@ -11,7 +12,7 @@
   --display-tracking: -0.02em;
   --display-transform: none;
   --panel-border-width: 1px;
-  --grain-opacity: 0.036;
+  --grain-opacity: 0.038;
   --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.01) 38%, rgba(0, 0, 0, 0.14) 100%);
   --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.11), inset 0 -1px 0 rgba(0, 0, 0, 0.28);
   --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.01) 52%, rgba(0, 0, 0, 0.14) 100%);
@@ -20,18 +21,29 @@
   --card-surface: linear-gradient(165deg, rgba(255, 255, 255, 0.045) 0%, rgba(0, 0, 0, 0.12) 100%);
 }
 
+@keyframes saAmbientDrift {
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
+  50% { transform: scale(1.035) translate3d(-10px, 8px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-stage-backdrop {
+    animation: none !important;
+  }
+}
+
 /* =========================================================================
- * UNIVERSAL TACTILE DEPTH, MICRO-GRAIN & SCULPTED HARDWARE CONTROLS
+ * SHARED LAYERED ATMOSPHERE & SCULPTED HARDWARE BASE
  * ========================================================================= */
 body {
   font-family: var(--font-body);
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background-color 0.28s ease, color 0.2s ease;
+  transition: background-color 0.32s ease, color 0.22s ease;
 }
 
-/* Subtle tactile analog/paper micro-grain overlay across the viewport */
+/* Subtle tactile analog / archival paper micro-grain */
 body::before {
   content: "";
   position: fixed;
@@ -47,17 +59,17 @@ body::before {
   z-index: 1;
 }
 
-/* Bespoke Architectural Backdrop Watermark (rendered by themeGraphics.js) */
+/* Full-Viewport Flowing Artistic Backdrop (rendered by themeGraphics.js) */
 .theme-stage-backdrop {
   position: fixed;
-  top: -40px;
-  right: -60px;
-  width: 440px;
-  height: 440px;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.72;
-  transition: opacity 0.35s ease;
+  opacity: 0.92;
+  animation: saAmbientDrift 28s ease-in-out infinite;
+  will-change: transform;
 }
 
 .theme-stage-backdrop svg {
@@ -66,33 +78,24 @@ body::before {
   display: block;
 }
 
-@media (max-width: 720px) {
-  .theme-stage-backdrop {
-    width: 280px;
-    height: 280px;
-    opacity: 0.45;
-  }
-}
-
-/* Bespoke Header Artwork Banner (rendered by themeGraphics.js) */
+/* Bespoke Header Artwork Banner */
 .theme-ornament-bar {
   width: 100%;
-  min-height: 30px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: -4px;
+  margin-bottom: -2px;
   pointer-events: none;
 }
 
 .ornament-art-svg {
   width: 100%;
-  max-width: 960px;
-  height: 32px;
+  max-width: 980px;
+  height: 36px;
   display: block;
 }
 
-/* Typography bindings */
 .mono-tag,
 .pill-badge,
 .voicing-tab-sig,
@@ -112,17 +115,15 @@ body::before {
   text-transform: var(--display-transform);
 }
 
-/* Dimensional Panels */
 .panel {
   position: relative;
   border-width: var(--panel-border-width);
   background-color: var(--bg-panel);
   background-image: var(--panel-surface);
   box-shadow: var(--shadow-panel), var(--panel-inset-rim);
-  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.2s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease;
 }
 
-/* Dimensional Inner Cards */
 .voicing-card,
 .telemetry-card,
 .sg-card,
@@ -139,20 +140,9 @@ body::before {
   background-color: var(--bg-elevated);
   background-image: var(--card-surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.16s ease;
+  transition: transform 0.14s ease, border-color 0.15s ease, box-shadow 0.16s ease, border-radius 0.2s ease;
 }
 
-.voicing-card:hover,
-.sg-card:hover,
-.radar-item-card:hover,
-.atlas-card:hover,
-.theme-card:hover,
-.tuner-str-card:hover,
-.ear-choice-btn:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-}
-
-/* Tactile Beveled Buttons */
 .btn-ghost,
 .btn-pill,
 .btn-mini,
@@ -161,6 +151,7 @@ body::before {
 .subtool-pill {
   background-image: var(--btn-sheen);
   box-shadow: var(--btn-shadow);
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.18s ease, box-shadow 0.18s ease, border-radius 0.2s ease;
 }
 
 .btn-ghost:hover,
@@ -180,7 +171,6 @@ body::before {
 .dock-btn:active,
 .zone-tab-btn:active {
   transform: translateY(0px);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
 .btn-primary,
@@ -200,7 +190,6 @@ body::before {
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
-/* Sculpted Recessed Inputs & Selects */
 select,
 .search-input,
 .bpm-control,
@@ -224,10 +213,9 @@ select:focus,
 .search-input:focus {
   outline: none;
   border-color: var(--accent-root);
-  box-shadow: var(--well-shadow), 0 0 0 2px rgba(229, 169, 85, 0.24);
 }
 
-/* Custom Sculpted Studio Range Sliders (Replaces flat browser defaults!) */
+/* Sculpted Studio Range Sliders */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -254,30 +242,8 @@ input[type="range"]::-webkit-slider-thumb {
   background: radial-gradient(circle at 32% 30%, #ffffff 0%, var(--accent-root) 52%, rgba(0, 0, 0, 0.4) 100%);
   border: 1.5px solid rgba(0, 0, 0, 0.45);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 8px rgba(229, 169, 85, 0.35);
-  transition: transform 0.1s ease;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.14);
-}
-
-input[type="range"]::-moz-range-track {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--border-strong);
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 30%, #ffffff 0%, var(--accent-root) 58%);
-  border: 1.5px solid rgba(0, 0, 0, 0.45);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-/* Recessed Studio Stage Frame around the SVG Fretboard */
 .fretboard-scroll {
   padding: 12px 10px;
   background:
@@ -285,11 +251,6 @@ input[type="range"]::-moz-range-thumb {
     linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.14) 22%, rgba(0, 0, 0, 0.35) 100%),
     var(--bg-fretboard);
   box-shadow: inset 0 6px 22px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.pill-badge {
-  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.18));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .deck-compartment-body,
@@ -305,75 +266,207 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* =========================================================================
- * DESIGN 1: LAYL · OBSIDIAN (Oud Visualizer Nocturnal Glass & Warm Gold)
+ * WORLD 1: LAYL · ASTROLÁBIO NOTURNO (Fluid Celestial Glass & Double Filigree)
+ * Form Language: Flowing elliptical pills, Alhambra double hairline borders,
+ * luminous golden crescent underlines & liquid glass depth.
  * ========================================================================= */
 [data-theme="layl"] {
-  --bg-canvas: #080b11;
-  --bg-panel: rgba(20, 26, 38, 0.88);
-  --bg-elevated: rgba(29, 37, 54, 0.92);
-  --border-subtle: rgba(229, 169, 85, 0.14);
-  --border-strong: rgba(229, 169, 85, 0.32);
-  --shadow-panel: 0 18px 44px -10px rgba(0, 0, 0, 0.72);
-  --panel-inset-rim: inset 0 1px 0 rgba(248, 214, 152, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  --bg-canvas: #070a11;
+  --bg-panel: rgba(17, 23, 36, 0.8);
+  --bg-elevated: rgba(25, 34, 52, 0.85);
+  --border-subtle: rgba(229, 169, 85, 0.16);
+  --border-strong: rgba(229, 169, 85, 0.38);
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 999px;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --display-tracking: 0.02em;
+  --shadow-panel: 0 20px 50px -12px rgba(0, 0, 0, 0.78);
+  --panel-inset-rim: inset 0 1px 0 rgba(248, 214, 152, 0.22), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
 }
 
 [data-theme="layl"] body {
-  background-color: #080b11;
+  background-color: #070a11;
   background-image:
-    radial-gradient(ellipse 70% 42% at 18% -5%, rgba(229, 169, 85, 0.13), transparent 62%),
-    radial-gradient(ellipse 60% 45% at 86% 8%, rgba(76, 201, 176, 0.1), transparent 60%),
-    radial-gradient(ellipse 80% 50% at 50% 108%, rgba(42, 62, 110, 0.18), transparent 65%),
-    linear-gradient(180deg, #0c111b 0%, #07090f 100%);
+    radial-gradient(ellipse 70% 42% at 18% -5%, rgba(229, 169, 85, 0.15), transparent 62%),
+    radial-gradient(ellipse 60% 45% at 86% 8%, rgba(76, 201, 176, 0.12), transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% 108%, rgba(42, 62, 110, 0.22), transparent 65%),
+    linear-gradient(180deg, #0c121e 0%, #060910 100%);
 }
 
 [data-theme="layl"] .panel {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Delicate Alhambra / Oud Visualizer inner filigree rule */
+  outline: 1px solid rgba(229, 169, 85, 0.14);
+  outline-offset: -6px;
 }
 
 [data-theme="layl"] .brand-title {
-  background: linear-gradient(135deg, #fff3d6 0%, #e5a955 62%, #c98632 100%);
+  font-size: 1.65rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff6de 0%, #e5a955 60%, #c98632 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+/* Fluid celestial glass lozenges instead of generic boxed buttons */
+[data-theme="layl"] .btn-ghost,
+[data-theme="layl"] .btn-pill,
+[data-theme="layl"] .btn-primary,
+[data-theme="layl"] .btn-mini,
+[data-theme="layl"] .dock-btn,
+[data-theme="layl"] .zone-tab-btn,
+[data-theme="layl"] .subtool-pill {
+  border-radius: 999px;
+}
+
+[data-theme="layl"] .zone-tab-btn {
+  background: rgba(16, 22, 35, 0.72);
+  border: 1px solid rgba(229, 169, 85, 0.2);
+  padding: 9px 18px;
+}
+
+[data-theme="layl"] .zone-tab-btn.is-active {
+  background: radial-gradient(circle at 50% 0%, rgba(229, 169, 85, 0.34), rgba(28, 36, 54, 0.92) 72%);
+  color: #fff2cf;
+  border-color: var(--accent-root);
+  box-shadow: 0 0 22px rgba(229, 169, 85, 0.28), inset 0 1px 0 rgba(255, 240, 200, 0.45);
+}
+
+[data-theme="layl"] .dock-btn.is-open {
+  background: radial-gradient(circle at 50% 0%, rgba(229, 169, 85, 0.32), rgba(26, 34, 50, 0.95));
+  color: #fff2cf;
+  border-color: var(--accent-root);
+  box-shadow: 0 0 16px rgba(229, 169, 85, 0.24);
+}
+
+[data-theme="layl"] .dock-btn.is-open .dock-meta {
+  background: rgba(229, 169, 85, 0.22);
+  color: #fff2cf;
+}
+
+[data-theme="layl"] select,
+[data-theme="layl"] .search-input {
+  border-radius: 14px;
+}
+
 /* =========================================================================
- * DESIGN 2: NAHAR · PARCHMENT (Oud Visualizer Daytime Illuminated Manuscript)
+ * WORLD 2: NAHAR · CÓDICE ILUMINADO (Artisanal Manuscript, Ink Rules & Wax Seals)
+ * Form Language: Zero tech-app buttons! Calligraphic sepia hairline rules,
+ * open manuscript folios, and stamped vermilion-gold wax seal primary actions.
  * ========================================================================= */
 [data-theme="nahar"] {
-  --bg-canvas: #efe8d8;
-  --bg-panel: rgba(252, 248, 240, 0.94);
-  --bg-elevated: #f3ecdd;
-  --border-subtle: rgba(138, 96, 36, 0.18);
-  --border-strong: rgba(138, 96, 36, 0.38);
-  --grain-opacity: 0.048;
-  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(244, 235, 218, 0.45) 100%);
-  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.92), inset 0 -1px 0 rgba(120, 82, 30, 0.14);
-  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(226, 212, 186, 0.35) 100%);
-  --btn-shadow: 0 2px 5px rgba(72, 48, 18, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --well-shadow: inset 0 2px 5px rgba(84, 58, 22, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85);
-  --card-surface: linear-gradient(170deg, rgba(255, 255, 255, 0.78) 0%, rgba(235, 224, 202, 0.38) 100%);
-  --shadow-panel: 0 12px 30px -8px rgba(78, 52, 18, 0.16);
+  --bg-canvas: #ece3d0;
+  --bg-panel: rgba(252, 247, 236, 0.93);
+  --bg-elevated: #f4ecdb;
+  --text-primary: #221a12;
+  --text-secondary: #5e4e3d;
+  --text-muted: #8a7864;
+  --accent-root: #b85c1b;
+  --accent-root-ink: #fffaf0;
+  --accent-scale: #1d7a68;
+  --accent-char: #a83328;
+  --border-subtle: rgba(128, 86, 38, 0.2);
+  --border-strong: rgba(128, 86, 38, 0.44);
+  --grain-opacity: 0.056;
+  --radius-lg: 4px;
+  --radius-md: 3px;
+  --radius-sm: 2px;
+  --font-body: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --display-tracking: 0.01em;
+  --panel-surface: linear-gradient(180deg, rgba(255, 253, 248, 0.9) 0%, rgba(242, 232, 212, 0.5) 100%);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --btn-sheen: none;
+  --btn-shadow: none;
+  --well-shadow: inset 0 1px 3px rgba(78, 52, 22, 0.12);
+  --card-surface: linear-gradient(180deg, rgba(255, 252, 245, 0.85) 0%, rgba(236, 224, 200, 0.35) 100%);
+  --shadow-panel: 0 12px 30px -8px rgba(74, 48, 18, 0.16);
 }
 
 [data-theme="nahar"] body {
-  background-color: #efe8d8;
+  font-size: 16px;
+  background-color: #ece3d0;
   background-image:
-    radial-gradient(ellipse 65% 40% at 15% 0%, rgba(196, 125, 30, 0.12), transparent 58%),
-    radial-gradient(ellipse 60% 42% at 88% 10%, rgba(29, 138, 117, 0.08), transparent 58%),
-    linear-gradient(180deg, #f6f0e4 0%, #e7decb 100%);
+    radial-gradient(ellipse 65% 40% at 15% 0%, rgba(184, 92, 27, 0.11), transparent 58%),
+    radial-gradient(ellipse 60% 42% at 88% 10%, rgba(29, 122, 104, 0.08), transparent 58%),
+    linear-gradient(180deg, #f5eee0 0%, #e4d8c0 100%);
 }
 
+/* Double-ruled illuminated manuscript folio border */
 [data-theme="nahar"] .panel {
-  border-top: 2px solid rgba(196, 125, 30, 0.36);
+  border: 1px solid rgba(128, 86, 38, 0.36);
+  outline: 1px solid rgba(128, 86, 38, 0.18);
+  outline-offset: -6px;
+}
+
+[data-theme="nahar"] .brand-title {
+  font-size: 1.54rem;
+  font-style: italic;
+  color: #3a2310;
+}
+
+/* Calligraphic Ink-Rule Controls (open parchment, ruled bottom edge — zero SaaS pill look!) */
+[data-theme="nahar"] .btn-ghost,
+[data-theme="nahar"] .dock-btn,
+[data-theme="nahar"] .zone-tab-btn,
+[data-theme="nahar"] .subtool-pill {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(128, 86, 38, 0.28);
+  border-radius: 0;
+  font-family: var(--font-display);
+  padding: 7px 14px;
+}
+
+[data-theme="nahar"] .zone-tab-btn.is-active,
+[data-theme="nahar"] .dock-btn.is-open {
+  background: linear-gradient(180deg, transparent 58%, rgba(184, 92, 27, 0.14) 100%);
+  color: #9e2d20;
+  border-bottom: 2.5px solid #a83328;
+  box-shadow: none;
+}
+
+[data-theme="nahar"] .dock-btn.is-open .dock-meta {
+  background: rgba(168, 51, 40, 0.14);
+  color: #9e2d20;
+}
+
+/* Stamped Vermilion-Gold Wax Seal for Primary Actions */
+[data-theme="nahar"] .btn-primary {
+  border-radius: 999px;
+  padding: 7px 18px;
+  background: radial-gradient(circle at 32% 28%, #d44d3c 0%, #9e261c 75%, #6e160f 100%);
+  color: #fff8eb;
+  border: 1.5px solid #6e160f;
+  box-shadow: 0 3px 10px rgba(110, 22, 15, 0.3), inset 0 0 0 2px rgba(255, 228, 178, 0.28);
+  font-family: var(--font-display);
+}
+
+[data-theme="nahar"] .zone-subtools-bar {
+  background: transparent;
+  border: none;
+  border-bottom: 1px double rgba(128, 86, 38, 0.35);
+  border-radius: 0;
+  padding: 4px 0 8px;
+}
+
+[data-theme="nahar"] .subtool-pill.is-active {
+  background: rgba(29, 122, 104, 0.1);
+  border-bottom: 2px solid var(--accent-scale);
+  color: var(--accent-scale);
 }
 
 /* =========================================================================
- * DESIGN 3: 70s ANALOG (Rock Anos 70 · Vintage Tube Amp, Tolex & Brass Faceplate)
+ * WORLD 3: 70s ANALOG · CONSOLE VALVULADO (Walnut Side-Cheeks & Bakelite Bank)
+ * Form Language: Vintage analog synth/amp console — thick walnut wood cheeks,
+ * interlocked mechanical bakelite rocker keys with tungsten amber pilot strips,
+ * and Panton organic asymmetric cards!
  * ========================================================================= */
 [data-theme="rock70s"] {
-  --bg-canvas: #150e09;
+  --bg-canvas: #140d08;
   --bg-panel: #241811;
   --bg-elevated: #312116;
   --bg-fretboard: #1f1109;
@@ -406,12 +499,12 @@ input[type="range"]::-moz-range-thumb {
   --string-color: #e6d7be;
   --inlay-color: rgba(248, 232, 200, 0.32);
 
-  --grain-opacity: 0.052;
-  --shadow-panel: 0 18px 40px -6px rgba(4, 1, 0, 0.78);
-  --panel-inset-rim: inset 0 1px 0 rgba(255, 224, 168, 0.24), inset 0 -2px 0 rgba(0, 0, 0, 0.55);
-  --radius-lg: 11px;
-  --radius-md: 8px;
-  --radius-sm: 6px;
+  --grain-opacity: 0.055;
+  --shadow-panel: 0 20px 44px -6px rgba(4, 1, 0, 0.84);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 224, 168, 0.24), inset 0 -2px 0 rgba(0, 0, 0, 0.6);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
 
   --font-body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
@@ -424,28 +517,39 @@ input[type="range"]::-moz-range-thumb {
   background-color: var(--bg-canvas);
   background-image:
     radial-gradient(ellipse 75% 42% at 50% -10%, rgba(242, 119, 41, 0.28), transparent 60%),
-    radial-gradient(ellipse 50% 35% at 15% 85%, rgba(212, 145, 42, 0.1), transparent 60%),
-    repeating-linear-gradient(45deg, rgba(240, 184, 104, 0.04) 0 2px, transparent 2px 7px),
-    repeating-linear-gradient(-45deg, rgba(240, 184, 104, 0.04) 0 2px, transparent 2px 7px);
+    radial-gradient(ellipse 50% 35% at 15% 85%, rgba(212, 145, 42, 0.12), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(240, 184, 104, 0.036) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(-45deg, rgba(240, 184, 104, 0.036) 0 2px, transparent 2px 7px);
 }
 
-/* Brushed Vintage Champagne-Bronze Amplifier Faceplate on Control Deck! */
-[data-theme="rock70s"] .deck-panel {
+/* Sculpted Vintage Walnut Side-Cheeks on Primary Console Panels! */
+[data-theme="rock70s"] .deck-panel,
+[data-theme="rock70s"] .fretboard-panel {
+  border-left: 11px solid #4e2a14;
+  border-right: 11px solid #4e2a14;
+  border-top: 2px solid #e6be6c;
+  border-bottom: 2px solid #6b4618;
   background:
     repeating-linear-gradient(90deg, rgba(255, 240, 204, 0.025) 0 1px, transparent 1px 4px),
-    linear-gradient(180deg, #3c2918 0%, #2a1c11 45%, #22160d 100%);
-  border-top: 3px solid #e6be6c;
-  border-bottom: 2px solid #7d5722;
+    linear-gradient(180deg, #3a2717 0%, #261910 48%, #1d120b 100%);
 }
 
 [data-theme="rock70s"] .panel {
-  background-image: linear-gradient(180deg, #2e2016 0%, #231710 55%, #1c120c 100%);
+  background-image: linear-gradient(180deg, #2e2016 0%, #22160f 55%, #1b110b 100%);
   border-color: rgba(235, 179, 98, 0.36);
 }
 
-/* Glowing vintage amber amp jewel pilot lamp next to brand title */
+/* Asymmetric 1970s Verner Panton Curves on Studio Cards */
+[data-theme="rock70s"] .voicing-card,
+[data-theme="rock70s"] .sg-card,
+[data-theme="rock70s"] .oblique-card,
+[data-theme="rock70s"] .radar-item-card,
+[data-theme="rock70s"] .atlas-card {
+  border-radius: 22px 6px 22px 6px;
+}
+
 [data-theme="rock70s"] .brand-title {
-  font-size: 1.45rem;
+  font-size: 1.52rem;
   font-variation-settings: "SOFT" 100, "WONK" 1;
   background: linear-gradient(180deg, #fff2d1 0%, #f0b052 75%, #c77624 100%);
   -webkit-background-clip: text;
@@ -456,48 +560,68 @@ input[type="range"]::-moz-range-thumb {
 [data-theme="rock70s"] .brand-title::after {
   content: "";
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
   margin-left: 10px;
   vertical-align: middle;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fff4cc, #ff641f 52%, #7d1200 100%);
-  box-shadow: 0 0 14px rgba(255, 98, 28, 0.92), 0 0 3px #ffe8b3;
+  box-shadow: 0 0 16px rgba(255, 98, 28, 0.95), 0 0 4px #ffe8b3;
 }
 
-/* Brass faceplate corner screw rivets */
-[data-theme="rock70s"] .fretboard-panel::before,
-[data-theme="rock70s"] .fretboard-panel::after,
-[data-theme="rock70s"] .deck-panel::before,
-[data-theme="rock70s"] .deck-panel::after {
-  content: "";
-  position: absolute;
-  top: 8px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background:
-    linear-gradient(135deg, transparent 42%, rgba(28, 16, 6, 0.85) 45%, rgba(28, 16, 6, 0.85) 55%, transparent 58%),
-    radial-gradient(circle at 30% 30%, #fff0c2, #c4923a 65%, #5c3f14 100%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
+/* Recessed Mechanical Console Bezel holding Interlocked Bakelite Rocker Switches */
+[data-theme="rock70s"] .zone-pills-group,
+[data-theme="rock70s"] .compartment-dock {
+  background: #120a05;
+  padding: 5px;
+  border-radius: 14px;
+  border: 1.5px solid #63421c;
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 224, 168, 0.14);
+  gap: 3px;
 }
 
-[data-theme="rock70s"] .fretboard-panel::before,
-[data-theme="rock70s"] .deck-panel::before { left: 9px; }
-[data-theme="rock70s"] .fretboard-panel::after,
-[data-theme="rock70s"] .deck-panel::after { right: 9px; }
+[data-theme="rock70s"] .compartment-dock {
+  border-top: 1.5px solid #63421c;
+}
+
+/* Tactile 3D Bakelite Rocker Keycaps with Tungsten Top Pilot Strip */
+[data-theme="rock70s"] .zone-tab-btn,
+[data-theme="rock70s"] .dock-btn {
+  border-radius: 10px 10px 5px 5px;
+  background: linear-gradient(180deg, #3c291b 0%, #26190f 65%, #1a1009 100%);
+  border: 1px solid #593b1d;
+  border-top: 3px solid #694927;
+  box-shadow: 0 3px 0 #0d0603, inset 0 1px 0 rgba(255, 228, 178, 0.16);
+  color: #e6d2b5;
+}
 
 [data-theme="rock70s"] .zone-tab-btn.is-active,
-[data-theme="rock70s"] .lab-tab-btn.is-active,
+[data-theme="rock70s"] .dock-btn.is-open {
+  background: linear-gradient(180deg, #4f3119 0%, #2b1a0d 100%);
+  color: #fff2d6;
+  border-color: #f27729;
+  border-top: 3px solid #ffd466;
+  box-shadow: 0 1px 0 #0d0603, inset 0 2px 14px rgba(242, 119, 41, 0.42), 0 -2px 12px rgba(255, 180, 60, 0.42);
+  transform: translateY(1px);
+}
+
+[data-theme="rock70s"] .dock-btn.is-open .dock-meta {
+  background: rgba(255, 200, 80, 0.22);
+  color: #ffe8a8;
+}
+
 [data-theme="rock70s"] .btn-primary {
-  background: linear-gradient(180deg, #fa8e42 0%, #d45b17 100%);
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 25%, #ff9d47 0%, #d95a14 75%, #8f3006 100%);
   color: #160c05;
-  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.6), 0 4px 14px rgba(240, 116, 40, 0.35);
+  border: 1.5px solid #ffd38a;
+  box-shadow: 0 4px 0 #120803, 0 6px 16px rgba(242, 119, 41, 0.35);
 }
 
 /* =========================================================================
- * DESIGN 4: DOOM RITUAL (Doom Metal · Cathedral Monolith & Velvet Haze)
+ * WORLD 4: DOOM RITUAL · CATEDRAL & ESTELA (Gothic Arches & Carved Runes)
+ * Form Language: Pointed cathedral lancet-arch tabs, faceted octagonal-cut
+ * stone rune buttons, double-engraved brass monolith slabs, drifting smoke.
  * ========================================================================= */
 [data-theme="doom"] {
   --bg-canvas: #060508;
@@ -506,7 +630,7 @@ input[type="range"]::-moz-range-thumb {
   --bg-fretboard: #08060b;
   --bg-nut: #b8aa90;
   --border-subtle: rgba(181, 125, 255, 0.18);
-  --border-strong: rgba(217, 161, 63, 0.42);
+  --border-strong: rgba(219, 163, 66, 0.44);
 
   --text-primary: #efe4d2;
   --text-secondary: #b9a9c7;
@@ -533,16 +657,16 @@ input[type="range"]::-moz-range-thumb {
   --string-color: #cfc3db;
   --inlay-color: rgba(236, 226, 209, 0.28);
 
-  --grain-opacity: 0.058;
-  --shadow-panel: 0 22px 48px rgba(0, 0, 0, 0.88), 0 0 24px rgba(124, 48, 196, 0.08);
-  --panel-inset-rim: inset 0 1px 0 rgba(219, 163, 66, 0.22), inset 0 0 32px rgba(0, 0, 0, 0.48);
+  --grain-opacity: 0.062;
+  --shadow-panel: 0 24px 54px rgba(0, 0, 0, 0.92), 0 0 28px rgba(124, 48, 196, 0.1);
+  --panel-inset-rim: inset 0 1px 0 rgba(219, 163, 66, 0.22), inset 0 0 36px rgba(0, 0, 0, 0.54);
   --radius-lg: 2px;
   --radius-md: 2px;
   --radius-sm: 2px;
 
   --font-body: "Cormorant Garamond", Georgia, serif;
   --font-display: "Cinzel", "Palatino Linotype", Georgia, serif;
-  --display-tracking: 0.08em;
+  --display-tracking: 0.09em;
   --display-transform: uppercase;
   --panel-border-width: 1px;
 }
@@ -551,70 +675,94 @@ input[type="range"]::-moz-range-thumb {
   font-size: 16px;
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(circle at 16% 0%, rgba(138, 46, 212, 0.26), transparent 46%),
-    radial-gradient(circle at 86% 12%, rgba(204, 30, 52, 0.18), transparent 42%),
-    radial-gradient(ellipse at 50% 100%, rgba(219, 163, 66, 0.12), transparent 55%),
+    radial-gradient(circle at 16% 0%, rgba(138, 46, 212, 0.28), transparent 46%),
+    radial-gradient(circle at 86% 12%, rgba(204, 30, 52, 0.2), transparent 42%),
+    radial-gradient(ellipse at 50% 100%, rgba(219, 163, 66, 0.14), transparent 55%),
     linear-gradient(180deg, #0c0813 0%, #050407 100%);
 }
 
-/* Carved Altar Filigree Brackets + Hammered Dark Bronze Gradient */
+/* Engraved Monolithic Stone Steles with Filigree Corner Brackets */
 [data-theme="doom"] .panel {
-  border-color: rgba(219, 163, 66, 0.28);
+  border-color: rgba(219, 163, 66, 0.3);
+  outline: 1px solid rgba(184, 128, 255, 0.12);
+  outline-offset: -6px;
   background-image:
-    linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to bottom, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to left, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to bottom, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to right, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to top, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to left, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(to top, var(--accent-root) 14px, transparent 14px),
-    linear-gradient(180deg, rgba(36, 25, 50, 0.65) 0%, rgba(13, 10, 18, 0.94) 100%);
+    linear-gradient(to right, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to bottom, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to left, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to bottom, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to right, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to top, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to left, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(to top, var(--accent-root) 16px, transparent 16px),
+    linear-gradient(180deg, rgba(36, 24, 52, 0.72) 0%, rgba(12, 9, 17, 0.96) 100%);
   background-repeat: no-repeat;
-  background-size: 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 14px 2px, 2px 14px, 100% 100%;
+  background-size: 16px 2px, 2px 16px, 16px 2px, 2px 16px, 16px 2px, 2px 16px, 16px 2px, 2px 16px, 100% 100%;
   background-position: 0 0, 0 0, 100% 0, 100% 0, 0 100%, 0 100%, 100% 100%, 100% 100%, 0 0;
 }
 
 [data-theme="doom"] .brand-title {
-  font-size: 1.42rem;
+  font-size: 1.48rem;
   background: linear-gradient(180deg, #faebd0 0%, #dba342 65%, #99661a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 14px rgba(219, 163, 66, 0.35));
+  filter: drop-shadow(0 0 16px rgba(219, 163, 66, 0.4));
 }
 
-[data-theme="doom"] .section-heading {
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(219, 163, 66, 0.24);
+/* Cathedral Pointed-Arch Tabs resting on a Brass Altar Rail */
+[data-theme="doom"] .zone-primary-bar {
+  border-bottom: 1.5px solid rgba(219, 163, 66, 0.34);
+  padding-bottom: 0;
+  align-items: flex-end;
 }
 
-[data-theme="doom"] .zone-tab-btn,
-[data-theme="doom"] .lab-tab-btn {
+[data-theme="doom"] .zone-tab-btn {
   font-family: var(--font-display);
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   font-size: 0.78rem;
+  border-radius: 50% 50% 0 0 / 22px 22px 0 0;
+  padding: 12px 20px 9px;
+  border: 1px solid rgba(219, 163, 66, 0.28);
+  border-bottom: none;
+  background: linear-gradient(180deg, rgba(28, 19, 40, 0.92) 0%, rgba(11, 8, 16, 0.96) 100%);
 }
 
-[data-theme="doom"] .btn-primary,
-[data-theme="doom"] .zone-tab-btn.is-active,
-[data-theme="doom"] .lab-tab-btn.is-active {
-  background: linear-gradient(180deg, #e8bc64 0%, #ad731b 100%);
+[data-theme="doom"] .zone-tab-btn.is-active {
+  background: linear-gradient(180deg, #e5b75d 0%, #996418 100%);
   color: #0b0704;
-  box-shadow: 0 0 18px rgba(219, 163, 66, 0.32), inset 0 1px 0 rgba(255, 245, 220, 0.45);
+  border-color: #f4d38a;
+  box-shadow: 0 -4px 20px rgba(219, 163, 66, 0.35), 0 0 16px rgba(184, 128, 255, 0.25);
+}
+
+/* Faceted Lozenge / Runic Stone Buttons for Dock & Primary Actions */
+[data-theme="doom"] .dock-btn,
+[data-theme="doom"] .btn-primary,
+[data-theme="doom"] .btn-pill {
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+  padding-inline: 18px;
+  border-radius: 0;
+}
+
+[data-theme="doom"] .dock-btn.is-open,
+[data-theme="doom"] .btn-primary {
+  background: linear-gradient(180deg, #e8bc64 0%, #a86d18 100%);
+  color: #0b0704;
 }
 
 /* =========================================================================
- * DESIGN 5: DJENT POLY (Djent / Tech Metal · Machined Titanium & Neon CNC HUD)
+ * WORLD 5: DJENT POLY · LÂMINA CINÉTICA CNC (Polygonal Blades & Side LEDs)
+ * Form Language: Zero standard rectangles! Asymmetric chamfered plates,
+ * diagonal kinetic blade switches with side LEDs, hexagonal fret nodes.
  * ========================================================================= */
 [data-theme="djent"] {
   --bg-canvas: #04070c;
-  --bg-panel: rgba(11, 17, 27, 0.9);
-  --bg-elevated: rgba(17, 26, 40, 0.94);
+  --bg-panel: rgba(10, 16, 26, 0.9);
+  --bg-elevated: rgba(16, 25, 39, 0.94);
   --bg-fretboard: #070b12;
   --bg-nut: #263445;
-  --border-subtle: rgba(0, 229, 255, 0.18);
-  --border-strong: rgba(0, 229, 255, 0.48);
+  --border-subtle: rgba(0, 229, 255, 0.2);
+  --border-strong: rgba(0, 229, 255, 0.5);
 
   --text-primary: #eef8ff;
   --text-secondary: #92b0cc;
@@ -641,16 +789,16 @@ input[type="range"]::-moz-range-thumb {
   --string-color: #c2dcf5;
   --inlay-color: rgba(0, 229, 255, 0.28);
 
-  --grain-opacity: 0.028;
-  --shadow-panel: 0 16px 38px rgba(0, 0, 0, 0.72), 0 0 24px rgba(0, 229, 255, 0.06);
-  --panel-inset-rim: inset 0 1px 0 rgba(0, 229, 255, 0.24), inset 0 -1px 0 rgba(52, 245, 153, 0.12);
-  --radius-lg: 3px;
-  --radius-md: 2px;
-  --radius-sm: 2px;
+  --grain-opacity: 0.025;
+  --shadow-panel: 0 18px 42px rgba(0, 0, 0, 0.78), 0 0 26px rgba(0, 229, 255, 0.08);
+  --panel-inset-rim: inset 0 1px 0 rgba(0, 229, 255, 0.28), inset 0 -1px 0 rgba(52, 245, 153, 0.16);
+  --radius-lg: 18px 0 18px 0;
+  --radius-md: 0 12px 0 12px;
+  --radius-sm: 0;
 
   --font-body: "Space Grotesk", -apple-system, sans-serif;
   --font-display: "Chakra Petch", "JetBrains Mono", monospace;
-  --display-tracking: 0.06em;
+  --display-tracking: 0.07em;
   --display-transform: uppercase;
   --panel-border-width: 1px;
 }
@@ -660,57 +808,67 @@ input[type="range"]::-moz-range-thumb {
   background-image:
     linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px),
-    radial-gradient(ellipse 65% 40% at 50% 0%, rgba(0, 229, 255, 0.16), transparent 58%),
-    radial-gradient(ellipse 45% 38% at 90% 90%, rgba(52, 245, 153, 0.09), transparent 55%);
+    radial-gradient(ellipse 65% 40% at 50% 0%, rgba(0, 229, 255, 0.18), transparent 58%),
+    radial-gradient(ellipse 45% 38% at 90% 90%, rgba(52, 245, 153, 0.1), transparent 55%);
   background-size: 26px 26px, 26px 26px, 100% 100%, 100% 100%;
 }
 
-/* Machined Anodized Titanium Panel Sheen + Glowing CNC Reticles */
+/* Asymmetric Machined CNC Titanium Chassis */
 [data-theme="djent"] .panel {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border-radius: 18px 0 18px 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-left: 3px solid rgba(0, 229, 255, 0.55);
   background-image:
-    linear-gradient(to right, var(--accent-root) 12px, transparent 12px),
-    linear-gradient(to bottom, var(--accent-root) 12px, transparent 12px),
-    linear-gradient(to left, var(--accent-scale) 12px, transparent 12px),
-    linear-gradient(to top, var(--accent-scale) 12px, transparent 12px),
-    linear-gradient(160deg, rgba(0, 229, 255, 0.055) 0%, rgba(10, 16, 26, 0.2) 45%, rgba(0, 0, 0, 0.35) 100%);
+    linear-gradient(to left, var(--accent-scale) 16px, transparent 16px),
+    linear-gradient(to bottom, var(--accent-scale) 16px, transparent 16px),
+    linear-gradient(155deg, rgba(0, 229, 255, 0.065) 0%, rgba(10, 16, 26, 0.2) 48%, rgba(0, 0, 0, 0.4) 100%);
   background-repeat: no-repeat;
-  background-size: 12px 2px, 2px 12px, 12px 2px, 2px 12px, 100% 100%;
-  background-position: 0 0, 0 0, 100% 100%, 100% 100%, 0 0;
+  background-size: 16px 2px, 2px 16px, 100% 100%;
+  background-position: 100% 0, 100% 0, 0 0;
 }
 
 [data-theme="djent"] .brand-title {
-  font-size: 1.44rem;
+  font-size: 1.48rem;
   background: linear-gradient(90deg, #ffffff 0%, #00e5ff 55%, #34f599 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.38));
+  filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.42));
 }
 
-/* Machined Chamfered Tech Buttons */
-[data-theme="djent"] .btn-primary,
-[data-theme="djent"] .zone-tab-btn {
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-}
-
+/* Diagonal Kinetic Blade Switches (Parallelogram silhouette!) */
 [data-theme="djent"] .zone-tab-btn,
-[data-theme="djent"] .lab-tab-btn,
-[data-theme="djent"] .control-label,
-[data-theme="djent"] .pill-badge {
+[data-theme="djent"] .dock-btn,
+[data-theme="djent"] .btn-primary,
+[data-theme="djent"] .btn-pill {
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding-inline: 18px;
+  border-radius: 0;
   font-family: var(--font-display);
 }
 
 [data-theme="djent"] .zone-tab-btn.is-active,
-[data-theme="djent"] .lab-tab-btn.is-active,
+[data-theme="djent"] .dock-btn.is-open,
 [data-theme="djent"] .btn-primary {
-  background: linear-gradient(135deg, #24f0ff 0%, #00b8d4 100%);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+  background: linear-gradient(115deg, #2cf2ff 0%, #00b8d4 65%, #34f599 100%);
+  color: #031218;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.45));
+}
+
+[data-theme="djent"] .voicing-card,
+[data-theme="djent"] .sg-card,
+[data-theme="djent"] .atlas-card,
+[data-theme="djent"] .radar-item-card,
+[data-theme="djent"] .tension-kpi-card {
+  border-radius: 0 14px 0 14px;
+  border-left: 3px solid rgba(0, 229, 255, 0.42);
 }
 
 /* =========================================================================
- * DESIGN 6: AVANT / GRAPHIC SCORE (Experimental · Archival Cotton Print & Fluxus)
+ * WORLD 6: AVANT · PARTITURA GRÁFICA (Acclaimed Fluxus / Cage / Bauhaus Edition)
+ * Form Language: Stark gallery print, black ink borders, offset hard shadows,
+ * editorial figure plate stamps (FIG. A / B / C), Bauhaus square/circle nodes.
  * ========================================================================= */
 [data-theme="experimental"] {
   --bg-canvas: #ece9e0;
@@ -718,7 +876,7 @@ input[type="range"]::-moz-range-thumb {
   --bg-elevated: #f2efe5;
   --bg-fretboard: #18181a;
   --bg-nut: #e2e0d8;
-  --border-subtle: rgba(20, 20, 20, 0.32);
+  --border-subtle: rgba(20, 20, 20, 0.34);
   --border-strong: #161616;
 
   --text-primary: #141414;
@@ -746,17 +904,17 @@ input[type="range"]::-moz-range-thumb {
   --string-color: #dedee3;
   --inlay-color: rgba(255, 255, 255, 0.32);
 
-  --grain-opacity: 0.055;
+  --grain-opacity: 0.056;
   --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(238, 234, 223, 0.45) 100%);
-  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 3px rgba(20, 20, 20, 0.03);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95);
   --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(224, 219, 208, 0.35) 100%);
-  --btn-shadow: 2px 2px 0 rgba(20, 20, 20, 0.85);
+  --btn-shadow: 2px 2px 0 rgba(20, 20, 20, 0.88);
   --well-shadow: inset 0 2px 4px rgba(20, 20, 20, 0.1), 0 1px 0 rgba(255, 255, 255, 0.9);
-  --card-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(235, 230, 218, 0.35) 100%);
-  --shadow-panel: 4px 4px 0 rgba(20, 20, 20, 0.88), 0 12px 26px rgba(20, 20, 20, 0.09);
-  --radius-lg: 1px;
-  --radius-md: 1px;
-  --radius-sm: 1px;
+  --card-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(235, 230, 218, 0.35) 100%);
+  --shadow-panel: 4px 4px 0 rgba(20, 20, 20, 0.9), 0 12px 26px rgba(20, 20, 20, 0.09);
+  --radius-lg: 0px;
+  --radius-md: 0px;
+  --radius-sm: 0px;
 
   --font-body: "Space Mono", ui-monospace, monospace;
   --font-display: "Syne", "Helvetica Neue", Helvetica, sans-serif;
@@ -776,8 +934,29 @@ input[type="range"]::-moz-range-thumb {
   background-size: 100% 100%, 100% 100%, 16px 16px;
 }
 
+/* Catalog Figure Stamps on Major Avant Graphic Score Plates */
+[data-theme="experimental"] .deck-panel::before,
+[data-theme="experimental"] .fretboard-panel::before,
+[data-theme="experimental"] .notation-panel::before {
+  position: absolute;
+  top: -11px;
+  left: 14px;
+  padding: 1px 7px;
+  background: #141414;
+  color: #fbf9f3;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+[data-theme="experimental"] .deck-panel::before { content: "FIG. A // CONTROL MATRIX"; }
+[data-theme="experimental"] .fretboard-panel::before { content: "FIG. B // 24-TET TOPOGRAPHY"; }
+[data-theme="experimental"] .notation-panel::before { content: "FIG. C // SCORE & TAB"; }
+
 [data-theme="experimental"] .brand-title {
-  font-size: 1.52rem;
+  font-size: 1.54rem;
   font-weight: 800;
 }
 
@@ -787,7 +966,7 @@ input[type="range"]::-moz-range-thumb {
 
 [data-theme="experimental"] .btn-primary,
 [data-theme="experimental"] .zone-tab-btn.is-active,
-[data-theme="experimental"] .lab-tab-btn.is-active,
+[data-theme="experimental"] .dock-btn.is-open,
 [data-theme="experimental"] .btn-pill.active,
 [data-theme="experimental"] .btn-pill.active-teal {
   box-shadow: 3px 3px 0 #141414;
@@ -805,7 +984,9 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* =========================================================================
- * DESIGN 7: BRASILIDADE · TROPICÁLIA (Armorial, Glazed Ceramic & Jacarandá)
+ * WORLD 7: BRASILIDADE · CURVAS DE NIEMEYER & CORDEL (Fluid Organic Modernism)
+ * Form Language: Sweeping asymmetric Niemeyer arches (34px 8px 34px 8px),
+ * organic pebble/leaf ceramic buttons, glazed tropical color-blocking & warmth!
  * ========================================================================= */
 [data-theme="brazilian"] {
   --bg-canvas: #f4ead6;
@@ -841,17 +1022,17 @@ input[type="range"]::-moz-range-thumb {
   --string-color: #f0e2ca;
   --inlay-color: rgba(245, 223, 176, 0.36);
 
-  --grain-opacity: 0.05;
-  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(247, 234, 210, 0.55) 100%);
+  --grain-opacity: 0.052;
+  --panel-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(247, 234, 210, 0.56) 100%);
   --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.96), inset 0 -2px 0 rgba(168, 86, 36, 0.14);
-  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(230, 206, 170, 0.35) 100%);
-  --btn-shadow: 0 2px 6px rgba(96, 48, 18, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(230, 206, 170, 0.35) 100%);
+  --btn-shadow: 0 3px 8px rgba(96, 48, 18, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.92);
   --well-shadow: inset 0 2px 5px rgba(96, 48, 18, 0.13), 0 1px 0 rgba(255, 255, 255, 0.9);
-  --card-surface: linear-gradient(168deg, rgba(255, 255, 255, 0.85) 0%, rgba(240, 222, 192, 0.42) 100%);
-  --shadow-panel: 0 14px 32px -8px rgba(96, 48, 18, 0.18);
-  --radius-lg: 14px;
-  --radius-md: 10px;
-  --radius-sm: 7px;
+  --card-surface: linear-gradient(168deg, rgba(255, 255, 255, 0.88) 0%, rgba(240, 222, 192, 0.44) 100%);
+  --shadow-panel: 0 16px 36px -10px rgba(96, 48, 18, 0.2);
+  --radius-lg: 30px 8px 30px 8px;
+  --radius-md: 20px 6px 20px 6px;
+  --radius-sm: 16px 4px 16px 4px;
 
   --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: "Playfair Display", Georgia, serif;
@@ -863,15 +1044,27 @@ input[type="range"]::-moz-range-thumb {
 [data-theme="brazilian"] body {
   background-color: var(--bg-canvas);
   background-image:
-    radial-gradient(ellipse 60% 42% at 10% 0%, rgba(214, 138, 18, 0.2), transparent 48%),
-    radial-gradient(ellipse 58% 44% at 90% 6%, rgba(14, 124, 93, 0.15), transparent 48%),
-    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(200, 75, 38, 0.1), transparent 55%),
-    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.032) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(-60deg, rgba(14, 124, 93, 0.032) 0 1px, transparent 1px 22px);
+    radial-gradient(ellipse 60% 42% at 10% 0%, rgba(214, 138, 18, 0.22), transparent 48%),
+    radial-gradient(ellipse 58% 44% at 90% 6%, rgba(14, 124, 93, 0.16), transparent 48%),
+    radial-gradient(ellipse 55% 40% at 50% 100%, rgba(200, 75, 38, 0.12), transparent 55%),
+    repeating-linear-gradient(60deg, rgba(200, 75, 38, 0.03) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-60deg, rgba(14, 124, 93, 0.03) 0 1px, transparent 1px 22px);
+}
+
+/* Sweeping Asymmetric Niemeyer Modernist Arches on Panels */
+[data-theme="brazilian"] .panel {
+  border-radius: 30px 8px 30px 8px;
+  border-top: 3.5px solid var(--accent-char);
+  border-bottom: 2.5px solid rgba(14, 124, 93, 0.36);
+}
+
+[data-theme="brazilian"] .fretboard-panel {
+  border-radius: 10px 32px 10px 32px;
+  border-top: 4px solid var(--accent-scale);
 }
 
 [data-theme="brazilian"] .brand-title {
-  font-size: 1.48rem;
+  font-size: 1.52rem;
   font-style: italic;
   background: linear-gradient(135deg, #8a2c12 0%, #c84b26 50%, #d68a12 100%);
   -webkit-background-clip: text;
@@ -879,27 +1072,43 @@ input[type="range"]::-moz-range-thumb {
   color: transparent;
 }
 
-[data-theme="brazilian"] .panel {
-  border-top: 3px solid var(--accent-char);
-  border-bottom: 2px solid rgba(14, 124, 93, 0.34);
-}
-
-[data-theme="brazilian"] .fretboard-panel {
-  border-top: 4px solid var(--accent-scale);
+/* Organic Glazed Ceramic Pebble / Leaf Silhouettes for All Interactive Controls! */
+[data-theme="brazilian"] .btn-ghost,
+[data-theme="brazilian"] .btn-pill,
+[data-theme="brazilian"] .btn-primary,
+[data-theme="brazilian"] .dock-btn,
+[data-theme="brazilian"] .zone-tab-btn,
+[data-theme="brazilian"] .subtool-pill {
+  border-radius: 22px 5px 22px 5px;
+  padding-inline: 16px;
 }
 
 [data-theme="brazilian"] .zone-tab-btn.is-active,
-[data-theme="brazilian"] .lab-tab-btn.is-active {
-  background: linear-gradient(135deg, #0b6e52 0%, #169c75 100%);
+[data-theme="brazilian"] .dock-btn.is-open {
+  background: linear-gradient(135deg, #0b6e52 0%, #17a178 100%);
   color: #ffffff;
   border-color: #0b6e52;
-  box-shadow: 0 4px 14px rgba(14, 124, 93, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 5px 16px rgba(14, 124, 93, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+[data-theme="brazilian"] .dock-btn.is-open .dock-meta {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
 }
 
 [data-theme="brazilian"] .btn-primary {
-  background: linear-gradient(135deg, #e09619 0%, #c46812 100%);
+  background: linear-gradient(135deg, #e39817 0%, #c84b26 100%);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(200, 75, 38, 0.28), inset 0 1px 0 rgba(255, 245, 215, 0.45);
+  border-color: #b03d1c;
+  box-shadow: 0 5px 16px rgba(200, 75, 38, 0.32), inset 0 1px 0 rgba(255, 245, 215, 0.5);
+}
+
+[data-theme="brazilian"] .voicing-card,
+[data-theme="brazilian"] .sg-card,
+[data-theme="brazilian"] .atlas-card,
+[data-theme="brazilian"] .radar-item-card,
+[data-theme="brazilian"] .tension-kpi-card {
+  border-radius: 20px 5px 20px 5px;
 }
 
 /* =========================================================================
