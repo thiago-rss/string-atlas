@@ -1,6 +1,6 @@
 /**
  * High-Speed Navigation & Global Audio Control Suite (v7.8)
- * 1. Command Palette (Cmd+K / Ctrl+K / /) searching all 74 scales, 39 tunings, 7 designs,
+ * 1. Command Palette (Cmd+K / Ctrl+K / /) searching all 74 scales, 39 tunings, 10 designs,
  *    10 studio tools, 10 vamps & 16 study lessons with keyboard navigation (↑/↓/Enter/Esc)
  * 2. Floating Global Audio Transport Dock (#audioTransportDock) with 1-click Stop All (Esc)
  * 3. Bilingual Keyboard Shortcuts Modal (?)
@@ -56,7 +56,7 @@ export function buildCommandIndex(lang = 'pt', customTunings = []) {
     });
   });
 
-  // 2. Visual Designs (7 Worlds)
+  // 2. Visual Designs (10 Worlds)
   THEMES.forEach((th) => {
     items.push({
       uid: `theme:${th.id}`,

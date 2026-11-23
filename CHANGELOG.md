@@ -2,6 +2,13 @@
 
 Todas as entregas estruturais do projeto, da fundação 24-TET ao lançamento PWA de produção (`v8.4.0`).
 
+## [8.7.0] — 2026-11-23 · Galeria Expandida: 10 Mundos Visuais Esculturais
+### Adicionado
+- **Shoegaze · Névoa & Offset (`shoegaze`):** atmosfera 4AD/anos 90 em índigo e ameixa com rosa-quartzo e azul-lunar, inlays de blocos perolados de guitarra *offset* (`offset_block`), marcadores com halo *bloom* (`bloom`), medalhão de fita magnética e cantoneiras de ondas de *reverb*.
+- **Kintsugi · Cerâmica & Silêncio (`kintsugi`):** 3º tema diurno/claro (*wabi-sabi* japonês) em porcelana areia, tinta *sumi*, folha de ouro e selo *hanko* vermelhão, com braço em *roasted maple* + textura de veios dourados (`grainStyle: kintsugi`), inlays de fissura dourada (`kintsugi_vein`), marcadores selo *hanko* (`hanko`), medalhão *Ensō* e cantoneiras *Kumiko*.
+- **Blue Note · Vinil & Latão (`bluenote`):** estética editorial de capas de jazz 1962 (*Reid Miles / Impulse!*) em preto vinil, azul-prússia, latão escovado e laranja-vermelhão com fonte *Oswald*, braço *archtop* em ébano com inlays `archtop_split_block`, marcadores `brass_ring`, medalhão de disco LP e sulcos de vinil no fundo.
+- **CI/CD GitHub Pages:** workflow `.github/workflows/deploy.yml` consolidado em jobs separados `build` e `deploy`.
+
 ## [8.6.0] — 2026-11-23 · Microfone & Interface de Áudio (Modelo Oud Visualizer)
 ### Adicionado
 - **Compartimento Dedicado `🎙 Mic / Interface` no Trilho Superior (`deckPanelsView.js`):** acesso direto logo acima do braço virtual (sem precisar abrir a zona de Estudo), com alternância `🎙 Microfone` vs. `🔌 Interface (Line Mode)`, seletor de dispositivo USB com atualização automática `devicechange`, seleção de canal (`L+R · Ch 1 · Ch 2`), sliders de Gain e Noise Gate e medidor VU em tempo real.

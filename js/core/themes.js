@@ -1,5 +1,5 @@
 /**
- * String Atlas Sculptural Musical Worlds Catalog (v7.6 — Distinct Geometries & Node Shapes)
+ * String Atlas Sculptural Musical Worlds Catalog (v8.7 — 10 Distinct Worlds, Geometries & Node Shapes)
  */
 
 export const THEMES = [
@@ -351,6 +351,156 @@ export const THEMES = [
       "inlayStroke": "rgba(200, 75, 38, 0.65)",
       "stringPlain": "#f0e2ca",
       "stringWound": "#d4a464"
+    }
+  },
+  {
+    "id": "shoegaze",
+    "namePt": "Shoegaze · Névoa & Offset",
+    "nameEn": "Shoegaze · Mist & Offset",
+    "eraPt": "Shoegaze / 90s",
+    "eraEn": "90s Shoegaze",
+    "fontPreview": "'Space Grotesk', sans-serif",
+    "ornamentTagPt": "Névoa 4AD · Blocos Perolados · Halo Bloom",
+    "ornamentTagEn": "4AD Mist · Pearloid Blocks · Bloom Halo",
+    "descPt": "Atmosfera etérea dos anos 90: índigo e ameixa em dupla exposição, rosa-quartzo e azul-lunar, blocos perolados de guitarra offset e marcadores com halo suave.",
+    "descEn": "Ethereal 1990s wall-of-sound haze: double-exposed indigo plum, quartz rose and lunar blue, offset pearloid block inlays, and soft bloom markers.",
+    "themeColor": "#0b0714",
+    "fretboardHex": "#1c101b",
+    "swatches": [
+      "#0b0714",
+      "#1a112b",
+      "#f472b6",
+      "#93c5fd",
+      "#e879f9"
+    ],
+    "fretboard": {
+      "nodeShape": "bloom",
+      "headstockFill": "#130b1c",
+      "woodStops": [
+        "#190e18",
+        "#2e1a2b",
+        "#150b14"
+      ],
+      "grainStyle": "wood",
+      "grainColor": "rgba(244, 114, 182, 0.075)",
+      "bindingColor": "#eee3fa",
+      "bindingStroke": "#2c1933",
+      "sideDotColor": "#f472b6",
+      "nutStops": [
+        "#ede4f5",
+        "#ffffff",
+        "#c5b5d4"
+      ],
+      "fretStops": [
+        "#847c96",
+        "#e6e0f5",
+        "#675e78"
+      ],
+      "inlayStyle": "offset_block",
+      "inlayFill": "#f4ecfc",
+      "inlayStroke": "rgba(244, 114, 182, 0.5)",
+      "stringPlain": "#e2dcfa",
+      "stringWound": "#c2a8d4"
+    }
+  },
+  {
+    "id": "kintsugi",
+    "namePt": "Kintsugi · Cerâmica & Silêncio",
+    "nameEn": "Kintsugi · Ceramic & Silence",
+    "eraPt": "Wabi-Sabi / Japão",
+    "eraEn": "Wabi-Sabi / Japan",
+    "fontPreview": "'Shippori Mincho', 'Cormorant Garamond', Georgia, serif",
+    "ornamentTagPt": "Porcelana · Veios de Ouro · Selo Hanko",
+    "ornamentTagEn": "Porcelain · Gold Seams · Hanko Seal",
+    "descPt": "Minimalismo cerâmico japonês (3º tema diurno): porcelana areia, tinta sumi, veios de folha de ouro, braço em roasted maple com fissuras douradas e selos hanko.",
+    "descEn": "Japanese wabi-sabi ceramic minimalism (3rd light world): raw sand porcelain, sumi ink, gold-leaf seams, roasted maple neck with kintsugi veins, and hanko stamps.",
+    "themeColor": "#f2ede2",
+    "fretboardHex": "#c2965e",
+    "swatches": [
+      "#f2ede2",
+      "#faf7f0",
+      "#b88424",
+      "#3f6d52",
+      "#c23b2b"
+    ],
+    "fretboard": {
+      "nodeShape": "hanko",
+      "headstockFill": "#211c17",
+      "woodStops": [
+        "#b3854e",
+        "#d1a66f",
+        "#a87b46"
+      ],
+      "grainStyle": "kintsugi",
+      "grainColor": "rgba(74, 46, 18, 0.14)",
+      "bindingColor": "#241f1a",
+      "bindingStroke": "#b88424",
+      "sideDotColor": "#ecc260",
+      "nutStops": [
+        "#ebe4d3",
+        "#fffdf7",
+        "#bfb59e"
+      ],
+      "fretStops": [
+        "#756754",
+        "#efe6d3",
+        "#574b3b"
+      ],
+      "inlayStyle": "kintsugi_vein",
+      "inlayFill": "#f5cb69",
+      "inlayStroke": "rgba(42, 30, 14, 0.65)",
+      "stringPlain": "#2d2620",
+      "stringWound": "#4f3b26"
+    }
+  },
+  {
+    "id": "bluenote",
+    "namePt": "Blue Note · Vinil & Latão",
+    "nameEn": "Blue Note · Vinyl & Brass",
+    "eraPt": "Jazz 1962 / Hard Bop",
+    "eraEn": "1962 Jazz / Hard Bop",
+    "fontPreview": "'Oswald', 'Space Grotesk', sans-serif",
+    "ornamentTagPt": "Capa LP 1962 · Split-Block · Aro de Latão",
+    "ornamentTagEn": "1962 LP Sleeve · Split-Block · Brass Ring",
+    "descPt": "Design editorial de jazz dos anos 60 (Reid Miles / Impulse!): preto vinil e azul-prússia, latão escovado, laranja-vermelhão, braço archtop em ébano com inlays split-block.",
+    "descEn": "1960s jazz sleeve modernism (Reid Miles / Impulse!): vinyl black and Prussian blue, brushed brass, bold vermilion-orange, and ebony archtop split-block inlays.",
+    "themeColor": "#070b12",
+    "fretboardHex": "#131110",
+    "swatches": [
+      "#070b12",
+      "#0f1a2c",
+      "#e8a845",
+      "#3888e8",
+      "#f05528"
+    ],
+    "fretboard": {
+      "nodeShape": "brass_ring",
+      "headstockFill": "#0c0e14",
+      "woodStops": [
+        "#110f0d",
+        "#1e1b18",
+        "#0e0c0b"
+      ],
+      "grainStyle": "wood",
+      "grainColor": "rgba(245, 232, 200, 0.045)",
+      "bindingColor": "#f2e7cf",
+      "bindingStroke": "#241d15",
+      "sideDotColor": "#141210",
+      "nutStops": [
+        "#e8dfc9",
+        "#fffbf0",
+        "#b8ad94"
+      ],
+      "fretStops": [
+        "#8a7750",
+        "#f0ddb0",
+        "#69593a"
+      ],
+      "inlayStyle": "archtop_split_block",
+      "inlayFill": "#f2ead8",
+      "inlayStroke": "rgba(232, 168, 69, 0.62)",
+      "stringPlain": "#e4e0d5",
+      "stringWound": "#cfa96a"
     }
   }
 ];

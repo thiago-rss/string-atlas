@@ -20,7 +20,10 @@ const INLAY_PREVIEW_GLYPH = {
   doom_monolith: '◆',
   djent_sharktooth: '◢',
   avant_crosshair: '⊕',
-  armorial_sun: '✦'
+  armorial_sun: '✦',
+  offset_block: '▭',
+  kintsugi_vein: '⚡',
+  archtop_split_block: '❖'
 };
 
 export function updateThemeHeaderButton(state) {

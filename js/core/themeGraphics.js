@@ -10,6 +10,53 @@
  */
 
 export function getThemeBrandMedallionSvg(themeId) {
+  if (themeId === 'shoegaze') {
+    return `
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <defs>
+          <radialGradient id="bmShoe" cx="45%" cy="45%" r="58%">
+            <stop offset="0%" stop-color="#f472b6" stop-opacity="0.55"/>
+            <stop offset="55%" stop-color="#93c5fd" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#0b0714"/>
+          </radialGradient>
+        </defs>
+        <circle cx="24" cy="24" r="22" fill="url(#bmShoe)" stroke="#f472b6" stroke-opacity="0.7" stroke-width="1.3"/>
+        <circle cx="24" cy="24" r="16.5" fill="none" stroke="#93c5fd" stroke-opacity="0.55" stroke-width="1.1" stroke-dasharray="6 3"/>
+        <circle cx="24" cy="24" r="11.2" fill="none" stroke="#e879f9" stroke-opacity="0.78" stroke-width="1.2"/>
+        <path d="M24 9 A 15 15 0 0 1 39 24 M24 39 A 15 15 0 0 1 9 24" fill="none" stroke="#f472b6" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="5" fill="#140d23" stroke="#93c5fd" stroke-width="1.3"/>
+        <circle cx="24" cy="24" r="2.2" fill="#f472b6"/>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'kintsugi') {
+    return `
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21.5" fill="#faf7f0" stroke="#c8beab" stroke-width="1"/>
+        <path d="M35 12 A 15.5 15.5 0 1 0 38.5 29" fill="none" stroke="#221e1a" stroke-width="3.6" stroke-linecap="round"/>
+        <path d="M34.5 11.5 L29.5 19 L34 24.5 L38.2 29.2" fill="none" stroke="#d49e32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="28" y="29" width="7.5" height="7.5" rx="1.2" fill="#c23b2b"/>
+        <rect x="29.6" y="30.6" width="4.3" height="4.3" rx="0.5" fill="none" stroke="#faf7f0" stroke-width="0.9"/>
+        <circle cx="24" cy="24" r="3" fill="none" stroke="#3f6d52" stroke-width="1.1" stroke-opacity="0.7"/>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'bluenote') {
+    return `
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#090d14" stroke="#e8a845" stroke-width="1.4"/>
+        <circle cx="24" cy="24" r="18.2" fill="none" stroke="#3888e8" stroke-opacity="0.45" stroke-width="0.9"/>
+        <circle cx="24" cy="24" r="15" fill="none" stroke="#f5efe1" stroke-opacity="0.22" stroke-width="0.8"/>
+        <circle cx="24" cy="24" r="12" fill="none" stroke="#3888e8" stroke-opacity="0.4" stroke-width="0.8"/>
+        <circle cx="24" cy="24" r="9.2" fill="#3888e8" stroke="#f5efe1" stroke-width="1"/>
+        <path d="M15 24 A 9 9 0 0 1 33 24 Z" fill="#f05528"/>
+        <circle cx="24" cy="24" r="2.6" fill="#070b12" stroke="#e8a845" stroke-width="1"/>
+      </svg>
+    `;
+  }
+
   if (themeId === 'rock70s') {
     return `
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -109,6 +156,61 @@ export function getThemeBrandMedallionSvg(themeId) {
 }
 
 export function getThemeHeaderBannerSvg(themeId) {
+  if (themeId === 'shoegaze') {
+    return `
+      <svg class="ornament-art-svg" viewBox="0 0 980 44" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="ornShoeWave" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#93c5fd" stop-opacity="0"/>
+            <stop offset="22%" stop-color="#93c5fd" stop-opacity="0.75"/>
+            <stop offset="50%" stop-color="#f472b6" stop-opacity="0.95"/>
+            <stop offset="78%" stop-color="#e879f9" stop-opacity="0.75"/>
+            <stop offset="100%" stop-color="#93c5fd" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M30 24 Q 150 6, 270 22 T 490 22 T 710 22 T 950 20" fill="none" stroke="url(#ornShoeWave)" stroke-width="2.2"/>
+        <path d="M50 20 Q 170 38, 290 22 T 490 22 T 690 22 T 930 24" fill="none" stroke="#93c5fd" stroke-opacity="0.45" stroke-width="1.3" stroke-dasharray="6 4"/>
+        <g transform="translate(490,22)">
+          <circle r="15" fill="#f472b6" fill-opacity="0.14" stroke="#f472b6" stroke-opacity="0.65" stroke-width="1"/>
+          <circle r="9" fill="#93c5fd" fill-opacity="0.2" stroke="#93c5fd" stroke-width="1.1"/>
+          <circle r="3.4" fill="#f472b6"/>
+        </g>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'kintsugi') {
+    return `
+      <svg class="ornament-art-svg" viewBox="0 0 980 44" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <path d="M40 22 L210 22 L238 14 L268 27 L310 22 L462 22" fill="none" stroke="#c89228" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M518 22 L670 22 L712 16 L742 29 L770 22 L940 22" fill="none" stroke="#c89228" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="80" y1="22" x2="452" y2="22" stroke="#221e1a" stroke-opacity="0.18" stroke-width="0.9"/>
+        <line x1="528" y1="22" x2="900" y2="22" stroke="#221e1a" stroke-opacity="0.18" stroke-width="0.9"/>
+        <g transform="translate(490,22)">
+          <path d="M12 -10 A 14 14 0 1 0 14 5" fill="none" stroke="#221e1a" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M11 -10 L8 -2 L13.5 4.5" fill="none" stroke="#d49e32" stroke-width="1.6"/>
+          <rect x="-4" y="-4" width="8" height="8" rx="1.2" fill="#c23b2b"/>
+        </g>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'bluenote') {
+    return `
+      <svg class="ornament-art-svg" viewBox="0 0 980 44" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <rect x="40" y="19" width="386" height="2" fill="#3888e8" fill-opacity="0.65"/>
+        <rect x="110" y="25" width="316" height="1.2" fill="#e8a845" fill-opacity="0.5"/>
+        <rect x="554" y="19" width="386" height="2" fill="#3888e8" fill-opacity="0.65"/>
+        <rect x="554" y="25" width="316" height="1.2" fill="#e8a845" fill-opacity="0.5"/>
+        <rect x="438" y="14" width="16" height="16" fill="#3888e8"/>
+        <rect x="462" y="14" width="56" height="16" fill="#0e1726" stroke="#e8a845" stroke-width="1.4"/>
+        <circle cx="490" cy="22" r="5" fill="#f05528"/>
+        <circle cx="490" cy="22" r="1.8" fill="#070b12"/>
+        <rect x="526" y="14" width="16" height="16" fill="#e8a845"/>
+      </svg>
+    `;
+  }
+
   if (themeId === 'rock70s') {
     return `
       <svg class="ornament-art-svg" viewBox="0 0 980 44" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -307,13 +409,23 @@ export function getThemeHeaderBannerSvg(themeId) {
  * Matching Closing Tailpiece Ornament at the bottom of the app shell
  */
 export function getThemeFooterOrnamentSvg(themeId) {
-  const isLight = themeId === 'nahar' || themeId === 'experimental' || themeId === 'brazilian';
+  const isLight = themeId === 'nahar' || themeId === 'experimental' || themeId === 'brazilian' || themeId === 'kintsugi';
   const col = themeId === 'djent'
     ? '#00e5ff'
-    : (themeId === 'brazilian' ? '#c84b26' : (themeId === 'experimental' ? '#141414' : (isLight ? '#b85c1b' : '#e5a955')));
+    : (themeId === 'shoegaze' ? '#f472b6'
+    : (themeId === 'kintsugi' ? '#b88424'
+    : (themeId === 'bluenote' ? '#e8a845'
+    : (themeId === 'brazilian' ? '#c84b26'
+    : (themeId === 'experimental' ? '#141414'
+    : (isLight ? '#b85c1b' : '#e5a955'))))));
   const sec = themeId === 'doom'
     ? '#b880ff'
-    : (themeId === 'djent' ? '#34f599' : (themeId === 'brazilian' ? '#0e7c5d' : (themeId === 'experimental' ? '#1e4fd6' : '#4cc9b0')));
+    : (themeId === 'shoegaze' ? '#93c5fd'
+    : (themeId === 'kintsugi' ? '#c23b2b'
+    : (themeId === 'bluenote' ? '#3888e8'
+    : (themeId === 'djent' ? '#34f599'
+    : (themeId === 'brazilian' ? '#0e7c5d'
+    : (themeId === 'experimental' ? '#1e4fd6' : '#4cc9b0'))))));
 
   return `
     <svg class="footer-ornament-svg" viewBox="0 0 920 22" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -334,6 +446,40 @@ export function getThemeFooterOrnamentSvg(themeId) {
  * Top-left is drawn natively; CSS mirrors it cleanly to TR, BL, and BR.
  */
 export function getThemeCornerFiligreeSvg(themeId) {
+  if (themeId === 'shoegaze') {
+    return `
+      <svg viewBox="0 0 54 54" aria-hidden="true">
+        <path d="M3 44 Q 4 12, 14 7 Q 22 3, 44 3" fill="none" stroke="#f472b6" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M9 36 Q 10 17, 18 12 Q 24 9, 36 9" fill="none" stroke="#93c5fd" stroke-opacity="0.75" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M15 28 Q 16 20, 20 17 Q 23 15, 28 15" fill="none" stroke="#e879f9" stroke-opacity="0.6" stroke-width="1"/>
+        <circle cx="9" cy="9" r="2.6" fill="#f472b6"/>
+        <circle cx="9" cy="9" r="5.2" fill="none" stroke="#93c5fd" stroke-opacity="0.45" stroke-width="0.9"/>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'kintsugi') {
+    return `
+      <svg viewBox="0 0 54 54" aria-hidden="true">
+        <path d="M2 44 L2 2 L44 2" fill="none" stroke="#221e1a" stroke-width="1.6"/>
+        <path d="M8 34 L8 8 L34 8" fill="none" stroke="#b88424" stroke-width="1.1"/>
+        <path d="M2 22 L14 14 L22 2" fill="none" stroke="#d49e32" stroke-width="1.5"/>
+        <line x1="8" y1="8" x2="20" y2="20" stroke="#3f6d52" stroke-opacity="0.55" stroke-width="0.9"/>
+        <rect x="4.5" y="4.5" width="5.5" height="5.5" rx="0.8" fill="#c23b2b"/>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'bluenote') {
+    return `
+      <svg viewBox="0 0 54 54" aria-hidden="true">
+        <path d="M2 46 L2 2 L46 2" fill="none" stroke="#3888e8" stroke-width="3"/>
+        <path d="M8 30 L8 8 L30 8" fill="none" stroke="#e8a845" stroke-width="1.4"/>
+        <rect x="12" y="12" width="7" height="7" fill="#f05528"/>
+      </svg>
+    `;
+  }
+
   if (themeId === 'rock70s') {
     // Vintage Engraved Brass Amp Corner Plate + Rivet Stud + Sunburst Flourish
     return `
@@ -427,16 +573,35 @@ export function getThemeCornerFiligreeSvg(themeId) {
  * Ornate Center Stage Cartouche Crest perched at the top border of the Fretboard Stage
  */
 export function getThemePanelCrownSvg(themeId) {
-  const isLight = themeId === 'nahar' || themeId === 'experimental' || themeId === 'brazilian';
+  const isLight = themeId === 'nahar' || themeId === 'experimental' || themeId === 'brazilian' || themeId === 'kintsugi';
   const col = themeId === 'djent'
     ? '#00e5ff'
-    : (themeId === 'brazilian' ? '#c84b26' : (themeId === 'experimental' ? '#141414' : (themeId === 'rock70s' ? '#f7cc54' : (isLight ? '#b85c1b' : '#e8b35a'))));
+    : (themeId === 'shoegaze' ? '#f472b6'
+    : (themeId === 'kintsugi' ? '#b88424'
+    : (themeId === 'bluenote' ? '#e8a845'
+    : (themeId === 'brazilian' ? '#c84b26'
+    : (themeId === 'experimental' ? '#141414'
+    : (themeId === 'rock70s' ? '#f7cc54'
+    : (isLight ? '#b85c1b' : '#e8b35a')))))));
   const sec = themeId === 'doom'
     ? '#b880ff'
-    : (themeId === 'djent' ? '#34f599' : (themeId === 'brazilian' ? '#0e7c5d' : (themeId === 'rock70s' ? '#f27729' : (themeId === 'experimental' ? '#dc3826' : '#4cc9b0'))));
+    : (themeId === 'shoegaze' ? '#93c5fd'
+    : (themeId === 'kintsugi' ? '#c23b2b'
+    : (themeId === 'bluenote' ? '#3888e8'
+    : (themeId === 'djent' ? '#34f599'
+    : (themeId === 'brazilian' ? '#0e7c5d'
+    : (themeId === 'rock70s' ? '#f27729'
+    : (themeId === 'experimental' ? '#dc3826' : '#4cc9b0')))))));
   const bg = themeId === 'nahar'
     ? '#faf5ea'
-    : (themeId === 'experimental' ? '#fbf9f3' : (themeId === 'brazilian' ? '#fffbf2' : (themeId === 'rock70s' ? '#241811' : (themeId === 'doom' ? '#100c15' : (themeId === 'djent' ? '#0a101a' : '#111724')))));
+    : (themeId === 'kintsugi' ? '#faf7f0'
+    : (themeId === 'shoegaze' ? '#140d23'
+    : (themeId === 'bluenote' ? '#0e1726'
+    : (themeId === 'experimental' ? '#fbf9f3'
+    : (themeId === 'brazilian' ? '#fffbf2'
+    : (themeId === 'rock70s' ? '#241811'
+    : (themeId === 'doom' ? '#100c15'
+    : (themeId === 'djent' ? '#0a101a' : '#111724'))))))));
 
   return `
     <svg viewBox="0 0 180 24" aria-hidden="true">
@@ -454,6 +619,66 @@ export function getThemePanelCrownSvg(themeId) {
  * Full-Viewport Flowing Artistic Tapestry Backdrop
  */
 export function getThemeBackdropWatermarkSvg(themeId) {
+  if (themeId === 'shoegaze') {
+    return `
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="bgShoeGlowA" cx="25%" cy="22%" r="48%">
+            <stop offset="0%" stop-color="#f472b6" stop-opacity="0.16"/>
+            <stop offset="100%" stop-color="#0b0714" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="bgShoeGlowB" cx="78%" cy="72%" r="46%">
+            <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#0b0714" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#bgShoeGlowA)"/>
+        <rect width="1440" height="900" fill="url(#bgShoeGlowB)"/>
+        <g fill="none" stroke="#f472b6" stroke-opacity="0.11" stroke-width="1.4">
+          <circle cx="240" cy="220" r="140"/>
+          <circle cx="240" cy="220" r="240"/>
+          <circle cx="240" cy="220" r="350" stroke-dasharray="10 8"/>
+        </g>
+        <g fill="none" stroke="#93c5fd" stroke-opacity="0.1" stroke-width="1.4">
+          <path d="M-80 620 Q 320 440, 720 610 T 1520 580"/>
+          <path d="M-80 680 Q 340 500, 740 670 T 1520 640"/>
+          <path d="M-80 740 Q 360 560, 760 730 T 1520 700"/>
+        </g>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'kintsugi') {
+    return `
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none">
+          <path d="M1140 160 A 240 240 0 1 0 1220 460" stroke="#221e1a" stroke-opacity="0.065" stroke-width="26" stroke-linecap="round"/>
+          <path d="M0 740 L260 620 L420 660 L640 520 L820 560 L1080 390 L1240 430 L1440 280" stroke="#c89228" stroke-opacity="0.22" stroke-width="2.2"/>
+          <path d="M420 660 L510 780 L610 900" stroke="#c89228" stroke-opacity="0.16" stroke-width="1.5"/>
+          <path d="M820 560 L920 690 L1060 740" stroke="#c89228" stroke-opacity="0.15" stroke-width="1.4"/>
+          <path d="M260 620 L190 480 L250 320" stroke="#3f6d52" stroke-opacity="0.09" stroke-width="1.2"/>
+        </g>
+      </svg>
+    `;
+  }
+
+  if (themeId === 'bluenote') {
+    return `
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none">
+          <circle cx="1220" cy="460" r="390" stroke="#3888e8" stroke-opacity="0.12" stroke-width="2"/>
+          <circle cx="1220" cy="460" r="340" stroke="#f5efe1" stroke-opacity="0.06" stroke-width="1"/>
+          <circle cx="1220" cy="460" r="290" stroke="#3888e8" stroke-opacity="0.1" stroke-width="1.2"/>
+          <circle cx="1220" cy="460" r="240" stroke="#e8a845" stroke-opacity="0.1" stroke-width="1.2"/>
+          <circle cx="1220" cy="460" r="145" fill="#3888e8" fill-opacity="0.05" stroke="#e8a845" stroke-opacity="0.16" stroke-width="1.4"/>
+        </g>
+        <rect x="64" y="0" width="6" height="900" fill="#3888e8" fill-opacity="0.12"/>
+        <rect x="82" y="0" width="2" height="900" fill="#e8a845" fill-opacity="0.1"/>
+        <rect x="0" y="760" width="520" height="4" fill="#f05528" fill-opacity="0.12"/>
+      </svg>
+    `;
+  }
+
   if (themeId === 'rock70s') {
     return `
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

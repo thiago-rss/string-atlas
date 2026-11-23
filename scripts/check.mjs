@@ -237,6 +237,10 @@ for (const th of THEMES) {
     fail(`Theme ${th.id} missing luthier fretboard skin definition`);
   }
 }
+if (THEMES.length < 10) fail(`Expected at least 10 curated visual themes, got ${THEMES.length}`);
+for (const reqTh of ['shoegaze', 'kintsugi', 'bluenote']) {
+  if (!THEMES.some((th) => th.id === reqTh)) fail(`Missing v8.7 theme: ${reqTh}`);
+}
 ok(`Validated ${THEMES.length} curated musical-aesthetic designs in themes.js & styles/themes.css`);
 
 // 5c. Unit-test String Tension Physics Engine (E Std 10-46, B Std, A Std 27", 8c Multi-Scale & Inverse Solver)
@@ -412,4 +416,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.6 integrity checks passed.');
+console.log('\nAll String Atlas v8.7 integrity checks passed.');

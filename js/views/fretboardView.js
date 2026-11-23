@@ -256,6 +256,26 @@ function buildFretboardDefs(fbSkin, isVertical) {
         <path d="M0 12 L12 0 M-3 3 L3 -3 M9 15 L15 9" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
       </pattern>
     `;
+  } else if (fbSkin.grainStyle === 'kintsugi') {
+    surfacePattern = isVertical
+      ? `
+        <pattern id="saBoardTexture" width="44" height="190" patternUnits="userSpaceOnUse">
+          <path d="M8 0 Q 4 50, 9 95 T 7 190" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.3"/>
+          <path d="M22 0 Q 26 60, 21 125 T 23 190" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.1"/>
+          <path d="M36 0 Q 33 45, 37 100 T 35 190" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.2"/>
+          <path d="M0 38 L14 56 L11 82 L28 106 L44 128" fill="none" stroke="rgba(248,208,108,0.42)" stroke-width="1.35" stroke-linejoin="round"/>
+          <path d="M11 82 L2 110" fill="none" stroke="rgba(248,208,108,0.3)" stroke-width="0.9"/>
+        </pattern>
+      `
+      : `
+        <pattern id="saBoardTexture" width="190" height="44" patternUnits="userSpaceOnUse">
+          <path d="M0 8 Q 50 4, 95 9 T 190 7" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.3"/>
+          <path d="M0 22 Q 60 26, 125 21 T 190 23" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.1"/>
+          <path d="M0 36 Q 45 33, 100 37 T 190 35" fill="none" stroke="${fbSkin.grainColor}" stroke-width="1.2"/>
+          <path d="M38 0 L56 14 L82 11 L106 28 L128 44" fill="none" stroke="rgba(248,208,108,0.42)" stroke-width="1.35" stroke-linejoin="round"/>
+          <path d="M82 11 L110 2" fill="none" stroke="rgba(248,208,108,0.3)" stroke-width="0.9"/>
+        </pattern>
+      `;
   } else if (fbSkin.grainStyle === 'matte') {
     surfacePattern = `
       <pattern id="saBoardTexture" width="24" height="24" patternUnits="userSpaceOnUse">
@@ -341,7 +361,58 @@ function buildFretboardDefs(fbSkin, isVertical) {
 }
 
 function renderInlayGlyph(style, fbSkin, cx, cy, spanSize, isDouble = false, isVertical = false, boardBounds = {}) {
-  if (style === 'vintage_trapezoid') {
+  if (style === 'offset_block') {
+    if (isVertical) {
+      const w = (boardBounds.boardW || 240) * (isDouble ? 0.6 : 0.48);
+      const h = Math.min(20, spanSize * 0.46);
+      return `
+        <rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="1.1"/>
+        <rect x="${(cx - w / 2 + 3).toFixed(1)}" y="${(cy - h / 2 + 3).toFixed(1)}" width="${Math.max(4, w - 6).toFixed(1)}" height="${Math.max(3, h - 6).toFixed(1)}" rx="1.2" fill="none" stroke="#93c5fd" stroke-opacity="0.45" stroke-width="0.8"/>
+      `;
+    }
+    const h = (boardBounds.boardH || 210) * (isDouble ? 0.6 : 0.48);
+    const w = Math.min(24, spanSize * 0.48);
+    return `
+      <rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="1.1"/>
+      <rect x="${(cx - w / 2 + 3).toFixed(1)}" y="${(cy - h / 2 + 3).toFixed(1)}" width="${Math.max(3, w - 6).toFixed(1)}" height="${Math.max(4, h - 6).toFixed(1)}" rx="1.2" fill="none" stroke="#93c5fd" stroke-opacity="0.45" stroke-width="0.8"/>
+    `;
+  }
+
+  if (style === 'archtop_split_block') {
+    if (isVertical) {
+      const w = (boardBounds.boardW || 240) * (isDouble ? 0.6 : 0.5);
+      const h = Math.min(20, spanSize * 0.44);
+      const x1 = cx - w / 2;
+      const y1 = cy - h / 2;
+      return `
+        <rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="url(#saPearlGrad)" fill-opacity="0.32" stroke="${fbSkin.inlayStroke}" stroke-width="1"/>
+        <polygon points="${(cx - w * 0.14).toFixed(1)},${y1.toFixed(1)} ${(cx + w * 0.14).toFixed(1)},${(y1 + h).toFixed(1)} ${(cx - w * 0.04).toFixed(1)},${(y1 + h).toFixed(1)} ${(cx - w * 0.24).toFixed(1)},${y1.toFixed(1)}" fill="#e8a845" fill-opacity="0.45"/>
+        <line x1="${(cx - w * 0.08).toFixed(1)}" y1="${y1.toFixed(1)}" x2="${(cx + w * 0.08).toFixed(1)}" y2="${(y1 + h).toFixed(1)}" stroke="#0c0e14" stroke-opacity="0.7" stroke-width="1.4"/>
+      `;
+    }
+    const h = (boardBounds.boardH || 210) * (isDouble ? 0.6 : 0.5);
+    const w = Math.min(22, spanSize * 0.44);
+    const x1 = cx - w / 2;
+    const y1 = cy - h / 2;
+    return `
+      <rect x="${x1.toFixed(1)}" y="${y1.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="url(#saPearlGrad)" fill-opacity="0.32" stroke="${fbSkin.inlayStroke}" stroke-width="1"/>
+      <polygon points="${x1.toFixed(1)},${(cy - h * 0.14).toFixed(1)} ${(x1 + w).toFixed(1)},${(cy + h * 0.14).toFixed(1)} ${(x1 + w).toFixed(1)},${(cy - h * 0.02).toFixed(1)} ${x1.toFixed(1)},${(cy - h * 0.24).toFixed(1)}" fill="#e8a845" fill-opacity="0.45"/>
+      <line x1="${x1.toFixed(1)}" y1="${(cy - h * 0.08).toFixed(1)}" x2="${(x1 + w).toFixed(1)}" y2="${(cy + h * 0.08).toFixed(1)}" stroke="#0c0e14" stroke-opacity="0.7" stroke-width="1.4"/>
+    `;
+  }
+
+  if (style === 'kintsugi_vein') {
+    const s = Math.min(12, spanSize * 0.3);
+    return `
+      <g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})">
+        <path d="M${(-s).toFixed(1)} ${(-s * 0.55).toFixed(1)} L${(-s * 0.2).toFixed(1)} ${(s * 0.1).toFixed(1)} L${(s * 0.35).toFixed(1)} ${(-s * 0.2).toFixed(1)} L${s.toFixed(1)} ${(s * 0.55).toFixed(1)}" fill="none" stroke="${fbSkin.inlayStroke}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M${(-s).toFixed(1)} ${(-s * 0.55).toFixed(1)} L${(-s * 0.2).toFixed(1)} ${(s * 0.1).toFixed(1)} L${(s * 0.35).toFixed(1)} ${(-s * 0.2).toFixed(1)} L${s.toFixed(1)} ${(s * 0.55).toFixed(1)}" fill="none" stroke="${fbSkin.inlayFill}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="0" cy="0" r="2.2" fill="#c23b2b" fill-opacity="0.85"/>
+      </g>
+    `;
+  }
+
+  if (style === 'vintage_trapezoid' || style === 'offset_block' || style === 'archtop_split_block') {
     if (isVertical) {
       const w = (boardBounds.boardW || 240) * (isDouble ? 0.56 : 0.46);
       const hTop = Math.min(18, spanSize * 0.36);
@@ -410,7 +481,7 @@ function renderThematicInlays({ fbSkin, layout }) {
       const cy = layout.fretCenter(f);
       const midX = layout.boardLeft + layout.boardW / 2;
 
-      if (style === 'vintage_trapezoid') {
+      if (style === 'vintage_trapezoid' || style === 'offset_block' || style === 'archtop_split_block') {
         out.push(renderInlayGlyph(style, fbSkin, midX, cy, spanSize, f === 12, true, layout));
       } else if (style === 'djent_sharktooth') {
         const y1 = fretArr[f - 1] + spanSize * 0.22;
@@ -442,7 +513,7 @@ function renderThematicInlays({ fbSkin, layout }) {
     const cx = layout.fretCenter(f);
     const midY = TOP_Y_H + STRING_GAP_H * ((numStrings - 1) / 2);
 
-    if (style === 'vintage_trapezoid') {
+    if (style === 'vintage_trapezoid' || style === 'offset_block' || style === 'archtop_split_block') {
       out.push(renderInlayGlyph(style, fbSkin, cx, midY, spanSize, f === 12, false, layout));
     } else if (style === 'djent_sharktooth') {
       const x1 = layout.tx(fretArr[f - 1] + spanSize * 0.22);
@@ -548,6 +619,32 @@ function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isC
       <circle cx="${xStr}" cy="${yStr}" r="11.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
       ${isRoot ? `<line x1="${xStr}" y1="${(y - 12.5).toFixed(1)}" x2="${xStr}" y2="${(y - 9.2).toFixed(1)}" stroke="#fff4cc" stroke-width="1.8" stroke-linecap="round"/>` : ''}
       <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'bloom') {
+    return `
+      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 15.6 : 14.4}" fill="${fill}" fill-opacity="0.24" style="pointer-events:none"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 12.6 : 11.8}" fill="${fill}" stroke="rgba(255,255,255,0.58)" stroke-width="${isRoot ? 1.5 : 1}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 12.2 : 11.4}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'hanko') {
+    const s = isRoot ? 12.6 : 11.8;
+    return `
+      <rect x="${(cx - s).toFixed(1)}" y="${(y - s).toFixed(1)}" width="${(s * 2).toFixed(1)}" height="${(s * 2).toFixed(1)}" rx="4" fill="${fill}" stroke="#221e1a" stroke-width="1.3"/>
+      <rect x="${(cx - s + 2.2).toFixed(1)}" y="${(y - s + 2.2).toFixed(1)}" width="${(s * 2 - 4.4).toFixed(1)}" height="${(s * 2 - 4.4).toFixed(1)}" rx="2.2" fill="none" stroke="${isRoot ? '#f7d886' : 'rgba(255,255,255,0.48)'}" stroke-width="${isRoot ? 1.15 : 0.85}"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (nodeShape === 'brass_ring') {
+    return `
+      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 13.4 : 12.5}" fill="#0a0e16" stroke="${fill}" stroke-width="${isRoot ? 2.8 : 2.2}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 10.2 : 9.8}" fill="${fill}" fill-opacity="${isRoot ? 0.96 : 0.88}"/>
+      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
     `;
   }
 
@@ -819,7 +916,7 @@ export function renderFretboard(state) {
 
     // Bottom Body Ornament (Soundhole Rosette Arc or Boutique Pickup Bezel)
     const botY = nutY + bLen;
-    if (['layl', 'nahar', 'brazilian'].includes(state.theme)) {
+    if (['layl', 'nahar', 'brazilian', 'kintsugi'].includes(state.theme)) {
       parts.push(`<path d="M${bL + 14} ${botY} A 96 68 0 0 1 ${bL + bW - 14} ${botY}" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.52" stroke-width="2.2"/>`);
       parts.push(`<path d="M${bL + 22} ${botY} A 84 60 0 0 1 ${bL + bW - 22} ${botY}" fill="none" stroke="var(--accent-root)" stroke-opacity="0.55" stroke-width="1.3" stroke-dasharray="3 3"/>`);
     } else {
@@ -908,7 +1005,7 @@ export function renderFretboard(state) {
     parts.push(`<line x1="${boardX}" y1="${boardTop + boardH + 1.5}" x2="${boardX + boardW}" y2="${boardTop + boardH + 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
 
     const bodyEndX = tx(SVG_H_W - RIGHT_PAD_H);
-    if (['layl', 'nahar', 'brazilian'].includes(state.theme)) {
+    if (['layl', 'nahar', 'brazilian', 'kintsugi'].includes(state.theme)) {
       const sweep = leftHanded ? 1 : 0;
       parts.push(`<path d="M${bodyEndX} ${boardTop + 10} A 78 96 0 0 ${sweep} ${bodyEndX} ${boardTop + boardH - 10}" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.52" stroke-width="2.2"/>`);
       parts.push(`<path d="M${bodyEndX} ${boardTop + 18} A 70 88 0 0 ${sweep} ${bodyEndX} ${boardTop + boardH - 18}" fill="none" stroke="var(--accent-root)" stroke-opacity="0.55" stroke-width="1.3" stroke-dasharray="3 3"/>`);

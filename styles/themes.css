@@ -1474,3 +1474,324 @@ body[data-zen="true"] .deck-shell,
 body[data-zen="true"] .footer-ornament-bar {
   display: none !important;
 }
+
+/* =========================================================================
+ * WORLD 8: SHOEGAZE · NÉVOA & OFFSET (90s 4AD Haze & Pearloid Bloom)
+ * Form Language: Double-exposed indigo/plum atmosphere, soft frosted glass
+ * panels with quartz-rose / lunar-blue bloom rims, dreamy pill controls.
+ * ========================================================================= */
+[data-theme="shoegaze"] {
+  --bg-canvas: #0b0714;
+  --bg-panel: #140d23;
+  --bg-elevated: #1e1433;
+  --bg-fretboard: #1c101b;
+  --bg-nut: #ede4f5;
+  --border-subtle: rgba(147, 197, 253, 0.2);
+  --border-strong: rgba(244, 114, 182, 0.44);
+
+  --text-primary: #f6effd;
+  --text-secondary: #cbb9de;
+  --text-muted: #8b77a3;
+
+  --accent-root: #f472b6;
+  --accent-root-ink: #170814;
+  --accent-scale: #93c5fd;
+  --accent-scale-ink: #0b1324;
+  --accent-char: #e879f9;
+  --accent-char-ink: #1a0720;
+  --accent-micro: #fb923c;
+  --accent-micro-ink: #1a0b04;
+  --accent-harmonic: #a5b4fc;
+  --accent-open: #7dd3fc;
+  --accent-voicing: #f9a8d4;
+  --accent-etude: #c084fc;
+  --accent-live: #6ee7b7;
+  --accent-danger: #fb7185;
+  --accent-radar-b: #38bdf8;
+
+  --fret-wire: #958aa8;
+  --fret-micro: rgba(251, 146, 60, 0.6);
+  --string-color: #e2dcfa;
+  --inlay-color: rgba(244, 236, 252, 0.34);
+
+  --grain-opacity: 0.055;
+  --panel-surface: linear-gradient(155deg, rgba(35, 22, 60, 0.86) 0%, rgba(16, 10, 30, 0.94) 100%);
+  --shadow-panel: 0 20px 46px rgba(6, 3, 14, 0.82), 0 0 28px rgba(244, 114, 182, 0.1);
+  --panel-inset-rim: inset 0 1px 0 rgba(244, 114, 182, 0.24), inset 0 0 28px rgba(147, 197, 253, 0.06);
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+
+  --font-body: "Plus Jakarta Sans", -apple-system, sans-serif;
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
+  --display-tracking: 0.03em;
+  --display-transform: none;
+  --panel-border-width: 1px;
+}
+
+[data-theme="shoegaze"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(244, 114, 182, 0.22), transparent 46%),
+    radial-gradient(circle at 82% 18%, rgba(147, 197, 253, 0.18), transparent 44%),
+    radial-gradient(ellipse at 50% 96%, rgba(192, 132, 252, 0.2), transparent 56%),
+    linear-gradient(180deg, #120b22 0%, #090611 100%);
+}
+
+[data-theme="shoegaze"] .panel {
+  background-image: var(--panel-surface);
+  border-color: rgba(244, 114, 182, 0.32);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="shoegaze"] .brand-title {
+  background: linear-gradient(95deg, #fce7f3 0%, #f472b6 52%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgba(244, 114, 182, 0.35));
+}
+
+[data-theme="shoegaze"] .dock-btn,
+[data-theme="shoegaze"] .zone-tab-btn,
+[data-theme="shoegaze"] .btn-pill,
+[data-theme="shoegaze"] .btn-primary {
+  border-radius: 999px;
+}
+
+[data-theme="shoegaze"] .dock-btn.is-open,
+[data-theme="shoegaze"] .zone-tab-btn.is-active,
+[data-theme="shoegaze"] .btn-primary {
+  background: linear-gradient(135deg, #f472b6 0%, #a855f7 100%);
+  color: #160718;
+  border-color: #fbcfe8;
+  box-shadow: 0 0 18px rgba(244, 114, 182, 0.36);
+}
+
+[data-theme="shoegaze"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 38px rgba(244, 114, 182, 0.14);
+}
+
+/* =========================================================================
+ * WORLD 9: KINTSUGI · CERÂMICA & SILÊNCIO (3rd Light World — Wabi-Sabi)
+ * Form Language: Warm raw sand porcelain, sumi charcoal ink borders, delicate
+ * gold-leaf lacquer veins, calm ceramic tiles & vermilion hanko active seals.
+ * ========================================================================= */
+[data-theme="kintsugi"] {
+  --bg-canvas: #f2ede2;
+  --bg-panel: #faf7f0;
+  --bg-elevated: #f0e9da;
+  --bg-fretboard: #c2965e;
+  --bg-nut: #f4eedf;
+  --border-subtle: rgba(34, 30, 26, 0.14);
+  --border-strong: rgba(184, 132, 36, 0.45);
+
+  --text-primary: #1f1b18;
+  --text-secondary: #51483f;
+  --text-muted: #7c7164;
+
+  --accent-root: #b88424;
+  --accent-root-ink: #ffffff;
+  --accent-scale: #3f6d52;
+  --accent-scale-ink: #ffffff;
+  --accent-char: #c23b2b;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #a85d1a;
+  --accent-micro-ink: #ffffff;
+  --accent-harmonic: #3c5f8a;
+  --accent-open: #2f6e50;
+  --accent-voicing: #9c6b1c;
+  --accent-etude: #6c4a82;
+  --accent-live: #2a7f56;
+  --accent-danger: #c23b2b;
+  --accent-radar-b: #8f3d58;
+
+  --fret-wire: #6b5d4a;
+  --fret-micro: rgba(194, 59, 43, 0.56);
+  --string-color: #2d2620;
+  --inlay-color: rgba(245, 203, 105, 0.6);
+
+  --grain-opacity: 0.04;
+  --panel-surface: linear-gradient(180deg, #fcfaf4 0%, #f5efe2 100%);
+  --shadow-panel: 0 12px 28px rgba(42, 32, 18, 0.1), 0 1px 0 rgba(255, 255, 255, 0.9);
+  --panel-inset-rim: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 1px rgba(184, 132, 36, 0.12);
+  --radius-lg: 6px;
+  --radius-md: 4px;
+  --radius-sm: 3px;
+
+  --font-body: "DM Sans", -apple-system, sans-serif;
+  --font-display: "Shippori Mincho", "Cormorant Garamond", Georgia, serif;
+  --display-tracking: 0.04em;
+  --display-transform: none;
+  --panel-border-width: 1px;
+}
+
+[data-theme="kintsugi"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(circle at 86% 10%, rgba(212, 158, 50, 0.16), transparent 44%),
+    radial-gradient(circle at 12% 84%, rgba(63, 109, 82, 0.1), transparent 45%),
+    linear-gradient(180deg, #f6f2e8 0%, #ebe4d5 100%);
+}
+
+[data-theme="kintsugi"] .panel {
+  background-image: var(--panel-surface);
+  border-color: rgba(34, 30, 26, 0.18);
+}
+
+[data-theme="kintsugi"] .brand-title {
+  color: #1f1b18;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="kintsugi"] .btn-ghost,
+[data-theme="kintsugi"] .dock-btn,
+[data-theme="kintsugi"] .zone-tab-btn,
+[data-theme="kintsugi"] .subtool-pill {
+  background: rgba(255, 252, 245, 0.88);
+  border-color: rgba(34, 30, 26, 0.18);
+  color: var(--text-primary);
+}
+
+[data-theme="kintsugi"] .dock-btn.is-open,
+[data-theme="kintsugi"] .zone-tab-btn.is-active {
+  background: #221e1a;
+  color: #f8f2e4;
+  border-color: #b88424;
+  box-shadow: 0 3px 12px rgba(34, 30, 26, 0.2);
+}
+
+[data-theme="kintsugi"] .dock-btn.is-open .dock-meta {
+  color: #f2cb72;
+}
+
+[data-theme="kintsugi"] .btn-primary {
+  background: #c23b2b;
+  color: #ffffff;
+  border-color: #9e2d20;
+  box-shadow: 0 3px 10px rgba(194, 59, 43, 0.24);
+}
+
+[data-theme="kintsugi"] .subtool-pill.is-active {
+  background: #3f6d52;
+  color: #ffffff;
+  border-color: #2f543e;
+}
+
+[data-theme="kintsugi"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 0 1px rgba(184, 132, 36, 0.2);
+}
+
+/* =========================================================================
+ * WORLD 10: BLUE NOTE · VINIL & LATÃO (1962 Reid Miles Jazz Modernism)
+ * Form Language: Crisp mid-century LP sleeve geometry, vinyl black & Prussian
+ * blue panels, brushed brass accents, high-contrast vermilion action cues.
+ * ========================================================================= */
+[data-theme="bluenote"] {
+  --bg-canvas: #070b12;
+  --bg-panel: #0e1726;
+  --bg-elevated: #152238;
+  --bg-fretboard: #131110;
+  --bg-nut: #e8dfc9;
+  --border-subtle: rgba(56, 136, 232, 0.24);
+  --border-strong: rgba(232, 168, 69, 0.48);
+
+  --text-primary: #f5efe1;
+  --text-secondary: #a8bbd4;
+  --text-muted: #6f85a3;
+
+  --accent-root: #e8a845;
+  --accent-root-ink: #0a0c10;
+  --accent-scale: #3888e8;
+  --accent-scale-ink: #ffffff;
+  --accent-char: #f05528;
+  --accent-char-ink: #ffffff;
+  --accent-micro: #f0b84a;
+  --accent-micro-ink: #120d04;
+  --accent-harmonic: #7fb2f5;
+  --accent-open: #63a4f5;
+  --accent-voicing: #f2c46d;
+  --accent-etude: #ff7e47;
+  --accent-live: #48d597;
+  --accent-danger: #f05528;
+  --accent-radar-b: #f05528;
+
+  --fret-wire: #b89e69;
+  --fret-micro: rgba(240, 85, 40, 0.62);
+  --string-color: #e4e0d5;
+  --inlay-color: rgba(242, 234, 216, 0.34);
+
+  --grain-opacity: 0.05;
+  --panel-surface: linear-gradient(180deg, rgba(18, 30, 50, 0.94) 0%, rgba(10, 16, 28, 0.98) 100%);
+  --shadow-panel: 0 20px 44px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(56, 136, 232, 0.14);
+  --panel-inset-rim: inset 0 2px 0 rgba(56, 136, 232, 0.32), inset 0 -1px 0 rgba(232, 168, 69, 0.2);
+  --radius-lg: 3px;
+  --radius-md: 3px;
+  --radius-sm: 2px;
+
+  --font-body: "Plus Jakarta Sans", -apple-system, sans-serif;
+  --font-display: "Oswald", "Space Grotesk", sans-serif;
+  --display-tracking: 0.07em;
+  --display-transform: uppercase;
+  --panel-border-width: 1.5px;
+}
+
+[data-theme="bluenote"] body {
+  background-color: var(--bg-canvas);
+  background-image:
+    radial-gradient(circle at 84% 14%, rgba(56, 136, 232, 0.2), transparent 44%),
+    radial-gradient(circle at 12% 86%, rgba(240, 85, 40, 0.12), transparent 40%),
+    linear-gradient(180deg, #0b1322 0%, #05080e 100%);
+}
+
+[data-theme="bluenote"] .panel {
+  background-image: var(--panel-surface);
+  border-color: rgba(56, 136, 232, 0.36);
+}
+
+[data-theme="bluenote"] .brand-title {
+  font-size: 1.52rem;
+  color: #f5efe1;
+  letter-spacing: 0.09em;
+  text-shadow: 2px 2px 0 rgba(56, 136, 232, 0.45);
+}
+
+[data-theme="bluenote"] .dock-btn,
+[data-theme="bluenote"] .zone-tab-btn,
+[data-theme="bluenote"] .btn-primary,
+[data-theme="bluenote"] .btn-pill {
+  border-radius: 2px;
+}
+
+[data-theme="bluenote"] .dock-btn.is-open,
+[data-theme="bluenote"] .zone-tab-btn.is-active {
+  background: #3888e8;
+  color: #ffffff;
+  border-color: #f5efe1;
+  box-shadow: 3px 3px 0 #e8a845;
+}
+
+[data-theme="bluenote"] .dock-btn.is-open .dock-meta {
+  color: #f5efe1;
+}
+
+[data-theme="bluenote"] .btn-primary {
+  background: #f05528;
+  color: #ffffff;
+  border-color: #f5efe1;
+  box-shadow: 2px 2px 0 #e8a845;
+}
+
+[data-theme="bluenote"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 34px rgba(56, 136, 232, 0.14);
+}
+
+/* Symbolic Section Title Flourishes for Worlds 8, 9 & 10 */
+[data-theme="shoegaze"] .stage-title::before,
+[data-theme="shoegaze"] .section-heading > span:first-child::before { content: "◌"; }
+
+[data-theme="kintsugi"] .stage-title::before,
+[data-theme="kintsugi"] .section-heading > span:first-child::before { content: "〇"; }
+
+[data-theme="bluenote"] .stage-title::before,
+[data-theme="bluenote"] .section-heading > span:first-child::before { content: "◉"; }

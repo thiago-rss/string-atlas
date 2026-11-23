@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.6.0",
+  "version": "8.7.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.6.0: Oud-Visualizer-Style Microphone & USB Audio Interface Compartment, Live Stage Tuner HUD & Real-Time Virtual Fretboard Note Trail)",
+  "description": "String Atlas — Modal Guitar Lab (v8.7.0: 10 Sculptural Musical Worlds — Shoegaze Mist & Offset, Kintsugi Ceramic & Silence, Blue Note Vinyl & Brass)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"
