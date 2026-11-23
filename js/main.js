@@ -1,13 +1,20 @@
 /**
- * String Atlas — Modal Guitar Lab Bootstrap v2.0
+ * String Atlas — Modal Guitar Lab Bootstrap v3.0
  */
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
 import { synthEngine } from './audio/synthEngine.js';
 import { renderDeckPanel, toggleScalePlayback } from './views/deckPanelsView.js';
-import { renderFretboard, renderInspector } from './views/fretboardView.js';
-import { renderNotationPanel } from './views/notationView.js';
+import { renderFretboard, renderInspector, highlightFretboardEtudeEvent } from './views/fretboardView.js';
+import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
 import { renderHarmonyView } from './views/harmonyView.js';
+import {
+  renderEtudeView,
+  highlightEtudeStep,
+  regenerateEtude,
+  stopEtudePlayback,
+  toggleEtudePlayback
+} from './views/etudeView.js';
 import { renderRhythmView, toggleRhythmPlayback, updateRhythmBadge } from './views/rhythmView.js';
 import { renderDossierAndOblique } from './views/dossierView.js';
 
@@ -32,6 +39,7 @@ function renderLabTabs(state) {
   if (!nav) return;
 
   const tabs = [
+    { id: 'etude', label: t(state.lang, 'tabEtude') },
     { id: 'harmony', label: t(state.lang, 'tabHarmony') },
     { id: 'rhythm', label: t(state.lang, 'tabRhythm') },
     { id: 'dossier', label: t(state.lang, 'tabDossier') }
@@ -50,6 +58,7 @@ function renderLabTabs(state) {
   };
 
   document.getElementById('tabHarmony').hidden = state.activeTab !== 'harmony';
+  document.getElementById('tabEtude').hidden = state.activeTab !== 'etude';
   document.getElementById('tabRhythm').hidden = state.activeTab !== 'rhythm';
   document.getElementById('tabDossier').hidden = state.activeTab !== 'dossier';
 }
@@ -58,10 +67,17 @@ function renderAll(state, patch = null) {
   if (patch) {
     const keys = Object.keys(patch);
 
-    // Fast path: slider updates without tearing down inputs
-    if (keys.length === 1 && keys[0] === 'bpm') return;
+    // Fast paths: live sliders & playhead cursors never tear down DOM inputs
+    if (keys.length === 1 && (keys[0] === 'bpm' || keys[0] === 'etudeBpm')) return;
     if (keys.length === 1 && keys[0] === 'rhythmBpm') {
       updateRhythmBadge(state);
+      return;
+    }
+    if (keys.length === 1 && keys[0] === 'etudeActiveIdx') {
+      highlightEtudeStep(state.etudeActiveIdx);
+      highlightNotationStep(state.etudeActiveIdx);
+      const ev = state.etudeActiveIdx >= 0 ? state.currentEtude?.events?.[state.etudeActiveIdx] : null;
+      highlightFretboardEtudeEvent(ev, state.microMode);
       return;
     }
 
@@ -91,6 +107,7 @@ function renderAll(state, patch = null) {
   renderNotationPanel(state);
   renderLabTabs(state);
   renderHarmonyView(state);
+  renderEtudeView(state);
   renderRhythmView(state);
   renderDossierAndOblique(state);
 }
@@ -113,7 +130,12 @@ function bindGlobalControls() {
     const key = ev.key.toLowerCase();
     if (ev.code === 'Space') {
       ev.preventDefault();
+      if (st.etudePlaying) stopEtudePlayback();
       toggleScalePlayback(st);
+    } else if (key === 'e') {
+      toggleEtudePlayback();
+    } else if (key === 'n') {
+      regenerateEtude();
     } else if (key === 'd') {
       const next = !st.droneOn;
       synthEngine.updateDrone(next, st.rootQ, st.droneFifth);

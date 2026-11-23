@@ -1,5 +1,5 @@
 /**
- * Pure Web Audio API 24-TET Electric Guitar & Modal Drone Synth v2.0
+ * Pure Web Audio API 24-TET Electric Guitar, Modal Drone & Procedural Etude Synth v3.0
  */
 import { qToFreq } from '../core/theory24.js';
 
@@ -11,6 +11,13 @@ class SynthEngine {
     this.delayFeedback = null;
     this.droneNodes = null;
     this.scaleTimerIds = [];
+
+    // Lookahead Procedural Etude Sequencer state
+    this.etudeTimerId = null;
+    this.etudePlaying = false;
+    this.etudeNextTime = 0;
+    this.etudeStepIdx = 0;
+    this.etudeUiTimeouts = [];
   }
 
   ensureContext() {
@@ -21,19 +28,18 @@ class SynthEngine {
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = 0.72;
 
-      // Subtle clean ambient delay bus
       this.delayNode = this.ctx.createDelay(1.0);
       this.delayNode.delayTime.value = 0.28;
 
       this.delayFeedback = this.ctx.createGain();
-      this.delayFeedback.gain.value = 0.24;
+      this.delayFeedback.gain.value = 0.22;
 
       const delayFilter = this.ctx.createBiquadFilter();
       delayFilter.type = 'lowpass';
       delayFilter.frequency.value = 2400;
 
       const delayWet = this.ctx.createGain();
-      delayWet.gain.value = 0.22;
+      delayWet.gain.value = 0.2;
 
       this.delayNode.connect(delayFilter);
       delayFilter.connect(this.delayFeedback);
@@ -51,7 +57,7 @@ class SynthEngine {
     return this.ctx;
   }
 
-  pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false, when = null } = {}) {
+  pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false, when = null, bendFromRatio = null } = {}) {
     const ctx = this.ensureContext();
     const now = when !== null ? when : ctx.currentTime;
 
@@ -77,8 +83,16 @@ class SynthEngine {
     } else {
       osc1.type = 'triangle';
       osc2.type = 'sawtooth';
-      osc1.frequency.setValueAtTime(freq, now);
-      osc2.frequency.setValueAtTime(freq * 1.0018, now);
+      if (bendFromRatio) {
+        // Subtle 50-cent expressive pitch scoop into the quarter-tone target
+        osc1.frequency.setValueAtTime(freq * bendFromRatio, now);
+        osc1.frequency.exponentialRampToValueAtTime(freq, now + 0.085);
+        osc2.frequency.setValueAtTime(freq * bendFromRatio * 1.0018, now);
+        osc2.frequency.exponentialRampToValueAtTime(freq * 1.0018, now + 0.085);
+      } else {
+        osc1.frequency.setValueAtTime(freq, now);
+        osc2.frequency.setValueAtTime(freq * 1.0018, now);
+      }
     }
 
     const mix2 = ctx.createGain();
@@ -104,9 +118,116 @@ class SynthEngine {
     this.pluckFreq(qToFreq(q), opts);
   }
 
+  /** Auditions a single etude event with authentic articulation timbre (bend scoop / harmonic bell / accent) */
+  triggerEtudeEvent(ev, { when = null, stepDur = 0.35 } = {}) {
+    const isHarmonic = ev.kind === 'harmonic';
+    const isBend = ev.articulation === 'B↑¼';
+    const vel = ev.accent ? 0.42 : 0.31;
+    const dur = isHarmonic ? Math.max(1.6, stepDur * 3.2) : Math.max(0.45, stepDur * 1.65);
+
+    this.pluckFreq(ev.freq, {
+      duration: dur,
+      velocity: vel,
+      harmonicBell: isHarmonic,
+      when,
+      // -50 cents ratio = 2^(-1/24) ≈ 0.97153
+      bendFromRatio: isBend ? 0.97153 : null
+    });
+  }
+
+  triggerGuideClick(time, accented) {
+    const ctx = this.ensureContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(accented ? 1320 : 880, time);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.linearRampToValueAtTime(accented ? 0.14 : 0.06, time + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.032);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(time);
+    osc.stop(time + 0.04);
+  }
+
   /**
-   * Strums a calculated voicing naturally from bass string to treble string
+   * Starts precision Web Audio lookahead playback for Procedural Etudes
+   * Supports live BPM changes, continuous looping, and Auto-BPM (+4 BPM per completed loop).
    */
+  startEtudeSequencer(getConfig, { onStep, onLoopBump, onComplete } = {}) {
+    this.stopEtudeSequencer();
+    const ctx = this.ensureContext();
+    this.etudePlaying = true;
+    this.etudeStepIdx = 0;
+    this.etudeNextTime = ctx.currentTime + 0.05;
+
+    this.etudeTimerId = setInterval(() => {
+      if (!this.etudePlaying) return;
+      const cfg = getConfig();
+      const events = cfg.events || [];
+      if (!events.length) {
+        this.stopEtudeSequencer();
+        if (onComplete) onComplete();
+        return;
+      }
+
+      const scheduleAhead = 0.12;
+      while (this.etudeNextTime < ctx.currentTime + scheduleAhead && this.etudePlaying) {
+        if (this.etudeStepIdx >= events.length) {
+          if (cfg.loop) {
+            this.etudeStepIdx = 0;
+            if (cfg.autoBpm && onLoopBump) {
+              onLoopBump();
+            }
+          } else {
+            const endDelay = Math.max(0, (this.etudeNextTime - ctx.currentTime) * 1000 + 120);
+            this.etudePlaying = false;
+            clearInterval(this.etudeTimerId);
+            this.etudeTimerId = null;
+            const endTid = setTimeout(() => {
+              if (onComplete) onComplete();
+            }, endDelay);
+            this.etudeUiTimeouts.push(endTid);
+            return;
+          }
+        }
+
+        const freshCfg = getConfig();
+        const bpm = Math.max(40, Math.min(220, freshCfg.bpm || 92));
+        const stepDur = (60 / bpm) * 0.5; // eighth-note steps
+        const idx = this.etudeStepIdx;
+        const ev = events[idx];
+
+        this.triggerEtudeEvent(ev, { when: this.etudeNextTime, stepDur });
+        if (freshCfg.clickOn) {
+          this.triggerGuideClick(this.etudeNextTime, Boolean(ev.accent));
+        }
+
+        const uiDelay = Math.max(0, (this.etudeNextTime - ctx.currentTime) * 1000);
+        const snapIdx = idx;
+        const snapEv = ev;
+        const tid = setTimeout(() => {
+          if (this.etudePlaying && onStep) {
+            onStep(snapIdx, snapEv);
+          }
+        }, uiDelay);
+        this.etudeUiTimeouts.push(tid);
+
+        this.etudeStepIdx += 1;
+        this.etudeNextTime += stepDur;
+      }
+    }, 25);
+  }
+
+  stopEtudeSequencer() {
+    this.etudePlaying = false;
+    if (this.etudeTimerId !== null) {
+      clearInterval(this.etudeTimerId);
+      this.etudeTimerId = null;
+    }
+    this.etudeUiTimeouts.forEach((id) => clearTimeout(id));
+    this.etudeUiTimeouts = [];
+  }
+
   strumVoicing(voicing, { spreadSec = 0.042, duration = 2.4 } = {}) {
     if (!voicing || !voicing.notes?.length) return;
     const ctx = this.ensureContext();
@@ -122,9 +243,6 @@ class SynthEngine {
     });
   }
 
-  /**
-   * Arpeggiates a voicing ascending + descending
-   */
   arpeggiateVoicing(voicing, { stepSec = 0.21 } = {}) {
     if (!voicing || !voicing.notes?.length) return;
     const ctx = this.ensureContext();
@@ -142,9 +260,6 @@ class SynthEngine {
     });
   }
 
-  /**
-   * Plays a recorded phrase from the Tab/Staff scratchpad
-   */
   playPhrase(events, { bpm = 104, onStep = null, onComplete = null } = {}) {
     if (!events || !events.length) return;
     this.stopScaleSequence();

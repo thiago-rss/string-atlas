@@ -1,8 +1,9 @@
 /**
- * Interactive 22-Fret SVG Fretboard Renderer v2.0
+ * Interactive 22-Fret SVG Fretboard Renderer v3.0
  * - 3 Microtonal Modes: 'bend' (12-TET + ↑¼), 'slide' (midpoint diamonds), 'frets24' (quarter-tone frets)
  * - Spectral Harmonics Overlay (2nd–7th partials)
- * - Phase 2: Dynamic Voicing Overlay (highlighted rings + chord spine) & Phrase Scratchpad capture
+ * - Dynamic Voicing Overlay
+ * - Phase 3: Zero-thrash Procedural Etude Playhead Ring (highlights exact string & fret live)
  */
 import {
   SPECTRAL_HARMONICS,
@@ -76,6 +77,33 @@ function getMarkerLabel(q, intervalQ, labelMode) {
   return qToNoteName(q, false);
 }
 
+/**
+ * Updates the live Etude Playhead indicator directly inside the existing SVG
+ * without rebuilding the DOM — ensures 60fps smoothness and 100% clickable controls.
+ */
+export function highlightFretboardEtudeEvent(ev, microMode) {
+  const layer = document.getElementById('etudePlayheadLayer');
+  if (!layer) return;
+  if (!ev) {
+    layer.innerHTML = '';
+    return;
+  }
+
+  const visIdx = 5 - ev.strIdx;
+  const y = TOP_Y + visIdx * STRING_GAP;
+  const x = ev.kind === 'harmonic'
+    ? fretPosToX(ev.fret)
+    : stepQToX(ev.stepQ, microMode);
+
+  const badgeText = ev.articulation || '';
+  layer.innerHTML = `
+    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="20" fill="none" stroke="var(--accent-etude)" stroke-width="3" stroke-opacity="0.95" class="etude-cursor-ring"/>
+    <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="15" fill="var(--accent-etude)" fill-opacity="0.22"/>
+    <rect x="${(x - 14).toFixed(1)}" y="${(y - 31).toFixed(1)}" width="28" height="14" rx="4" fill="var(--accent-etude)"/>
+    <text x="${x.toFixed(1)}" y="${(y - 21).toFixed(1)}" text-anchor="middle" fill="#0d1017" font-size="9" font-weight="800" font-family="ui-monospace, monospace">${badgeText}</text>
+  `;
+}
+
 export function renderFretboard(state) {
   const container = document.getElementById('fretboardContainer');
   const titleEl = document.getElementById('activeScaleTitle');
@@ -97,6 +125,7 @@ export function renderFretboard(state) {
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-scale)"></span>${t(state.lang, 'legendScale')}</span>
     <span class="legend-item"><span class="legend-diamond" style="background:var(--accent-micro)"></span>${t(state.lang, 'legendMicro')}</span>
     ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
+    ${state.activeTab === 'etude' ? `<span class="legend-item"><span class="legend-ring etude"></span>${t(state.lang, 'legendEtudeCursor')}</span>` : ''}
     ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
   `;
 
@@ -106,7 +135,6 @@ export function renderFretboard(state) {
   });
   const charSet = new Set(scale.characteristicQ || []);
 
-  // Build quick lookup for active voicing notes: key = `${strIdx}:${stepQ}`
   const voicingMap = new Map();
   if (activeVoicing) {
     activeVoicing.notes.forEach((n) => {
@@ -145,7 +173,7 @@ export function renderFretboard(state) {
     }
   }
 
-  // Strings (visIdx 0 = Str 1 high at top .. visIdx 5 = Str 6 low at bottom)
+  // Strings
   for (let visIdx = 0; visIdx < 6; visIdx += 1) {
     const stringArrIdx = 5 - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
@@ -159,7 +187,7 @@ export function renderFretboard(state) {
     parts.push(`<text x="14" y="${y + 4}" fill="var(--text-muted)" font-size="10.5" font-family="ui-monospace, monospace">${visIdx + 1}</text>`);
   }
 
-  // Optional subtle chord spine connecting active voicing notes before drawing note heads
+  // Voicing spine
   if (activeVoicing && activeVoicing.notes.length >= 2) {
     const pts = activeVoicing.notes
       .map((n) => {
@@ -172,7 +200,7 @@ export function renderFretboard(state) {
     parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3" stroke-opacity="0.48" stroke-linecap="round" stroke-linejoin="round"/>`);
   }
 
-  // Draw Open Strings, Harmonics, Scale Nodes, and any out-of-scale Voicing Nodes
+  // Open Strings, Harmonics, Scale & Voicing Nodes
   for (let visIdx = 0; visIdx < 6; visIdx += 1) {
     const stringArrIdx = 5 - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
@@ -251,7 +279,6 @@ export function renderFretboard(state) {
 
       parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
 
-      // Golden outer halo when note belongs to active Voicing
       if (voicingHit) {
         parts.push(`<circle cx="${cx}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
       }
@@ -273,8 +300,15 @@ export function renderFretboard(state) {
     }
   }
 
+  // Dedicated top layer for live Etude Playhead highlight (pointer-events: none)
+  parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
   parts.push('</svg>');
   container.innerHTML = parts.join('');
+
+  // Restore active etude playhead if stepping or playing
+  if (state.etudeActiveIdx >= 0 && state.currentEtude?.events?.[state.etudeActiveIdx]) {
+    highlightFretboardEtudeEvent(state.currentEtude.events[state.etudeActiveIdx], state.microMode);
+  }
 
   const svgEl = container.querySelector('svg');
   svgEl.onclick = (ev) => {
@@ -303,7 +337,6 @@ export function renderFretboard(state) {
 
     synthEngine.pluckQ(q, { duration: 1.7, velocity: 0.36 });
 
-    // Append clicked note into Phrase Scratchpad (rolling window up to 16 events)
     const curState = getState();
     const nextPhrase = [
       ...curState.phraseEvents,

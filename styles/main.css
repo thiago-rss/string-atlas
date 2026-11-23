@@ -27,6 +27,7 @@
   --accent-harmonic: #82aaff;
   --accent-open: #6bd98e;
   --accent-voicing: #ffd166;
+  --accent-etude: #38e8ff;
 
   --fret-wire: #5c6370;
   --fret-micro: rgba(240, 140, 75, 0.45);
@@ -63,6 +64,7 @@
   --accent-harmonic: #3b6fd8;
   --accent-open: #2a9454;
   --accent-voicing: #b87400;
+  --accent-etude: #0077b6;
 
   --fret-wire: #8b8175;
   --fret-micro: rgba(240, 140, 75, 0.55);
@@ -979,4 +981,139 @@ button:disabled {
   background: var(--accent-scale);
   color: var(--accent-scale-ink);
   box-shadow: 0 0 12px rgba(76, 201, 176, 0.55);
+}
+
+/* =========================================================================
+ * Phase 3 Additions: Procedural Etude Studio & Live Playhead Highlight
+ * ========================================================================= */
+
+.legend-ring.etude {
+  border-color: var(--accent-etude);
+}
+
+.etude-cursor-ring {
+  filter: drop-shadow(0 0 8px var(--accent-etude));
+}
+
+.not-col.is-active-col .not-col-bg {
+  fill-opacity: 0.22;
+}
+
+.not-col:hover .not-col-bg {
+  fill-opacity: 0.1;
+}
+
+.etude-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+  .etude-config-grid .control-group[style*="span 2"] {
+    grid-column: span 1 !important;
+  }
+}
+
+.etude-transport-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.etude-focus-banner {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border-left: 3px solid var(--accent-etude);
+  margin-bottom: 12px;
+}
+
+.etude-focus-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.etude-step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 7px;
+}
+
+.etude-step-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  transition: transform 0.08s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.etude-step-tile:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.etude-step-tile.is-accent {
+  border-top: 3px solid var(--accent-root);
+}
+
+.etude-step-tile.is-micro {
+  border-color: var(--accent-micro);
+}
+
+.etude-step-tile.is-harm {
+  border-color: var(--accent-harmonic);
+}
+
+.etude-step-tile.is-now {
+  background: var(--accent-etude);
+  color: #0b111a;
+  border-color: #ffffff;
+  transform: scale(1.06);
+  box-shadow: 0 0 14px rgba(56, 232, 255, 0.5);
+}
+
+.etude-step-tile.is-now .etude-step-art,
+.etude-step-tile.is-now .etude-step-pos {
+  color: #0b111a;
+}
+
+.etude-step-art {
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--accent-scale);
+}
+
+.etude-step-tile.is-micro .etude-step-art {
+  color: var(--accent-micro);
+}
+
+.etude-step-tile.is-harm .etude-step-art {
+  color: var(--accent-harmonic);
+}
+
+.etude-step-note {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.etude-step-pos {
+  font-family: ui-monospace, monospace;
+  font-size: 0.69rem;
+  color: var(--text-muted);
 }

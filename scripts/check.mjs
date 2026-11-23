@@ -1,5 +1,5 @@
 /**
- * Pre-commit integrity validator for String Atlas v2.0
+ * Pre-commit integrity validator for String Atlas v3.0
  * Run: node scripts/check.mjs
  */
 import fs from 'node:fs';
@@ -7,6 +7,11 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { DB } from '../js/core/database.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
+import {
+  ETUDE_PATTERNS,
+  exportEtudeToAsciiTab,
+  generateEtude
+} from '../js/core/etudeGenerator.js';
 
 const ROOT = process.cwd();
 let errors = 0;
@@ -28,12 +33,14 @@ const jsFiles = [
   'js/core/database.js',
   'js/core/i18n.js',
   'js/core/voicingEngine.js',
+  'js/core/etudeGenerator.js',
   'js/audio/synthEngine.js',
   'js/audio/rhythmEngine.js',
   'js/views/fretboardView.js',
   'js/views/deckPanelsView.js',
   'js/views/notationView.js',
   'js/views/harmonyView.js',
+  'js/views/etudeView.js',
   'js/views/rhythmView.js',
   'js/views/dossierView.js'
 ];
@@ -70,7 +77,7 @@ for (const s of DB.scales) {
 }
 ok(`Validated ${DB.scales.length} scales in 24-TET catalog`);
 
-// 3. Validate DB.chords & Voicing Solver across Standard + DADGAD
+// 3. Validate DB.chords & Voicing Solver
 const chordIds = new Set();
 const stdTuning = DB.tunings[0];
 for (const c of DB.chords) {
@@ -89,7 +96,55 @@ for (const c of DB.chords) {
 }
 ok(`Validated ${DB.chords.length} experimental chords & voicing solver`);
 
-// 4. Validate DB.rhythms
+// 4. Validate Procedural Etude Generator across patterns, scales & tunings
+const sampleScales = [
+  DB.scales.find((s) => s.id === 'maqam_bayati'),
+  DB.scales.find((s) => s.id === 'messiaen_mode3'),
+  DB.scales.find((s) => s.id === 'set_viennese_016')
+].filter(Boolean);
+
+const sampleTunings = [
+  DB.tunings.find((t) => t.id === 'standard'),
+  DB.tunings.find((t) => t.id === 'dadgad'),
+  DB.tunings.find((t) => t.id === 'all_fourths')
+].filter(Boolean);
+
+let etudeCombos = 0;
+for (const pat of ETUDE_PATTERNS) {
+  for (const sc of sampleScales) {
+    for (const tun of sampleTunings) {
+      const etude = generateEtude({
+        scale: sc,
+        rootQ: 4,
+        stringsQ: tun.stringsQ,
+        microMode: 'bend',
+        patternId: pat.id,
+        zoneId: 'mid',
+        groupingId: 'group5',
+        length: 16,
+        direction: 'pendulum',
+        seed: 3
+      });
+      if (!etude.events || etude.events.length === 0) {
+        fail(`Etude generator returned 0 events for ${pat.id} x ${sc.id} x ${tun.id}`);
+      }
+      const ascii = exportEtudeToAsciiTab({
+        etude,
+        scaleName: sc.namePt,
+        rootQ: 4,
+        stringsQ: tun.stringsQ,
+        microMode: 'bend'
+      });
+      if (!ascii.includes('|')) {
+        fail(`ASCII tab export invalid for ${pat.id}`);
+      }
+      etudeCombos += 1;
+    }
+  }
+}
+ok(`Validated ${ETUDE_PATTERNS.length} procedural etude patterns (${etudeCombos} combinations + ASCII tab export)`);
+
+// 5. Validate DB.rhythms
 const rhythmIds = new Set();
 const validHits = new Set(['D', 'T', 'K', '-']);
 for (const r of DB.rhythms) {
@@ -104,7 +159,7 @@ for (const r of DB.rhythms) {
 }
 ok(`Validated ${DB.rhythms.length} Iqa'at & Aksak rhythmic cycles`);
 
-// 5. Validate DB.tunings
+// 6. Validate DB.tunings
 const tuningIds = new Set();
 for (const tun of DB.tunings) {
   if (tuningIds.has(tun.id)) fail(`Duplicate tuning id: ${tun.id}`);
@@ -113,7 +168,7 @@ for (const tun of DB.tunings) {
 }
 ok(`Validated ${DB.tunings.length} scordatura tunings`);
 
-// 6. Validate Oblique Strategy presets
+// 7. Validate Oblique Strategy presets
 for (const card of DB.obliqueStrategies) {
   if (!scaleIds.has(card.preset.scaleId)) {
     fail(`Oblique card ${card.id} references unknown scaleId: ${card.preset.scaleId}`);
@@ -133,7 +188,7 @@ for (const card of DB.obliqueStrategies) {
 }
 ok(`Validated ${DB.obliqueStrategies.length} Oblique Lab presets`);
 
-// 7. Validate sw.js CORE_ASSETS exist on disk
+// 8. Validate sw.js CORE_ASSETS exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
 for (const asset of assetMatches) {
@@ -149,4 +204,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v2.0 integrity checks passed.');
+console.log('\nAll String Atlas v3.0 integrity checks passed.');

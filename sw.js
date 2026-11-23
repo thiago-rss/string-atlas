@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v2.0.0';
+const CACHE_NAME = 'string-atlas-v3.0.0';
 
 const CORE_ASSETS = [
   './',
@@ -12,12 +12,14 @@ const CORE_ASSETS = [
   './js/core/database.js',
   './js/core/i18n.js',
   './js/core/voicingEngine.js',
+  './js/core/etudeGenerator.js',
   './js/audio/synthEngine.js',
   './js/audio/rhythmEngine.js',
   './js/views/fretboardView.js',
   './js/views/deckPanelsView.js',
   './js/views/notationView.js',
   './js/views/harmonyView.js',
+  './js/views/etudeView.js',
   './js/views/rhythmView.js',
   './js/views/dossierView.js'
 ];

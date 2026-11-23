@@ -1,10 +1,11 @@
 /**
- * Reactive Unidirectional Store v2.0
+ * Reactive Unidirectional Store v3.0
  */
 import { DB } from '../core/database.js';
 import { generateVoicings } from '../core/voicingEngine.js';
+import { generateEtude } from '../core/etudeGenerator.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v2';
+const STORAGE_KEY = 'string_atlas_prefs_v3';
 
 function loadSavedPrefs() {
   try {
@@ -31,7 +32,7 @@ function savePrefs(state) {
 
 const saved = loadSavedPrefs();
 const defaultTuning = DB.tunings[0];
-const defaultRhythm = DB.rhythms[1]; // Sama'i Thaqil 10/8 — immediately showcases experimental identity
+const defaultRhythm = DB.rhythms[1]; // Sama'i Thaqil 10/8
 
 const state = {
   lang: saved.lang === 'en' ? 'en' : 'pt',
@@ -41,7 +42,7 @@ const state = {
   category: 'all',
   scaleId: 'maqam_bayati',
   rootQ: 4, // D
-  customScaleIntervalsQ: null, // optional projection from custom pitch-class set
+  customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
   tuningId: defaultTuning.id,
@@ -59,23 +60,38 @@ const state = {
   bpm: 96,
   inspectedNote: null,
 
-  // Phase 2: Workspace tab ('harmony' | 'rhythm' | 'dossier')
-  activeTab: 'harmony',
+  // Workspace tab ('harmony' | 'etude' | 'rhythm' | 'dossier')
+  activeTab: 'etude',
 
   // Phase 2: Harmony & Voicing Lab
   harmonyMode: 'catalog', // 'catalog' | 'custom'
   chordId: 'quartal_3',
-  customSetIntervalsQ: [0, 2, 12], // Viennese [0,1,6] default in builder
-  voicingOverlayOn: true,
+  customSetIntervalsQ: [0, 2, 12],
+  voicingOverlayOn: false,
   selectedVoicingIdx: 0,
   computedVoicings: [],
 
-  // Phase 2: Synchronized 24-TET Notation & Tablature
-  notationMode: 'voicing', // 'voicing' | 'scale' | 'phrase'
-  phraseEvents: [], // [{ q, guitarStr, fret, isMicro, intervalQ }]
+  // Phase 3: Procedural Experimental Etude Lab
+  etudePatternId: 'micro_bend_lab',
+  etudeZoneId: 'mid',
+  etudeGroupingId: 'group5',
+  etudeLength: 16,
+  etudeDirection: 'pendulum',
+  etudeSeed: 1,
+  etudeBpm: 92,
+  etudeLoop: true,
+  etudeAutoBpm: false,
+  etudeClick: true,
+  etudePlaying: false,
+  etudeActiveIdx: -1,
+  currentEtude: null,
+
+  // Synchronized 24-TET Notation & Tablature ('voicing' | 'etude' | 'scale' | 'phrase')
+  notationMode: 'etude',
+  phraseEvents: [],
 
   // Phase 2: Universal Rhythm & Polymeter Engine
-  rhythmFilter: 'all', // 'all' | 'iqa' | 'aksak'
+  rhythmFilter: 'all',
   rhythmId: defaultRhythm.id,
   rhythmSteps: [...defaultRhythm.steps],
   rhythmBpm: 112,
@@ -86,19 +102,6 @@ const state = {
   // Oblique Lab
   obliqueIndex: 0
 };
-
-function recomputeVoicings() {
-  const intervalsQ = getActiveChordIntervalsQ();
-  state.computedVoicings = generateVoicings({
-    rootQ: state.rootQ,
-    intervalsQ,
-    stringsQ: state.customStringsQ,
-    limit: 12
-  });
-  if (state.selectedVoicingIdx >= state.computedVoicings.length) {
-    state.selectedVoicingIdx = 0;
-  }
-}
 
 export function getActiveChordIntervalsQ() {
   if (state.harmonyMode === 'custom') {
@@ -150,8 +153,40 @@ export function getActiveTuning() {
   return DB.tunings.find((t) => t.id === state.tuningId) || DB.tunings[0];
 }
 
-// Initial voicing computation
+function recomputeVoicings() {
+  const intervalsQ = getActiveChordIntervalsQ();
+  state.computedVoicings = generateVoicings({
+    rootQ: state.rootQ,
+    intervalsQ,
+    stringsQ: state.customStringsQ,
+    limit: 12
+  });
+  if (state.selectedVoicingIdx >= state.computedVoicings.length) {
+    state.selectedVoicingIdx = 0;
+  }
+}
+
+function recomputeEtude() {
+  state.currentEtude = generateEtude({
+    scale: getActiveScale(),
+    rootQ: state.rootQ,
+    stringsQ: state.customStringsQ,
+    microMode: state.microMode,
+    patternId: state.etudePatternId,
+    zoneId: state.etudeZoneId,
+    groupingId: state.etudeGroupingId,
+    length: state.etudeLength,
+    direction: state.etudeDirection,
+    seed: state.etudeSeed
+  });
+  if (state.etudeActiveIdx >= state.currentEtude.events.length) {
+    state.etudeActiveIdx = -1;
+  }
+}
+
+// Initial computation
 recomputeVoicings();
+recomputeEtude();
 
 const listeners = new Set();
 
@@ -173,11 +208,30 @@ const VOICING_AFFECTING_KEYS = new Set([
   'customSetIntervalsQ'
 ]);
 
+const ETUDE_AFFECTING_KEYS = new Set([
+  'scaleId',
+  'customScaleIntervalsQ',
+  'rootQ',
+  'customStringsQ',
+  'tuningId',
+  'microMode',
+  'etudePatternId',
+  'etudeZoneId',
+  'etudeGroupingId',
+  'etudeLength',
+  'etudeDirection',
+  'etudeSeed'
+]);
+
 export function setState(patch) {
   Object.assign(state, patch);
 
-  if (Object.keys(patch).some((k) => VOICING_AFFECTING_KEYS.has(k))) {
+  const patchKeys = Object.keys(patch);
+  if (patchKeys.some((k) => VOICING_AFFECTING_KEYS.has(k))) {
     recomputeVoicings();
+  }
+  if (patchKeys.some((k) => ETUDE_AFFECTING_KEYS.has(k))) {
+    recomputeEtude();
   }
 
   if ('lang' in patch || 'theme' in patch) {

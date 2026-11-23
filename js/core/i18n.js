@@ -1,5 +1,5 @@
 /**
- * Bilingual UI Dictionary (PT / EN) — v2.0
+ * Bilingual UI Dictionary (PT / EN) — v3.0
  */
 
 export const I18N = {
@@ -35,15 +35,18 @@ export const I18N = {
     legendMicro: 'Quarto de Tom (24-TET)',
     legendHarm: 'Harmônico Natural',
     legendVoicing: 'Voicing Ativo',
+    legendEtudeCursor: 'Passo do Etude',
 
     // Tabs
     tabHarmony: 'Harmonia & Voicings',
+    tabEtude: 'Etudes Procedurais',
     tabRhythm: 'Ritmo (Iqa’at & Polimetria)',
     tabDossier: 'Dossiê & Lab Oblíquo',
 
     // Notation & Tab Panel
     notationTitle: 'Partitura 24-TET & Tablatura (8vb)',
     notModeVoicing: 'Voicing Ativo',
+    notModeEtude: 'Etude Procedural',
     notModeScale: 'Escala (1 Oitava)',
     notModePhrase: 'Frase Gravada',
     phrasePlay: '▶ Ouvir Frase',
@@ -68,6 +71,36 @@ export const I18N = {
     customSetHint: 'Ative graus em 24-TET para criar seu próprio conjunto/acorde, ver o Vetor Intervalar de Allen Forte e calcular voicings instantâneos na afinação atual:',
     customSetReset: 'Resetar [0, 1, 6]',
     customSetApplyScale: 'Usar como Escala no Braço',
+
+    // Phase 3: Procedural Etude Lab
+    etudeTitle: 'Gerador de Etudes Procedurais & Técnica Experimental',
+    etudePatternLabel: 'Padrão Mecânico / Experimental',
+    etudeZoneLabel: 'Região do Braço',
+    etudeGroupingLabel: 'Acentuação / Pulso',
+    etudeLengthLabel: 'Tamanho (Passos)',
+    etudeDirectionLabel: 'Contorno',
+    dirAsc: 'Ascendente',
+    dirDesc: 'Descendente',
+    dirPendulum: 'Pêndulo (Ida/Volta)',
+    dirRandom: 'Angular / Aleatório',
+    etudePlay: '▶ Tocar Etude',
+    etudeStop: '■ Parar Etude',
+    etudeRegenerate: '↻ Nova Variação',
+    etudeLoop: 'Loop',
+    etudeAutoBpm: 'Auto +4 BPM',
+    etudeClick: 'Clique-Guia',
+    etudeStepPrev: '◀ Passo',
+    etudeStepNext: 'Passo ▶',
+    etudeCopyTab: 'Copiar Tab ASCII',
+    etudeCopiedTab: '✔ Tab Copiada!',
+    etudeDownloadTab: 'Baixar .txt',
+    etudeShowInTab: 'Ver na Partitura/Tab',
+    etudeStatsNotes: 'Notas',
+    etudeStatsMicro: 'Microtons',
+    etudeStatsSkips: 'Saltos de Corda',
+    etudeStatsHarm: 'Harmônicos',
+    etudeStatsFrets: 'Casas',
+    etudeLegendPick: 'Articulação: ↓/↑ Palheta · H/P Legato · S Slide · B↑¼ Bend +50¢ · ◇ Harmônico',
 
     // Rhythm Lab
     rhythmTitle: 'Motor Rítmico Universal · Iqa’at Árabes, Aksak & Polimetria',
@@ -98,7 +131,7 @@ export const I18N = {
     obliqueTitle: 'Lab Oblíquo · Experimentação',
     obliqueDraw: 'Sortear Experimento',
     obliqueApply: 'Aplicar Preset Completo',
-    footerTip: 'Atalhos: Espaço = Tocar/Parar escala · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing',
+    footerTip: 'Atalhos: Espaço = Escala · E = Etude · N = Nova Variação · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing',
     inspNote: 'Nota',
     inspFreq: 'Freq',
     inspDegree: 'Grau',
@@ -145,15 +178,18 @@ export const I18N = {
     legendMicro: 'Quarter-Tone (24-TET)',
     legendHarm: 'Natural Harmonic',
     legendVoicing: 'Active Voicing',
+    legendEtudeCursor: 'Etude Playhead',
 
     // Tabs
     tabHarmony: 'Harmony & Voicings',
+    tabEtude: 'Procedural Etudes',
     tabRhythm: 'Rhythm (Iqa’at & Polymeter)',
     tabDossier: 'Dossier & Oblique Lab',
 
     // Notation & Tab Panel
     notationTitle: '24-TET Staff & Tablature (8vb)',
     notModeVoicing: 'Active Voicing',
+    notModeEtude: 'Procedural Etude',
     notModeScale: 'Scale (1 Octave)',
     notModePhrase: 'Recorded Phrase',
     phrasePlay: '▶ Play Phrase',
@@ -178,6 +214,36 @@ export const I18N = {
     customSetHint: 'Toggle 24-TET degrees to craft your own pitch-class set, inspect its Allen Forte Interval Vector, and compute playable voicings on the active tuning:',
     customSetReset: 'Reset [0, 1, 6]',
     customSetApplyScale: 'Project Set onto Scale View',
+
+    // Phase 3: Procedural Etude Lab
+    etudeTitle: 'Procedural Experimental Etude & Technique Generator',
+    etudePatternLabel: 'Mechanical / Experimental Pattern',
+    etudeZoneLabel: 'Fretboard Zone',
+    etudeGroupingLabel: 'Accent Grouping',
+    etudeLengthLabel: 'Length (Steps)',
+    etudeDirectionLabel: 'Contour',
+    dirAsc: 'Ascending',
+    dirDesc: 'Descending',
+    dirPendulum: 'Pendulum (Up/Down)',
+    dirRandom: 'Angular / Random',
+    etudePlay: '▶ Play Etude',
+    etudeStop: '■ Stop Etude',
+    etudeRegenerate: '↻ New Variation',
+    etudeLoop: 'Loop',
+    etudeAutoBpm: 'Auto +4 BPM',
+    etudeClick: 'Guide Click',
+    etudeStepPrev: '◀ Step',
+    etudeStepNext: 'Step ▶',
+    etudeCopyTab: 'Copy ASCII Tab',
+    etudeCopiedTab: '✔ Tab Copied!',
+    etudeDownloadTab: 'Download .txt',
+    etudeShowInTab: 'View in Staff/Tab',
+    etudeStatsNotes: 'Notes',
+    etudeStatsMicro: 'Microtones',
+    etudeStatsSkips: 'String Skips',
+    etudeStatsHarm: 'Harmonics',
+    etudeStatsFrets: 'Frets',
+    etudeLegendPick: 'Articulation: ↓/↑ Pick · H/P Legato · S Slide · B↑¼ +50¢ Bend · ◇ Harmonic',
 
     // Rhythm Lab
     rhythmTitle: 'Universal Rhythm Engine · Arabic Iqa’at, Aksak & Polymeter',
@@ -208,7 +274,7 @@ export const I18N = {
     obliqueTitle: 'Oblique Lab · Experiments',
     obliqueDraw: 'Draw New Card',
     obliqueApply: 'Apply Full Preset',
-    footerTip: 'Shortcuts: Space = Play/Stop scale · D = Drone · H = Harmonics · R = Rhythm · V = Voicing',
+    footerTip: 'Shortcuts: Space = Scale · E = Etude · N = New Variation · D = Drone · H = Harmonics · R = Rhythm · V = Voicing',
     inspNote: 'Note',
     inspFreq: 'Freq',
     inspDegree: 'Degree',

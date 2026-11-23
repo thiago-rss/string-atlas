@@ -158,6 +158,7 @@ export function renderDeckPanel(state) {
   };
 
   panel.querySelector('#selTuning').onchange = (e) => {
+    stopPlaybackIfNeeded();
     const tun = DB.tunings.find((item) => item.id === e.target.value) || DB.tunings[0];
     setState({ tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
   };
@@ -224,7 +225,8 @@ export function renderDeckPanel(state) {
 
 export function stopPlaybackIfNeeded() {
   synthEngine.stopScaleSequence();
-  setState({ isPlayingScale: false, playingPcQ: null });
+  synthEngine.stopEtudeSequencer();
+  setState({ isPlayingScale: false, playingPcQ: null, etudePlaying: false, etudeActiveIdx: -1 });
 }
 
 export function toggleScalePlayback(state) {
