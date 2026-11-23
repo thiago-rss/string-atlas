@@ -3,7 +3,14 @@
  * Renders each design card using its authentic typography, binding strip, inlay silhouette & swatches.
  */
 import { THEMES, getThemeById } from '../core/themes.js';
-import { getThemeBackdropWatermarkSvg, getThemeHeaderBannerSvg } from '../core/themeGraphics.js';
+import {
+  getThemeBackdropWatermarkSvg,
+  getThemeBrandMedallionSvg,
+  getThemeCornerFiligreeSvg,
+  getThemeFooterOrnamentSvg,
+  getThemeHeaderBannerSvg,
+  getThemePanelCrownSvg
+} from '../core/themeGraphics.js';
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
 
@@ -29,12 +36,42 @@ export function updateThemeHeaderButton(state) {
     metaTheme.setAttribute('content', th.themeColor);
   }
 
-  // Inject bespoke inline SVG header artwork & subtle background architectural watermark
+  // Inject all 6 bespoke inline SVG ornamental layers cleanly (zero-thrash cache check per theme)
   const ornBar = document.getElementById('themeOrnamentBar');
   if (ornBar && ornBar.dataset.renderedTheme !== th.id) {
     ornBar.innerHTML = getThemeHeaderBannerSvg(th.id);
     ornBar.dataset.renderedTheme = th.id;
   }
+
+  const brandMed = document.getElementById('brandMedallion');
+  if (brandMed && brandMed.dataset.renderedTheme !== th.id) {
+    brandMed.innerHTML = getThemeBrandMedallionSvg(th.id);
+    brandMed.dataset.renderedTheme = th.id;
+  }
+
+  const footerOrn = document.getElementById('themeFooterOrnament');
+  if (footerOrn && footerOrn.dataset.renderedTheme !== th.id) {
+    footerOrn.innerHTML = getThemeFooterOrnamentSvg(th.id);
+    footerOrn.dataset.renderedTheme = th.id;
+  }
+
+  const fbCrown = document.getElementById('fretboardCrown');
+  if (fbCrown && fbCrown.dataset.renderedTheme !== th.id) {
+    fbCrown.innerHTML = getThemePanelCrownSvg(th.id);
+    fbCrown.dataset.renderedTheme = th.id;
+  }
+
+  const cornerSvg = getThemeCornerFiligreeSvg(th.id);
+  document.querySelectorAll('.panel-corners[data-corner-mount]').forEach((mount) => {
+    if (mount.dataset.renderedTheme === th.id) return;
+    mount.innerHTML = `
+      <span class="corner-finial c-tl">${cornerSvg}</span>
+      <span class="corner-finial c-tr">${cornerSvg}</span>
+      <span class="corner-finial c-bl">${cornerSvg}</span>
+      <span class="corner-finial c-br">${cornerSvg}</span>
+    `;
+    mount.dataset.renderedTheme = th.id;
+  });
 
   const backdrop = document.getElementById('themeStageBackdrop');
   if (backdrop && backdrop.dataset.renderedTheme !== th.id) {

@@ -264,12 +264,19 @@ function renderThematicInlays({ fbSkin, numStrings, boardTop, boardH }) {
         out.push(drawStar(midY, Math.min(14, fretW * 0.34), 4.8));
       }
     } else {
-      // Clean Studio Pearloid Dots
+      // Heirloom 8-Pointed Andalusian / Oud Mother-of-Pearl & Gold Star Inlays (Rub el Hizb)
+      const drawOudStar = (gy, r) => `
+        <g transform="translate(${cx.toFixed(1)},${gy.toFixed(1)})">
+          <rect x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(r * 2).toFixed(1)}" height="${(r * 2).toFixed(1)}" fill="url(#saPearlGrad)" fill-opacity="0.28" stroke="${fbSkin.bindingColor}" stroke-opacity="0.58" stroke-width="0.85"/>
+          <rect x="${(-r).toFixed(1)}" y="${(-r).toFixed(1)}" width="${(r * 2).toFixed(1)}" height="${(r * 2).toFixed(1)}" transform="rotate(45)" fill="url(#saPearlGrad)" fill-opacity="0.28" stroke="${fbSkin.bindingColor}" stroke-opacity="0.58" stroke-width="0.85"/>
+          <circle r="${(r * 0.36).toFixed(1)}" fill="${fbSkin.bindingColor}" fill-opacity="0.55"/>
+        </g>
+      `;
       if (f === 12) {
-        out.push(`<circle cx="${cx.toFixed(1)}" cy="${(TOP_Y + STRING_GAP * 1.5).toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
-        out.push(`<circle cx="${cx.toFixed(1)}" cy="${(TOP_Y + STRING_GAP * (numStrings - 2.5)).toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
+        out.push(drawOudStar(TOP_Y + STRING_GAP * 1.5, 6.8));
+        out.push(drawOudStar(TOP_Y + STRING_GAP * (numStrings - 2.5), 6.8));
       } else {
-        out.push(`<circle cx="${cx.toFixed(1)}" cy="${midY.toFixed(1)}" r="6.2" fill="url(#saPearlGrad)" fill-opacity="0.34" stroke="${fbSkin.inlayStroke}" stroke-width="0.9"/>`);
+        out.push(drawOudStar(midY, Math.min(7.2, fretW * 0.19)));
       }
     }
 
@@ -524,12 +531,28 @@ export function renderFretboard(state) {
   parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${svgH}" role="img" aria-label="${rootName} ${scaleName}">`);
   parts.push(buildFretboardDefs(fbSkin));
 
-  // Headstock transition area (behind the nut)
-  parts.push(`<rect x="10" y="${boardTop - 4}" width="${NUT_X - 18}" height="${boardH + 8}" rx="6" fill="${fbSkin.headstockFill}" fill-opacity="0.88" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`);
+  // Engraved Headstock Transition Plaque (behind the nut)
+  parts.push(`<rect x="8" y="${boardTop - 6}" width="${NUT_X - 16}" height="${boardH + 12}" rx="6" fill="${fbSkin.headstockFill}" fill-opacity="0.92" stroke="${fbSkin.bindingColor}" stroke-opacity="0.35" stroke-width="1.2"/>`);
+  parts.push(`<rect x="12" y="${boardTop - 2}" width="${NUT_X - 24}" height="${boardH + 4}" rx="4" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.18" stroke-width="0.8" stroke-dasharray="3 3"/>`);
 
-  // Top & Bottom Neck Binding Strips (authentic luthier trim)
-  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop - 6}" width="${boardW + 10}" height="6" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
-  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop + boardH}" width="${boardW + 10}" height="6" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  // Top & Bottom Neck Binding Strips + Intricate Marquetry Purfling Line
+  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop - 7}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  parts.push(`<line x1="${NUT_X}" y1="${boardTop - 1.5}" x2="${SVG_W - RIGHT_PAD}" y2="${boardTop - 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
+  parts.push(`<rect x="${NUT_X - 10}" y="${boardTop + boardH}" width="${boardW + 10}" height="7" rx="2" fill="${fbSkin.bindingColor}" stroke="${fbSkin.bindingStroke}" stroke-width="0.9"/>`);
+  parts.push(`<line x1="${NUT_X}" y1="${boardTop + boardH + 1.5}" x2="${SVG_W - RIGHT_PAD}" y2="${boardTop + boardH + 1.5}" stroke="${fbSkin.bindingStroke}" stroke-opacity="0.7" stroke-width="1" stroke-dasharray="4 3"/>`);
+
+  // Right-Edge Instrument Body Ornament (Andalusian Soundhole Rosette Arc or Boutique Pickup Bezel)
+  const rightEndX = SVG_W - RIGHT_PAD;
+  const centerBoardY = boardTop + boardH / 2;
+  if (['layl', 'nahar', 'brazilian'].includes(state.theme)) {
+    parts.push(`<path d="M${rightEndX} ${boardTop + 10} A 78 96 0 0 0 ${rightEndX} ${boardTop + boardH - 10}" fill="none" stroke="${fbSkin.bindingColor}" stroke-opacity="0.52" stroke-width="2.2"/>`);
+    parts.push(`<path d="M${rightEndX} ${boardTop + 18} A 70 88 0 0 0 ${rightEndX} ${boardTop + boardH - 18}" fill="none" stroke="var(--accent-root)" stroke-opacity="0.55" stroke-width="1.3" stroke-dasharray="3 3"/>`);
+  } else {
+    parts.push(`<rect x="${rightEndX + 2}" y="${boardTop + 6}" width="14" height="${boardH - 12}" rx="3" fill="${fbSkin.headstockFill}" stroke="${fbSkin.bindingColor}" stroke-opacity="0.48" stroke-width="1"/>`);
+    for (let pi = 0; pi < numStrings; pi += 1) {
+      parts.push(`<circle cx="${rightEndX + 9}" cy="${TOP_Y + pi * STRING_GAP}" r="3.1" fill="url(#saFretGrad)" stroke="rgba(0,0,0,0.65)" stroke-width="0.8"/>`);
+    }
+  }
 
   // Main radiused wood / carbon fretboard surface + texture overlay
   parts.push(`<rect x="${NUT_X}" y="${boardTop}" width="${boardW}" height="${boardH}" fill="url(#saWoodGrad)"/>`);
@@ -721,8 +744,12 @@ export function renderFretboard(state) {
       } else if (inScale && inRadarB) {
         parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
       } else if (isRoot) {
-        // Crown halo ring for instant tonic orientation
-        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.2" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.72"/>`);
+        // Ornate Mystic Crown Halo with 4 Cardinal Star Points around every Tonic
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${y}" r="15.8" fill="none" stroke="var(--accent-root)" stroke-width="1.4" stroke-opacity="0.78"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${(y - 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
+        parts.push(`<circle cx="${cx.toFixed(1)}" cy="${(y + 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
+        parts.push(`<circle cx="${(cx - 16).toFixed(1)}" cy="${y}" r="1.8" fill="var(--accent-root)"/>`);
+        parts.push(`<circle cx="${(cx + 16).toFixed(1)}" cy="${y}" r="1.8" fill="var(--accent-root)"/>`);
       }
 
       parts.push(renderThemedNoteMarker({

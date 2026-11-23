@@ -21,7 +21,7 @@
     <div id="themeOrnamentBar" class="theme-ornament-bar" aria-hidden="true"></div>
     <header class="topbar">
       <div class="brand">
-        <img src="./assets/icons/icon.svg" alt="String Atlas Logo" class="brand-icon" width="34" height="34" />
+        <div id="brandMedallion" class="brand-medallion" aria-hidden="true"></div>
         <div>
           <h1 class="brand-title">String Atlas</h1>
           <p class="brand-subtitle" data-i18n="subtitle">Modal Guitar Lab · 24-TET</p>
@@ -51,10 +51,15 @@
 
     <main class="workspace">
       <!-- Control Deck + Studio Tone & FX Rack -->
-      <section class="panel deck-panel" id="deckPanel" aria-label="Lab Controls"></section>
+      <div class="ornament-shell deck-shell">
+        <div class="panel-corners" data-corner-mount="deck" aria-hidden="true"></div>
+        <section class="panel deck-panel" id="deckPanel" aria-label="Lab Controls"></section>
+      </div>
 
       <!-- Fretboard Stage -->
       <section class="panel fretboard-panel" aria-label="Interactive 24-TET Fretboard">
+        <div id="fretboardCrown" class="stage-crown-crest" aria-hidden="true"></div>
+        <div class="panel-corners" data-corner-mount="fretboard" aria-hidden="true"></div>
         <div class="fretboard-header">
           <div class="fretboard-title-group">
             <h2 id="activeScaleTitle" class="stage-title">—</h2>
@@ -94,9 +99,10 @@
       </section>
     </main>
 
+    <div id="themeFooterOrnament" class="footer-ornament-bar" aria-hidden="true"></div>
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · Z = Zen · D = Drone · H = Harmônicos · R = Ritmo · V = Voicing</span>
-      <span class="mono-tag">v7.6.0 · 24-TET · 7 Sculptural Artistic Worlds</span>
+      <span class="mono-tag">v7.7.0 · 24-TET · Ornate Mystic &amp; Luthier Edition</span>
     </footer>
   </div>
 

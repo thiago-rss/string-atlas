@@ -1272,3 +1272,204 @@ body[data-zen="true"] .theme-ornament-bar,
 body[data-zen="true"] .theme-stage-backdrop {
   display: none !important;
 }
+
+/* =========================================================================
+ * v7.7 Additions: Heirloom Luxury, Mystical Filigree & Sculpted Ornaments
+ * ========================================================================= */
+
+@keyframes saMysticGlow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(229, 169, 85, 0.35)); }
+  50% { filter: drop-shadow(0 0 14px rgba(229, 169, 85, 0.68)); }
+}
+
+/* Sculpted Ornate Topbar Plaque */
+.topbar {
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-panel);
+  background-image: var(--panel-surface);
+  border: var(--panel-border-width) solid var(--border-strong);
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim);
+  position: relative;
+}
+
+/* Dynamic Theme-Specific Brand Medallion */
+.brand-medallion {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: saMysticGlow 6s ease-in-out infinite;
+}
+
+.brand-medallion svg {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-medallion {
+    animation: none !important;
+  }
+}
+
+/* Ornate Panel Shell & 4-Corner SVG Filigree Mounts */
+.ornament-shell {
+  position: relative;
+}
+
+.panel-corners {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  overflow: visible;
+}
+
+.corner-finial {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  opacity: 0.88;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+}
+
+.corner-finial svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.corner-finial.c-tl { top: -2px; left: -2px; }
+.corner-finial.c-tr { top: -2px; right: -2px; transform: scaleX(-1); }
+.corner-finial.c-bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+.corner-finial.c-br { bottom: -2px; right: -2px; transform: scale(-1, -1); }
+
+/* Keep deck controls comfortably clear of corner finials */
+.deck-shell .deck-panel {
+  padding: 18px 22px 16px;
+}
+
+.fretboard-panel {
+  padding: 22px 22px 18px;
+  margin-top: 6px;
+}
+
+/* Center Stage Cartouche Crest perched at the top border of the Fretboard Stage */
+.stage-crown-crest {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 176px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 5;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+}
+
+.stage-crown-crest svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Footer Closing Filigree Tailpiece */
+.footer-ornament-bar {
+  width: 100%;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+  margin-bottom: -6px;
+  pointer-events: none;
+}
+
+.footer-ornament-svg {
+  width: 100%;
+  max-width: 920px;
+  height: 22px;
+  display: block;
+}
+
+/* Symbolic Section Title Flourishes tailored to each Visual World */
+.stage-title::before,
+.section-heading > span:first-child::before {
+  margin-right: 7px;
+  font-size: 0.85em;
+  color: var(--accent-root);
+  opacity: 0.92;
+}
+
+[data-theme="layl"] .stage-title::before,
+[data-theme="layl"] .section-heading > span:first-child::before { content: "✦"; }
+
+[data-theme="nahar"] .stage-title::before,
+[data-theme="nahar"] .section-heading > span:first-child::before { content: "❧"; }
+
+[data-theme="rock70s"] .stage-title::before,
+[data-theme="rock70s"] .section-heading > span:first-child::before { content: "◈"; }
+
+[data-theme="doom"] .stage-title::before,
+[data-theme="doom"] .section-heading > span:first-child::before { content: "☩"; }
+
+[data-theme="djent"] .stage-title::before,
+[data-theme="djent"] .section-heading > span:first-child::before { content: "//"; }
+
+[data-theme="experimental"] .stage-title::before,
+[data-theme="experimental"] .section-heading > span:first-child::before { content: "⊕"; }
+
+[data-theme="brazilian"] .stage-title::before,
+[data-theme="brazilian"] .section-heading > span:first-child::before { content: "❖"; }
+
+/* Soft Mystical Aura Glow on Active Cards & Controls */
+[data-theme="layl"] .fretboard-panel,
+[data-theme="doom"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 36px rgba(229, 169, 85, 0.08);
+}
+
+[data-theme="djent"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 34px rgba(0, 229, 255, 0.12);
+}
+
+[data-theme="rock70s"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 32px rgba(242, 119, 41, 0.12);
+}
+
+[data-theme="brazilian"] .fretboard-panel {
+  box-shadow: var(--shadow-panel), var(--panel-inset-rim), 0 0 28px rgba(214, 138, 18, 0.14);
+}
+
+/* Remove duplicate CSS-only corner lines in Doom & Djent where real SVG corner filigrees now shine */
+[data-theme="doom"] .fretboard-panel,
+[data-theme="doom"] .deck-panel,
+[data-theme="djent"] .fretboard-panel,
+[data-theme="djent"] .deck-panel {
+  background-image: var(--panel-surface);
+  background-size: 100% 100%;
+}
+
+/* Remove old CSS-only screws in rock70s since real engraved brass corner plates with screw studs now render */
+[data-theme="rock70s"] .fretboard-panel::before,
+[data-theme="rock70s"] .fretboard-panel::after,
+[data-theme="rock70s"] .deck-panel::before,
+[data-theme="rock70s"] .deck-panel::after {
+  display: none;
+}
+
+/* Keep Avant figure stamps neatly offset from the top-left crop-mark corner */
+[data-theme="experimental"] .deck-panel::before,
+[data-theme="experimental"] .fretboard-panel::before {
+  left: 52px;
+}
+
+/* Zen Mode cleanly hides outer decorative shells while keeping the stage crown optional */
+body[data-zen="true"] .deck-shell,
+body[data-zen="true"] .footer-ornament-bar {
+  display: none !important;
+}
