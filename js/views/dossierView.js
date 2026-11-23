@@ -1,5 +1,5 @@
 /**
- * Modal & Acoustic Dossier + Oblique Creative Lab View
+ * Modal & Acoustic Dossier + Oblique Creative Lab View v2.0
  */
 import { DB } from '../core/database.js';
 import {
@@ -84,11 +84,11 @@ function renderDossier(state) {
     </div>
   `;
 
-  el.querySelectorAll('button[data-play-q]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      synthEngine.pluckQ(Number(btn.dataset.playQ), { duration: 1.5, velocity: 0.35 });
-    });
-  });
+  el.onclick = (ev) => {
+    const btn = ev.target.closest('button[data-play-q]');
+    if (!btn) return;
+    synthEngine.pluckQ(Number(btn.dataset.playQ), { duration: 1.5, velocity: 0.35 });
+  };
 }
 
 function renderOblique(state) {
@@ -116,19 +116,21 @@ function renderOblique(state) {
     </div>
   `;
 
-  el.querySelector('#btnDrawOblique').addEventListener('click', () => {
+  el.querySelector('#btnDrawOblique').onclick = () => {
     const nextIdx = (state.obliqueIndex + 1) % DB.obliqueStrategies.length;
     setState({ obliqueIndex: nextIdx });
-  });
+  };
 
-  el.querySelector('#btnApplyOblique').addEventListener('click', () => {
+  el.querySelector('#btnApplyOblique').onclick = () => {
     const p = card.preset;
     const tun = DB.tunings.find((item) => item.id === p.tuningId) || DB.tunings[0];
+    const rhy = DB.rhythms.find((item) => item.id === p.rhythmId) || DB.rhythms[0];
     synthEngine.stopScaleSequence();
     synthEngine.updateDrone(p.droneOn, p.rootQ, state.droneFifth);
 
     setState({
       category: 'all',
+      customScaleIntervalsQ: null,
       scaleId: p.scaleId,
       rootQ: p.rootQ,
       tuningId: tun.id,
@@ -136,9 +138,15 @@ function renderOblique(state) {
       microMode: p.microMode,
       droneOn: p.droneOn,
       harmonicsOn: p.harmonicsOn,
+      harmonyMode: 'catalog',
+      chordId: p.chordId || state.chordId,
+      selectedVoicingIdx: 0,
+      voicingOverlayOn: true,
+      rhythmId: rhy.id,
+      rhythmSteps: [...rhy.steps],
       isPlayingScale: false,
       playingPcQ: null,
       inspectedNote: null
     });
-  });
+  };
 }

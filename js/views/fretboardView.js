@@ -1,7 +1,8 @@
 /**
- * Interactive 22-Fret SVG Fretboard Renderer
- * Supports 3 Microtonal Modes: 'bend' (12-TET + ↑¼), 'slide' (midpoint diamonds), 'frets24' (quarter-tone frets)
- * Plus Spectral Harmonics Overlay (2nd–7th partials)
+ * Interactive 22-Fret SVG Fretboard Renderer v2.0
+ * - 3 Microtonal Modes: 'bend' (12-TET + ↑¼), 'slide' (midpoint diamonds), 'frets24' (quarter-tone frets)
+ * - Spectral Harmonics Overlay (2nd–7th partials)
+ * - Phase 2: Dynamic Voicing Overlay (highlighted rings + chord spine) & Phrase Scratchpad capture
  */
 import {
   SPECTRAL_HARMONICS,
@@ -12,7 +13,7 @@ import {
   intervalQToCents
 } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
-import { getActiveScale, setState } from '../state/store.js';
+import { getActiveScale, getActiveVoicing, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 
 const NUM_FRETS = 22;
@@ -24,7 +25,6 @@ const TOP_Y = 38;
 const STRING_GAP = 36;
 const INLAY_FRETS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 
-// Slightly tapered realistic fret spacing for visual comfort
 function buildFretXs() {
   const xs = [NUT_X];
   const usableW = SVG_W - NUT_X - RIGHT_PAD;
@@ -45,7 +45,6 @@ function buildFretXs() {
 
 const FRET_XS = buildFretXs();
 
-/** Maps a continuous fret position (e.g. 3.86 or 5.5) to an X pixel coordinate */
 function fretPosToX(pos) {
   if (pos <= 0) return NUT_X - 30;
   const fLow = Math.floor(pos);
@@ -54,10 +53,21 @@ function fretPosToX(pos) {
   return FRET_XS[fLow] + (FRET_XS[fLow + 1] - FRET_XS[fLow]) * frac;
 }
 
-/** Standard visual center of fret f (1..22) */
 function fretCenterX(f) {
   if (f === 0) return NUT_X - 32;
   return (FRET_XS[f - 1] + FRET_XS[f]) / 2;
+}
+
+function stepQToX(stepQ, microMode) {
+  if (stepQ === 0) return NUT_X - 32;
+  const isMicro = stepQ % 2 !== 0;
+  const fretNum = Math.floor(stepQ / 2);
+  if (!isMicro) return fretCenterX(fretNum);
+  if (microMode === 'bend') return fretCenterX(fretNum) + 4;
+  if (microMode === 'slide') return FRET_XS[fretNum];
+  const lowerWire = FRET_XS[fretNum];
+  const microWire = (FRET_XS[fretNum] + FRET_XS[fretNum + 1]) / 2;
+  return (lowerWire + microWire) / 2;
 }
 
 function getMarkerLabel(q, intervalQ, labelMode) {
@@ -79,27 +89,35 @@ export function renderFretboard(state) {
   titleEl.textContent = `${rootName} ${scaleName}`;
   formulaEl.textContent = scale.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · ');
 
-  // Legend
+  const activeVoicing = state.voicingOverlayOn ? getActiveVoicing() : null;
+
   legendEl.innerHTML = `
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-root)"></span>${t(state.lang, 'legendRoot')}</span>
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-char)"></span>${t(state.lang, 'legendChar')}</span>
     <span class="legend-item"><span class="legend-dot" style="background:var(--accent-scale)"></span>${t(state.lang, 'legendScale')}</span>
     <span class="legend-item"><span class="legend-diamond" style="background:var(--accent-micro)"></span>${t(state.lang, 'legendMicro')}</span>
+    ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
     ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
   `;
 
-  // Map allowed pitch classes -> intervalQ
   const allowedMap = new Map();
   scale.intervalsQ.forEach((iv) => {
     allowedMap.set(mod24(state.rootQ + iv), iv);
   });
   const charSet = new Set(scale.characteristicQ || []);
 
-  // Build SVG markup
+  // Build quick lookup for active voicing notes: key = `${strIdx}:${stepQ}`
+  const voicingMap = new Map();
+  if (activeVoicing) {
+    activeVoicing.notes.forEach((n) => {
+      voicingMap.set(`${n.strIdx}:${n.stepQ}`, n);
+    });
+  }
+
   const parts = [];
   parts.push(`<svg class="fretboard-svg" viewBox="0 0 ${SVG_W} ${SVG_H}" role="img" aria-label="${rootName} ${scaleName}">`);
 
-  // Fretboard wood & nut area
+  // Fretboard wood & nut
   parts.push(`<rect x="${NUT_X}" y="${TOP_Y - 14}" width="${SVG_W - NUT_X - RIGHT_PAD}" height="${STRING_GAP * 5 + 28}" rx="4" fill="var(--bg-fretboard)"/>`);
   parts.push(`<rect x="${NUT_X - 7}" y="${TOP_Y - 14}" width="7" height="${STRING_GAP * 5 + 28}" fill="var(--bg-nut)"/>`);
 
@@ -121,16 +139,15 @@ export function renderFretboard(state) {
     parts.push(`<line x1="${x}" y1="${TOP_Y - 14}" x2="${x}" y2="${TOP_Y + STRING_GAP * 5 + 14}" stroke="var(--fret-wire)" stroke-width="1.6"/>`);
     parts.push(`<text x="${fretCenterX(f)}" y="${SVG_H - 12}" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="ui-monospace, monospace">${f}</text>`);
 
-    // 24-TET extra dashed quarter-tone frets
     if (state.microMode === 'frets24') {
       const microX = (FRET_XS[f - 1] + FRET_XS[f]) / 2;
       parts.push(`<line x1="${microX}" y1="${TOP_Y - 12}" x2="${microX}" y2="${TOP_Y + STRING_GAP * 5 + 12}" stroke="var(--fret-micro)" stroke-width="1.2" stroke-dasharray="4 4"/>`);
     }
   }
 
-  // Strings (visual index 0 = String 1 high at top; visual index 5 = String 6 low at bottom)
+  // Strings (visIdx 0 = Str 1 high at top .. visIdx 5 = Str 6 low at bottom)
   for (let visIdx = 0; visIdx < 6; visIdx += 1) {
-    const stringArrIdx = 5 - visIdx; // customStringsQ[5] is string 1 (high), [0] is string 6 (low)
+    const stringArrIdx = 5 - visIdx;
     const openQ = state.customStringsQ[stringArrIdx];
     const y = TOP_Y + visIdx * STRING_GAP;
     const strokeW = 1.2 + visIdx * 0.42;
@@ -139,27 +156,47 @@ export function renderFretboard(state) {
     const openInScale = allowedMap.has(openPc);
 
     parts.push(`<line x1="${NUT_X - 7}" y1="${y}" x2="${SVG_W - RIGHT_PAD}" y2="${y}" stroke="${openInScale ? 'var(--accent-open)' : 'var(--string-color)'}" stroke-width="${strokeW}" stroke-opacity="${openInScale ? '0.85' : '0.45'}"/>`);
-
-    // String number label far left
     parts.push(`<text x="14" y="${y + 4}" fill="var(--text-muted)" font-size="10.5" font-family="ui-monospace, monospace">${visIdx + 1}</text>`);
+  }
 
-    // Open string clickable pill
+  // Optional subtle chord spine connecting active voicing notes before drawing note heads
+  if (activeVoicing && activeVoicing.notes.length >= 2) {
+    const pts = activeVoicing.notes
+      .map((n) => {
+        const visIdx = 5 - n.strIdx;
+        const x = stepQToX(n.stepQ, state.microMode);
+        const y = TOP_Y + visIdx * STRING_GAP;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+    parts.push(`<polyline points="${pts}" fill="none" stroke="var(--accent-voicing)" stroke-width="3" stroke-opacity="0.48" stroke-linecap="round" stroke-linejoin="round"/>`);
+  }
+
+  // Draw Open Strings, Harmonics, Scale Nodes, and any out-of-scale Voicing Nodes
+  for (let visIdx = 0; visIdx < 6; visIdx += 1) {
+    const stringArrIdx = 5 - visIdx;
+    const openQ = state.customStringsQ[stringArrIdx];
+    const y = TOP_Y + visIdx * STRING_GAP;
+    const openPc = mod24(openQ);
+    const openInScale = allowedMap.has(openPc);
     const openIv = allowedMap.get(openPc);
     const isPlayingOpen = state.playingPcQ !== null && state.playingPcQ === openPc;
+    const openInVoicing = voicingMap.has(`${stringArrIdx}:0`);
+
     const openFill = openInScale
       ? (openIv === 0 ? 'var(--accent-root)' : 'var(--accent-open)')
-      : 'var(--bg-elevated)';
-    const openInk = openInScale ? 'var(--accent-root-ink)' : 'var(--text-secondary)';
+      : (openInVoicing ? 'var(--accent-voicing)' : 'var(--bg-elevated)');
+    const openInk = (openInScale || openInVoicing) ? 'var(--accent-root-ink)' : 'var(--text-secondary)';
     const openLabel = qToNoteName(openQ, false);
 
     parts.push(`
-      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''}" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : -1}" data-micro="0">
-        <circle cx="${NUT_X - 32}" cy="${y}" r="13.5" fill="${openFill}" stroke="${openInScale ? 'none' : 'var(--border-strong)'}" stroke-width="1"/>
+      <g class="note-node ${isPlayingOpen ? 'is-playing' : ''}" data-kind="note" data-q="${openQ}" data-string="${visIdx + 1}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${stringArrIdx}:0`).intervalQ : -1)}" data-micro="0">
+        ${openInVoicing ? `<circle cx="${NUT_X - 32}" cy="${y}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
+        <circle cx="${NUT_X - 32}" cy="${y}" r="13.5" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'none' : 'var(--border-strong)'}" stroke-width="1"/>
         <text x="${NUT_X - 32}" y="${y + 4}" text-anchor="middle" fill="${openInk}" font-size="10.5" font-weight="700">${openLabel}</text>
       </g>
     `);
 
-    // Optional Spectral Harmonics overlay along the string
     if (state.harmonicsOn) {
       SPECTRAL_HARMONICS.forEach((h) => {
         const hx = fretPosToX(h.fretPos);
@@ -173,43 +210,31 @@ export function renderFretboard(state) {
       });
     }
 
-    // Iterate every quarter-tone step from 1q up to NUM_FRETS * 2q
     const maxStepQ = NUM_FRETS * 2;
     for (let stepQ = 1; stepQ <= maxStepQ; stepQ += 1) {
       const absQ = openQ + stepQ;
       const pc = mod24(absQ);
-      if (!allowedMap.has(pc)) continue;
+      const inScale = allowedMap.has(pc);
+      const voicingHit = voicingMap.get(`${stringArrIdx}:${stepQ}`);
+      if (!inScale && !voicingHit) continue;
 
-      const intervalQ = allowedMap.get(pc);
-      const isMicroStep = stepQ % 2 !== 0; // odd quarter-tone offset relative to the string's open pitch
-      const fretNum = Math.floor(stepQ / 2); // 0..22
+      const intervalQ = inScale ? allowedMap.get(pc) : voicingHit.intervalQ;
+      const isMicroStep = stepQ % 2 !== 0;
+      const fretNum = Math.floor(stepQ / 2);
 
-      // If micro-step happens at stepQ=1 (quarter-tone above open string), only draw in slide or frets24
       if (isMicroStep && fretNum === 0 && state.microMode === 'bend') continue;
 
-      let cx;
-      if (!isMicroStep) {
-        cx = fretCenterX(fretNum);
-      } else if (state.microMode === 'bend') {
-        // Anchored slightly right of the lower semitone fret center with bend badge
-        cx = fretCenterX(fretNum) + 4;
-      } else if (state.microMode === 'slide') {
-        // Physically at the midpoint between fretNum and fretNum + 1
-        cx = FRET_XS[fretNum];
-      } else {
-        // 'frets24': right before the dashed micro-fret wire
-        const lowerWire = FRET_XS[fretNum];
-        const microWire = (FRET_XS[fretNum] + FRET_XS[fretNum + 1]) / 2;
-        cx = (lowerWire + microWire) / 2;
-      }
-
+      const cx = stepQToX(stepQ, state.microMode);
       const isRoot = intervalQ === 0;
-      const isChar = charSet.has(intervalQ);
+      const isChar = inScale && charSet.has(intervalQ);
       const isPlaying = state.playingPcQ !== null && state.playingPcQ === pc;
 
       let fill = 'var(--accent-scale)';
       let ink = 'var(--accent-scale-ink)';
-      if (isRoot) {
+      if (!inScale && voicingHit) {
+        fill = 'var(--accent-voicing)';
+        ink = '#111318';
+      } else if (isRoot) {
         fill = 'var(--accent-root)';
         ink = 'var(--accent-root-ink)';
       } else if (isMicroStep) {
@@ -222,21 +247,24 @@ export function renderFretboard(state) {
 
       const label = getMarkerLabel(absQ, intervalQ, state.labelMode);
       const fontSize = label.length >= 4 ? 8.4 : label.length === 3 ? 9.4 : 10.5;
+      const dimClass = activeVoicing && !voicingHit ? 'is-dimmed' : '';
 
-      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''}" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
+      parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" data-kind="note" data-q="${absQ}" data-string="${visIdx + 1}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
+
+      // Golden outer halo when note belongs to active Voicing
+      if (voicingHit) {
+        parts.push(`<circle cx="${cx}" cy="${y}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
+      }
 
       if (isMicroStep && state.microMode === 'slide') {
-        // Diamond marker for slide/fretless midpoint
         const r = 13;
         parts.push(`<polygon points="${cx},${y - r} ${cx + r},${y} ${cx},${y + r} ${cx - r},${y}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
         parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       } else if (isMicroStep && state.microMode === 'bend') {
-        // Rounded rect with ↑¼ micro-bend badge
         parts.push(`<rect x="${cx - 14}" y="${y - 12}" width="28" height="24" rx="7" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
         parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
         parts.push(`<text x="${cx + 12}" y="${y - 8}" text-anchor="middle" fill="var(--accent-micro)" font-size="8.5" font-weight="800">↑¼</text>`);
       } else {
-        // Crisp circle marker
         parts.push(`<circle cx="${cx}" cy="${y}" r="12.2" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>`);
         parts.push(`<text x="${cx}" y="${y + 3.5}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>`);
       }
@@ -248,9 +276,8 @@ export function renderFretboard(state) {
   parts.push('</svg>');
   container.innerHTML = parts.join('');
 
-  // Wire delegated click listener once per render
   const svgEl = container.querySelector('svg');
-  svgEl.addEventListener('click', (ev) => {
+  svgEl.onclick = (ev) => {
     const node = ev.target.closest('.note-node');
     if (!node) return;
 
@@ -275,6 +302,14 @@ export function renderFretboard(state) {
     const isMicro = node.dataset.micro === '1';
 
     synthEngine.pluckQ(q, { duration: 1.7, velocity: 0.36 });
+
+    // Append clicked note into Phrase Scratchpad (rolling window up to 16 events)
+    const curState = getState();
+    const nextPhrase = [
+      ...curState.phraseEvents,
+      { q, guitarStr: strNum, fret, isMicro, intervalQ: iv }
+    ].slice(-16);
+
     setState({
       inspectedNote: {
         kind: 'note',
@@ -284,9 +319,10 @@ export function renderFretboard(state) {
         stringNum: strNum,
         fret,
         isMicro
-      }
+      },
+      phraseEvents: nextPhrase
     });
-  });
+  };
 
   renderInspector(state);
 }

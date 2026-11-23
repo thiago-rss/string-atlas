@@ -1,6 +1,11 @@
 /**
- * String Atlas Unified Database (24-TET compatible with Oud Visualizer contracts)
- * All intervalsQ live in 0..23 quarter-tone space (1 semitone = 2q, 1 tone = 4q).
+ * String Atlas Unified Database v2.0 (24-TET compatible with Oud Visualizer contracts)
+ * Contains:
+ * - DB.scales (Arabic Maqamat, Ragas, Global, Messiaen, Slonimsky, Pitch-Class Sets, Reference)
+ * - DB.chords (Non-Tercial Quartal/Quintal, Clusters, Drop Voicings, Post-Tonal Sets, Microtonal Arabic Dyads/Triads)
+ * - DB.rhythms (Arabic Iqa'at + Balkan/Aksak & Odd Meters for Polymetric Engine)
+ * - DB.tunings (9 Scordatura presets)
+ * - DB.obliqueStrategies (Creative experiment cards)
  */
 
 export const DB = {
@@ -14,7 +19,7 @@ export const DB = {
   ],
 
   scales: [
-    // --- ARABIC MAQAMAT (24-TET) ---
+    // --- ARABIC MAQAMAT (24-TET — imported & expanded from Oud Visualizer) ---
     {
       id: 'maqam_bayati',
       category: 'arabic',
@@ -73,6 +78,82 @@ export const DB = {
       }
     },
     {
+      id: 'maqam_hijaz_kar',
+      category: 'arabic',
+      namePt: 'Maqam Hijaz Kar',
+      nameEn: 'Maqam Hijaz Kar',
+      intervalsQ: [0, 2, 8, 10, 14, 16, 22],
+      characteristicQ: [2, 8, 16, 22],
+      tagsPt: ['Duplo Jins Hijaz', '12-TET', 'Simetria Espelhada'],
+      tagsEn: ['Double Jins Hijaz', '12-TET', 'Mirrored Symmetry'],
+      dossier: {
+        structurePt: 'Empilha dois tetracordes Jins Hijaz separados por 1 tom (na tônica e na 5ª justa). Compartilha a malha 12-TET com Raga Bhairav, mas com condução melódica centrada na 5ª (Ghammaz).',
+        structureEn: 'Stacks two Jins Hijaz tetrachords separated by a whole step (on tonic and 5th). Shares pitches with Raga Bhairav, with sayr pivoting around the 5th (Ghammaz).',
+        temperamentPt: 'Totalmente executável em 12-TET; permite acordes abertos de 5ª justa + ♭2 e 7ª maior em choque controlado.',
+        temperamentEn: 'Fully 12-TET playable; supports open fifth voicings rubbing against ♭2 and major 7th.',
+        articulationPt: 'Experimente arpejos híbridos alternando corda solta na tônica com saltos ♭6→7 nas cordas agudas.',
+        articulationEn: 'Try hybrid-picked arpeggios alternating an open tonic pedal with ♭6→7 leaps on treble strings.',
+        repertoire: 'Samai Hijaz Kar · Sayyid Darwish'
+      }
+    },
+    {
+      id: 'maqam_nahawand',
+      category: 'arabic',
+      namePt: 'Maqam Nahawand',
+      nameEn: 'Maqam Nahawand',
+      intervalsQ: [0, 4, 6, 10, 14, 16, 22],
+      characteristicQ: [6, 16, 22],
+      tagsPt: ['Jins Nahawand', 'Jins Hijaz na 5ª', '12-TET'],
+      tagsEn: ['Jins Nahawand', 'Upper Jins Hijaz', '12-TET'],
+      dossier: {
+        structurePt: 'Tetracorde menor Jins Nahawand (1 · ½ · 1) seguido de Jins Hijaz no 5º grau (ou Kurd na descida). Um dos maqamat mais líricos e imediatos na guitarra.',
+        structureEn: 'Minor tetrachord Jins Nahawand (W · H · W) topped by Jins Hijaz on the 5th (shifting to Kurd on descent). One of the most lyrical maqamat on guitar.',
+        temperamentPt: 'Nativo em 12-TET; ótimo laboratório para praticar modulações (Sayr) entre 7ª maior (sensível) e ♭7 descendente.',
+        temperamentEn: '12-TET native; ideal lab for practicing sayr shifts between leading tone 7 and descending ♭7.',
+        articulationPt: 'Acentue o 5º grau como polo dramático usando vibrato vocal e ornamentos rápidos (mordentes) saindo da ♭6.',
+        articulationEn: 'Treat the 5th as a dramatic pivot using vocal vibrato and crisp mordents from the ♭6.',
+        repertoire: 'Fairuz — Ya Ana Ya Ana · Riyad al-Sunbati'
+      }
+    },
+    {
+      id: 'maqam_ajam',
+      category: 'arabic',
+      namePt: 'Maqam Ajam',
+      nameEn: 'Maqam Ajam',
+      intervalsQ: [0, 4, 8, 10, 14, 18, 22],
+      characteristicQ: [8, 14],
+      tagsPt: ['Jins Ajam', '12-TET', 'Solar / Épico'],
+      tagsEn: ['Jins Ajam', '12-TET', 'Radiant / Epic'],
+      dossier: {
+        structurePt: 'Embora coincida em notas com a escala maior ocidental, o Ajam organiza-se por Jins Ajam na base (1 · 1 · ½) e modula com frequência para Nahawand na 5ª ou Saba/Hijaz no 3º grau.',
+        structureEn: 'Though pitch-identical to Western Major, Ajam phrases through Jins Ajam (W · W · H) and frequently modulates to Nahawand on the 5th or Hijaz on the 3rd.',
+        temperamentPt: 'Na execução tradicional do Oud, a 3ª maior tende ligeiramente mais próxima da entonação justa (~386¢) sobre o drone.',
+        temperamentEn: 'In traditional Oud performance, the major 3rd often leans slightly toward Just Intonation (~386¢) against a drone.',
+        articulationPt: 'Evite cadências V7–I óbvias: explore linhas horizontais com drones em B♭ ou C e voicings quintais abertos.',
+        articulationEn: 'Bypass cliché V7–I cadences: explore horizontal melodies over B♭ or C drones and open quintal voicings.',
+        repertoire: 'Mohammed Abdel Wahab · Samai Ajam'
+      }
+    },
+    {
+      id: 'maqam_nikriz',
+      category: 'arabic',
+      namePt: 'Maqam Nikriz',
+      nameEn: 'Maqam Nikriz',
+      intervalsQ: [0, 4, 6, 12, 14, 18, 20],
+      characteristicQ: [6, 12, 18],
+      tagsPt: ['Jins Nikriz', 'Dórico ♯4', '12-TET'],
+      tagsEn: ['Jins Nikriz', 'Dorian ♯4', '12-TET'],
+      dossier: {
+        structurePt: 'Pentacorde Jins Nikriz (1 · ½ · 1½ · ½) com salto expressivo entre ♭3 e ♯4, combinado com 6ª maior e ♭7 no registro agudo (Jins Nahawand ou Rast na 5ª).',
+        structureEn: 'Jins Nikriz pentachord (W · H · m3 · H) spotlighting the ♭3→♯4 leap, paired with major 6th and ♭7 above.',
+        temperamentPt: '12-TET nativo (equivalente ao 4º modo da menor harmônica / Dórico ♯4), perfeito para fundir linguagem árabe, jazz modal e metal progressivo.',
+        temperamentEn: '12-TET native (4th mode of harmonic minor / Dorian ♯4), a powerhouse for fusing Arabic phrasing, modal jazz, and progressive metal.',
+        articulationPt: 'Combine riffs sincopados em 10/8 (Sama’i Thaqil) enfatizando o trítono ♯4 resolvendo na 5ª justa.',
+        articulationEn: 'Pair with syncopated 10/8 (Sama’i Thaqil) riffs leaning on the ♯4 tritone resolving into the 5th.',
+        repertoire: 'Rabih Abou-Khalil — Blue Camel · Samai Nikriz'
+      }
+    },
+    {
       id: 'maqam_saba',
       category: 'arabic',
       namePt: 'Maqam Saba',
@@ -108,6 +189,25 @@ export const DB = {
         articulationPt: 'Experimente arpejar díades de trítono (1–♯4) e 7ª maior (1–7) com overdrive moderado ou fuzz, alternando com frases rápidas de tremolo picking.',
         articulationEn: 'Try arpeggiating tritone (1–♯4) and major-7th dyads with overdrive or fuzz, contrasting with rapid tremolo-picked lines.',
         repertoire: 'Farid al-Atrash — Nawa Athar · Rabih Abou-Khalil'
+      }
+    },
+    {
+      id: 'maqam_athar_kurd',
+      category: 'arabic',
+      namePt: 'Maqam Athar Kurd',
+      nameEn: 'Maqam Athar Kurd',
+      intervalsQ: [0, 2, 6, 12, 14, 16, 22],
+      characteristicQ: [2, 12, 22],
+      tagsPt: ['Kurd + ♯4 + 7M', '12-TET', 'Dramático'],
+      tagsEn: ['Kurd + ♯4 + M7', '12-TET', 'Dramatic'],
+      dossier: {
+        structurePt: 'Funde o início sombrio do Kurd (♭2, ♭3) com a ♯4 e a 7ª maior do Nawa Athar. Gera uma paleta extremamente expressiva para solos e riffs modais.',
+        structureEn: 'Merges the dark Kurd opening (♭2, ♭3) with Nawa Athar’s ♯4 and major 7th — delivering an intensely dramatic palette for solos and modal riffs.',
+        temperamentPt: '12-TET nativo com dois saltos de 1½ tom (♭3→♯4 e ♭6→7) e dois semitons adjacentes à tônica (7–1–♭2).',
+        temperamentEn: '12-TET native featuring two augmented-2nd leaps (♭3→♯4 and ♭6→7) and semitones flanking the tonic (7–1–♭2).',
+        articulationPt: 'Explore o cluster cromático 7–1–♭2 em cordas adjacentes com sustain elétrico ou delay modulante.',
+        articulationEn: 'Exploit the 7–1–♭2 chromatic cluster across adjacent strings with electric sustain or modulated delay.',
+        repertoire: 'Farid al-Atrash · Marcel Khalife'
       }
     },
     {
@@ -189,6 +289,25 @@ export const DB = {
       }
     },
     {
+      id: 'gamelan_pelog_24',
+      category: 'global',
+      namePt: 'Gamelan Pelog (Aprox. 24-TET)',
+      nameEn: 'Gamelan Pelog (24-TET Approx.)',
+      intervalsQ: [0, 3, 6, 11, 14, 16, 21],
+      characteristicQ: [3, 11, 21],
+      tagsPt: ['Java / Bali', 'Microtonal', 'Ciclos Kotekan'],
+      tagsEn: ['Java / Bali', 'Microtonal', 'Kotekan Cycles'],
+      dossier: {
+        structurePt: 'Aproximação em 24-TET da escala heptatônica indonésia Pelog (geralmente praticada em subconjuntos pentatônicos como Pelog Bem ou Pelog Barang).',
+        structureEn: '24-TET approximation of the Indonesian 7-tone Pelog system (often played in 5-tone subsets such as Pelog Bem or Pelog Barang).',
+        temperamentPt: 'Cada conjunto de Gamelan possui sua afinação única (embat); os graus em 150¢, 550¢ e 1050¢ capturam o contraste entre intervalos estreitos e amplos.',
+        temperamentEn: 'Every Gamelan ensemble has a unique tuning (embat); degrees at 150¢, 550¢, and 1050¢ capture its stark contrast of narrow and wide steps.',
+        articulationPt: 'Ative o modo Trastes 24-TET ou Slide e crie padrões entrelaçados (kotekan) com delay rítmico e o motor polimétrico em 7 ou 5.',
+        articulationEn: 'Enable 24-TET Frets or Slide mode and build interlocking kotekan ostinatos with rhythmic delay and polymetric track B.',
+        repertoire: 'Gamelan Gong Kebyar · Lou Harrison · King Gizzard (microtonal)'
+      }
+    },
+    {
       id: 'jp_insen',
       category: 'global',
       namePt: 'Escala In-Sen (Japão)',
@@ -267,6 +386,25 @@ export const DB = {
       }
     },
     {
+      id: 'messiaen_mode4',
+      category: 'messiaen',
+      namePt: 'Messiaen Modo 4 (Simetria em Trítono)',
+      nameEn: 'Messiaen Mode 4 (Tritone Symmetry)',
+      intervalsQ: [0, 2, 4, 10, 12, 14, 16, 22],
+      characteristicQ: [2, 10, 12],
+      tagsPt: ['6 Transposições', 'Clusters + Saltos', 'Contemporâneo'],
+      tagsEn: ['6 Transpositions', 'Clusters + Leaps', 'Contemporary'],
+      dossier: {
+        structurePt: 'Duas metades idênticas (½ · ½ · 1½ · ½) replicadas no trítono. Alterna blocos cromáticos densos com grandes vazios de terça menor.',
+        structureEn: 'Two identical halves (H · H · m3 · H) replicated at the tritone. Alternates tight chromatic clusters with wide minor-3rd voids.',
+        temperamentPt: 'Ideal para gerar voicings secundais/clusters que deslizam simetricamente em saltos de 6 casas.',
+        temperamentEn: 'Ideal for building secundal cluster voicings that glide symmetrically in 6-fret leaps.',
+        articulationPt: 'No Laboratório Harmônico, teste o Cluster Secundai sobre este modo e mova o voicing +6 casas.',
+        articulationEn: 'In the Harmony Lab, try the Secundal Cluster over this mode and shift the voicing +6 frets.',
+        repertoire: 'Olivier Messiaen — Turangalîla · Ben Monder'
+      }
+    },
+    {
       id: 'messiaen_mode6',
       category: 'messiaen',
       namePt: 'Messiaen Modo 6',
@@ -301,7 +439,7 @@ export const DB = {
         temperamentEn: 'A 6-note symmetrical grid ideal for breaking scalar muscle memory and generating angular post-bop or free-jazz lines.',
         articulationPt: 'Experimente em All Fourths (EADGCF) com string skipping (saltando uma corda entre cada par de notas).',
         articulationEn: 'Try in All Fourths (EADGCF) using string skipping between note pairs.',
-        repertoire: 'John Coltrane — Giant Steps sketches · Eric Dolphy · Meshuggah (angular cells)'
+        repertoire: 'John Coltrane — Giant Steps sketches · Eric Dolphy · Meshuggah'
       }
     },
 
@@ -339,8 +477,8 @@ export const DB = {
         structureEn: 'One of only two 4-note sets containing exactly one occurrence of every interval class from minor 2nd to tritone.',
         temperamentPt: 'Equilíbrio matemático perfeito entre consonância e dissonância (<1,1,1,1,1,1>).',
         temperamentEn: 'Perfect mathematical balance between consonance and dissonance (<1,1,1,1,1,1>).',
-        articulationPt: 'Construa 4 voicings distintos espalhando essas 4 notas por grupos de cordas adjacentes e explore a transição suave entre eles.',
-        articulationEn: 'Build 4 distinct voicings across adjacent string sets and explore smooth voice-leading between inversions.',
+        articulationPt: 'Use o gerador de voicings abaixo para explorar 4 inversões desse tetracorde com condução suave de vozes.',
+        articulationEn: 'Use the voicing solver below to explore 4 inversions of this tetrachord with smooth voice-leading.',
         repertoire: 'Elliott Carter · György Ligeti · Marc Ribot'
       }
     },
@@ -406,11 +544,270 @@ export const DB = {
   ],
 
   /**
-   * Guitar Tunings: array of 6 quarter-tone absolute indices [String 6 (low) ... String 1 (high)]
-   * Reference: C2=72, D2=76, E2=80, F2=82, F#2=84, G2=86, A2=90, B2=94,
-   *            C3=96, D3=100, E3=104, F3=106, F#3=108, G3=110, G#3=112, A3=114, B3=118,
-   *            C4=120, D4=124, E4=128, F4=130, G4=134
+   * Phase 2 Harmonic Structures — Non-Tercial, Post-Tonal, Microtonal Arabic & Contemporary Jazz
    */
+  chords: [
+    {
+      id: 'quartal_3',
+      family: 'nonTercial',
+      namePt: 'Quartal de 3 Vozes (1–4–♭7)',
+      nameEn: '3-Voice Quartal (1–4–♭7)',
+      symbol: 'Q3',
+      intervalsQ: [0, 10, 20],
+      notePt: 'Empilhamento puro de duas 4ªs justas. Base do comping modal (McCoy Tyner / So What) e superposição livre sobre Dórico, Kurd ou In-Sen.',
+      noteEn: 'Pure stack of two perfect 4ths. Core of modal comping (McCoy Tyner / So What) and free planing over Dorian, Kurd, or In-Sen.'
+    },
+    {
+      id: 'quartal_4_so_what',
+      family: 'nonTercial',
+      namePt: 'So What / Quartal + 3ªM (1–4–♭7–♭3–5)',
+      nameEn: 'So What Voicing (1–4–♭7–♭3–5)',
+      symbol: 'm11(SW)',
+      intervalsQ: [0, 10, 20, 6, 14],
+      notePt: 'Três quartas justas coroadas por uma terça maior no topo (Bill Evans). Funciona como tônica menor modal ou acorde suspenso moderno.',
+      noteEn: 'Three stacked 4ths crowned by a major 3rd on top (Bill Evans). Serves as a lush modal minor tonic or modern suspended color.'
+    },
+    {
+      id: 'quintal_3',
+      family: 'nonTercial',
+      namePt: 'Quintal Aberto (1–5–9)',
+      nameEn: 'Open Quintal (1–5–9)',
+      symbol: 'add9(no3)',
+      intervalsQ: [0, 14, 4],
+      notePt: 'Duas 5ªs justas empilhadas sem terça: ambiguidade maior/menor ideal para Shoegaze, Post-Rock, Metal Atmosférico e bordões modais.',
+      noteEn: 'Two stacked 5ths with no 3rd: major/minor ambiguity ideal for Shoegaze, Post-Rock, Atmospheric Metal, and modal drones.'
+    },
+    {
+      id: 'lydian_shell',
+      family: 'nonTercial',
+      namePt: 'Lídio Cristalino (1–♯4–5–7)',
+      nameEn: 'Crystalline Lydian (1–♯4–5–7)',
+      symbol: 'maj7♯11(no3)',
+      intervalsQ: [0, 12, 14, 22],
+      notePt: 'Atrito luminoso entre ♯4 e 5ª justa sustentado pela 7ª maior. Excelente com reverb longo ou afinação Open Lydian.',
+      noteEn: 'Luminous rub between ♯4 and perfect 5th framed by major 7th. Shines with ambient reverb or Open Lydian tuning.'
+    },
+    {
+      id: 'cluster_secundal',
+      family: 'cluster',
+      namePt: 'Cluster Secundai (1–♭2–2–5)',
+      nameEn: 'Secundal Cluster (1–♭2–2–5)',
+      symbol: 'Clust',
+      intervalsQ: [0, 2, 4, 14],
+      notePt: 'Choque denso de 2ªs menores e maiores ancorado pela 5ª. Textura visceral para música experimental, noise controlado e Messiaen Modo 4.',
+      noteEn: 'Dense clash of minor and major 2nds anchored by the 5th. Visceral texture for experimental music, controlled noise, and Messiaen Mode 4.'
+    },
+    {
+      id: 'viennese_chord',
+      family: 'postTonal',
+      namePt: 'Tricorde Vienense [0, 1, 6]',
+      nameEn: 'Viennese Trichord [0, 1, 6]',
+      symbol: '[016]',
+      intervalsQ: [0, 2, 12],
+      notePt: 'Semitom + Trítono (Forte 3-5). Sonoridade angular de Webern/Berg e guitarra avant-garde.',
+      noteEn: 'Semitone + Tritone (Forte 3-5). Angular harmonic signature of Webern/Berg and avant-garde guitar.'
+    },
+    {
+      id: 'all_interval_chord',
+      family: 'postTonal',
+      namePt: 'Tetracorde Todos-os-Intervalos [0, 1, 4, 6]',
+      nameEn: 'All-Interval Tetrachord [0, 1, 4, 6]',
+      symbol: '[0146]',
+      intervalsQ: [0, 2, 8, 12],
+      notePt: 'Contém todas as 6 classes intervalares (<111111>). Tensão equilibrada de alta sofisticação harmônica.',
+      noteEn: 'Contains every interval class once (<111111>). Balanced high-density contemporary tension.'
+    },
+    {
+      id: 'rast_neutral_triad',
+      family: 'microtonal',
+      namePt: 'Tríade Neutra Rast (1–3½♭–5)',
+      nameEn: 'Rast Neutral Triad (1–3½♭–5)',
+      symbol: 'Rast(½♭)',
+      intervalsQ: [0, 7, 14],
+      notePt: 'Acorde microtonal 24-TET com terça neutra a +350¢: nem maior, nem menor. No modo Bend, execute a terça neutra com micro-bend de +50¢.',
+      noteEn: '24-TET microtonal triad with a +350¢ neutral 3rd: neither major nor minor. In Bend mode, lift the neutral 3rd by +50¢.'
+    },
+    {
+      id: 'bayati_neutral_dyad',
+      family: 'microtonal',
+      namePt: 'Tríade Suspensa Bayati (1–2½♭–4–5)',
+      nameEn: 'Bayati Neutral Sus (1–2½♭–4–5)',
+      symbol: 'Bayati(½♭)',
+      intervalsQ: [0, 3, 10, 14],
+      notePt: 'Combina o grau neutro característico do Maqam Bayati (+150¢) com a moldura aberta de 4ª e 5ª justa.',
+      noteEn: 'Combines Maqam Bayati’s signature neutral 2nd (+150¢) with an open 4th/5th frame.'
+    },
+    {
+      id: 'hijaz_drone_chord',
+      family: 'microtonal',
+      namePt: 'Acorde Drone Hijaz (1–♭2–3–5)',
+      nameEn: 'Hijaz Drone Chord (1–♭2–3–5)',
+      symbol: 'Hijaz',
+      intervalsQ: [0, 2, 8, 14],
+      notePt: 'Captura o choque dramático do Jins Hijaz (♭2 contra 3ª maior sobre o bordão de 5ª). Funciona em 12-TET puro.',
+      noteEn: 'Captures Jins Hijaz’s dramatic rub (♭2 against major 3rd over a 5th drone). Pure 12-TET playable.'
+    },
+    {
+      id: 'min_maj7_9',
+      family: 'jazz',
+      namePt: 'Menor com 7ª Maior e ♯11 (Nawa Athar)',
+      nameEn: 'Min(maj7)♯11 (Nawa Athar)',
+      symbol: 'm(M7)♯11',
+      intervalsQ: [0, 6, 12, 22],
+      notePt: 'Extração harmônica direta de Maqam Nawa Athar: terça menor, trítono e sétima maior em um voicing denso e cinematográfico.',
+      noteEn: 'Harmonic distillation of Maqam Nawa Athar: minor 3rd, tritone, and major 7th in a dark cinematic voicing.'
+    },
+    {
+      id: 'maj7_b5',
+      family: 'jazz',
+      namePt: 'Tétrade 7M(♭5) / Drop 2',
+      nameEn: 'Maj7(♭5) / Drop 2 Color',
+      symbol: 'maj7♭5',
+      intervalsQ: [0, 8, 12, 22],
+      notePt: 'Voicing aéreo sem 5ª justa — ressoa diretamente em Lídio, Raga Marwa e Messiaen Modo 6.',
+      noteEn: 'Airy fifth-less voicing resonating naturally across Lydian, Raga Marwa, and Messiaen Mode 6.'
+    }
+  ],
+
+  /**
+   * Phase 2 Universal Rhythm Library: Arabic Iqa'at (from Oud Visualizer) + Aksak / Odd Meters
+   * Step symbols: 'D' = Dum (low resonant), 'T' = Tak (crisp high), 'K' = Ka (soft ghost), '-' = Rest
+   */
+  rhythms: [
+    {
+      id: 'iqa_maqsum',
+      family: 'iqa',
+      namePt: 'Maqsum (Iqa’ Árabe)',
+      nameEn: 'Maqsum (Arabic Iqa’)',
+      meter: '4/4',
+      subdivision: 2, // eighth-note grid (8 steps)
+      grouping: '2+2+2+2',
+      steps: ['D', 'T', '-', 'T', 'D', '-', 'T', '-'],
+      notePt: 'O ciclo mais ubíquo da música árabe moderna. Excelente base para groove modal e riffs sincopados.',
+      noteEn: 'The backbone of modern Arabic music. Ideal groove anchor for modal phrasing and syncopated riffs.'
+    },
+    {
+      id: 'iqa_samai_thaqil',
+      family: 'iqa',
+      namePt: 'Sama’i Thaqil (Iqa’ Clássico)',
+      nameEn: 'Sama’i Thaqil (Classical Iqa’)',
+      meter: '10/8',
+      subdivision: 2,
+      grouping: '3+2+2+3',
+      steps: ['D', '-', '-', 'T', '-', 'D', 'D', 'T', '-', '-'],
+      notePt: 'Clássico ciclo de 10 pulsos (3+2+2+3) das composições instrumentais Sama’i. O dobro de Dum nos tempos 6–7 cria uma propulsão única.',
+      noteEn: 'Classical 10-beat cycle (3+2+2+3) of instrumental Sama’i forms. The double Dum on beats 6–7 creates unmistakable momentum.'
+    },
+    {
+      id: 'iqa_jurjina',
+      family: 'iqa',
+      namePt: 'Jurjina (Iraquiano / Curdo)',
+      nameEn: 'Jurjina (Iraqi / Kurdish)',
+      meter: '10/16',
+      subdivision: 4,
+      grouping: '3+2+2+3',
+      steps: ['D', '-', 'K', 'T', '-', 'D', '-', 'T', '-', 'K'],
+      notePt: 'Ciclo vivo em 10/16 muito usado no Iraque e no repertório de Munir Bashir. Excelente para palhetada alternada assimétrica.',
+      noteEn: 'Lively 10/16 cycle central to Iraqi tradition and Munir Bashir’s repertoire. Great for asymmetric alternate picking.'
+    },
+    {
+      id: 'iqa_baladi',
+      family: 'iqa',
+      namePt: 'Masmudi Saghir / Baladi',
+      nameEn: 'Masmudi Saghir / Baladi',
+      meter: '4/4',
+      subdivision: 2,
+      grouping: '2+2+2+2',
+      steps: ['D', 'D', '-', 'T', 'D', '-', 'T', 'K'],
+      notePt: 'Abertura pesada com dois Dums seguidos — conecta perfeitamente com riffs graves em Drop D ou DADGAD.',
+      noteEn: 'Heavy double-Dum opening — locks right into low-register riffs in Drop D or DADGAD.'
+    },
+    {
+      id: 'iqa_aqsak_9',
+      family: 'iqa',
+      namePt: 'Aqsaq (Otomano / Árabe)',
+      nameEn: 'Aqsaq (Ottoman / Arabic)',
+      meter: '9/8',
+      subdivision: 2,
+      grouping: '2+2+2+3',
+      steps: ['D', '-', 'T', 'K', 'D', '-', 'T', '-', 'K'],
+      notePt: 'Clássico 9/8 manco ("aksak") com grupo final alongado em 3 pulsos.',
+      noteEn: 'Classic limping 9/8 ("aksak") with an elongated 3-pulse tail.'
+    },
+    {
+      id: 'iqa_malfuf',
+      family: 'iqa',
+      namePt: 'Malfuf (2/4 Dinâmico)',
+      nameEn: 'Malfuf (Driving 2/4)',
+      meter: '2/4',
+      subdivision: 4,
+      grouping: '3+3+2',
+      steps: ['D', '-', '-', 'T', '-', '-', 'T', '-'],
+      notePt: 'Subdivisão 3+3+2 (mesma célula rítmica do baião/tresillo!), ligando diretamente o mundo árabe à rítmica brasileira.',
+      noteEn: '3+3+2 subdivision (the exact tresillo/baião cell!), bridging Arabic cycles directly with Brazilian rhythm.'
+    },
+    {
+      id: 'aksak_7_223',
+      family: 'aksak',
+      namePt: 'Aksak 7/8 (2+2+3 · Rachenitsa)',
+      nameEn: 'Aksak 7/8 (2+2+3 · Rachenitsa)',
+      meter: '7/8',
+      subdivision: 2,
+      grouping: '2+2+3',
+      steps: ['D', '-', 'T', '-', 'D', 'K', 'T'],
+      notePt: 'Groove balcânico acelerado com apoio estendido no último grupo de 3 colcheias.',
+      noteEn: 'Driving Balkan groove with a stretched 3-eighth closing cell.'
+    },
+    {
+      id: 'aksak_7_322',
+      family: 'aksak',
+      namePt: 'Aksak 7/8 (3+2+2 · Kalamatianos)',
+      nameEn: 'Aksak 7/8 (3+2+2 · Kalamatianos)',
+      meter: '7/8',
+      subdivision: 2,
+      grouping: '3+2+2',
+      steps: ['D', '-', 'K', 'T', '-', 'T', 'K'],
+      notePt: 'Acentuação frontal longa (3+2+2) — excelente para sobrepor uma polimetria de 4 na Trilha B.',
+      noteEn: 'Front-loaded long pulse (3+2+2) — prime material for overlaying a 4-pulse polymeter on Track B.'
+    },
+    {
+      id: 'odd_5_4',
+      family: 'aksak',
+      namePt: 'Assimétrico 5/4 (3+2)',
+      nameEn: 'Asymmetric 5/4 (3+2)',
+      meter: '5/4',
+      subdivision: 2,
+      grouping: '3+2 (10 steps)',
+      steps: ['D', '-', 'K', 'T', '-', 'K', 'D', '-', 'T', '-'],
+      notePt: 'Grade de 10 colcheias articulada em 3+2. Combine com Trilha B em 4 ou 3 para modulação métrica.',
+      noteEn: '10-eighth grid articulated as 3+2. Combine with Track B in 4 or 3 for metric modulation studies.'
+    },
+    {
+      id: 'aksak_11_8',
+      family: 'aksak',
+      namePt: 'Kopanitsa 11/8 (2+2+3+2+2)',
+      nameEn: 'Kopanitsa 11/8 (2+2+3+2+2)',
+      meter: '11/8',
+      subdivision: 2,
+      grouping: '2+2+3+2+2',
+      steps: ['D', '-', 'T', '-', 'D', '-', 'K', 'T', '-', 'T', 'K'],
+      notePt: 'Pilar assimétrico de 11 pulsos muito explorado no jazz contemporâneo (Tigran Hamasyan) e no prog.',
+      noteEn: '11-pulse asymmetric cornerstone beloved in contemporary jazz (Tigran Hamasyan) and progressive music.'
+    },
+    {
+      id: 'odd_13_16',
+      family: 'aksak',
+      namePt: 'Ciclo 13/16 (3+3+3+2+2)',
+      nameEn: '13/16 Cycle (3+3+3+2+2)',
+      meter: '13/16',
+      subdivision: 4,
+      grouping: '3+3+3+2+2',
+      steps: ['D', '-', 'K', 'T', '-', 'K', 'D', '-', 'K', 'T', '-', 'T', '-'],
+      notePt: 'Ciclo primo de 13 semicolcheias — ideal para riffs polimétricos (ative Trilha B = 4 para ouvir o deslocamento contínuo estilo Meshuggah).',
+      noteEn: 'Prime 13-sixteenth cycle — ideal for polymetric riffs (enable Track B = 4 to feel continuous phase displacement).'
+    }
+  ],
+
   tunings: [
     {
       id: 'standard',
@@ -477,9 +874,6 @@ export const DB = {
     }
   ],
 
-  /**
-   * Oblique Creative Lab Cards — electric guitar experimentation prompts with one-click presets
-   */
   obliqueStrategies: [
     {
       id: 'exp_bayati_dadgad',
@@ -487,9 +881,19 @@ export const DB = {
       titleEn: 'Electric Taqsim in DADGAD',
       promptPt: 'Toque em Ré Bayati usando a 6ª e a 4ª cordas soltas como bordão contínuo. Construa frases lentas exclusivamente nas cordas 1 e 2, afinando o E½♭ por micro-bend (+50¢).',
       promptEn: 'Play D Bayati using open strings 6 and 4 as a continuous drone. Craft slow phrases strictly on strings 1 and 2, intoning E½♭ via +50¢ micro-bend.',
-      constraintPt: 'Restrição: toque no máximo 4 notas por respiração e evite tocar o 4º grau nos primeiros 30 segundos.',
-      constraintEn: 'Constraint: play at most 4 notes per breath and withhold the 4th degree for the first 30 seconds.',
-      preset: { scaleId: 'maqam_bayati', rootQ: 4, tuningId: 'dadgad', microMode: 'bend', droneOn: true, harmonicsOn: false }
+      constraintPt: 'Restrição: toque no máximo 4 notas por respiração e ative a Tríade Suspensa Bayati como mapa de repouso.',
+      constraintEn: 'Constraint: play at most 4 notes per breath and toggle the Bayati Neutral Sus chord as your resting map.',
+      preset: { scaleId: 'maqam_bayati', rootQ: 4, tuningId: 'dadgad', microMode: 'bend', droneOn: true, harmonicsOn: false, chordId: 'bayati_neutral_dyad', rhythmId: 'iqa_samai_thaqil' }
+    },
+    {
+      id: 'exp_nikriz_samai',
+      titlePt: 'Nikriz em Sama’i Thaqil (10/8)',
+      titleEn: 'Nikriz in Sama’i Thaqil (10/8)',
+      promptPt: 'Ative o ciclo 10/8 (3+2+2+3) em Maqam Nikriz sobre Dó. Construa um riff modal que enfatize o salto ♭3→♯4 nos dois Dums consecutivos dos tempos 6 e 7.',
+      promptEn: 'Start the 10/8 cycle (3+2+2+3) in C Maqam Nikriz. Craft a modal riff emphasizing the ♭3→♯4 leap right on the double Dum of beats 6 and 7.',
+      constraintPt: 'Restrição: ligue a Trilha B polimétrica em 4 para criar tensão cruzada sobre o 10/8.',
+      constraintEn: 'Constraint: engage Polymeter Track B in 4 to generate cross-accent tension over 10/8.',
+      preset: { scaleId: 'maqam_nikriz', rootQ: 0, tuningId: 'drop_d', microMode: 'bend', droneOn: false, harmonicsOn: false, chordId: 'quartal_3', rhythmId: 'iqa_samai_thaqil' }
     },
     {
       id: 'exp_messiaen_m3',
@@ -499,7 +903,7 @@ export const DB = {
       promptEn: 'Explore Messiaen Mode 3 in Major Thirds tuning. Pick a 3-note cell and mirror it on the exact same frets across strings — the geometry stays invariant.',
       constraintPt: 'Restrição: nenhum acorde pode conter 5ª justa.',
       constraintEn: 'Constraint: no chord voicing may contain a perfect 5th.',
-      preset: { scaleId: 'messiaen_mode3', rootQ: 0, tuningId: 'major_thirds', microMode: 'bend', droneOn: false, harmonicsOn: false }
+      preset: { scaleId: 'messiaen_mode3', rootQ: 0, tuningId: 'major_thirds', microMode: 'bend', droneOn: false, harmonicsOn: false, chordId: 'maj7_b5', rhythmId: 'odd_5_4' }
     },
     {
       id: 'exp_saba_slide',
@@ -509,27 +913,37 @@ export const DB = {
       promptEn: 'Switch to Slide/Fretless mode in D Saba. Use volume swells or soft finger attacks gliding slowly between the neutral 2nd and diminished 4th.',
       constraintPt: 'Restrição: permaneça apenas na corda G (3ª) durante toda a exploração.',
       constraintEn: 'Constraint: stay strictly on the 3rd string for the entire exploration.',
-      preset: { scaleId: 'maqam_saba', rootQ: 4, tuningId: 'drop_d', microMode: 'slide', droneOn: true, harmonicsOn: false }
+      preset: { scaleId: 'maqam_saba', rootQ: 4, tuningId: 'drop_d', microMode: 'slide', droneOn: true, harmonicsOn: false, chordId: 'bayati_neutral_dyad', rhythmId: 'iqa_aqsak_9' }
     },
     {
       id: 'exp_viennese_fourths',
       titlePt: 'Pontilhismo Vienense [0,1,6]',
       titleEn: 'Viennese Pointillism [0,1,6]',
-      promptPt: 'Em All Fourths (EADGCF), distribua as 3 notas do tricorde [0,1,6] por três oitavas diferentes usando saltos de corda e dinâmicas contrastantes (pp vs ff).',
-      promptEn: 'In All Fourths (EADGCF), scatter the 3 pitches of [0,1,6] across three octaves using string skipping and stark dynamic contrasts (pp vs ff).',
-      constraintPt: 'Restrição: alterne cada acorde de 3 notas com um harmônico natural isolado.',
-      constraintEn: 'Constraint: alternate every 3-note chord with a single natural harmonic.',
-      preset: { scaleId: 'set_viennese_016', rootQ: 8, tuningId: 'all_fourths', microMode: 'bend', droneOn: false, harmonicsOn: true }
+      promptPt: 'Em All Fourths (EADGCF), distribua as 3 notas do tricorde [0,1,6] por três oitavas diferentes usando os voicings calculados no Laboratório Harmônico.',
+      promptEn: 'In All Fourths (EADGCF), scatter the 3 pitches of [0,1,6] across three octaves using the calculated voicings in the Harmony Lab.',
+      constraintPt: 'Restrição: alterne cada acorde de 3 notas com um harmônico natural isolado em 11/8.',
+      constraintEn: 'Constraint: alternate every 3-note chord with an isolated natural harmonic over 11/8.',
+      preset: { scaleId: 'set_viennese_016', rootQ: 8, tuningId: 'all_fourths', microMode: 'bend', droneOn: false, harmonicsOn: true, chordId: 'viennese_chord', rhythmId: 'aksak_11_8' }
     },
     {
       id: 'exp_armorial_harmonics',
       titlePt: 'Série Harmônica & Sertão Espectral',
       titleEn: 'Spectral Overtone Sertão',
-      promptPt: 'Em Orkney (CGDGCD) sobre Dó Lídio ♭7, misture os harmônicos naturais de 5º e 7º parciais com a melodia na 1ª corda e o bordão grave em Dó.',
-      promptEn: 'In Orkney (CGDGCD) over C Lydian ♭7, weave 5th- and 7th-partial natural harmonics into a 1st-string melody above the low C drone.',
+      promptPt: 'Em Orkney (CGDGCD) sobre Dó Lídio ♭7, misture os harmônicos naturais de 5º e 7º parciais com a melodia na 1ª corda sobre o ciclo Malfuf (3+3+2).',
+      promptEn: 'In Orkney (CGDGCD) over C Lydian ♭7, weave 5th- and 7th-partial natural harmonics into a 1st-string melody above the Malfuf (3+3+2) pulse.',
       constraintPt: 'Restrição: use apenas a mão esquerda (hammer-on/pull-off) nos trechos graves.',
       constraintEn: 'Constraint: use left-hand legato only on low-register notes.',
-      preset: { scaleId: 'br_armorial_lydian_b7', rootQ: 0, tuningId: 'orkney', microMode: 'bend', droneOn: true, harmonicsOn: true }
+      preset: { scaleId: 'br_armorial_lydian_b7', rootQ: 0, tuningId: 'orkney', microMode: 'bend', droneOn: true, harmonicsOn: true, chordId: 'quintal_3', rhythmId: 'iqa_malfuf' }
+    },
+    {
+      id: 'exp_gamelan_13_16',
+      titlePt: 'Kotekan Microtonal em 13/16',
+      titleEn: 'Microtonal Kotekan in 13/16',
+      promptPt: 'Ative Gamelan Pelog em Trastes 24-TET com o ciclo 13/16. Grave uma célula de 6 notas no Gravador de Tablatura clicando no braço e reproduza sobre o pulso.',
+      promptEn: 'Load Gamelan Pelog in 24-TET Frets with the 13/16 cycle. Record a 6-note cell in the Tab Scratchpad by clicking the neck and audition it against the pulse.',
+      constraintPt: 'Restrição: evite qualquer intervalo de 3ª maior ou menor consecutiva.',
+      constraintEn: 'Constraint: avoid any consecutive major or minor 3rd leaps.',
+      preset: { scaleId: 'gamelan_pelog_24', rootQ: 0, tuningId: 'fripp_nst', microMode: 'frets24', droneOn: false, harmonicsOn: false, chordId: 'rast_neutral_triad', rhythmId: 'odd_13_16' }
     },
     {
       id: 'exp_marwa_unison',
@@ -539,27 +953,7 @@ export const DB = {
       promptEn: 'Load Unison Drone (F♯⁴-E-B) in F♯ Marwa. Let the four low unison strings shimmer while tracing fifth-less melodies on the top two strings.',
       constraintPt: 'Restrição: termine todas as frases na ♭2 ou na 6ª maior antes da resolução final.',
       constraintEn: 'Constraint: end every phrase on ♭2 or major 6th before the final resolution.',
-      preset: { scaleId: 'raga_marwa', rootQ: 12, tuningId: 'sonic_unison', microMode: 'bend', droneOn: true, harmonicsOn: false }
-    },
-    {
-      id: 'exp_rast_frets24',
-      titlePt: 'Cartografia 24-TET em Maqam Rast',
-      titleEn: '24-TET Cartography in Maqam Rast',
-      promptPt: 'Ative os Trastes 24-TET em Dó Rast. Observe a simetria visual das terças e sétimas neutras e pratique saltar diretamente entre a tônica, 3½♭ e 5.',
-      promptEn: 'Activate 24-TET Frets in C Rast. Observe the visual symmetry of neutral 3rds and 7ths and practice direct leaps between root, 3½♭, and 5.',
-      constraintPt: 'Restrição: toque o padrão em grupos assimétricos de 5 ou 7 notas.',
-      constraintEn: 'Constraint: group your melodic contours into asymmetrical 5- or 7-note phrases.',
-      preset: { scaleId: 'maqam_rast', rootQ: 0, tuningId: 'fripp_nst', microMode: 'frets24', droneOn: true, harmonicsOn: false }
-    },
-    {
-      id: 'exp_slonimsky_angular',
-      titlePt: 'Linhas Angulares de Slonimsky',
-      titleEn: 'Angular Slonimsky Lines',
-      promptPt: 'Aplique o padrão simétrico de trítono em Standard. Construa um ostinato de 6 notas cruzando 4 cordas e transponha tudo 6 casas acima sem mudar a digitação.',
-      promptEn: 'Apply the tritone symmetrical pattern in Standard tuning. Build a 6-note ostinato across 4 strings and shift it 6 frets up verbatim.',
-      constraintPt: 'Restrição: acentue sempre o trítono (♯4) com ataque mais forte ou palhetada híbrida.',
-      constraintEn: 'Constraint: accent every tritone (♯4) with a sharper attack or hybrid snap.',
-      preset: { scaleId: 'slonimsky_tritone_interp', rootQ: 8, tuningId: 'standard', microMode: 'bend', droneOn: false, harmonicsOn: false }
+      preset: { scaleId: 'raga_marwa', rootQ: 12, tuningId: 'sonic_unison', microMode: 'bend', droneOn: true, harmonicsOn: false, chordId: 'maj7_b5', rhythmId: 'aksak_7_322' }
     }
   ]
 };

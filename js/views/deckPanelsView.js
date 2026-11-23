@@ -1,6 +1,5 @@
 /**
- * Top Control Deck: Categories, Scale/Maqam, 24-TET Root, Microtonal Mode,
- * Scordatura Presets, 6-String Fine Retuner, Scale Player, Drone & Harmonics
+ * Top Control Deck v2.0
  */
 import { DB } from '../core/database.js';
 import { NOTE_NAMES_24, mod24, qToNoteName } from '../core/theory24.js';
@@ -26,7 +25,7 @@ export function renderDeckPanel(state) {
 
   const scaleOptions = filteredScales.map((s) => {
     const label = state.lang === 'en' ? s.nameEn : s.namePt;
-    return `<option value="${s.id}" ${s.id === state.scaleId ? 'selected' : ''}>${label}</option>`;
+    return `<option value="${s.id}" ${!state.customScaleIntervalsQ && s.id === state.scaleId ? 'selected' : ''}>${label}</option>`;
   }).join('');
 
   const rootOptions = NOTE_NAMES_24.map((name, q) => {
@@ -128,6 +127,10 @@ export function renderDeckPanel(state) {
       </div>
 
       <div class="audio-controls-right">
+        <button type="button" class="btn-pill ${state.voicingOverlayOn ? 'active-voicing' : ''}" data-action="toggleVoicingOverlay">
+          ${state.voicingOverlayOn ? t(state.lang, 'voicingOverlayOn') : t(state.lang, 'voicingOverlayOff')}
+        </button>
+
         <button type="button" class="btn-pill ${state.harmonicsOn ? 'active-harm' : ''}" data-action="toggleHarmonics">
           ${state.harmonicsOn ? t(state.lang, 'harmonicsOn') : t(state.lang, 'harmonicsOff')}
         </button>
@@ -141,33 +144,31 @@ export function renderDeckPanel(state) {
     ${retunerHtml}
   `;
 
-  // Bind selects & slider
-  panel.querySelector('#selScale').addEventListener('change', (e) => {
+  panel.querySelector('#selScale').onchange = (e) => {
     stopPlaybackIfNeeded();
-    setState({ scaleId: e.target.value, inspectedNote: null });
-  });
+    setState({ scaleId: e.target.value, customScaleIntervalsQ: null, inspectedNote: null });
+  };
 
-  panel.querySelector('#selRoot').addEventListener('change', (e) => {
+  panel.querySelector('#selRoot').onchange = (e) => {
     const nextRoot = Number(e.target.value);
     setState({ rootQ: nextRoot });
     if (state.droneOn) {
       synthEngine.updateDrone(true, nextRoot, state.droneFifth);
     }
-  });
+  };
 
-  panel.querySelector('#selTuning').addEventListener('change', (e) => {
+  panel.querySelector('#selTuning').onchange = (e) => {
     const tun = DB.tunings.find((item) => item.id === e.target.value) || DB.tunings[0];
     setState({ tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
-  });
+  };
 
   const bpmSlider = panel.querySelector('#rngBpm');
   const bpmVal = panel.querySelector('#bpmVal');
-  bpmSlider.addEventListener('input', (e) => {
+  bpmSlider.oninput = (e) => {
     bpmVal.textContent = e.target.value;
     setState({ bpm: Number(e.target.value) });
-  });
+  };
 
-  // Delegated button actions
   panel.onclick = (e) => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -179,6 +180,7 @@ export function renderDeckPanel(state) {
       const stillVisible = list.some((s) => s.id === state.scaleId);
       setState({
         category: cat,
+        customScaleIntervalsQ: null,
         scaleId: stillVisible ? state.scaleId : (list[0]?.id || state.scaleId)
       });
     } else if (action === 'microMode') {
@@ -195,6 +197,8 @@ export function renderDeckPanel(state) {
       const next = !state.droneFifth;
       if (state.droneOn) synthEngine.updateDrone(true, state.rootQ, next);
       setState({ droneFifth: next });
+    } else if (action === 'toggleVoicingOverlay') {
+      setState({ voicingOverlayOn: !state.voicingOverlayOn });
     } else if (action === 'toggleHarmonics') {
       setState({ harmonicsOn: !state.harmonicsOn });
     } else if (action === 'toggleRetuner') {
@@ -212,7 +216,6 @@ export function renderDeckPanel(state) {
     }
   };
 
-  // Update header tuning summary badge
   const badge = document.getElementById('tuningSummaryBadge');
   if (badge) {
     badge.textContent = state.customStringsQ.map((q) => qToNoteName(q, false)).join(' ');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v1.0.0';
+const CACHE_NAME = 'string-atlas-v2.0.0';
 
 const CORE_ASSETS = [
   './',
@@ -11,9 +11,14 @@ const CORE_ASSETS = [
   './js/core/theory24.js',
   './js/core/database.js',
   './js/core/i18n.js',
+  './js/core/voicingEngine.js',
   './js/audio/synthEngine.js',
+  './js/audio/rhythmEngine.js',
   './js/views/fretboardView.js',
   './js/views/deckPanelsView.js',
+  './js/views/notationView.js',
+  './js/views/harmonyView.js',
+  './js/views/rhythmView.js',
   './js/views/dossierView.js'
 ];
 
@@ -33,7 +38,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first when online (prevents stale JS during dev), falling back cleanly to cache offline
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(

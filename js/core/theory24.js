@@ -1,5 +1,5 @@
 /**
- * Core 24-TET Music Theory & Acoustics Engine
+ * Core 24-TET Music Theory, Staff Spelling & Acoustics Engine
  * Quarter-tone index q = MIDI * 2 (C4 = 120, A4 = 138, E2 = 80)
  */
 
@@ -26,10 +26,36 @@ export const INTERVAL_NAMES_24 = [
 ];
 
 /**
- * Natural spectral harmonic nodes on a vibrating string (2nd to 7th partials).
- * fretPos is the exact continuous fret coordinate along a 12-TET fretboard.
- * jiCentsOffset is the Just Intonation deviation vs nearest 12-TET semitone.
+ * Maps each 24-TET pitch class (0..23) to diatonic letter index (C=0..B=6) + accidental glyph
+ * for legible 24-TET treble-clef staff rendering.
  */
+export const STAFF_SPELLINGS_24 = [
+  { letter: 0, acc: '' },    // 0  C
+  { letter: 0, acc: '½♯' },  // 1  C½♯
+  { letter: 0, acc: '♯' },   // 2  C♯
+  { letter: 1, acc: '½♭' },  // 3  D½♭
+  { letter: 1, acc: '' },    // 4  D
+  { letter: 1, acc: '½♯' },  // 5  D½♯
+  { letter: 2, acc: '♭' },   // 6  E♭
+  { letter: 2, acc: '½♭' },  // 7  E½♭
+  { letter: 2, acc: '' },    // 8  E
+  { letter: 2, acc: '½♯' },  // 9  E½♯
+  { letter: 3, acc: '' },    // 10 F
+  { letter: 3, acc: '½♯' },  // 11 F½♯
+  { letter: 3, acc: '♯' },   // 12 F♯
+  { letter: 4, acc: '½♭' },  // 13 G½♭
+  { letter: 4, acc: '' },    // 14 G
+  { letter: 4, acc: '½♯' },  // 15 G½♯
+  { letter: 5, acc: '♭' },   // 16 A♭
+  { letter: 5, acc: '½♭' },  // 17 A½♭
+  { letter: 5, acc: '' },    // 18 A
+  { letter: 5, acc: '½♯' },  // 19 A½♯
+  { letter: 6, acc: '♭' },   // 20 B♭
+  { letter: 6, acc: '½♭' },  // 21 B½♭
+  { letter: 6, acc: '' },    // 22 B
+  { letter: 6, acc: '½♯' }   // 23 B½♯
+];
+
 export const SPECTRAL_HARMONICS = [
   { partial: 2, ratio: 2, fretPos: 12.0, jiCentsOffset: 0, intervalLabel: 'P8 (2º)' },
   { partial: 3, ratio: 3, fretPos: 7.02, jiCentsOffset: +2, intervalLabel: 'P12 (3º)' },
@@ -64,6 +90,25 @@ export function qToNoteName(q, withOctave = false) {
   return withOctave ? `${name}${qToOctave(q)}` : name;
 }
 
+/**
+ * Guitar written staff position (written one octave above sounding pitch).
+ * Returns diatonic step index relative to written E4 (bottom line of treble staff = 0).
+ * E4 = 0, F4 = 1, G4 = 2, A4 = 3, B4 = 4, C5 = 5, D5 = 6, E5 = 7, F5 = 8.
+ */
+export function qToGuitarStaffPos(q) {
+  const writtenQ = q + Q_PER_OCTAVE;
+  const pc = qToPitchClass(writtenQ);
+  const octave = qToOctave(writtenQ);
+  const sp = STAFF_SPELLINGS_24[pc];
+  // E4 has octave 4, letter 2 => absolute diatonic = 4*7 + 2 = 30
+  const absDiatonic = octave * 7 + sp.letter;
+  return {
+    stepFromE4: absDiatonic - 30,
+    accidental: sp.acc,
+    isMicro: pc % 2 !== 0
+  };
+}
+
 export function isQuarterTone(q) {
   return mod24(q) % 2 !== 0;
 }
@@ -76,10 +121,6 @@ export function intervalQToCents(intervalQ) {
   return mod24(intervalQ) * 50;
 }
 
-/**
- * Computes the 12-TET Allen Forte Interval-Class Vector <ic1, ic2, ic3, ic4, ic5, ic6>
- * Returns null if the scale contains quarter-tones (24-TET).
- */
 export function computeIntervalVector(intervalsQ) {
   if (intervalsQ.some((q) => mod24(q) % 2 !== 0)) {
     return null;
@@ -98,9 +139,6 @@ export function computeIntervalVector(intervalsQ) {
   return vec;
 }
 
-/**
- * Computes step-size formula in semitone units (e.g., "¾ - ¾ - 1 - 1 - ½ - 1 - 1")
- */
 export function formatStepFormula(intervalsQ) {
   const sorted = [...intervalsQ].sort((a, b) => a - b);
   const steps = [];
@@ -124,4 +162,19 @@ function formatQStep(q) {
     8: '2'
   };
   return map[q] || `${q / 2}`;
+}
+
+export function gcd(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y !== 0) {
+    const t = y;
+    y = x % y;
+    x = t;
+  }
+  return x || 1;
+}
+
+export function lcm(a, b) {
+  return Math.abs(a * b) / gcd(a, b);
 }

@@ -1,5 +1,5 @@
 /**
- * Pure Web Audio API 24-TET Electric Guitar & Modal Drone Synth
+ * Pure Web Audio API 24-TET Electric Guitar & Modal Drone Synth v2.0
  */
 import { qToFreq } from '../core/theory24.js';
 
@@ -51,12 +51,9 @@ class SynthEngine {
     return this.ctx;
   }
 
-  /**
-   * Plucks a clean electric-guitar-like voice at exact frequency (supports 24-TET & JI harmonics)
-   */
-  pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false } = {}) {
+  pluckFreq(freq, { duration = 1.6, velocity = 0.34, harmonicBell = false, when = null } = {}) {
     const ctx = this.ensureContext();
-    const now = ctx.currentTime;
+    const now = when !== null ? when : ctx.currentTime;
 
     const voiceGain = ctx.createGain();
     const filter = ctx.createBiquadFilter();
@@ -81,7 +78,7 @@ class SynthEngine {
       osc1.type = 'triangle';
       osc2.type = 'sawtooth';
       osc1.frequency.setValueAtTime(freq, now);
-      osc2.frequency.setValueAtTime(freq * 1.0018, now); // gentle chorus detune
+      osc2.frequency.setValueAtTime(freq * 1.0018, now);
     }
 
     const mix2 = ctx.createGain();
@@ -93,7 +90,6 @@ class SynthEngine {
     filter.connect(voiceGain);
     voiceGain.connect(this.masterGain);
 
-    // Pluck envelope
     voiceGain.gain.setValueAtTime(0.0001, now);
     voiceGain.gain.linearRampToValueAtTime(velocity, now + 0.009);
     voiceGain.gain.exponentialRampToValueAtTime(0.0008, now + duration);
@@ -109,8 +105,67 @@ class SynthEngine {
   }
 
   /**
-   * Starts or updates the continuous modal drone (root + sub-octave + optional 5th)
+   * Strums a calculated voicing naturally from bass string to treble string
    */
+  strumVoicing(voicing, { spreadSec = 0.042, duration = 2.4 } = {}) {
+    if (!voicing || !voicing.notes?.length) return;
+    const ctx = this.ensureContext();
+    const baseTime = ctx.currentTime + 0.01;
+    const perNoteVel = Math.min(0.28, 0.72 / Math.sqrt(voicing.notes.length));
+
+    voicing.notes.forEach((n, idx) => {
+      this.pluckQ(n.absQ, {
+        duration,
+        velocity: perNoteVel,
+        when: baseTime + idx * spreadSec
+      });
+    });
+  }
+
+  /**
+   * Arpeggiates a voicing ascending + descending
+   */
+  arpeggiateVoicing(voicing, { stepSec = 0.21 } = {}) {
+    if (!voicing || !voicing.notes?.length) return;
+    const ctx = this.ensureContext();
+    const baseTime = ctx.currentTime + 0.01;
+    const up = voicing.notes;
+    const down = [...voicing.notes].slice(0, -1).reverse();
+    const seq = [...up, ...down];
+
+    seq.forEach((n, idx) => {
+      this.pluckQ(n.absQ, {
+        duration: 1.5,
+        velocity: 0.3,
+        when: baseTime + idx * stepSec
+      });
+    });
+  }
+
+  /**
+   * Plays a recorded phrase from the Tab/Staff scratchpad
+   */
+  playPhrase(events, { bpm = 104, onStep = null, onComplete = null } = {}) {
+    if (!events || !events.length) return;
+    this.stopScaleSequence();
+    this.ensureContext();
+
+    const stepMs = Math.max(130, Math.round((60000 / bpm) * 0.5));
+    events.forEach((ev, idx) => {
+      const id = setTimeout(() => {
+        this.pluckQ(ev.q, { duration: Math.max(0.8, stepMs / 550), velocity: 0.34 });
+        if (onStep) onStep(ev.q % 24);
+      }, idx * stepMs);
+      this.scaleTimerIds.push(id);
+    });
+
+    const endId = setTimeout(() => {
+      this.scaleTimerIds = [];
+      if (onComplete) onComplete();
+    }, events.length * stepMs + 220);
+    this.scaleTimerIds.push(endId);
+  }
+
   updateDrone(enabled, rootQ, includeFifth = true) {
     if (!enabled) {
       this.stopDrone();
@@ -119,7 +174,6 @@ class SynthEngine {
 
     const ctx = this.ensureContext();
     const now = ctx.currentTime;
-    // Place drone in rich low-mid register (octave 2: q = 72 + rootQ)
     const baseQ = 72 + (rootQ % 24);
     const rootFreq = qToFreq(baseQ);
     const subFreq = rootFreq * 0.5;
@@ -198,7 +252,6 @@ class SynthEngine {
     this.stopScaleSequence();
     this.ensureContext();
 
-    // Start in comfortable guitar register around octave 3 (q = 96 + rootQ)
     const baseQ = 96 + (rootQ % 24);
     const asc = [...intervalsQ, 24].map((iv) => baseQ + iv);
     const desc = [...intervalsQ].reverse().map((iv) => baseQ + iv);

@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (24-TET PWA)",
+  "description": "String Atlas — Modal Guitar Lab (24-TET PWA: Harmony, Voicings, 24-TET Notation & Polymetric Iqa'at)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

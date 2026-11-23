@@ -26,6 +26,7 @@
   --accent-micro-ink: #140f0b;
   --accent-harmonic: #82aaff;
   --accent-open: #6bd98e;
+  --accent-voicing: #ffd166;
 
   --fret-wire: #5c6370;
   --fret-micro: rgba(240, 140, 75, 0.45);
@@ -61,6 +62,7 @@
   --accent-micro-ink: #ffffff;
   --accent-harmonic: #3b6fd8;
   --accent-open: #2a9454;
+  --accent-voicing: #b87400;
 
   --fret-wire: #8b8175;
   --fret-micro: rgba(240, 140, 75, 0.55);
@@ -591,4 +593,390 @@ select {
   font-size: 0.78rem;
   color: var(--text-muted);
   padding-top: 6px;
+}
+
+/* =========================================================================
+ * Phase 2 Additions: Voicing Overlay, 24-TET Notation/Tab, Harmony Lab & Rhythm
+ * ========================================================================= */
+
+.btn-pill.active-voicing {
+  background: var(--accent-voicing);
+  color: #111318;
+  border-color: var(--accent-voicing);
+  font-weight: 700;
+}
+
+.btn-mini.active-mini {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: var(--accent-root);
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.legend-ring {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent-voicing);
+  display: inline-block;
+}
+
+.note-node.is-dimmed {
+  opacity: 0.45;
+}
+
+.note-node.is-dimmed:hover {
+  opacity: 0.95;
+}
+
+.empty-hint {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Lab Module Navigation Tabs */
+.lab-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.lab-tab-btn {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.lab-tab-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.lab-tab-btn.is-active {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: var(--accent-root);
+}
+
+.tab-section[hidden] {
+  display: none !important;
+}
+
+/* Synchronized Notation & Tablature Panel */
+.notation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.notation-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 6px;
+}
+
+.notation-svg {
+  display: block;
+  min-width: 820px;
+  width: 100%;
+  height: auto;
+}
+
+/* Harmony & Voicing Lab */
+.harmony-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.harmony-meta-note {
+  flex: 1.5;
+  min-width: 260px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border-left: 3px solid var(--accent-voicing);
+}
+
+.harmony-meta-note p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.harmony-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.voicing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 10px;
+}
+
+.voicing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.voicing-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.voicing-card.is-selected {
+  border-color: var(--accent-voicing);
+  box-shadow: 0 0 0 1px var(--accent-voicing);
+}
+
+.voicing-card-top {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.voicing-tab-sig {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-root);
+  letter-spacing: 0.04em;
+}
+
+.voicing-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.micro-badge {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.micro-badge.open {
+  background: rgba(107, 217, 142, 0.16);
+  color: var(--accent-open);
+}
+
+.micro-badge.micro {
+  background: rgba(240, 140, 75, 0.18);
+  color: var(--accent-micro);
+}
+
+/* 24-TET Pitch-Class Set Builder */
+.custom-set-box {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.custom-set-hint {
+  margin: 0 0 10px;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.pitch-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+}
+
+.pitch-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  cursor: pointer;
+}
+
+.pitch-cell.is-micro {
+  border-style: dashed;
+}
+
+.pitch-cell.is-on {
+  background: var(--accent-scale);
+  color: var(--accent-scale-ink);
+  border-color: var(--accent-scale);
+  font-weight: 700;
+}
+
+.pitch-cell.is-on.is-micro {
+  background: var(--accent-micro);
+  color: var(--accent-micro-ink);
+  border-color: var(--accent-micro);
+}
+
+.pitch-cell.is-root {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: var(--accent-root);
+  opacity: 1;
+}
+
+.pitch-deg {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.pitch-note {
+  font-size: 0.68rem;
+  opacity: 0.85;
+}
+
+/* Rhythm & Polymeter Sequencer */
+.rhythm-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.rhythm-note {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.rhythm-track-block {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 12px;
+}
+
+.rhythm-track-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
+  gap: 6px;
+}
+
+.step-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-panel);
+  cursor: pointer;
+  transition: transform 0.06s ease, box-shadow 0.08s ease;
+}
+
+.step-num {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: ui-monospace, monospace;
+}
+
+.step-glyph {
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+
+.step-cell.hit-D {
+  border-color: var(--accent-root);
+  color: var(--accent-root);
+}
+
+.step-cell.hit-T {
+  border-color: var(--accent-scale);
+  color: var(--accent-scale);
+}
+
+.step-cell.hit-K {
+  border-color: var(--accent-harmonic);
+  color: var(--accent-harmonic);
+}
+
+.step-cell.hit-rest {
+  opacity: 0.55;
+}
+
+.step-cell.is-now {
+  transform: scale(1.06);
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: #ffffff;
+  box-shadow: 0 0 12px rgba(229, 169, 85, 0.55);
+}
+
+.step-cell.is-now .step-num {
+  color: var(--accent-root-ink);
+}
+
+.poly-grid.is-disabled {
+  opacity: 0.35;
+}
+
+.poly-cell {
+  cursor: default;
+}
+
+.poly-cell.poly-accent {
+  border-color: var(--accent-scale);
+  color: var(--accent-scale);
+}
+
+.poly-cell.is-now {
+  background: var(--accent-scale);
+  color: var(--accent-scale-ink);
+  box-shadow: 0 0 12px rgba(76, 201, 176, 0.55);
 }
