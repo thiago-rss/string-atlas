@@ -1,19 +1,59 @@
 /**
- * Real-Time 24-TET Pitch & Micro-Bend Detector (Web Audio API + YIN Algorithm)
- * - Supports Audio Interface "Line Mode" (zero browser DSP: no AEC, NS, or AGC) & Microphone Mode
- * - Extended low-frequency range down to ~42 Hz (covers E Standard, B Standard B1=61.7Hz, A Standard A1=55Hz, Drop G G1=49Hz)
- * - Computes 24-TET nearest pitch class, 12-TET anchor + micro-bend cents (+50c = exact quarter-tone!)
+ * Real-Time 24-TET Pitch & Micro-Bend Detector (Web Audio API + YIN Algorithm) — v8.3 Mobile Hardened
+ * - Direct Audio Interface Line Mode (zero browser DSP) with Channel Routing (L+R Mix, Ch 1 Left, Ch 2 Right)
+ * - 3-Tier Progressive getUserMedia Fallback for iOS Safari / Chrome iOS / Android & Bluetooth AirPods
+ * - Automatic iOS navigator.audioSession switching ('play-and-record' <-> 'playback')
+ * - Extended low-frequency range down to 34 Hz (8-String E1 41.2 Hz, A1 55 Hz, B1 61.7 Hz)
+ * - Adapts seamlessly to 16 kHz / 24 kHz Bluetooth HFP rates as well as 44.1 / 48 / 96 kHz interfaces
  */
 import { A4_HZ, A4_Q, mod24, qToFreq, qToNoteName } from '../core/theory24.js';
+import {
+  disableLockScreenMediaSession,
+  isBluetoothDeviceLabel,
+  mobileAudioGuard,
+  setIOSAudioSessionType
+} from './mobileAudioGuard.js';
 
-const BUFFER_SIZE = 4096; // ~85ms @ 48kHz -> clean tracking down to ~42 Hz
+const BUFFER_SIZE = 4096;
 const MIN_FREQ_HZ = 34;
 const MAX_FREQ_HZ = 1480;
 const YIN_THRESHOLD = 0.14;
 
 /**
+ * Builds a 3-tier progressive getUserMedia constraints chain so strict desktop USB interface
+ * constraints never break mobile Safari/Chrome or Bluetooth headset capture.
+ */
+export function buildConstraintFallbackChain({ mode = 'line', deviceId = '', channel = 'mix' } = {}) {
+  const wantStereo = mode === 'line' || channel === 'ch1' || channel === 'ch2';
+  const tier1 = {
+    echoCancellation: mode === 'mic',
+    noiseSuppression: mode === 'mic',
+    autoGainControl: false,
+    ...(wantStereo ? { channelCount: { ideal: 2 } } : {})
+  };
+  if (deviceId) {
+    tier1.deviceId = { exact: deviceId };
+  }
+
+  const tier2 = {
+    echoCancellation: mode === 'mic',
+    noiseSuppression: false,
+    autoGainControl: false
+  };
+  if (deviceId) {
+    tier2.deviceId = { ideal: deviceId };
+  }
+
+  return [
+    { label: 'preferred', constraints: { audio: tier1, video: false } },
+    { label: 'relaxed', constraints: { audio: tier2, video: false } },
+    { label: 'mobile_safe', constraints: { audio: true, video: false } }
+  ];
+}
+
+/**
  * YIN fundamental frequency estimator with parabolic interpolation.
- * Far more resilient against 2nd/3rd octave harmonics on electric guitars than raw autocorrelation.
+ * Adapts cleanly to any browser/Bluetooth sample rate (16 kHz .. 96 kHz).
  */
 export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
   const n = buf.length;
@@ -26,12 +66,15 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
     return { freq: null, rms, clarity: 0 };
   }
 
-  const maxTau = Math.min(Math.floor(n / 2), Math.ceil(sampleRate / MIN_FREQ_HZ));
+  const maxTau = Math.min(Math.floor(n / 2) - 2, Math.ceil(sampleRate / MIN_FREQ_HZ));
   const minTau = Math.max(2, Math.floor(sampleRate / MAX_FREQ_HZ));
+  if (maxTau <= minTau + 2) {
+    return { freq: null, rms, clarity: 0 };
+  }
+
   const diff = new Float32Array(maxTau);
   const cmnd = new Float32Array(maxTau);
 
-  // Step 1 & 2: Difference function + Cumulative mean normalized difference
   cmnd[0] = 1;
   let runningSum = 0;
   for (let tau = 1; tau < maxTau; tau += 1) {
@@ -46,7 +89,6 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
     cmnd[tau] = runningSum > 0 ? (s * tau) / runningSum : 1;
   }
 
-  // Step 3: Absolute threshold search for first local minimum below YIN_THRESHOLD
   let tauEstimate = -1;
   for (let tau = minTau; tau < maxTau - 1; tau += 1) {
     if (cmnd[tau] < YIN_THRESHOLD) {
@@ -62,7 +104,6 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
     return { freq: null, rms, clarity: 0 };
   }
 
-  // Step 4: Parabolic interpolation around tauEstimate for sub-sample precision
   const x0 = tauEstimate > 1 ? tauEstimate - 1 : tauEstimate;
   const x2 = tauEstimate + 1 < maxTau ? tauEstimate + 1 : tauEstimate;
   let betterTau = tauEstimate;
@@ -89,21 +130,17 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
  * Converts a detected frequency (Hz) into rich 24-TET & 12-TET micro-bend telemetry.
  */
 export function analyzePitch24(freq) {
-  // Continuous 24-TET quarter-tone index (A4 = 138)
   const exactQ = A4_Q + 24 * Math.log2(freq / A4_HZ);
   const nearestQ = Math.round(exactQ);
-  const centsFrom24 = (exactQ - nearestQ) * 50; // -25c .. +25c
+  const centsFrom24 = (exactQ - nearestQ) * 50;
 
-  // Continuous 12-TET semitone index (MIDI)
   const exactMidi = exactQ / 2;
   const nearestMidi = Math.round(exactMidi);
-  const centsFrom12 = (exactMidi - nearestMidi) * 100; // -50c .. +50c
+  const centsFrom12 = (exactMidi - nearestMidi) * 100;
 
-  // Micro-bend anchor: floor semitone (12-TET) -> bend amount in 0..+100c
-  // If just slightly flat of a semitone (-20c..0c), keep anchor on nearest semitone so gauge reads cleanly
   const bendAnchorMidi = centsFrom12 < -22 ? Math.floor(exactMidi) : (centsFrom12 >= 20 ? Math.floor(exactMidi) : nearestMidi);
   const bendAnchorQ = bendAnchorMidi * 2;
-  const bendCentsFromAnchor = (exactMidi - bendAnchorMidi) * 100; // typically -22c .. +100c
+  const bendCentsFromAnchor = (exactMidi - bendAnchorMidi) * 100;
 
   return {
     freq,
@@ -128,6 +165,7 @@ class PitchDetectorService {
     this.ctx = null;
     this.stream = null;
     this.source = null;
+    this.splitter = null;
     this.gainNode = null;
     this.analyser = null;
     this.timeBuf = null;
@@ -136,8 +174,10 @@ class PitchDetectorService {
 
     this.rmsGate = 0.014;
     this.inputGain = 1.4;
+    this.channel = 'mix'; // 'mix' | 'ch1' | 'ch2'
     this.history = [];
     this.onFrame = null;
+    this.onEnded = null;
   }
 
   async listInputDevices() {
@@ -166,7 +206,52 @@ class PitchDetectorService {
     }
   }
 
-  async start({ mode = 'line', deviceId = '', rmsGate = 0.014, inputGain = 1.4, onFrame }) {
+  setChannel(channel) {
+    this.channel = ['mix', 'ch1', 'ch2'].includes(channel) ? channel : 'mix';
+    if (this.running && this.source && this.gainNode) {
+      this.wireInputRouting();
+    }
+  }
+
+  wireInputRouting() {
+    if (!this.source || !this.gainNode || !this.ctx) return;
+    try {
+      this.source.disconnect();
+    } catch {
+      // Not connected yet
+    }
+    if (this.splitter) {
+      try {
+        this.splitter.disconnect();
+      } catch {
+        // Ignore
+      }
+      this.splitter = null;
+    }
+
+    const track = this.stream?.getAudioTracks?.()[0];
+    const reportedCh = track?.getSettings?.().channelCount || this.source.channelCount || 1;
+
+    if ((this.channel === 'ch1' || this.channel === 'ch2') && reportedCh >= 2) {
+      this.splitter = this.ctx.createChannelSplitter(Math.max(2, reportedCh));
+      this.source.connect(this.splitter);
+      const chIndex = this.channel === 'ch2' ? 1 : 0;
+      this.splitter.connect(this.gainNode, chIndex);
+    } else {
+      // Mono sum (L+R) or single-channel mic
+      this.source.connect(this.gainNode);
+    }
+  }
+
+  async start({
+    mode = 'line',
+    deviceId = '',
+    channel = 'mix',
+    rmsGate = 0.014,
+    inputGain = 1.4,
+    onFrame,
+    onEnded = null
+  }) {
     this.stop();
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new Error('UNSUPPORTED_BROWSER');
@@ -174,24 +259,55 @@ class PitchDetectorService {
 
     this.rmsGate = rmsGate;
     this.inputGain = inputGain;
+    this.channel = ['mix', 'ch1', 'ch2'].includes(channel) ? channel : 'mix';
     this.onFrame = onFrame;
+    this.onEnded = onEnded;
     this.history = [];
 
-    const audioConstraints = {
-      echoCancellation: mode === 'mic',
-      noiseSuppression: mode === 'mic',
-      autoGainControl: false,
-      channelCount: 1
-    };
-    if (deviceId) {
-      audioConstraints.deviceId = { exact: deviceId };
+    // Switch iOS audio session to duplex mode cleanly before opening mic/interface
+    setIOSAudioSessionType('play-and-record');
+    disableLockScreenMediaSession();
+
+    const chain = buildConstraintFallbackChain({ mode, deviceId, channel: this.channel });
+    let acquiredStream = null;
+    let usedTier = 'preferred';
+    let lastError = null;
+
+    for (const tier of chain) {
+      try {
+        acquiredStream = await navigator.mediaDevices.getUserMedia(tier.constraints);
+        usedTier = tier.label;
+        break;
+      } catch (err) {
+        lastError = err;
+        // If user explicitly denied permission, abort immediately rather than re-prompting
+        if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+          setIOSAudioSessionType('playback');
+          throw err;
+        }
+      }
     }
 
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+    if (!acquiredStream) {
+      setIOSAudioSessionType('playback');
+      throw lastError || new Error('MIC_UNAVAILABLE');
+    }
+
+    this.stream = acquiredStream;
+    const track = this.stream.getAudioTracks()[0];
+    if (track) {
+      track.onended = () => {
+        if (this.running) {
+          this.stop();
+          if (this.onEnded) this.onEnded();
+        }
+      };
+    }
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AudioCtx({ latencyHint: 'interactive' });
-    if (this.ctx.state === 'suspended') {
+    mobileAudioGuard.attachContextStateWatcher(this.ctx);
+    if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') {
       await this.ctx.resume();
     }
 
@@ -199,21 +315,20 @@ class PitchDetectorService {
     this.gainNode = this.ctx.createGain();
     this.gainNode.gain.value = this.inputGain;
 
-    // Gentle high-pass @ 36 Hz to remove DC rumble without hurting A1 (55 Hz) or G1 (49 Hz)
     const hpf = this.ctx.createBiquadFilter();
     hpf.type = 'highpass';
     hpf.frequency.value = 26;
 
-    // Gentle low-pass @ 1.8 kHz to suppress pick scrape & upper fret harmonics for cleaner YIN lock
     const lpf = this.ctx.createBiquadFilter();
     lpf.type = 'lowpass';
-    lpf.frequency.value = 1800;
+    // Keep LPF safely below Nyquist even on 16 kHz Bluetooth HFP streams!
+    lpf.frequency.value = Math.min(1800, this.ctx.sampleRate * 0.42);
 
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = BUFFER_SIZE;
     this.analyser.smoothingTimeConstant = 0;
 
-    this.source.connect(this.gainNode);
+    this.wireInputRouting();
     this.gainNode.connect(hpf);
     hpf.connect(lpf);
     lpf.connect(this.analyser);
@@ -222,35 +337,49 @@ class PitchDetectorService {
     this.running = true;
 
     const tick = () => {
-      if (!this.running) return;
-      this.analyser.getFloatTimeDomainData(this.timeBuf);
-      const raw = detectPitchYIN(this.timeBuf, this.ctx.sampleRate, this.rmsGate);
+      if (!this.running || !this.ctx || !this.analyser) return;
+      if (this.ctx.state === 'running') {
+        this.analyser.getFloatTimeDomainData(this.timeBuf);
+        const raw = detectPitchYIN(this.timeBuf, this.ctx.sampleRate, this.rmsGate);
 
-      let analysis = null;
-      if (raw.freq) {
-        this.history.push(raw.freq);
-        if (this.history.length > 5) this.history.shift();
-        // Median of last 5 frames eliminates single-frame octave jumps cleanly
-        const sorted = [...this.history].sort((a, b) => a - b);
-        const medianFreq = sorted[Math.floor(sorted.length / 2)];
-        analysis = analyzePitch24(medianFreq);
-      } else {
-        // Decay history gradually during silence
-        if (this.history.length > 0) this.history.shift();
-      }
+        let analysis = null;
+        if (raw.freq) {
+          this.history.push(raw.freq);
+          if (this.history.length > 5) this.history.shift();
+          const sorted = [...this.history].sort((a, b) => a - b);
+          const medianFreq = sorted[Math.floor(sorted.length / 2)];
+          analysis = analyzePitch24(medianFreq);
+        } else if (this.history.length > 0) {
+          this.history.shift();
+        }
 
-      if (this.onFrame) {
-        this.onFrame({
-          rms: raw.rms,
-          clarity: raw.clarity,
-          pitch: analysis
-        });
+        if (this.onFrame) {
+          this.onFrame({
+            rms: raw.rms,
+            clarity: raw.clarity,
+            pitch: analysis
+          });
+        }
       }
 
       this.rafId = requestAnimationFrame(tick);
     };
 
     this.rafId = requestAnimationFrame(tick);
+
+    const settings = track?.getSettings?.() || {};
+    const label = track?.label || '';
+    const sampleRate = this.ctx.sampleRate;
+    const isBluetooth = isBluetoothDeviceLabel(label) || sampleRate <= 24000;
+
+    return {
+      label,
+      sampleRate,
+      channelCount: settings.channelCount || this.source.channelCount || 1,
+      usedFallback: usedTier !== 'preferred',
+      usedTier,
+      isBluetooth
+    };
   }
 
   stop() {
@@ -259,8 +388,19 @@ class PitchDetectorService {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    if (this.splitter) {
+      try {
+        this.splitter.disconnect();
+      } catch {
+        // Ignore
+      }
+      this.splitter = null;
+    }
     if (this.stream) {
-      this.stream.getTracks().forEach((tr) => tr.stop());
+      this.stream.getTracks().forEach((tr) => {
+        tr.onended = null;
+        tr.stop();
+      });
       this.stream = null;
     }
     if (this.ctx) {
@@ -271,6 +411,10 @@ class PitchDetectorService {
     this.gainNode = null;
     this.analyser = null;
     this.history = [];
+
+    // Restore stereo A2DP / mute-switch-friendly playback session on iOS
+    setIOSAudioSessionType('playback');
+    disableLockScreenMediaSession();
   }
 }
 

@@ -374,7 +374,10 @@ export function renderDeckPanel(state) {
       <div class="deck-compartment-body" id="compAudio">
         <div class="compartment-head">
           <span class="control-label">${t(state.lang, 'compAudioTitle')}</span>
-          <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+          <div class="pill-row">
+            <button type="button" class="btn-mini" data-action="recoverAudio" title="${t(state.lang, 'audioRecoverTip')}">↻ ${t(state.lang, 'audioRecoverBtn')}</button>
+            <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
+          </div>
         </div>
 
         <div class="comp-audio-top">
@@ -671,6 +674,10 @@ export function renderDeckPanel(state) {
       setState({ harmonicsOn: !st.harmonicsOn });
     } else if (action === 'toggleScalaOverlay') {
       setState({ scalaOverlayOn: !st.scalaOverlayOn, inspectedNote: null });
+    } else if (action === 'recoverAudio') {
+      synthEngine.recoverAudioEngine().then(() => {
+        synthEngine.pluckQ(96 + mod24(st.rootQ), { duration: 1.0, velocity: 0.28 });
+      });
     } else if (action === 'tonePreset') {
       const preset = btn.dataset.val;
       const delayMix = preset === 'swell' ? Math.max(st.delayMix, 0.42) : st.delayMix;

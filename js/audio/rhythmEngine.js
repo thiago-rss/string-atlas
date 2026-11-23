@@ -54,9 +54,21 @@ class RhythmEngine {
     }
   }
 
+  resyncClock() {
+    if (!this.isPlaying || !synthEngine.ctx) return;
+    const now = synthEngine.ctx.currentTime;
+    if (this.nextNoteTime < now - 0.2) {
+      this.nextNoteTime = now + 0.04;
+    }
+  }
+
   scheduler() {
     if (!this.isPlaying || !this.getConfig) return;
     const ctx = synthEngine.ensureContext();
+    if (ctx.state !== 'running') return;
+    if (this.nextNoteTime < ctx.currentTime - 0.28) {
+      this.nextNoteTime = ctx.currentTime + 0.04;
+    }
     const scheduleAheadTime = 0.12;
 
     while (this.nextNoteTime < ctx.currentTime + scheduleAheadTime) {
@@ -112,7 +124,7 @@ class RhythmEngine {
     gain.gain.linearRampToValueAtTime(gainVal, time + 0.004);
     gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.24);
 
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(synthEngine.getMasterOutput());
     osc.start(time);
     osc.stop(time + 0.26);
   }
@@ -132,7 +144,7 @@ class RhythmEngine {
     gain.gain.linearRampToValueAtTime(gainVal, time + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.075);
 
-    noise.connect(bp).connect(gain).connect(ctx.destination);
+    noise.connect(bp).connect(gain).connect(synthEngine.getMasterOutput());
     noise.start(time);
     noise.stop(time + 0.09);
 
@@ -144,7 +156,7 @@ class RhythmEngine {
     ping.frequency.exponentialRampToValueAtTime(420, time + 0.04);
     pGain.gain.setValueAtTime(gainVal * 0.45, time);
     pGain.gain.exponentialRampToValueAtTime(0.0008, time + 0.05);
-    ping.connect(pGain).connect(ctx.destination);
+    ping.connect(pGain).connect(synthEngine.getMasterOutput());
     ping.start(time);
     ping.stop(time + 0.06);
   }
@@ -163,7 +175,7 @@ class RhythmEngine {
     gain.gain.linearRampToValueAtTime(gainVal, time + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.045);
 
-    noise.connect(hp).connect(gain).connect(ctx.destination);
+    noise.connect(hp).connect(gain).connect(synthEngine.getMasterOutput());
     noise.start(time);
     noise.stop(time + 0.055);
   }
@@ -181,7 +193,7 @@ class RhythmEngine {
     gain.gain.linearRampToValueAtTime(isDownbeat ? 0.28 : 0.11, time + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0008, time + (isDownbeat ? 0.075 : 0.035));
 
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(synthEngine.getMasterOutput());
     osc.start(time);
     osc.stop(time + 0.09);
   }

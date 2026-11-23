@@ -55,8 +55,14 @@ export function renderLineModeView(state) {
           </button>
         </div>
 
-        <div class="control-group" style="flex:1;min-width:200px">
+        <div class="control-group" style="flex:1;min-width:190px">
           <select id="selAudioInput" aria-label="${t(state.lang, 'lineDeviceLabel')}">${deviceOptions}</select>
+        </div>
+
+        <div class="pill-row" role="group" aria-label="${t(state.lang, 'lineChannelLabel')}">
+          <button type="button" class="btn-mini ${state.lineChannel === 'mix' ? 'active-mini' : ''}" data-l-action="setChannel" data-val="mix">L+R</button>
+          <button type="button" class="btn-mini ${state.lineChannel === 'ch1' ? 'active-mini' : ''}" data-l-action="setChannel" data-val="ch1">Ch 1</button>
+          <button type="button" class="btn-mini ${state.lineChannel === 'ch2' ? 'active-mini' : ''}" data-l-action="setChannel" data-val="ch2">Ch 2</button>
         </div>
 
         <button type="button" class="btn-pill ${state.lineShowOnNeck ? 'active' : ''}" data-l-action="toggleNeckMirror">
@@ -89,6 +95,14 @@ export function renderLineModeView(state) {
         </div>
       </div>
 
+      ${state.lineModeRunning && state.lineInputMeta ? `
+        <div class="line-meta-strip">
+          <span class="mono-tag">● ${(state.lineInputMeta.sampleRate / 1000).toFixed(1)} kHz · ${state.lineInputMeta.channelCount}ch · ${state.lineChannel.toUpperCase()}</span>
+          ${state.lineInputMeta.label ? `<span class="soft-tag">${state.lineInputMeta.label}</span>` : ''}
+          ${state.lineInputMeta.usedFallback ? `<span class="soft-tag" style="color:var(--accent-root)">${t(state.lang, 'lineFallbackTag')}</span>` : ''}
+          ${state.lineInputMeta.isBluetooth ? `<span class="line-bt-warn">${t(state.lang, 'lineBtWarning')}</span>` : ''}
+        </div>
+      ` : ''}
       ${state.lineError ? `<p class="line-error-banner">${state.lineError}</p>` : ''}
 
       <div class="line-telemetry-grid">
@@ -200,6 +214,10 @@ export function renderLineModeView(state) {
       const nextMode = btn.dataset.val;
       setState({ lineInputMode: nextMode });
       if (st.lineModeRunning) startLineMode();
+    } else if (act === 'setChannel') {
+      const nextCh = btn.dataset.val;
+      pitchDetector.setChannel(nextCh);
+      setState({ lineChannel: nextCh });
     } else if (act === 'toggleNeckMirror') {
       const next = !st.lineShowOnNeck;
       if (!next) highlightFretboardLivePitch(null, st);
@@ -232,18 +250,30 @@ export async function startLineMode() {
   setState({ lineError: '' });
 
   try {
-    await pitchDetector.start({
+    const meta = await pitchDetector.start({
       mode: st.lineInputMode,
       deviceId: st.lineDeviceId,
+      channel: st.lineChannel,
       rmsGate: st.lineRmsGate,
       inputGain: st.lineInputGain,
-      onFrame: (frame) => handleLivePitchFrame(frame)
+      onFrame: (frame) => handleLivePitchFrame(frame),
+      onEnded: () => {
+        const cur = getState();
+        highlightFretboardLivePitch(null, cur);
+        setState({
+          lineModeRunning: false,
+          lineInputMeta: null,
+          lineError: t(cur.lang, 'lineErrDisconnected')
+        });
+        updateLineHeaderBadge(false, null);
+      }
     });
 
     const devices = await pitchDetector.listInputDevices();
     setState({
       lineModeRunning: true,
       audioInputDevices: devices,
+      lineInputMeta: meta,
       lineError: ''
     });
     updateLineHeaderBadge(true, null);
@@ -252,7 +282,7 @@ export async function startLineMode() {
     const msg = err?.message === 'UNSUPPORTED_BROWSER'
       ? t(curLang, 'lineErrUnsupported')
       : t(curLang, 'lineErrPermission');
-    setState({ lineModeRunning: false, lineError: msg });
+    setState({ lineModeRunning: false, lineInputMeta: null, lineError: msg });
     updateLineHeaderBadge(false, null);
   }
 }
@@ -263,7 +293,7 @@ export function stopLineMode() {
   highlightFretboardLivePitch(null, st);
   targetLockStartMs = 0;
   lastValidatedIdx = -1;
-  setState({ lineModeRunning: false });
+  setState({ lineModeRunning: false, lineInputMeta: null });
   updateLineHeaderBadge(false, null);
 }
 

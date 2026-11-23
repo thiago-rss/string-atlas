@@ -3062,3 +3062,22 @@ body[data-zen="true"] .workspace-compartments {
 body[data-zen="true"] .header-menu-drawer {
   display: none !important;
 }
+
+/* Phase 8.3: Mobile Audio Hardening & Line Mode Stream Telemetry */
+.line-meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.line-bt-warn {
+  font-size: 0.76rem;
+  color: var(--accent-root);
+  font-weight: 600;
+}

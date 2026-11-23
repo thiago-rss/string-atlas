@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v8.2.0';
+const CACHE_NAME = 'string-atlas-v8.3.0';
 
 const CORE_ASSETS = [
   './',
@@ -30,6 +30,7 @@ const CORE_ASSETS = [
   './js/core/sessionCodec.js',
   './js/core/studyGuide.js',
   './js/core/studyDossiers.js',
+  './js/audio/mobileAudioGuard.js',
   './js/audio/synthEngine.js',
   './js/audio/rhythmEngine.js',
   './js/audio/pitchDetector.js',

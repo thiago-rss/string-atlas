@@ -24,7 +24,8 @@ import { SCALA_PRESETS, exportToSclText, mapScalaToFretboard, parseSclText } fro
 import { decodeSessionHash, encodeSessionHash } from '../js/core/sessionCodec.js';
 import { STUDY_LESSONS, STUDY_MODULES } from '../js/core/studyGuide.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
-import { analyzePitch24, detectPitchYIN } from '../js/audio/pitchDetector.js';
+import { analyzePitch24, buildConstraintFallbackChain, detectPitchYIN } from '../js/audio/pitchDetector.js';
+import { isBluetoothDeviceLabel } from '../js/audio/mobileAudioGuard.js';
 
 const ROOT = process.cwd();
 let errors = 0;
@@ -59,6 +60,7 @@ const jsFiles = [
   'js/core/sessionCodec.js',
   'js/core/studyGuide.js',
   'js/core/studyDossiers.js',
+  'js/audio/mobileAudioGuard.js',
   'js/audio/synthEngine.js',
   'js/audio/rhythmEngine.js',
   'js/audio/pitchDetector.js',
@@ -329,6 +331,26 @@ for (const l of STUDY_LESSONS) {
 }
 ok(`Unit-tested Scala (.scl) Engine (${SCALA_PRESETS.length} presets: JI 5/7-limit, 53-TET, Bohlen-Pierce 3/1, Gamelan) & ${STUDY_LESSONS.length} lessons across ${STUDY_MODULES.length} chapters`);
 
+// 5f. Unit-test Mobile Audio Hardening (3-tier getUserMedia fallback, Bluetooth detection & 16kHz HFP YIN)
+const chain = buildConstraintFallbackChain({ mode: 'line', deviceId: 'usb-scarlett-2i2', channel: 'ch2' });
+if (chain.length !== 3 || chain[0].constraints.audio.channelCount?.ideal !== 2 || chain[2].constraints.audio !== true) {
+  fail('buildConstraintFallbackChain did not produce valid 3-tier fallback');
+}
+if (!isBluetoothDeviceLabel('AirPods Pro Hands-Free') || isBluetoothDeviceLabel('Scarlett 2i2 USB')) {
+  fail('isBluetoothDeviceLabel heuristic mismatch');
+}
+// Verify YIN works accurately even if iOS/Bluetooth drops sampleRate to 16 kHz (e.g. A2 = 110 Hz)
+const srBt = 16000;
+const btBuf = new Float32Array(4096);
+for (let i = 0; i < btBuf.length; i += 1) {
+  btBuf[i] = 0.7 * Math.sin((2 * Math.PI * 110.0 * i) / srBt) + 0.2 * Math.sin((4 * Math.PI * 110.0 * i) / srBt);
+}
+const btDet = detectPitchYIN(btBuf, srBt, 0.01);
+if (!btDet.freq || Math.abs(btDet.freq - 110.0) > 0.6) {
+  fail(`YIN 16kHz Bluetooth HFP test failed: got ${btDet.freq}`);
+}
+ok('Unit-tested Mobile Audio Hardening (3-tier fallback, AirPods/BT detection & 16kHz HFP YIN)');
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -343,4 +365,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.2 integrity checks passed.');
+console.log('\nAll String Atlas v8.3 integrity checks passed.');

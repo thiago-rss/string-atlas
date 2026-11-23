@@ -194,6 +194,8 @@ const state = {
   lineModeRunning: false,
   lineInputMode: 'line',
   lineDeviceId: '',
+  lineChannel: 'mix', // 'mix' | 'ch1' | 'ch2'
+  lineInputMeta: null,
   audioInputDevices: [],
   lineInputGain: 1.4,
   lineRmsGate: 0.014,

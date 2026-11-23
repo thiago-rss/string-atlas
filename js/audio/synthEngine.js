@@ -3,6 +3,7 @@
  * Procedural Etude & Vamp/Sayr Synth Engine v6.0
  */
 import { qToFreq } from '../core/theory24.js';
+import { disableLockScreenMediaSession, mobileAudioGuard, primeAudioContextSilent, setIOSAudioSessionType } from './mobileAudioGuard.js';
 
 function makeDriveCurve(amount, asymmetric = false) {
   const samples = 2048;
@@ -31,6 +32,7 @@ class SynthEngine {
   constructor() {
     this.ctx = null;
     this.masterGain = null;
+    this.masterLimiter = null;
     this.guitarBus = null;
     this.driveShaper = null;
     this.drivePreGain = null;
@@ -75,11 +77,22 @@ class SynthEngine {
 
   ensureContext() {
     if (!this.ctx) {
+      setIOSAudioSessionType('playback');
+      disableLockScreenMediaSession();
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      this.ctx = new AudioCtx({ latencyHint: 'interactive' });
+      mobileAudioGuard.attachContextStateWatcher(this.ctx);
 
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.value = this.fxConfig.masterVolume;
+
+      // Transparent mobile/Bluetooth soft-limiter prevents speaker clipping when stacking Drone + Vamp + Fuzz
+      this.masterLimiter = this.ctx.createDynamicsCompressor();
+      this.masterLimiter.threshold.value = -3.0;
+      this.masterLimiter.knee.value = 6.0;
+      this.masterLimiter.ratio.value = 12.0;
+      this.masterLimiter.attack.value = 0.003;
+      this.masterLimiter.release.value = 0.09;
 
       // Guitar voice processing chain: guitarBus -> drivePre -> shaper -> drivePost -> cab -> tremolo -> master + delay
       this.guitarBus = this.ctx.createGain();
@@ -136,14 +149,57 @@ class SynthEngine {
       delayFilter.connect(this.delayWet);
       this.delayWet.connect(this.masterGain);
 
-      this.masterGain.connect(this.ctx.destination);
+      this.masterGain.connect(this.masterLimiter);
+      this.masterLimiter.connect(this.ctx.destination);
       this.applyToneFxToNodes();
     }
 
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') {
+      this.ctx.resume().catch(() => {});
+      primeAudioContextSilent(this.ctx);
     }
+    disableLockScreenMediaSession();
     return this.ctx;
+  }
+
+  getMasterOutput() {
+    this.ensureContext();
+    return this.masterLimiter || this.ctx.destination;
+  }
+
+  /**
+   * Called after screen unlock / Bluetooth handoff so lookahead timers resync cleanly without burst flooding.
+   */
+  resyncActiveSequencers() {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    if (this.etudePlaying && this.etudeNextTime < now - 0.15) {
+      this.etudeNextTime = now + 0.05;
+    }
+    if (this.vampPlaying && this.vampNextBeatTime < now - 0.15) {
+      this.vampNextBeatTime = now + 0.05;
+    }
+  }
+
+  /**
+   * 1-tap Mobile Audio Recovery: resumes or rebuilds AudioContext if iOS stalled it after a phone call / BT switch.
+   */
+  async recoverAudioEngine() {
+    setIOSAudioSessionType('playback');
+    disableLockScreenMediaSession();
+    if (!this.ctx) {
+      this.ensureContext();
+      primeAudioContextSilent(this.ctx);
+      return true;
+    }
+    try {
+      await this.ctx.resume();
+      primeAudioContextSilent(this.ctx);
+      this.resyncActiveSequencers();
+      return this.ctx.state === 'running';
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -329,7 +385,7 @@ class SynthEngine {
     gain.gain.setValueAtTime(0.0001, time);
     gain.gain.linearRampToValueAtTime(accented ? 0.14 : 0.06, time + 0.002);
     gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.032);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(this.getMasterOutput());
     osc.start(time);
     osc.stop(time + 0.04);
   }
@@ -351,6 +407,10 @@ class SynthEngine {
         return;
       }
 
+      if (ctx.state !== 'running') return;
+      if (this.etudeNextTime < ctx.currentTime - 0.28) {
+        this.etudeNextTime = ctx.currentTime + 0.04;
+      }
       const scheduleAhead = 0.12;
       while (this.etudeNextTime < ctx.currentTime + scheduleAhead && this.etudePlaying) {
         if (this.etudeStepIdx >= events.length) {
@@ -463,6 +523,10 @@ class SynthEngine {
         return;
       }
 
+      if (ctx.state !== 'running') return;
+      if (this.vampNextBeatTime < ctx.currentTime - 0.28) {
+        this.vampNextBeatTime = ctx.currentTime + 0.04;
+      }
       const scheduleAhead = 0.14;
       while (this.vampNextBeatTime < ctx.currentTime + scheduleAhead && this.vampPlaying) {
         const fresh = getConfig();

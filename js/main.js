@@ -10,6 +10,9 @@ import {
   subscribe
 } from './state/store.js';
 import { synthEngine } from './audio/synthEngine.js';
+import { rhythmEngine } from './audio/rhythmEngine.js';
+import { pitchDetector } from './audio/pitchDetector.js';
+import { mobileAudioGuard } from './audio/mobileAudioGuard.js';
 import {
   renderDeckPanel,
   refreshScaleBrowserInPlace,
@@ -387,6 +390,12 @@ function renderAll(state, patch = null) {
   renderCommandPalette(state);
   renderShortcutsModal(state);
   renderMobileBottomNav(state);
+
+  // Keep screen awake cleanly while audio playback or Line Mode is running
+  const anyActive = Boolean(
+    state.droneOn || state.vampPlaying || state.etudePlaying || state.rhythmPlaying || state.lineModeRunning
+  );
+  mobileAudioGuard.syncWakeLock(anyActive);
 }
 
 /**
@@ -519,6 +528,13 @@ function boot() {
     tremoloDepth: initial.tremoloDepth,
     tremoloRate: initial.tremoloRate,
     masterVolume: initial.masterVolume
+  });
+  mobileAudioGuard.init({
+    getContexts: () => [synthEngine.ctx, pitchDetector.ctx],
+    onWakeRecovery: () => {
+      synthEngine.resyncActiveSequencers();
+      rhythmEngine.resyncClock();
+    }
   });
   subscribe(renderAll);
   bindGlobalControls();
