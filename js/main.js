@@ -22,6 +22,7 @@ import { renderVampView, toggleVampPlayback, updateVampBadge } from './views/vam
 import { renderEarLabView } from './views/earLabView.js';
 import { renderSnapshotsDrawer, renderZenBar } from './views/snapshotsView.js';
 import { renderThemeDrawer, cycleNextTheme, updateThemeHeaderButton } from './views/themeDrawerView.js';
+import { renderHeaderMenuDrawer } from './views/headerMenuView.js';
 import { renderStudyGuideView } from './views/studyGuideView.js';
 import {
   renderLineModeView,
@@ -293,14 +294,23 @@ function renderAll(state, patch = null) {
       renderShortcutsModal(state);
       return;
     }
-    if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoom'].includes(k))) {
-      renderFretboard(state);
-      renderZenBar(state);
+    if (keys.every((k) => ['headerMenuOpen', 'pwaInstallable'].includes(k))) {
+      renderHeaderMenuDrawer(state);
       return;
     }
-    if (keys.every((k) => k === 'theme' || k === 'themeDrawerOpen')) {
+    if (keys.every((k) => ['fretWindowOn', 'fretWindowStart', 'fretWindowSpan', 'leftHanded', 'fretZoom', 'fretOrientation'].includes(k))) {
+      renderFretboard(state);
+      renderDeckPanel(state);
+      renderZenBar(state);
+      renderMobileBottomNav(state);
+      return;
+    }
+    if (keys.every((k) => ['theme', 'themeDrawerOpen', 'headerMenuOpen', 'snapshotsOpen'].includes(k))) {
       document.documentElement.setAttribute('data-theme', state.theme);
-      renderThemeDrawer(state);
+      renderHeaderMenuDrawer(state);
+      renderHeaderMenuDrawer(state);
+  renderThemeDrawer(state);
+      renderSnapshotsDrawer(state);
       if ('theme' in patch) {
         renderFretboard(state);
       }
@@ -337,6 +347,7 @@ function renderAll(state, patch = null) {
   }
 
   applyStaticI18nAndTheme(state);
+  renderHeaderMenuDrawer(state);
   renderThemeDrawer(state);
   renderSnapshotsDrawer(state);
   renderZenBar(state);
@@ -362,6 +373,15 @@ function renderAll(state, patch = null) {
 }
 
 function bindGlobalControls() {
+  document.getElementById('btnHeaderMenu')?.addEventListener('click', () => {
+    const st = getState();
+    setState({
+      headerMenuOpen: !st.headerMenuOpen,
+      themeDrawerOpen: false,
+      snapshotsOpen: false
+    });
+  });
+
   document.getElementById('btnLangToggle')?.addEventListener('click', () => {
     const st = getState();
     setState({ lang: st.lang === 'pt' ? 'en' : 'pt' });
@@ -399,8 +419,8 @@ function bindGlobalControls() {
     }
 
     if (ev.key === 'Escape') {
-      if (st.paletteOpen || st.shortcutsOpen || st.themeDrawerOpen || st.snapshotsOpen) {
-        setState({ paletteOpen: false, paletteQuery: '', shortcutsOpen: false, themeDrawerOpen: false, snapshotsOpen: false });
+      if (st.paletteOpen || st.shortcutsOpen || st.headerMenuOpen || st.themeDrawerOpen || st.snapshotsOpen) {
+        setState({ paletteOpen: false, paletteQuery: '', shortcutsOpen: false, headerMenuOpen: false, themeDrawerOpen: false, snapshotsOpen: false });
         return;
       }
       if (st.droneOn || st.vampPlaying || st.etudePlaying || st.rhythmPlaying || st.isPlayingScale || st.lineModeRunning) {

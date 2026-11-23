@@ -24,12 +24,13 @@ const INLAY_PREVIEW_GLYPH = {
 };
 
 export function updateThemeHeaderButton(state) {
-  const btn = document.getElementById('btnThemeToggle');
-  if (!btn) return;
   const th = getThemeById(state.theme);
-  const shortName = (state.lang === 'en' ? th.nameEn : th.namePt).split('·')[0].trim();
-  btn.innerHTML = `<span class="theme-btn-dot" style="background:${th.swatches[2]};border-color:${th.swatches[3]}"></span><span>${shortName}</span>`;
-  btn.classList.toggle('is-open', Boolean(state.themeDrawerOpen));
+  const btn = document.getElementById('btnThemeToggle');
+  if (btn) {
+    const shortName = (state.lang === 'en' ? th.nameEn : th.namePt).split('·')[0].trim();
+    btn.innerHTML = `<span class="theme-btn-dot" style="background:${th.swatches[2]};border-color:${th.swatches[3]}"></span><span>${shortName}</span>`;
+    btn.classList.toggle('is-open', Boolean(state.themeDrawerOpen));
+  }
 
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme && th.themeColor) {

@@ -218,6 +218,7 @@ export function renderZenBar(state) {
         <button type="button" class="btn-mini ${state.fretZoom === 12 ? 'active-mini' : ''}" data-z-action="toggleZoom">
           ${state.fretZoom === 12 ? '0–12' : '0–22'}
         </button>
+        <button type="button" class="btn-mini ${state.fretOrientation === 'vertical' ? 'active-mini' : ''}" data-z-action="toggleOrient">${state.fretOrientation === 'vertical' ? '↕' : '↔'}</button>
         <button type="button" class="btn-mini ${state.leftHanded ? 'active-mini' : ''}" data-z-action="toggleLeft">⇄</button>
         <span class="mono-tag" id="zenVampHud"></span>
         ${lineHudHtml}
@@ -243,6 +244,8 @@ export function renderZenBar(state) {
       setState({ fretWindowOn: !st.fretWindowOn });
     } else if (act === 'toggleZoom') {
       setState({ fretZoom: st.fretZoom === 12 ? 22 : 12 });
+    } else if (act === 'toggleOrient') {
+      setState({ fretOrientation: st.fretOrientation === 'vertical' ? 'horizontal' : 'vertical' });
     } else if (act === 'toggleLeft') {
       setState({ leftHanded: !st.leftHanded });
     }

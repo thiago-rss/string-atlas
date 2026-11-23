@@ -1,8 +1,8 @@
 /**
- * Mobile-First Bottom Thumb Dock & PWA Install Controller (v8.0)
+ * Mobile-First Bottom Thumb Dock & PWA Install Controller (v8.1)
  * - Fixed ergonomic bottom bar on screens <= 768px with safe-area-inset-bottom
- * - Instant scroll & compartment jump without reaching the top of the phone screen
- * - Captures `beforeinstallprompt` (Android/Chrome/Edge) for 1-tap PWA installation
+ * - 1-tap Vertical/Horizontal Neck flip, Compartment triggers & Header Menu access
+ * - Captures `beforeinstallprompt` for native PWA installation
  */
 import { t } from '../core/i18n.js';
 import { getState, setState } from '../state/store.js';
@@ -11,55 +11,48 @@ let deferredInstallPrompt = null;
 let installReady = false;
 let mobileActiveTab = 'neck';
 
+export function isPwaInstallAvailable() {
+  return installReady;
+}
+
+export async function triggerPwaInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  try {
+    await deferredInstallPrompt.userChoice;
+  } catch {
+    // Ignore dismissal
+  }
+  deferredInstallPrompt = null;
+  installReady = false;
+}
+
 export function initMobilePwaInstall() {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
     installReady = true;
-    renderInstallButton();
+    setState({ pwaInstallable: true });
   });
 
   window.addEventListener('appinstalled', () => {
     deferredInstallPrompt = null;
     installReady = false;
-    renderInstallButton();
+    setState({ pwaInstallable: false });
   });
-
-  renderInstallButton();
-}
-
-export function renderInstallButton() {
-  const btn = document.getElementById('btnPwaInstall');
-  if (!btn) return;
-  const st = getState();
-  btn.textContent = t(st.lang, 'pwaInstallBtn');
-  btn.hidden = !installReady;
-  btn.onclick = async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    try {
-      await deferredInstallPrompt.userChoice;
-    } catch {
-      // Ignore dismissal
-    }
-    deferredInstallPrompt = null;
-    installReady = false;
-    btn.hidden = true;
-  };
 }
 
 export function renderMobileBottomNav(state) {
   const nav = document.getElementById('mobileBottomNav');
   if (!nav) return;
 
-  renderInstallButton();
-
+  const isVert = state.fretOrientation === 'vertical';
   const items = [
-    { id: 'neck',    icon: '🎸', label: t(state.lang, 'mobNavNeck') },
-    { id: 'deck',    icon: '🎛', label: t(state.lang, 'mobNavDeck') },
-    { id: 'studio',  icon: '🧭', label: t(state.lang, 'mobNavStudio') },
-    { id: 'search',  icon: '⌘',  label: t(state.lang, 'mobNavSearch') },
-    { id: 'design',  icon: '🎨', label: t(state.lang, 'mobNavDesign') }
+    { id: 'neck',   icon: '🎸', label: t(state.lang, 'mobNavNeck') },
+    { id: 'setup',  icon: '🎛', label: t(state.lang, 'mobNavScale') },
+    { id: 'orient', icon: isVert ? '↔' : '↕', label: isVert ? t(state.lang, 'orientHorizShort') : t(state.lang, 'orientVertShort') },
+    { id: 'studio', icon: '🧭', label: t(state.lang, 'mobNavStudio') },
+    { id: 'menu',   icon: '☰',  label: t(state.lang, 'headerMenuBtn') }
   ];
 
   nav.innerHTML = items.map((it) => `
@@ -78,17 +71,33 @@ export function renderMobileBottomNav(state) {
 
     if (id === 'neck') {
       document.querySelector('.fretboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else if (id === 'deck') {
-      document.querySelector('.deck-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (id === 'setup') {
+      setState({
+        deckCompartment: st.deckCompartment === 'setup' ? null : 'setup',
+        headerMenuOpen: false,
+        themeDrawerOpen: false,
+        snapshotsOpen: false
+      });
+      requestAnimationFrame(() => {
+        document.querySelector('.deck-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else if (id === 'orient') {
+      const nextOrient = st.fretOrientation === 'vertical' ? 'horizontal' : 'vertical';
+      setState({ fretOrientation: nextOrient });
+      requestAnimationFrame(() => {
+        document.querySelector('.fretboard-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     } else if (id === 'studio') {
       if (!st.workspaceOpen) setState({ workspaceOpen: true });
       requestAnimationFrame(() => {
         document.getElementById('labTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-    } else if (id === 'search') {
-      setState({ paletteOpen: true, shortcutsOpen: false });
-    } else if (id === 'design') {
-      setState({ themeDrawerOpen: !st.themeDrawerOpen, snapshotsOpen: false });
+    } else if (id === 'menu') {
+      setState({
+        headerMenuOpen: !st.headerMenuOpen,
+        themeDrawerOpen: false,
+        snapshotsOpen: false
+      });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 

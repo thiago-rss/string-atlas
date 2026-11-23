@@ -66,6 +66,7 @@ const jsFiles = [
   'js/views/deckPanelsView.js',
   'js/views/notationView.js',
   'js/views/themeDrawerView.js',
+  'js/views/headerMenuView.js',
   'js/views/radarView.js',
   'js/views/scalaView.js',
   'js/views/mobileNavView.js',
@@ -342,4 +343,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.0 integrity checks passed.');
+console.log('\nAll String Atlas v8.1 integrity checks passed.');

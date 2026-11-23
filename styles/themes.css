@@ -951,7 +951,8 @@ input[type="range"]::-webkit-slider-thumb {
   pointer-events: none;
 }
 
-[data-theme="experimental"] .deck-panel::before { content: "FIG. A // CONTROL MATRIX"; }
+[data-theme="experimental"] .deck-panel::before { display: none; }
+[data-theme="experimental"] .deck-panel.is-expanded::before { display: block; content: "FIG. A // STUDIO CONTROLS"; }
 [data-theme="experimental"] .fretboard-panel::before { content: "FIG. B // 24-TET TOPOGRAPHY"; }
 [data-theme="experimental"] .notation-panel::before { content: "FIG. C // SCORE & TAB"; }
 

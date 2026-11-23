@@ -9,11 +9,11 @@ import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v8';
+const STORAGE_KEY = 'string_atlas_prefs_v81';
 
 function loadSavedPrefs() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v78') || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('string_atlas_prefs_v8') || localStorage.getItem('string_atlas_prefs_v78') || localStorage.getItem('string_atlas_prefs_v7') || localStorage.getItem('string_atlas_prefs_v6') || localStorage.getItem('string_atlas_prefs_v5') || localStorage.getItem('string_atlas_prefs_v4');
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -32,7 +32,8 @@ function savePrefs(state) {
         completedLessons: state.completedLessons,
         earStats: state.earStats,
         leftHanded: state.leftHanded,
-        fretZoom: state.fretZoom
+        fretZoom: state.fretZoom,
+        fretOrientation: state.fretOrientation
       })
     );
   } catch {
@@ -70,8 +71,10 @@ const state = {
   theme: (hashPayload && VALID_THEME_IDS.has(hashPayload.th))
     ? hashPayload.th
     : (VALID_THEME_IDS.has(saved.theme) ? saved.theme : 'layl'),
+  headerMenuOpen: false,
+  pwaInstallable: false,
   themeDrawerOpen: false,
-  deckCompartment: null, // null | 'atlas' | 'neck' | 'audio'
+  deckCompartment: null, // null | 'setup' | 'neck' | 'audio'
   notationOpen: false,
   workspaceOpen: true,
   zenMode: false,
@@ -104,7 +107,8 @@ const state = {
   fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
   fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
   leftHanded: Boolean(saved.leftHanded),
-  fretZoom: saved.fretZoom ? (saved.fretZoom === 12 ? 12 : 22) : (typeof window !== 'undefined' && window.innerWidth <= 640 ? 12 : 22),
+  fretZoom: saved.fretZoom ? (saved.fretZoom === 12 ? 12 : 22) : (typeof window !== 'undefined' && window.innerWidth <= 768 ? 12 : 22),
+  fretOrientation: (saved.fretOrientation === 'vertical' || saved.fretOrientation === 'horizontal') ? saved.fretOrientation : (typeof window !== 'undefined' && window.innerWidth <= 768 ? 'vertical' : 'horizontal'),
 
   // Audio state
   droneOn: false,
@@ -396,7 +400,7 @@ export function setState(patch) {
   if ('snapshots' in patch) {
     saveSnapshots(state.snapshots);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretZoom' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretZoom' in patch || 'fretOrientation' in patch) {
     savePrefs(state);
   }
 

@@ -394,3 +394,38 @@
     border-right-width: 4px;
   }
 }
+
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .topbar-actions {
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .compartment-rail-bar {
+    gap: 6px;
+  }
+
+  .rail-quick-audio {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .fretboard-scroll.is-vertical {
+    padding: 6px 2px;
+  }
+
+  .fretboard-svg.is-vertical-svg {
+    max-width: 100%;
+  }
+
+  .header-menu-grid {
+    grid-template-columns: 1fr;
+  }
+}

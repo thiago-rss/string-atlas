@@ -2914,3 +2914,151 @@ body[data-zen="true"] .workspace-compartments {
     padding: 6px 4px;
   }
 }
+
+/* =========================================================================
+ * Phase 8.1 Additions: Pure Compartment Rail, Header Menu & Vertical Neck
+ * ========================================================================= */
+
+@keyframes saStringVibeV {
+  0%   { transform: translateX(0); }
+  14%  { transform: translateX(-2.4px); }
+  28%  { transform: translateX(2.1px); }
+  44%  { transform: translateX(-1.5px); }
+  62%  { transform: translateX(1.1px); }
+  80%  { transform: translateX(-0.5px); }
+  100% { transform: translateX(0); }
+}
+
+.sa-string-wire.is-vibrating-v {
+  animation: saStringVibeV 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Slim Pure Compartment Rail (replaces permanent Control Matrix) */
+.deck-shell .deck-panel {
+  padding: 9px 12px;
+}
+
+.deck-shell .deck-panel.is-expanded {
+  padding: 12px 14px 14px;
+}
+
+.compartment-rail-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.compartment-dock.rail-dock {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  flex: 1;
+}
+
+.rail-quick-audio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.rail-play-btn {
+  padding: 6px 12px;
+  min-width: 36px;
+}
+
+.setup-inside-row {
+  grid-template-columns: 1.35fr 0.72fr 1.35fr;
+}
+
+.comp-window-export-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Header Options Compartment Drawer */
+.header-menu-drawer[hidden] {
+  display: none !important;
+}
+
+.header-menu-panel {
+  padding: 14px;
+  animation: saCompartmentReveal 0.18s ease-out;
+}
+
+.header-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 8px;
+}
+
+.hm-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.14s ease;
+}
+
+.hm-tile:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-root);
+}
+
+.hm-tile.is-accent {
+  border-color: var(--accent-live);
+}
+
+.hm-tile-icon {
+  font-size: 1.15rem;
+  width: 26px;
+  text-align: center;
+  color: var(--accent-root);
+  flex-shrink: 0;
+}
+
+.hm-tile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hm-tile-text strong {
+  font-size: 0.84rem;
+  color: var(--text-primary);
+}
+
+.hm-tile-text small {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Vertical Fretboard Layout (Desktop Centered & Mobile Full-Width) */
+.fretboard-scroll.is-vertical {
+  display: flex;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 12px 6px;
+}
+
+.fretboard-svg.is-vertical-svg {
+  min-width: 0 !important;
+  width: 100%;
+  max-width: 430px;
+  height: auto;
+}
+
+body[data-zen="true"] .header-menu-drawer {
+  display: none !important;
+}

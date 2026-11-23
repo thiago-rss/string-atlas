@@ -1,17 +1,20 @@
 /**
- * Modular Studio Command Deck v7.4 (Oud Visualizer Compartment Architecture)
- * - Ultra-clean Primary Bar: Scale, 24-TET Root, 6/7/8-String Tuning, Quick Play & Drone
- * - Compact Compartment Dock:
- *     1. Atlas & Filtros   (Categories, Live Search, 12-TET/24-TET Filter, Visual Scale Atlas)
- *     2. Braço & Afinação  (Quick Tunings, Microtonal Mode, Label Mode, Voicing/Harmonics, Fine Retuner)
- *     3. Áudio & FX        (Scale BPM, Drone +5th, Tone Presets, Delay, Tremolo, Volume)
- *     4. Partitura & Tab   (Independent toggle for Synchronized 24-TET Staff & Tablature)
+ * Pure Compartment Studio Deck v8.1 (Oud Visualizer Minimalist Architecture)
+ * - ZERO permanent Control Matrix! Opens as a single sleek compartment rail above the fretboard.
+ * - Clicking any compartment unfolds ONLY that focused studio drawer:
+ *     1. Escala & Afinação  (Scale, 24-TET Root, 6/7/8c Tuning, Quick Tunings, Search, Filters & Visual Atlas)
+ *     2. Braço & Vista      (Vertical/Horizontal, Zoom 0-12/0-22, Left-Handed, Closed Window, Micro Mode, Layers, Export PNG/SVG & Fine Retuner)
+ *     3. Áudio & FX         (Play Scale, BPM, Drone +5th, 4 Tone Presets, Delay, Tremolo & Master Volume)
+ *     4. Partitura & Tab    (Independent toggle for Synchronized 24-TET Staff & Tablature)
  */
 import { DB } from '../core/database.js';
+import { getThemeById } from '../core/themes.js';
+import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import { buildScalaPlayFrequencies, getScalaPresetById, parseSclText } from '../core/scalaEngine.js';
 import {
   NOTE_NAMES_24,
   formatStepFormula,
+  intervalQToLabel,
   mod24,
   qToNoteName
 } from '../core/theory24.js';
@@ -150,22 +153,26 @@ export function renderDeckPanel(state) {
   const isEn = state.lang === 'en';
   const filteredScales = getFilteredScales(state);
   const activeScale = getActiveScale();
+  const activeTuning = getActiveTuning();
   const allowedPcs = new Set(activeScale.intervalsQ.map((iv) => mod24(state.rootQ + iv)));
   const activeStrCount = state.stringCount || state.customStringsQ.length;
-  const openComp = state.deckCompartment; // null | 'atlas' | 'neck' | 'audio'
+  const openComp = state.deckCompartment; // null | 'setup' | 'neck' | 'audio'
+  const rootName = qToNoteName(state.rootQ, false);
 
-  const scaleOptions = buildScaleSelectOptionsHtml(filteredScales, state);
-  const rootOptions = NOTE_NAMES_24.map((name, q) => {
-    const tag = q % 2 !== 0 ? ' (¼)' : '';
-    return `<option value="${q}" ${q === state.rootQ ? 'selected' : ''}>${name}${tag}</option>`;
-  }).join('');
-  const tuningOptions = buildTuningOptionsHtml(state);
-  const pinnedTunings = DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount);
+  panel.classList.toggle('is-expanded', Boolean(openComp));
 
-  // Build active compartment drawer body (strictly 1 open at a time for a calm, uncluttered screen)
+  // Build focused compartment drawer body ONLY when requested
   let compartmentDrawerHtml = '';
 
-  if (openComp === 'atlas') {
+  if (openComp === 'setup') {
+    const scaleOptions = buildScaleSelectOptionsHtml(filteredScales, state);
+    const rootOptions = NOTE_NAMES_24.map((name, q) => {
+      const tag = q % 2 !== 0 ? ' (¼)' : '';
+      return `<option value="${q}" ${q === state.rootQ ? 'selected' : ''}>${name}${tag}</option>`;
+    }).join('');
+    const tuningOptions = buildTuningOptionsHtml(state);
+    const pinnedTunings = DB.tunings.filter((tun) => tun.pinned && tun.stringsQ.length === activeStrCount);
+
     const categoryBtns = DB.categories.map((cat) => {
       const label = isEn ? cat.labelEn : cat.labelPt;
       const count = DB.scales.filter((s) => {
@@ -183,48 +190,98 @@ export function renderDeckPanel(state) {
     }).join('');
 
     compartmentDrawerHtml = `
-      <div class="deck-compartment-body" id="compAtlas">
+      <div class="deck-compartment-body" id="compSetup">
         <div class="compartment-head">
-          <span class="control-label">${t(state.lang, 'compAtlasTitle')}</span>
+          <span class="control-label">${t(state.lang, 'compSetupTitle')}</span>
           <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
         </div>
 
-        <div class="category-bar">${categoryBtns}</div>
-
-        <div class="filter-toolbar">
-          <div class="search-wrap">
-            <input
-              type="search"
-              id="inpScaleSearch"
-              class="search-input"
-              placeholder="${t(state.lang, 'searchPlaceholder')}"
-              value="${(state.scaleSearch || '').replace(/"/g, '&quot;')}"
-              autocomplete="off"
-            />
-            <span class="mono-tag search-count" id="scaleMatchCount">${filteredScales.length} ${t(state.lang, 'scalesUnit')}</span>
+        <div class="command-primary-row setup-inside-row">
+          <div class="cmd-field">
+            <label class="control-label" for="selScale">${t(state.lang, 'scaleLabel')}</label>
+            <select id="selScale">${scaleOptions}</select>
           </div>
 
-          <div class="pill-row">
-            <button type="button" class="btn-mini ${state.temperamentFilter === 'all' ? 'active-mini' : ''}" data-action="tempFilter" data-val="all">${t(state.lang, 'tempAll')}</button>
-            <button type="button" class="btn-mini ${state.temperamentFilter === '12tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="12tet">${t(state.lang, 'temp12')}</button>
-            <button type="button" class="btn-mini ${state.temperamentFilter === '24tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="24tet">${t(state.lang, 'temp24')}</button>
+          <div class="cmd-field">
+            <label class="control-label" for="selRoot">${t(state.lang, 'rootLabel')}</label>
+            <select id="selRoot">${rootOptions}</select>
+          </div>
+
+          <div class="cmd-field">
+            <div class="tuning-label-row">
+              <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
+              <div class="pill-row">
+                ${[6, 7, 8].map((cnt) => `
+                  <button type="button" class="btn-mini ${activeStrCount === cnt ? 'active-mini' : ''}" data-action="setStringCount" data-val="${cnt}">${cnt}${t(state.lang, 'strSuffix')}</button>
+                `).join('')}
+              </div>
+            </div>
+            <select id="selTuning">${tuningOptions}</select>
           </div>
         </div>
 
-        <div class="atlas-drawer-body" id="scaleAtlasBody">
-          ${buildScaleAtlasBodyHtml(filteredScales, state)}
+        <div class="comp-subsection">
+          <span class="control-label" style="display:block;margin-bottom:6px">${t(state.lang, 'quickTuningsLabel')} (${activeStrCount}${t(state.lang, 'strSuffix')})</span>
+          <div class="pill-row">
+            ${pinnedTunings.map((tun) => `
+              <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
+                ${tun.short}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="comp-subsection">
+          <div class="category-bar">${categoryBtns}</div>
+
+          <div class="filter-toolbar">
+            <div class="search-wrap">
+              <input
+                type="search"
+                id="inpScaleSearch"
+                class="search-input"
+                placeholder="${t(state.lang, 'searchPlaceholder')}"
+                value="${(state.scaleSearch || '').replace(/"/g, '&quot;')}"
+                autocomplete="off"
+              />
+              <span class="mono-tag search-count" id="scaleMatchCount">${filteredScales.length} ${t(state.lang, 'scalesUnit')}</span>
+            </div>
+
+            <div class="pill-row">
+              <button type="button" class="btn-mini ${state.temperamentFilter === 'all' ? 'active-mini' : ''}" data-action="tempFilter" data-val="all">${t(state.lang, 'tempAll')}</button>
+              <button type="button" class="btn-mini ${state.temperamentFilter === '12tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="12tet">${t(state.lang, 'temp12')}</button>
+              <button type="button" class="btn-mini ${state.temperamentFilter === '24tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="24tet">${t(state.lang, 'temp24')}</button>
+            </div>
+          </div>
+
+          <div class="atlas-drawer-body" id="scaleAtlasBody">
+            ${buildScaleAtlasBodyHtml(filteredScales, state)}
+          </div>
         </div>
       </div>
     `;
   } else if (openComp === 'neck') {
+    const maxFrets = state.fretZoom === 12 ? 12 : 22;
+    const endFret = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
+
     compartmentDrawerHtml = `
       <div class="deck-compartment-body" id="compNeck">
         <div class="compartment-head">
-          <span class="control-label">${t(state.lang, 'compNeckTitle')}</span>
+          <span class="control-label">${t(state.lang, 'compNeckViewTitle')}</span>
           <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
         </div>
 
         <div class="comp-grid">
+          <div class="control-group">
+            <span class="control-label">${t(state.lang, 'orientLabel')}</span>
+            <div class="pill-row">
+              <button type="button" class="btn-pill ${state.fretOrientation === 'horizontal' ? 'active' : ''}" data-action="setOrientation" data-val="horizontal">${t(state.lang, 'orientHoriz')}</button>
+              <button type="button" class="btn-pill ${state.fretOrientation === 'vertical' ? 'active' : ''}" data-action="setOrientation" data-val="vertical">${t(state.lang, 'orientVert')}</button>
+              <button type="button" class="btn-mini ${state.fretZoom === 12 ? 'active-mini' : ''}" data-action="toggleZoom">🔍 ${state.fretZoom === 12 ? '0–12' : '0–22'}</button>
+              <button type="button" class="btn-mini ${state.leftHanded ? 'active-mini' : ''}" data-action="toggleLeftHand">⇄ ${t(state.lang, 'leftHandShort')}</button>
+            </div>
+          </div>
+
           <div class="control-group">
             <span class="control-label">${t(state.lang, 'microModeLabel')}</span>
             <div class="pill-row">
@@ -252,25 +309,31 @@ export function renderDeckPanel(state) {
               <button type="button" class="btn-pill ${state.harmonicsOn ? 'active-harm' : ''}" data-action="toggleHarmonics">
                 ${state.harmonicsOn ? t(state.lang, 'harmonicsOn') : t(state.lang, 'harmonicsOff')}
               </button>
+              <button type="button" class="btn-pill ${state.scalaOverlayOn ? 'active-teal' : ''}" data-action="toggleScalaOverlay">
+                Scala .scl
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="comp-subsection">
-          <div class="compartment-head" style="margin-bottom:6px">
-            <span class="control-label">${t(state.lang, 'quickTuningsLabel')} (${activeStrCount}${t(state.lang, 'strSuffix')})</span>
-            <div class="pill-row">
-              ${[6, 7, 8].map((cnt) => `
-                <button type="button" class="btn-mini ${activeStrCount === cnt ? 'active-mini' : ''}" data-action="setStringCount" data-val="${cnt}">${cnt}${t(state.lang, 'strSuffix')}</button>
-              `).join('')}
-            </div>
-          </div>
+        <div class="comp-subsection comp-window-export-row">
           <div class="pill-row">
-            ${pinnedTunings.map((tun) => `
-              <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
-                ${tun.short}
-              </button>
-            `).join('')}
+            <button type="button" class="btn-mini ${state.fretWindowOn ? 'active-mini' : ''}" data-action="fwToggle">
+              ${state.fretWindowOn ? `${t(state.lang, 'fretWinClosed')}: ${state.fretWindowStart}–${endFret}` : t(state.lang, 'fretWinFull')}
+            </button>
+            ${state.fretWindowOn ? `
+              <button type="button" class="btn-mini" data-action="fwShift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''}>◀</button>
+              <button type="button" class="btn-mini" data-action="fwShift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= maxFrets ? 'disabled' : ''}>▶</button>
+              ${[4, 5, 6].map((sp) => `
+                <button type="button" class="btn-mini ${state.fretWindowSpan === sp ? 'active-mini' : ''}" data-action="fwSpan" data-val="${sp}">${sp}</button>
+              `).join('')}
+            ` : ''}
+          </div>
+
+          <div class="pill-row">
+            <span class="control-label">${t(state.lang, 'compExportLabel')}:</span>
+            <button type="button" class="btn-mini" data-action="exportPng">⬇ PNG (2×)</button>
+            <button type="button" class="btn-mini" data-action="exportSvg">⬇ SVG</button>
           </div>
         </div>
 
@@ -311,6 +374,10 @@ export function renderDeckPanel(state) {
         </div>
 
         <div class="comp-audio-top">
+          <button type="button" class="btn-primary" data-action="playScale">
+            ${state.isPlayingScale ? t(state.lang, 'stopScale') : t(state.lang, 'playScale')}
+          </button>
+
           <label class="bpm-control">
             <span>${t(state.lang, 'compScaleBpm')}</span>
             <input type="range" id="rngBpm" min="48" max="180" step="2" value="${state.bpm}" />
@@ -374,91 +441,77 @@ export function renderDeckPanel(state) {
     `;
   }
 
-  const microBadgeTxt = state.microMode === 'bend' ? 'Bend' : (state.microMode === 'slide' ? 'Slide' : '24-TET');
+  const orientSym = state.fretOrientation === 'vertical' ? '↕' : '↔';
+  const microBadgeTxt = state.microMode === 'bend' ? 'Bend' : (state.microMode === 'slide' ? 'Slide' : '24');
   const filterActiveDot = (state.category !== 'all' || state.temperamentFilter !== 'all' || Boolean(state.scaleSearch)) ? '<span class="dock-dot"></span>' : '';
 
   panel.innerHTML = `
-    <!-- Clean Primary Command Bar (always visible, 1 row) -->
-    <div class="command-primary-row">
-      <div class="cmd-field cmd-scale">
-        <label class="control-label" for="selScale">${t(state.lang, 'scaleLabel')}</label>
-        <select id="selScale">${scaleOptions}</select>
+    <!-- Pure Single-Line Compartment Rail (Oud Visualizer style — zero exposed Control Matrix!) -->
+    <div class="compartment-rail-bar">
+      <div class="compartment-dock rail-dock" role="toolbar" aria-label="Studio Compartments">
+        <button type="button" class="dock-btn ${openComp === 'setup' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="setup">
+          <span>🎛 ${t(state.lang, 'dockSetup')}</span>
+          <span class="dock-meta">${rootName} · ${activeTuning.short}</span>
+          ${filterActiveDot}
+        </button>
+
+        <button type="button" class="dock-btn ${openComp === 'neck' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="neck">
+          <span>🎸 ${t(state.lang, 'dockNeck')}</span>
+          <span class="dock-meta">${orientSym} · ${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
+        </button>
+
+        <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
+          <span>🔊 ${t(state.lang, 'dockAudio')}</span>
+          <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
+        </button>
+
+        <button type="button" class="dock-btn ${state.notationOpen ? 'is-pinned' : ''}" data-action="toggleNotation">
+          <span>🎼 ${t(state.lang, 'dockNotation')}</span>
+          <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
+        </button>
       </div>
 
-      <div class="cmd-field cmd-root">
-        <label class="control-label" for="selRoot">${t(state.lang, 'rootLabel')}</label>
-        <select id="selRoot">${rootOptions}</select>
-      </div>
-
-      <div class="cmd-field cmd-tuning">
-        <div class="tuning-label-row">
-          <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
-          <div class="pill-row">
-            ${[6, 7, 8].map((cnt) => `
-              <button type="button" class="btn-mini ${activeStrCount === cnt ? 'active-mini' : ''}" data-action="setStringCount" data-val="${cnt}">${cnt}${t(state.lang, 'strSuffix')}</button>
-            `).join('')}
-          </div>
-        </div>
-        <select id="selTuning">${tuningOptions}</select>
-      </div>
-
-      <div class="cmd-quick-audio">
-        <button type="button" class="btn-primary" data-action="playScale">
-          ${state.isPlayingScale ? t(state.lang, 'stopScale') : t(state.lang, 'playScale')}
+      <div class="rail-quick-audio">
+        <button type="button" class="btn-primary rail-play-btn" data-action="playScale" title="${t(state.lang, 'playScale')}">
+          ${state.isPlayingScale ? '■' : '▶'}
         </button>
         <button type="button" class="btn-pill ${state.droneOn ? 'active-teal' : ''}" data-action="toggleDrone">
-          ${state.droneOn ? t(state.lang, 'droneOn') : t(state.lang, 'droneOff')}
+          ${state.droneOn ? '◉ Drone' : '○ Drone'}
         </button>
       </div>
-    </div>
-
-    <!-- Clean Deck Compartment Dock -->
-    <div class="compartment-dock" role="toolbar" aria-label="Deck Compartments">
-      <button type="button" class="dock-btn ${openComp === 'atlas' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="atlas">
-        <span>🧭 ${t(state.lang, 'dockAtlas')}</span>
-        <span class="dock-meta">${filteredScales.length}</span>
-        ${filterActiveDot}
-      </button>
-
-      <button type="button" class="dock-btn ${openComp === 'neck' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="neck">
-        <span>🎛 ${t(state.lang, 'dockNeck')}</span>
-        <span class="dock-meta">${microBadgeTxt}${state.voicingOverlayOn ? ' · V' : ''}${state.harmonicsOn ? ' · H' : ''}</span>
-      </button>
-
-      <button type="button" class="dock-btn ${openComp === 'audio' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="audio">
-        <span>🔊 ${t(state.lang, 'dockAudio')}</span>
-        <span class="dock-meta">${t(state.lang, `fx_${state.tonePreset}`)}</span>
-      </button>
-
-      <button type="button" class="dock-btn ${state.notationOpen ? 'is-pinned' : ''}" data-action="toggleNotation">
-        <span>🎼 ${t(state.lang, 'dockNotation')}</span>
-        <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
-      </button>
     </div>
 
     ${compartmentDrawerHtml}
   `;
 
-  // Bind primary selectors
-  panel.querySelector('#selScale').onchange = (e) => {
-    if (!e.target.value) return;
-    stopPlaybackIfNeeded();
-    setState({ scaleId: e.target.value, customScaleIntervalsQ: null, inspectedNote: null });
-  };
+  // Bind optional compartment controls cleanly when present
+  const selScale = panel.querySelector('#selScale');
+  if (selScale) {
+    selScale.onchange = (e) => {
+      if (!e.target.value) return;
+      stopPlaybackIfNeeded();
+      setState({ scaleId: e.target.value, customScaleIntervalsQ: null, scalaOverlayOn: false, inspectedNote: null });
+    };
+  }
 
-  panel.querySelector('#selRoot').onchange = (e) => {
-    const nextRoot = Number(e.target.value);
-    setState({ rootQ: nextRoot });
-    if (getState().droneOn) {
-      synthEngine.updateDrone(true, nextRoot, getState().droneFifth);
-    }
-  };
+  const selRoot = panel.querySelector('#selRoot');
+  if (selRoot) {
+    selRoot.onchange = (e) => {
+      const nextRoot = Number(e.target.value);
+      setState({ rootQ: nextRoot });
+      if (getState().droneOn) {
+        synthEngine.updateDrone(true, nextRoot, getState().droneFifth);
+      }
+    };
+  }
 
-  panel.querySelector('#selTuning').onchange = (e) => {
-    applyTuningById(e.target.value);
-  };
+  const selTuning = panel.querySelector('#selTuning');
+  if (selTuning) {
+    selTuning.onchange = (e) => {
+      applyTuningById(e.target.value);
+    };
+  }
 
-  // Optional compartment-specific inputs
   const searchInp = panel.querySelector('#inpScaleSearch');
   if (searchInp) {
     searchInp.oninput = (e) => {
@@ -501,7 +554,10 @@ export function renderDeckPanel(state) {
 
     if (action === 'toggleCompartment') {
       const target = btn.dataset.val;
-      setState({ deckCompartment: st.deckCompartment === target ? null : target });
+      setState({
+        deckCompartment: st.deckCompartment === target ? null : target,
+        headerMenuOpen: false
+      });
     } else if (action === 'closeCompartment') {
       setState({ deckCompartment: null });
     } else if (action === 'toggleNotation') {
@@ -513,6 +569,7 @@ export function renderDeckPanel(state) {
       setState({
         category: cat,
         customScaleIntervalsQ: null,
+        scalaOverlayOn: false,
         scaleId: stillVisible ? st.scaleId : (nextFiltered[0]?.id || st.scaleId)
       });
     } else if (action === 'tempFilter') {
@@ -522,6 +579,7 @@ export function renderDeckPanel(state) {
       setState({
         temperamentFilter: tf,
         customScaleIntervalsQ: null,
+        scalaOverlayOn: false,
         scaleId: stillVisible ? st.scaleId : (nextFiltered[0]?.id || st.scaleId)
       });
     } else if (action === 'pickScale') {
@@ -529,6 +587,7 @@ export function renderDeckPanel(state) {
       setState({
         scaleId: btn.dataset.id,
         customScaleIntervalsQ: null,
+        scalaOverlayOn: false,
         inspectedNote: null
       });
     } else if (action === 'clearFilters') {
@@ -547,6 +606,38 @@ export function renderDeckPanel(state) {
       }
     } else if (action === 'quickTuning') {
       applyTuningById(btn.dataset.id);
+    } else if (action === 'setOrientation') {
+      setState({ fretOrientation: btn.dataset.val });
+    } else if (action === 'toggleZoom') {
+      const nextZoom = st.fretZoom === 12 ? 22 : 12;
+      const clampedStart = Math.min(st.fretWindowStart, Math.max(0, nextZoom - st.fretWindowSpan));
+      setState({ fretZoom: nextZoom, fretWindowStart: clampedStart });
+    } else if (action === 'toggleLeftHand') {
+      setState({ leftHanded: !st.leftHanded });
+    } else if (action === 'fwToggle') {
+      setState({ fretWindowOn: !st.fretWindowOn });
+    } else if (action === 'fwShift') {
+      const curMax = st.fretZoom === 12 ? 12 : 22;
+      const d = Number(btn.dataset.delta);
+      const maxStart = Math.max(0, curMax - st.fretWindowSpan);
+      setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
+    } else if (action === 'fwSpan') {
+      const curMax = st.fretZoom === 12 ? 12 : 22;
+      const sp = Number(btn.dataset.val);
+      const maxStart = Math.max(0, curMax - sp);
+      setState({ fretWindowSpan: sp, fretWindowStart: Math.min(st.fretWindowStart, maxStart) });
+    } else if (action === 'exportPng' || action === 'exportSvg') {
+      const sc = getActiveScale();
+      const tun = getActiveTuning();
+      const th = getThemeById(st.theme);
+      const meta = {
+        title: `${qToNoteName(st.rootQ, false)} ${st.lang === 'en' ? sc.nameEn : sc.namePt}`,
+        formula: sc.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · '),
+        tuningLabel: `${st.customStringsQ.length}c ${tun.short} (${st.customStringsQ.map((q) => qToNoteName(q, false)).join(' ')})`,
+        themeName: st.lang === 'en' ? th.nameEn : th.namePt
+      };
+      if (action === 'exportPng') exportFretboardPlatePng(meta);
+      else exportFretboardPlateSvg(meta);
     } else if (action === 'microMode') {
       setState({ microMode: btn.dataset.val });
     } else if (action === 'labelMode') {
@@ -565,6 +656,8 @@ export function renderDeckPanel(state) {
       setState({ voicingOverlayOn: !st.voicingOverlayOn });
     } else if (action === 'toggleHarmonics') {
       setState({ harmonicsOn: !st.harmonicsOn });
+    } else if (action === 'toggleScalaOverlay') {
+      setState({ scalaOverlayOn: !st.scalaOverlayOn, inspectedNote: null });
     } else if (action === 'tonePreset') {
       const preset = btn.dataset.val;
       const delayMix = preset === 'swell' ? Math.max(st.delayMix, 0.42) : st.delayMix;
@@ -583,11 +676,6 @@ export function renderDeckPanel(state) {
       setState({ customStringsQ: updated });
     }
   };
-
-  const badge = document.getElementById('tuningSummaryBadge');
-  if (badge) {
-    badge.textContent = state.customStringsQ.map((q) => qToNoteName(q, false)).join(' ');
-  }
 }
 
 function applyTuningById(tuningId) {

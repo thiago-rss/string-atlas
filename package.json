@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.0.0: Scala .scl Microtonal Frontier, 53-TET/JI/Bohlen-Pierce, Complete 8-Chapter/32-Lesson Curriculum & Native Mobile PWA)",
+  "description": "String Atlas — Modal Guitar Lab (v8.1.0: Pure Oud-Visualizer Compartment UI, Collapsible Header Options & Vertical Mobile Fretboard)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"
