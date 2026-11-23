@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (24-TET PWA: Harmony, Procedural Etudes, 24-TET Notation & Polymetric Iqa'at)",
+  "description": "String Atlas — Modal Guitar Lab (24-TET PWA: 74 Scales/Modes, 26 Tunings incl. B/A Standard, Voicings, Procedural Etudes & Polymetric Iqa'at)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

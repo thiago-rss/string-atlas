@@ -1117,3 +1117,169 @@ button:disabled {
   font-size: 0.69rem;
   color: var(--text-muted);
 }
+
+/* =========================================================================
+ * v3.1 Additions: Scale Search, Temperament Filter, Quick Tunings & Atlas
+ * ========================================================================= */
+
+.cat-count {
+  font-size: 0.7rem;
+  opacity: 0.72;
+  margin-left: 3px;
+  font-family: ui-monospace, monospace;
+}
+
+.filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.84rem;
+  color: var(--text-primary);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-root);
+}
+
+.search-count {
+  white-space: nowrap;
+}
+
+.quick-tunings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+/* Collapsible Organized Scale Atlas Drawer */
+.atlas-drawer {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+}
+
+.atlas-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.atlas-drawer-body {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.atlas-group-title {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-scale);
+}
+
+.atlas-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 8px;
+}
+
+.atlas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, transform 0.08s ease;
+}
+
+.atlas-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.atlas-card.is-selected {
+  border-color: var(--accent-root);
+  box-shadow: 0 0 0 1px var(--accent-root);
+}
+
+.atlas-card.is-micro {
+  border-left: 3px solid var(--accent-micro);
+}
+
+.atlas-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.atlas-badge {
+  font-family: ui-monospace, monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.atlas-badge.micro {
+  background: rgba(240, 140, 75, 0.2);
+  color: var(--accent-micro);
+}
+
+.atlas-badge.tet12 {
+  background: rgba(76, 201, 176, 0.14);
+  color: var(--accent-scale);
+}
+
+.atlas-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.atlas-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}

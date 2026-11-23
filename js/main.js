@@ -4,7 +4,7 @@
 import { t } from './core/i18n.js';
 import { getState, setState, subscribe } from './state/store.js';
 import { synthEngine } from './audio/synthEngine.js';
-import { renderDeckPanel, toggleScalePlayback } from './views/deckPanelsView.js';
+import { renderDeckPanel, refreshScaleBrowserInPlace, toggleScalePlayback } from './views/deckPanelsView.js';
 import { renderFretboard, renderInspector, highlightFretboardEtudeEvent } from './views/fretboardView.js';
 import { renderNotationPanel, highlightNotationStep } from './views/notationView.js';
 import { renderHarmonyView } from './views/harmonyView.js';
@@ -67,8 +67,12 @@ function renderAll(state, patch = null) {
   if (patch) {
     const keys = Object.keys(patch);
 
-    // Fast paths: live sliders & playhead cursors never tear down DOM inputs
+    // Fast paths: live sliders, search input & playhead cursors never tear down DOM inputs
     if (keys.length === 1 && (keys[0] === 'bpm' || keys[0] === 'etudeBpm')) return;
+    if (keys.length === 1 && keys[0] === 'scaleSearch') {
+      refreshScaleBrowserInPlace(state);
+      return;
+    }
     if (keys.length === 1 && keys[0] === 'rhythmBpm') {
       updateRhythmBadge(state);
       return;

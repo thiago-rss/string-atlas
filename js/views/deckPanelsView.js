@@ -1,42 +1,192 @@
 /**
- * Top Control Deck v2.0
+ * Top Control Deck v3.1
+ * - Organized Category Bar with live counts
+ * - Live Scale Search + 12-TET / 24-TET Temperament Filter + Visual Scale Atlas Drawer
+ * - Grouped <optgroup> Selectors for Scales (by Subfamily) & Tunings (by Group)
+ * - 1-Click Pinned Tuning Bar (incl. E Std, B Std, A Std, Drop B, Drop A, All 4ths, DADGAD)
  */
 import { DB } from '../core/database.js';
-import { NOTE_NAMES_24, mod24, qToNoteName } from '../core/theory24.js';
+import {
+  NOTE_NAMES_24,
+  formatStepFormula,
+  mod24,
+  qToNoteName
+} from '../core/theory24.js';
 import { t } from '../core/i18n.js';
-import { getActiveScale, getActiveTuning, setState } from '../state/store.js';
+import {
+  getActiveScale,
+  getActiveTuning,
+  getFilteredScales,
+  getState,
+  scaleIsMicrotonal,
+  setState
+} from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
+
+function groupScalesBySubfamily(scales, lang) {
+  const isEn = lang === 'en';
+  const groups = new Map();
+  scales.forEach((s) => {
+    const key = isEn ? (s.subfamilyEn || s.category) : (s.subfamilyPt || s.category);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  });
+  return groups;
+}
+
+function buildScaleSelectOptionsHtml(filteredScales, state) {
+  if (!filteredScales.length) {
+    return `<option value="" disabled selected>${t(state.lang, 'noScaleMatches')}</option>`;
+  }
+
+  const isEn = state.lang === 'en';
+  const grouped = groupScalesBySubfamily(filteredScales, state.lang);
+  const parts = [];
+
+  grouped.forEach((list, groupLabel) => {
+    parts.push(`<optgroup label="${groupLabel}">`);
+    list.forEach((s) => {
+      const name = isEn ? s.nameEn : s.namePt;
+      const microTag = scaleIsMicrotonal(s) ? ' [24-TET]' : '';
+      const selected = !state.customScaleIntervalsQ && s.id === state.scaleId ? 'selected' : '';
+      parts.push(`<option value="${s.id}" ${selected}>${name}${microTag}</option>`);
+    });
+    parts.push('</optgroup>');
+  });
+
+  return parts.join('');
+}
+
+function buildScaleAtlasBodyHtml(filteredScales, state) {
+  if (!filteredScales.length) {
+    return `
+      <div class="atlas-empty">
+        <p class="empty-hint">${t(state.lang, 'noScaleMatches')}</p>
+        <button type="button" class="btn-mini" data-action="clearFilters">${t(state.lang, 'clearFilters')}</button>
+      </div>
+    `;
+  }
+
+  const isEn = state.lang === 'en';
+  const grouped = groupScalesBySubfamily(filteredScales, state.lang);
+  const sections = [];
+
+  grouped.forEach((list, groupLabel) => {
+    const cards = list.map((s) => {
+      const isSelected = !state.customScaleIntervalsQ && s.id === state.scaleId;
+      const isMicro = scaleIsMicrotonal(s);
+      const name = isEn ? s.nameEn : s.namePt;
+      const formula = formatStepFormula(s.intervalsQ);
+      return `
+        <button type="button" class="atlas-card ${isSelected ? 'is-selected' : ''} ${isMicro ? 'is-micro' : ''}" data-action="pickScale" data-id="${s.id}">
+          <div class="atlas-card-head">
+            <strong>${name}</strong>
+            <span class="atlas-badge ${isMicro ? 'micro' : 'tet12'}">${isMicro ? '24-TET' : '12-TET'}</span>
+          </div>
+          <div class="atlas-card-meta">
+            <span>${s.intervalsQ.length} ${t(state.lang, 'notesUnit')}</span>
+            <span class="mono-tag">${formula}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    sections.push(`
+      <div class="atlas-group">
+        <h4 class="atlas-group-title">${groupLabel} <span class="mono-tag">(${list.length})</span></h4>
+        <div class="atlas-cards-grid">${cards}</div>
+      </div>
+    `);
+  });
+
+  return sections.join('');
+}
+
+function buildTuningOptionsHtml(state) {
+  const isEn = state.lang === 'en';
+  return DB.tuningGroups.map((grp) => {
+    const label = isEn ? grp.labelEn : grp.labelPt;
+    const list = DB.tunings.filter((tun) => tun.group === grp.id);
+    if (!list.length) return '';
+    const opts = list.map((tun) => `
+      <option value="${tun.id}" ${tun.id === state.tuningId ? 'selected' : ''}>
+        ${isEn ? tun.nameEn : tun.namePt}
+      </option>
+    `).join('');
+    return `<optgroup label="${label}">${opts}</optgroup>`;
+  }).join('');
+}
+
+/**
+ * Updates only the scale <select> options, result counter, and open Atlas body in place
+ * so typing in #inpScaleSearch never destroys the input or drops keyboard focus.
+ */
+export function refreshScaleBrowserInPlace(state) {
+  const filteredScales = getFilteredScales(state);
+
+  const sel = document.getElementById('selScale');
+  if (sel) {
+    sel.innerHTML = buildScaleSelectOptionsHtml(filteredScales, state);
+  }
+
+  const countBadge = document.getElementById('scaleMatchCount');
+  if (countBadge) {
+    countBadge.textContent = `${filteredScales.length} ${t(state.lang, 'scalesUnit')}`;
+  }
+
+  const atlasBody = document.getElementById('scaleAtlasBody');
+  if (atlasBody) {
+    atlasBody.innerHTML = buildScaleAtlasBodyHtml(filteredScales, state);
+  }
+}
 
 export function renderDeckPanel(state) {
   const panel = document.getElementById('deckPanel');
   if (!panel) return;
 
-  const filteredScales = state.category === 'all'
-    ? DB.scales
-    : DB.scales.filter((s) => s.category === state.category);
-
+  const isEn = state.lang === 'en';
+  const filteredScales = getFilteredScales(state);
   const activeScale = getActiveScale();
   const allowedPcs = new Set(activeScale.intervalsQ.map((iv) => mod24(state.rootQ + iv)));
 
+  // Category bar with live counts (respecting temperament filter)
   const categoryBtns = DB.categories.map((cat) => {
-    const label = state.lang === 'en' ? cat.labelEn : cat.labelPt;
-    return `<button type="button" class="btn-pill ${state.category === cat.id ? 'active' : ''}" data-action="category" data-val="${cat.id}">${label}</button>`;
+    const label = isEn ? cat.labelEn : cat.labelPt;
+    const count = DB.scales.filter((s) => {
+      if (cat.id !== 'all' && s.category !== cat.id) return false;
+      const isMicro = scaleIsMicrotonal(s);
+      if (state.temperamentFilter === '24tet' && !isMicro) return false;
+      if (state.temperamentFilter === '12tet' && isMicro) return false;
+      return true;
+    }).length;
+    return `
+      <button type="button" class="btn-pill ${state.category === cat.id ? 'active' : ''}" data-action="category" data-val="${cat.id}">
+        ${label} <span class="cat-count">${count}</span>
+      </button>
+    `;
   }).join('');
 
-  const scaleOptions = filteredScales.map((s) => {
-    const label = state.lang === 'en' ? s.nameEn : s.namePt;
-    return `<option value="${s.id}" ${!state.customScaleIntervalsQ && s.id === state.scaleId ? 'selected' : ''}>${label}</option>`;
-  }).join('');
+  const scaleOptions = buildScaleSelectOptionsHtml(filteredScales, state);
 
   const rootOptions = NOTE_NAMES_24.map((name, q) => {
     const tag = q % 2 !== 0 ? ' (¼)' : '';
     return `<option value="${q}" ${q === state.rootQ ? 'selected' : ''}>${name}${tag}</option>`;
   }).join('');
 
-  const tuningOptions = DB.tunings.map((tun) => {
-    const label = state.lang === 'en' ? tun.nameEn : tun.namePt;
-    return `<option value="${tun.id}" ${tun.id === state.tuningId ? 'selected' : ''}>${label}</option>`;
-  }).join('');
+  const tuningOptions = buildTuningOptionsHtml(state);
+  const pinnedTunings = DB.tunings.filter((tun) => tun.pinned);
+
+  const atlasDrawerHtml = state.atlasOpen ? `
+    <div class="atlas-drawer" id="scaleAtlasDrawer">
+      <div class="atlas-drawer-head">
+        <span class="control-label">${t(state.lang, 'atlasTitle')}</span>
+        <button type="button" class="btn-mini" data-action="toggleAtlas">${t(state.lang, 'atlasClose')}</button>
+      </div>
+      <div class="atlas-drawer-body" id="scaleAtlasBody">
+        ${buildScaleAtlasBodyHtml(filteredScales, state)}
+      </div>
+    </div>
+  ` : '';
 
   const retunerHtml = state.retunerOpen ? `
     <div class="retuner-box">
@@ -70,6 +220,31 @@ export function renderDeckPanel(state) {
   panel.innerHTML = `
     <div class="category-bar">${categoryBtns}</div>
 
+    <div class="filter-toolbar">
+      <div class="search-wrap">
+        <input
+          type="search"
+          id="inpScaleSearch"
+          class="search-input"
+          placeholder="${t(state.lang, 'searchPlaceholder')}"
+          value="${(state.scaleSearch || '').replace(/"/g, '&quot;')}"
+          autocomplete="off"
+        />
+        <span class="mono-tag search-count" id="scaleMatchCount">${filteredScales.length} ${t(state.lang, 'scalesUnit')}</span>
+      </div>
+
+      <div class="pill-row">
+        <button type="button" class="btn-mini ${state.temperamentFilter === 'all' ? 'active-mini' : ''}" data-action="tempFilter" data-val="all">${t(state.lang, 'tempAll')}</button>
+        <button type="button" class="btn-mini ${state.temperamentFilter === '12tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="12tet">${t(state.lang, 'temp12')}</button>
+        <button type="button" class="btn-mini ${state.temperamentFilter === '24tet' ? 'active-mini' : ''}" data-action="tempFilter" data-val="24tet">${t(state.lang, 'temp24')}</button>
+        <button type="button" class="btn-pill ${state.atlasOpen ? 'active-teal' : ''}" data-action="toggleAtlas">
+          ${state.atlasOpen ? t(state.lang, 'atlasClose') : t(state.lang, 'atlasOpen')}
+        </button>
+      </div>
+    </div>
+
+    ${atlasDrawerHtml}
+
     <div class="deck-grid">
       <div class="control-group">
         <label class="control-label" for="selScale">${t(state.lang, 'scaleLabel')}</label>
@@ -84,6 +259,13 @@ export function renderDeckPanel(state) {
       <div class="control-group">
         <label class="control-label" for="selTuning">${t(state.lang, 'tuningLabel')}</label>
         <select id="selTuning">${tuningOptions}</select>
+        <div class="quick-tunings-row" aria-label="${t(state.lang, 'quickTuningsLabel')}">
+          ${pinnedTunings.map((tun) => `
+            <button type="button" class="btn-mini ${tun.id === state.tuningId ? 'active-mini' : ''}" data-action="quickTuning" data-id="${tun.id}">
+              ${tun.short}
+            </button>
+          `).join('')}
+        </div>
       </div>
 
       <div class="control-group">
@@ -144,7 +326,14 @@ export function renderDeckPanel(state) {
     ${retunerHtml}
   `;
 
+  // Bind live search input cleanly (triggers fast-path in main.js without losing focus)
+  const searchInp = panel.querySelector('#inpScaleSearch');
+  searchInp.oninput = (e) => {
+    setState({ scaleSearch: e.target.value });
+  };
+
   panel.querySelector('#selScale').onchange = (e) => {
+    if (!e.target.value) return;
     stopPlaybackIfNeeded();
     setState({ scaleId: e.target.value, customScaleIntervalsQ: null, inspectedNote: null });
   };
@@ -152,15 +341,13 @@ export function renderDeckPanel(state) {
   panel.querySelector('#selRoot').onchange = (e) => {
     const nextRoot = Number(e.target.value);
     setState({ rootQ: nextRoot });
-    if (state.droneOn) {
-      synthEngine.updateDrone(true, nextRoot, state.droneFifth);
+    if (getState().droneOn) {
+      synthEngine.updateDrone(true, nextRoot, getState().droneFifth);
     }
   };
 
   panel.querySelector('#selTuning').onchange = (e) => {
-    stopPlaybackIfNeeded();
-    const tun = DB.tunings.find((item) => item.id === e.target.value) || DB.tunings[0];
-    setState({ tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
+    applyTuningById(e.target.value);
   };
 
   const bpmSlider = panel.querySelector('#rngBpm');
@@ -174,43 +361,66 @@ export function renderDeckPanel(state) {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
     const action = btn.dataset.action;
+    const st = getState();
 
     if (action === 'category') {
       const cat = btn.dataset.val;
-      const list = cat === 'all' ? DB.scales : DB.scales.filter((s) => s.category === cat);
-      const stillVisible = list.some((s) => s.id === state.scaleId);
+      const nextFiltered = getFilteredScales({ ...st, category: cat });
+      const stillVisible = nextFiltered.some((s) => s.id === st.scaleId);
       setState({
         category: cat,
         customScaleIntervalsQ: null,
-        scaleId: stillVisible ? state.scaleId : (list[0]?.id || state.scaleId)
+        scaleId: stillVisible ? st.scaleId : (nextFiltered[0]?.id || st.scaleId)
       });
+    } else if (action === 'tempFilter') {
+      const tf = btn.dataset.val;
+      const nextFiltered = getFilteredScales({ ...st, temperamentFilter: tf });
+      const stillVisible = nextFiltered.some((s) => s.id === st.scaleId);
+      setState({
+        temperamentFilter: tf,
+        customScaleIntervalsQ: null,
+        scaleId: stillVisible ? st.scaleId : (nextFiltered[0]?.id || st.scaleId)
+      });
+    } else if (action === 'toggleAtlas') {
+      setState({ atlasOpen: !st.atlasOpen });
+    } else if (action === 'pickScale') {
+      stopPlaybackIfNeeded();
+      setState({
+        scaleId: btn.dataset.id,
+        customScaleIntervalsQ: null,
+        inspectedNote: null
+      });
+    } else if (action === 'clearFilters') {
+      setState({ category: 'all', temperamentFilter: 'all', scaleSearch: '' });
+    } else if (action === 'quickTuning') {
+      applyTuningById(btn.dataset.id);
     } else if (action === 'microMode') {
       setState({ microMode: btn.dataset.val });
     } else if (action === 'labelMode') {
       setState({ labelMode: btn.dataset.val });
     } else if (action === 'playScale') {
-      toggleScalePlayback(state);
+      toggleScalePlayback(st);
     } else if (action === 'toggleDrone') {
-      const next = !state.droneOn;
-      synthEngine.updateDrone(next, state.rootQ, state.droneFifth);
+      const next = !st.droneOn;
+      synthEngine.updateDrone(next, st.rootQ, st.droneFifth);
       setState({ droneOn: next });
     } else if (action === 'toggleDroneFifth') {
-      const next = !state.droneFifth;
-      if (state.droneOn) synthEngine.updateDrone(true, state.rootQ, next);
+      const next = !st.droneFifth;
+      if (st.droneOn) synthEngine.updateDrone(true, st.rootQ, next);
       setState({ droneFifth: next });
     } else if (action === 'toggleVoicingOverlay') {
-      setState({ voicingOverlayOn: !state.voicingOverlayOn });
+      setState({ voicingOverlayOn: !st.voicingOverlayOn });
     } else if (action === 'toggleHarmonics') {
-      setState({ harmonicsOn: !state.harmonicsOn });
+      setState({ harmonicsOn: !st.harmonicsOn });
     } else if (action === 'toggleRetuner') {
-      setState({ retunerOpen: !state.retunerOpen });
+      setState({ retunerOpen: !st.retunerOpen });
     } else if (action === 'resetTuning') {
       const tun = getActiveTuning();
       setState({ customStringsQ: [...tun.stringsQ] });
     } else if (action === 'retune') {
       const idx = Number(btn.dataset.idx);
       const delta = Number(btn.dataset.delta);
-      const updated = [...state.customStringsQ];
+      const updated = [...st.customStringsQ];
       updated[idx] = Math.max(48, Math.min(168, updated[idx] + delta));
       synthEngine.pluckQ(updated[idx], { duration: 1.2, velocity: 0.34 });
       setState({ customStringsQ: updated });
@@ -221,6 +431,12 @@ export function renderDeckPanel(state) {
   if (badge) {
     badge.textContent = state.customStringsQ.map((q) => qToNoteName(q, false)).join(' ');
   }
+}
+
+function applyTuningById(tuningId) {
+  stopPlaybackIfNeeded();
+  const tun = DB.tunings.find((item) => item.id === tuningId) || DB.tunings[0];
+  setState({ tuningId: tun.id, customStringsQ: [...tun.stringsQ], inspectedNote: null });
 }
 
 export function stopPlaybackIfNeeded() {

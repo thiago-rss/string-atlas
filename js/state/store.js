@@ -1,11 +1,11 @@
 /**
- * Reactive Unidirectional Store v3.0
+ * Reactive Unidirectional Store v3.1
  */
 import { DB } from '../core/database.js';
 import { generateVoicings } from '../core/voicingEngine.js';
 import { generateEtude } from '../core/etudeGenerator.js';
 
-const STORAGE_KEY = 'string_atlas_prefs_v3';
+const STORAGE_KEY = 'string_atlas_prefs_v31';
 
 function loadSavedPrefs() {
   try {
@@ -22,7 +22,8 @@ function savePrefs(state) {
       STORAGE_KEY,
       JSON.stringify({
         lang: state.lang,
-        theme: state.theme
+        theme: state.theme,
+        tuningId: state.tuningId
       })
     );
   } catch {
@@ -31,22 +32,25 @@ function savePrefs(state) {
 }
 
 const saved = loadSavedPrefs();
-const defaultTuning = DB.tunings[0];
+const initialTuning = DB.tunings.find((t) => t.id === saved.tuningId) || DB.tunings[0];
 const defaultRhythm = DB.rhythms[1]; // Sama'i Thaqil 10/8
 
 const state = {
   lang: saved.lang === 'en' ? 'en' : 'pt',
   theme: saved.theme === 'nahar' ? 'nahar' : 'layl',
 
-  // Scale / Modal state
+  // Scale / Modal browsing & filtering state
   category: 'all',
+  temperamentFilter: 'all', // 'all' | '12tet' | '24tet'
+  scaleSearch: '',
+  atlasOpen: false,
   scaleId: 'maqam_bayati',
   rootQ: 4, // D
   customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
-  tuningId: defaultTuning.id,
-  customStringsQ: [...defaultTuning.stringsQ],
+  tuningId: initialTuning.id,
+  customStringsQ: [...initialTuning.stringsQ],
   retunerOpen: false,
   microMode: 'bend', // 'bend' | 'slide' | 'frets24'
   labelMode: 'note', // 'note' | 'degree' | 'cents'
@@ -64,7 +68,7 @@ const state = {
   activeTab: 'etude',
 
   // Phase 2: Harmony & Voicing Lab
-  harmonyMode: 'catalog', // 'catalog' | 'custom'
+  harmonyMode: 'catalog',
   chordId: 'quartal_3',
   customSetIntervalsQ: [0, 2, 12],
   voicingOverlayOn: false,
@@ -86,11 +90,11 @@ const state = {
   etudeActiveIdx: -1,
   currentEtude: null,
 
-  // Synchronized 24-TET Notation & Tablature ('voicing' | 'etude' | 'scale' | 'phrase')
+  // Synchronized 24-TET Notation & Tablature
   notationMode: 'etude',
   phraseEvents: [],
 
-  // Phase 2: Universal Rhythm & Polymeter Engine
+  // Universal Rhythm & Polymeter Engine
   rhythmFilter: 'all',
   rhythmId: defaultRhythm.id,
   rhythmSteps: [...defaultRhythm.steps],
@@ -102,6 +106,38 @@ const state = {
   // Oblique Lab
   obliqueIndex: 0
 };
+
+export function scaleIsMicrotonal(scale) {
+  return scale.intervalsQ.some((iv) => iv % 2 !== 0);
+}
+
+/**
+ * Returns scales matching active category, temperamentFilter, and search query.
+ */
+export function getFilteredScales(st = state) {
+  const q = (st.scaleSearch || '').trim().toLowerCase();
+  return DB.scales.filter((s) => {
+    if (st.category !== 'all' && s.category !== st.category) return false;
+    const isMicro = scaleIsMicrotonal(s);
+    if (st.temperamentFilter === '24tet' && !isMicro) return false;
+    if (st.temperamentFilter === '12tet' && isMicro) return false;
+    if (q) {
+      const hay = [
+        s.namePt,
+        s.nameEn,
+        s.subfamilyPt,
+        s.subfamilyEn,
+        ...(s.tagsPt || []),
+        ...(s.tagsEn || []),
+        s.dossier?.repertoire || ''
+      ]
+        .join(' ')
+        .toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
 
 export function getActiveChordIntervalsQ() {
   if (state.harmonyMode === 'custom') {
@@ -129,6 +165,8 @@ export function getActiveScale() {
     return {
       id: '__custom_set__',
       category: 'postTonal',
+      subfamilyPt: 'Conjunto Customizado',
+      subfamilyEn: 'Custom Set',
       namePt: 'Conjunto Customizado (Pitch-Class Set)',
       nameEn: 'Custom Pitch-Class Set',
       intervalsQ: state.customScaleIntervalsQ,
@@ -184,7 +222,6 @@ function recomputeEtude() {
   }
 }
 
-// Initial computation
 recomputeVoicings();
 recomputeEtude();
 
@@ -234,7 +271,7 @@ export function setState(patch) {
     recomputeEtude();
   }
 
-  if ('lang' in patch || 'theme' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch) {
     savePrefs(state);
   }
 

@@ -1,5 +1,5 @@
 /**
- * Pre-commit integrity validator for String Atlas v3.0
+ * Pre-commit integrity validator for String Atlas v3.1
  * Run: node scripts/check.mjs
  */
 import fs from 'node:fs';
@@ -60,11 +60,14 @@ for (const rel of jsFiles) {
 }
 if (errors === 0) ok(`JS syntax valid across ${jsFiles.length} modules`);
 
-// 2. Validate DB.scales
+// 2. Validate DB.scales + categories + subfamilies
+const catIds = new Set(DB.categories.map((c) => c.id));
 const scaleIds = new Set();
 for (const s of DB.scales) {
   if (scaleIds.has(s.id)) fail(`Duplicate scale id: ${s.id}`);
   scaleIds.add(s.id);
+  if (!catIds.has(s.category)) fail(`Scale ${s.id} has unknown category: ${s.category}`);
+  if (!s.subfamilyPt || !s.subfamilyEn) fail(`Scale ${s.id} missing subfamily`);
   if (!s.intervalsQ.includes(0)) fail(`Scale ${s.id} missing root 0`);
   for (const iv of s.intervalsQ) {
     if (!Number.isInteger(iv) || iv < 0 || iv > 23) {
@@ -75,39 +78,57 @@ for (const s of DB.scales) {
     fail(`Scale ${s.id} missing bilingual dossier`);
   }
 }
-ok(`Validated ${DB.scales.length} scales in 24-TET catalog`);
+ok(`Validated ${DB.scales.length} scales across ${DB.categories.length - 1} organized categories`);
 
-// 3. Validate DB.chords & Voicing Solver
+// 3. Validate DB.tunings + groups (incl. B Standard & A Standard)
+const tuningGroupIds = new Set(DB.tuningGroups.map((g) => g.id));
+const tuningIds = new Set();
+for (const tun of DB.tunings) {
+  if (tuningIds.has(tun.id)) fail(`Duplicate tuning id: ${tun.id}`);
+  tuningIds.add(tun.id);
+  if (!tuningGroupIds.has(tun.group)) fail(`Tuning ${tun.id} has unknown group: ${tun.group}`);
+  if (tun.stringsQ.length !== 6) fail(`Tuning ${tun.id} must have 6 strings`);
+}
+if (!tuningIds.has('b_standard') || !tuningIds.has('a_standard')) {
+  fail('Missing required baritone tunings: b_standard / a_standard');
+}
+ok(`Validated ${DB.tunings.length} tunings across ${DB.tuningGroups.length} groups`);
+
+// 4. Validate DB.chords & Voicing Solver across E Standard, B Standard & A Standard
 const chordIds = new Set();
-const stdTuning = DB.tunings[0];
+const coreTunings = ['standard', 'b_standard', 'a_standard']
+  .map((id) => DB.tunings.find((t) => t.id === id))
+  .filter(Boolean);
+
 for (const c of DB.chords) {
   if (chordIds.has(c.id)) fail(`Duplicate chord id: ${c.id}`);
   chordIds.add(c.id);
   if (!c.intervalsQ.includes(0)) fail(`Chord ${c.id} missing root 0`);
-  const voicings = generateVoicings({
-    rootQ: 4,
-    intervalsQ: c.intervalsQ,
-    stringsQ: stdTuning.stringsQ,
-    limit: 6
-  });
-  if (voicings.length === 0) {
-    fail(`Voicing solver returned 0 voicings for ${c.id} on Standard tuning`);
+  for (const tun of coreTunings) {
+    const voicings = generateVoicings({
+      rootQ: 4,
+      intervalsQ: c.intervalsQ,
+      stringsQ: tun.stringsQ,
+      limit: 6
+    });
+    if (voicings.length === 0) {
+      fail(`Voicing solver returned 0 voicings for ${c.id} on ${tun.id}`);
+    }
   }
 }
-ok(`Validated ${DB.chords.length} experimental chords & voicing solver`);
+ok(`Validated ${DB.chords.length} experimental chords on E Standard, B Standard & A Standard`);
 
-// 4. Validate Procedural Etude Generator across patterns, scales & tunings
+// 5. Validate Procedural Etude Generator across E Std, B Std, A Std & DADGAD
 const sampleScales = [
   DB.scales.find((s) => s.id === 'maqam_bayati'),
+  DB.scales.find((s) => s.id === 'maqam_saba_zamzam'),
   DB.scales.find((s) => s.id === 'messiaen_mode3'),
-  DB.scales.find((s) => s.id === 'set_viennese_016')
+  DB.scales.find((s) => s.id === 'set_all_interval_0137')
 ].filter(Boolean);
 
-const sampleTunings = [
-  DB.tunings.find((t) => t.id === 'standard'),
-  DB.tunings.find((t) => t.id === 'dadgad'),
-  DB.tunings.find((t) => t.id === 'all_fourths')
-].filter(Boolean);
+const sampleTunings = ['standard', 'b_standard', 'a_standard', 'dadgad']
+  .map((id) => DB.tunings.find((t) => t.id === id))
+  .filter(Boolean);
 
 let etudeCombos = 0;
 for (const pat of ETUDE_PATTERNS) {
@@ -142,49 +163,28 @@ for (const pat of ETUDE_PATTERNS) {
     }
   }
 }
-ok(`Validated ${ETUDE_PATTERNS.length} procedural etude patterns (${etudeCombos} combinations + ASCII tab export)`);
+ok(`Validated ${ETUDE_PATTERNS.length} procedural etude patterns (${etudeCombos} combos incl. B/A Standard)`);
 
-// 5. Validate DB.rhythms
+// 6. Validate DB.rhythms
 const rhythmIds = new Set();
 const validHits = new Set(['D', 'T', 'K', '-']);
 for (const r of DB.rhythms) {
   if (rhythmIds.has(r.id)) fail(`Duplicate rhythm id: ${r.id}`);
   rhythmIds.add(r.id);
-  if (!Array.isArray(r.steps) || r.steps.length < 2) {
-    fail(`Rhythm ${r.id} has invalid steps`);
-  }
+  if (!Array.isArray(r.steps) || r.steps.length < 2) fail(`Rhythm ${r.id} has invalid steps`);
   for (const hit of r.steps) {
     if (!validHits.has(hit)) fail(`Rhythm ${r.id} has unknown hit: ${hit}`);
   }
 }
 ok(`Validated ${DB.rhythms.length} Iqa'at & Aksak rhythmic cycles`);
 
-// 6. Validate DB.tunings
-const tuningIds = new Set();
-for (const tun of DB.tunings) {
-  if (tuningIds.has(tun.id)) fail(`Duplicate tuning id: ${tun.id}`);
-  tuningIds.add(tun.id);
-  if (tun.stringsQ.length !== 6) fail(`Tuning ${tun.id} must have 6 strings`);
-}
-ok(`Validated ${DB.tunings.length} scordatura tunings`);
-
 // 7. Validate Oblique Strategy presets
 for (const card of DB.obliqueStrategies) {
-  if (!scaleIds.has(card.preset.scaleId)) {
-    fail(`Oblique card ${card.id} references unknown scaleId: ${card.preset.scaleId}`);
-  }
-  if (!tuningIds.has(card.preset.tuningId)) {
-    fail(`Oblique card ${card.id} references unknown tuningId: ${card.preset.tuningId}`);
-  }
-  if (card.preset.chordId && !chordIds.has(card.preset.chordId)) {
-    fail(`Oblique card ${card.id} references unknown chordId: ${card.preset.chordId}`);
-  }
-  if (card.preset.rhythmId && !rhythmIds.has(card.preset.rhythmId)) {
-    fail(`Oblique card ${card.id} references unknown rhythmId: ${card.preset.rhythmId}`);
-  }
-  if (card.preset.rootQ < 0 || card.preset.rootQ > 23) {
-    fail(`Oblique card ${card.id} rootQ out of range: ${card.preset.rootQ}`);
-  }
+  if (!scaleIds.has(card.preset.scaleId)) fail(`Oblique card ${card.id} unknown scaleId: ${card.preset.scaleId}`);
+  if (!tuningIds.has(card.preset.tuningId)) fail(`Oblique card ${card.id} unknown tuningId: ${card.preset.tuningId}`);
+  if (card.preset.chordId && !chordIds.has(card.preset.chordId)) fail(`Oblique card ${card.id} unknown chordId`);
+  if (card.preset.rhythmId && !rhythmIds.has(card.preset.rhythmId)) fail(`Oblique card ${card.id} unknown rhythmId`);
+  if (card.preset.rootQ < 0 || card.preset.rootQ > 23) fail(`Oblique card ${card.id} invalid rootQ`);
 }
 ok(`Validated ${DB.obliqueStrategies.length} Oblique Lab presets`);
 
@@ -204,4 +204,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v3.0 integrity checks passed.');
+console.log('\nAll String Atlas v3.1 integrity checks passed.');

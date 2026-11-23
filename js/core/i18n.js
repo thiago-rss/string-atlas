@@ -1,5 +1,5 @@
 /**
- * Bilingual UI Dictionary (PT / EN) — v3.0
+ * Bilingual UI Dictionary (PT / EN) — v3.1
  */
 
 export const I18N = {
@@ -7,7 +7,19 @@ export const I18N = {
     subtitle: 'Modal Guitar Lab · 24-TET',
     scaleLabel: 'Escala / Maqam / Pitch Set',
     rootLabel: 'Tônica (24-TET)',
-    tuningLabel: 'Scordatura (Afinação)',
+    tuningLabel: 'Scordatura / Afinação',
+    quickTuningsLabel: 'Atalhos de Afinação',
+    searchPlaceholder: 'Buscar escala, modo, jins, artista ou tag...',
+    tempAll: 'Todos',
+    temp12: '12-TET',
+    temp24: '24-TET (¼)',
+    atlasOpen: 'Abrir Atlas Visual',
+    atlasClose: 'Fechar Atlas',
+    atlasTitle: 'Atlas Organizado de Escalas & Modos',
+    noScaleMatches: 'Nenhuma escala encontrada para os filtros atuais.',
+    clearFilters: 'Limpar Filtros',
+    scalesUnit: 'escalas',
+    notesUnit: 'notas',
     microModeLabel: 'Modo Microtonal',
     labelModeLabel: 'Rótulo no Braço',
     modeBend: 'Bend +50¢',
@@ -150,7 +162,19 @@ export const I18N = {
     subtitle: 'Modal Guitar Lab · 24-TET',
     scaleLabel: 'Scale / Maqam / Pitch Set',
     rootLabel: 'Root (24-TET)',
-    tuningLabel: 'Scordatura (Tuning)',
+    tuningLabel: 'Scordatura / Tuning',
+    quickTuningsLabel: 'Quick Tunings',
+    searchPlaceholder: 'Search scale, mode, jins, artist, or tag...',
+    tempAll: 'All',
+    temp12: '12-TET',
+    temp24: '24-TET (¼)',
+    atlasOpen: 'Open Visual Atlas',
+    atlasClose: 'Close Atlas',
+    atlasTitle: 'Organized Scale & Mode Atlas',
+    noScaleMatches: 'No scales match your active filters.',
+    clearFilters: 'Clear Filters',
+    scalesUnit: 'scales',
+    notesUnit: 'notes',
     microModeLabel: 'Microtonal Mode',
     labelModeLabel: 'Fretboard Label',
     modeBend: 'Bend +50¢',

@@ -9,12 +9,12 @@ import { getActiveScale, getActiveVoicing, getState, setState } from '../state/s
 import { synthEngine } from '../audio/synthEngine.js';
 import { highlightFretboardEtudeEvent } from './fretboardView.js';
 
-const SVG_H = 244;
+const SVG_H = 266;
 const STAFF_LEFT = 54;
-const E4_Y = 104;
-const HALF_STEP_Y = 5;
+const E4_Y = 96;
+const HALF_STEP_Y = 4.6;
 
-const TAB_TOP_Y = 148;
+const TAB_TOP_Y = 170;
 const TAB_GAP = 14;
 
 function stepToStaffY(stepFromE4) {
@@ -98,7 +98,7 @@ function drawNoteColumn({ x, notes, microMode, colIdx = null, articulation = nul
 
   sorted.forEach((n, idx) => {
     const pos = qToGuitarStaffPos(n.q);
-    const clampedStep = Math.max(-6, Math.min(13, pos.stepFromE4));
+    const clampedStep = Math.max(-12, Math.min(13, pos.stepFromE4));
     const y = stepToStaffY(clampedStep);
     const nx = lastStep !== null && Math.abs(clampedStep - lastStep) <= 1 ? x + 10 : x;
     lastStep = clampedStep;

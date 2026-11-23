@@ -26,6 +26,7 @@ function renderDossier(state) {
   const scale = getActiveScale();
   const isEn = state.lang === 'en';
   const tags = isEn ? scale.tagsEn : scale.tagsPt;
+  const subfamily = isEn ? (scale.subfamilyEn || '') : (scale.subfamilyPt || '');
   const ivVec = computeIntervalVector(scale.intervalsQ);
   const stepFormula = formatStepFormula(scale.intervalsQ);
 
@@ -54,6 +55,7 @@ function renderDossier(state) {
     </div>
 
     <div class="tag-list">
+      ${subfamily ? `<span class="soft-tag" style="color:var(--accent-root);border-color:var(--accent-root)">${subfamily}</span>` : ''}
       ${tags.map((tag) => `<span class="soft-tag">${tag}</span>`).join('')}
       ${vecBadge}
     </div>

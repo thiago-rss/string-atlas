@@ -201,7 +201,11 @@ function evaluateAndStore(notes, targetCard, rootQ, seen) {
  * Finds a clean 1-octave ascending scale tab path on the current tuning for notation/tab preview.
  */
 export function buildScaleTabSequence({ rootQ, intervalsQ, stringsQ }) {
-  const baseQ = 96 + mod24(rootQ); // octave 3 guitar register (middle range)
+  // Automatically anchor 1-octave scale inside the natural register of the active tuning
+  const lowStrQ = Math.min(...stringsQ);
+  let baseQ = 72 + mod24(rootQ);
+  while (baseQ < lowStrQ + 8) baseQ += 24;
+  if (baseQ > lowStrQ + 34) baseQ -= 24;
   const targetQs = [...intervalsQ, 24].map((iv) => baseQ + iv);
   const path = [];
   let prevFret = 4;
