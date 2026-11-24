@@ -632,3 +632,30 @@
     align-items: flex-start;
   }
 }
+
+/* Phase 8.9 Mobile Focused Stage & Clean Topbar */
+@media (max-width: 768px) {
+  .top-act-desktop {
+    display: none !important;
+  }
+
+  .studio-tray-hint {
+    display: none;
+  }
+
+  .stage-scale-trigger {
+    padding: 2px 6px 2px 2px;
+    gap: 6px;
+  }
+
+  .clarity-seg-btn {
+    padding: 4px 8px;
+    font-size: 0.71rem;
+  }
+
+  .stage-footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

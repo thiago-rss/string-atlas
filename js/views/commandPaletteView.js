@@ -6,6 +6,7 @@
  * 3. Bilingual Keyboard Shortcuts Modal (?)
  */
 import { DB } from '../core/database.js';
+import { resolveFretDisplayPatch } from '../core/fretClarity.js';
 import { THEMES } from '../core/themes.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { STUDY_LESSONS } from '../core/studyGuide.js';
@@ -215,7 +216,10 @@ export function executeCommandItem(item) {
   }
 
   if (item.type === 'scale') {
+    const cur = getState();
+    const revealPatch = cur.fretDisplayMode === 'clean' ? resolveFretDisplayPatch('position', cur) : {};
     setState({
+      ...revealPatch,
       category: 'all',
       temperamentFilter: 'all',
       scaleSearch: '',

@@ -8,6 +8,7 @@ import { encodeSessionHash, extractShareablePayload } from '../core/sessionCodec
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { t } from '../core/i18n.js';
 import { sanitizeCustomTuning } from '../core/customTunings.js';
+import { resolveFretDisplayPatch } from '../core/fretClarity.js';
 import { findTuningById, getActiveScale, getActiveTuning, getEffectiveFretZoom, getEffectiveOrientation, getState, setState } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
 import { showToast } from './toastView.js';
@@ -179,6 +180,7 @@ function applySnapshotPayload(p) {
     etudePatternId: p.ep || 'micro_bend_lab',
     vampPresetId: vp.id,
     vampSteps: vp.steps.map((s) => ({ ...s })),
+    fretDisplayMode: p.fw ? 'position' : 'octave',
     fretWindowOn: Boolean(p.fw),
     fretWindowStart: Number.isInteger(p.fs) ? p.fs : 0,
     fretWindowSpan: Number.isInteger(p.fl) ? p.fl : 5,
@@ -246,9 +248,9 @@ export function renderZenBar(state) {
       synthEngine.updateDrone(next, st.rootQ, st.droneFifth);
       setState({ droneOn: next });
     } else if (act === 'toggleWindow') {
-      setState({ fretWindowOn: !st.fretWindowOn });
+      setState(resolveFretDisplayPatch(st.fretWindowOn ? 'octave' : 'position', st));
     } else if (act === 'toggleZoom') {
-      setState({ fretZoomOverride: getEffectiveFretZoom(st) === 12 ? 22 : 12 });
+      setState(resolveFretDisplayPatch(getEffectiveFretZoom(st) === 12 ? 'full' : 'octave', st));
     } else if (act === 'toggleOrient') {
       setState({ fretOrientationMode: getEffectiveOrientation(st) === 'vertical' ? 'horizontal' : 'vertical', fretZoomOverride: null });
     } else if (act === 'toggleLeft') {

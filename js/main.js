@@ -161,6 +161,27 @@ function applyStaticI18nAndTheme(state) {
   updateThemeHeaderButton(state);
 }
 
+function updateTopbarActionButtons(state) {
+  const btnPlay = document.getElementById('btnTopPlay');
+  if (btnPlay) {
+    btnPlay.classList.toggle('is-active-top', Boolean(state.isPlayingScale));
+    btnPlay.textContent = state.isPlayingScale ? `■ ${t(state.lang, 'topStopBtn')}` : `▶ ${t(state.lang, 'topPlayBtn')}`;
+  }
+
+  const btnMic = document.getElementById('btnTopMic');
+  if (btnMic) {
+    btnMic.classList.toggle('is-live-top', Boolean(state.lineModeRunning));
+    btnMic.textContent = state.lineModeRunning ? `● ${t(state.lang, 'topMicLive')}` : `🎙 ${t(state.lang, 'topMicBtn')}`;
+  }
+
+  const btnCtrl = document.getElementById('btnTopControls');
+  if (btnCtrl) {
+    const isOpen = Boolean(state.deckCompartment);
+    btnCtrl.classList.toggle('is-open', isOpen);
+    btnCtrl.innerHTML = `${isOpen ? '✕' : '⚙'} <span>${t(state.lang, 'topControlsBtn')}</span>`;
+  }
+}
+
 function renderLabTabs(state) {
   const nav = document.getElementById('labTabs');
   if (!nav) return;
@@ -199,22 +220,43 @@ function renderLabTabs(state) {
     `
     : '';
 
-  nav.innerHTML = `
-    <div class="zone-primary-bar">
-      <div class="zone-pills-group zone-grid-4">${zoneBtnsHtml}</div>
-      ${state.workspaceOpen ? `
+  const trayOpen = Boolean(state.studioTrayOpen || state.workspaceOpen);
+  const anyStudioLive = WORKSPACE_ZONES.some((z) => z.tools.some((tool) => isToolLive(state, tool.id)));
+
+  if (!trayOpen) {
+    nav.innerHTML = `
+      <div class="studio-tray-collapsed">
+        <button type="button" class="studio-tray-trigger" data-tray-open="1">
+          <span aria-hidden="true">🧭</span>
+          <span>${t(state.lang, 'studioTrayOpenBtn')}</span>
+          <span class="studio-tray-hint">${t(state.lang, 'studioTrayHint')}</span>
+          ${anyStudioLive ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : ''}
+          <span class="studio-tray-caret" aria-hidden="true">▾</span>
+        </button>
+      </div>
+    `;
+  } else {
+    nav.innerHTML = `
+      <div class="zone-primary-bar">
+        <div class="zone-pills-group zone-grid-4">${zoneBtnsHtml}</div>
         <button type="button" class="btn-mini zone-collapse-btn" data-ws-toggle="1" title="${t(state.lang, 'wsCollapse')}">
           ✕
         </button>
-      ` : ''}
-    </div>
-    ${subToolsHtml}
-  `;
+      </div>
+      ${subToolsHtml}
+    `;
+  }
 
   nav.onclick = (e) => {
+    const openTrayBtn = e.target.closest('button[data-tray-open]');
+    if (openTrayBtn) {
+      setState({ studioTrayOpen: true });
+      return;
+    }
+
     const toggleBtn = e.target.closest('button[data-ws-toggle]');
     if (toggleBtn) {
-      setState({ workspaceOpen: false });
+      setState({ workspaceOpen: false, studioTrayOpen: false });
       return;
     }
 
@@ -314,6 +356,7 @@ function renderAll(state, patch = null) {
       return;
     }
     if (keys.every((k) => k === 'deckCompartment' || k === 'headerMenuOpen' || k === 'themeDrawerOpen' || k === 'snapshotsOpen')) {
+      updateTopbarActionButtons(state);
       renderDeckPanel(state);
       renderHeaderMenuDrawer(state);
       renderThemeDrawer(state);
@@ -326,7 +369,7 @@ function renderAll(state, patch = null) {
       renderNotationPanel(state);
       return;
     }
-    if (keys.every((k) => k === 'activeTab' || k === 'workspaceOpen')) {
+    if (keys.every((k) => ['activeTab', 'workspaceOpen', 'studioTrayOpen'].includes(k))) {
       renderLabTabs(state);
       renderMobileBottomNav(state);
       if (state.activeTab === 'glossary' && state.glossaryFocusId) {
@@ -406,6 +449,7 @@ function renderAll(state, patch = null) {
   }
 
   applyStaticI18nAndTheme(state);
+  updateTopbarActionButtons(state);
   renderHeaderMenuDrawer(state);
   renderThemeDrawer(state);
   renderSnapshotsDrawer(state);
@@ -468,10 +512,43 @@ function bindResponsiveViewportListener() {
 }
 
 function bindGlobalControls() {
+  document.getElementById('btnTopPlay')?.addEventListener('click', () => {
+    const st = getState();
+    if (st.etudePlaying) stopEtudePlayback();
+    toggleScalePlayback(st);
+  });
+
+  document.getElementById('btnTopMic')?.addEventListener('click', () => {
+    const st = getState();
+    if (st.lineModeRunning) stopLineMode();
+    else startLineMode();
+  });
+
+  document.getElementById('btnTopControls')?.addEventListener('click', () => {
+    const st = getState();
+    setState({
+      deckCompartment: st.deckCompartment ? null : 'setup',
+      headerMenuOpen: false,
+      themeDrawerOpen: false,
+      snapshotsOpen: false
+    });
+  });
+
+  document.getElementById('btnStageScalePicker')?.addEventListener('click', () => {
+    const st = getState();
+    setState({
+      deckCompartment: st.deckCompartment === 'setup' ? null : 'setup',
+      headerMenuOpen: false,
+      themeDrawerOpen: false,
+      snapshotsOpen: false
+    });
+  });
+
   document.getElementById('btnHeaderMenu')?.addEventListener('click', () => {
     const st = getState();
     setState({
       headerMenuOpen: !st.headerMenuOpen,
+      deckCompartment: null,
       themeDrawerOpen: false,
       snapshotsOpen: false
     });
@@ -487,8 +564,8 @@ function bindGlobalControls() {
     }
 
     if (ev.key === 'Escape') {
-      if (st.paletteOpen || st.shortcutsOpen || st.headerMenuOpen || st.themeDrawerOpen || st.snapshotsOpen) {
-        setState({ paletteOpen: false, paletteQuery: '', shortcutsOpen: false, headerMenuOpen: false, themeDrawerOpen: false, snapshotsOpen: false });
+      if (st.paletteOpen || st.shortcutsOpen || st.headerMenuOpen || st.themeDrawerOpen || st.snapshotsOpen || st.deckCompartment) {
+        setState({ paletteOpen: false, paletteQuery: '', shortcutsOpen: false, headerMenuOpen: false, themeDrawerOpen: false, snapshotsOpen: false, deckCompartment: null });
         return;
       }
       if (st.droneOn || st.vampPlaying || st.etudePlaying || st.rhythmPlaying || st.isPlayingScale || st.lineModeRunning) {

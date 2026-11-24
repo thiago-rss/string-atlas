@@ -71,7 +71,7 @@ export function renderMobileBottomNav(state) {
       id: 'studio',
       icon: '🧭',
       label: t(state.lang, 'mobNavStudio'),
-      active: Boolean(state.workspaceOpen),
+      active: Boolean(state.workspaceOpen || state.studioTrayOpen),
       live: false
     },
     {
@@ -121,8 +121,8 @@ export function renderMobileBottomNav(state) {
         });
       }
     } else if (id === 'studio') {
-      const opening = !st.workspaceOpen;
-      setState({ workspaceOpen: opening });
+      const opening = !(st.workspaceOpen || st.studioTrayOpen);
+      setState({ workspaceOpen: opening, studioTrayOpen: opening });
       if (opening) {
         requestAnimationFrame(() => {
           document.getElementById('labTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });

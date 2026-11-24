@@ -7,10 +7,12 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { A4_Q, getReferenceA4, qToFreq, setReferenceA4 } from '../js/core/theory24.js';
 import { DB } from '../js/core/database.js';
+import { getState as getStoreState } from '../js/state/store.js';
 import { THEMES } from '../js/core/themes.js';
 import { getThemeBackdropWatermarkSvg, getThemeBrandMedallionSvg, getThemeCornerFiligreeSvg, getThemeFooterOrnamentSvg, getThemeHeaderBannerSvg, getThemePanelCrownSvg } from '../js/core/themeGraphics.js';
 import { calculateSetTension, classifyTrussRodDelta, compareTensionSetups, getDefaultPackForCount, recommendBalancedGauges } from '../js/core/tensionEngine.js';
 import { createCustomTuning, sanitizeCustomTuning } from '../js/core/customTunings.js';
+import { FRET_DISPLAY_MODES, computeNoteGeometry, getNoteVisualTier, resolveFretDisplayPatch } from '../js/core/fretClarity.js';
 import { generateVoicings } from '../js/core/voicingEngine.js';
 import { ETUDE_PATTERNS, exportEtudeToAsciiTab, generateEtude } from '../js/core/etudeGenerator.js';
 import { VAMP_PRESETS, buildVampFromCurrentLab } from '../js/core/vampEngine.js';
@@ -53,6 +55,7 @@ const jsFiles = [
   'js/core/themes.js',
   'js/core/themeGraphics.js',
   'js/core/customTunings.js',
+  'js/core/fretClarity.js',
   'js/core/tensionEngine.js',
   'js/core/voicingEngine.js',
   'js/core/etudeGenerator.js',
@@ -438,6 +441,45 @@ if (!afterGlitch || Math.abs(afterGlitch.freq - 55.0) > 1.0) {
 }
 ok('Unit-tested v8.8 Acoustic Refinement (A4 415–446Hz, Karplus-Strong 110Hz YIN lock & Bass PitchStabilizer)');
 
+// 5j. Unit-test v8.9 Focused UX, Store Bootstrap & 3-Tier Fretboard Clarity Hierarchy
+const initStore = getStoreState();
+if (!initStore || initStore.deckCompartment !== null || initStore.fretDisplayMode !== 'clean' || initStore.fretWindowOn !== false) {
+  fail(`store.js initial v8.9 state check failed: deckCompartment=${initStore?.deckCompartment}, fretDisplayMode=${initStore?.fretDisplayMode}`);
+}
+if (FRET_DISPLAY_MODES.length !== 4) fail('Expected 4 fretboard clarity modes');
+const posPatch = resolveFretDisplayPatch('position', { fretWindowStart: 14, fretWindowSpan: 5 });
+if (!posPatch.fretWindowOn || posPatch.fretZoomOverride !== 12 || posPatch.fretWindowStart > 7) {
+  fail(`resolveFretDisplayPatch('position') failed: ${JSON.stringify(posPatch)}`);
+}
+const cleanPatch = resolveFretDisplayPatch('clean', {});
+const fullPatch = resolveFretDisplayPatch('full', {});
+if (cleanPatch.fretWindowOn !== false || fullPatch.fretZoomOverride !== 22) {
+  fail('resolveFretDisplayPatch clean/full mismatch');
+}
+if (
+  getNoteVisualTier({ isRoot: true }) !== 'root' ||
+  getNoteVisualTier({ isChar: true }) !== 'accent' ||
+  getNoteVisualTier({ isMicroStep: true }) !== 'accent' ||
+  getNoteVisualTier({}) !== 'scale'
+) {
+  fail('getNoteVisualTier 3-tier classification mismatch');
+}
+const gRootWide = computeNoteGeometry({ tier: 'root', fretSpanPx: 72, strGapPx: 42 });
+const gCharWide = computeNoteGeometry({ tier: 'accent', fretSpanPx: 72, strGapPx: 42 });
+const gSkelWide = computeNoteGeometry({ tier: 'scale', fretSpanPx: 72, strGapPx: 42 });
+const gRootTight = computeNoteGeometry({ tier: 'root', fretSpanPx: 26, strGapPx: 42 });
+if (!(gRootWide.radius > gCharWide.radius && gCharWide.radius > gSkelWide.radius)) {
+  fail(`Expected strict 3-tier radius hierarchy root>accent>scale, got ${gRootWide.radius}/${gCharWide.radius}/${gSkelWide.radius}`);
+}
+if (!(gRootTight.radius < gRootWide.radius)) {
+  fail(`Expected adaptive sizing to shrink markers on narrow upper frets: wide=${gRootWide.radius}, tight=${gRootTight.radius}`);
+}
+const idxHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+if (!idxHtml.includes('id="deckShell" hidden') || !idxHtml.includes('id="btnTopControls"') || !idxHtml.includes('id="btnStageScalePicker"')) {
+  fail('index.html missing v8.9 clean initial stage elements (#deckShell hidden, #btnTopControls, #btnStageScalePicker)');
+}
+ok(`Unit-tested v8.9 Focused Stage & 3-Tier Fretboard Clarity (root=${gRootWide.radius}px > accent=${gCharWide.radius}px > scale=${gSkelWide.radius}px; upper-fret shrink=${gRootTight.radius}px)`);
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -452,4 +494,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.8 integrity checks passed.');
+console.log('\nAll String Atlas v8.9 integrity checks passed.');

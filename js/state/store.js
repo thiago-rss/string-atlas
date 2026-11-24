@@ -9,6 +9,7 @@ import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { loadCustomTunings, saveCustomTunings } from '../core/customTunings.js';
+import { FRET_DISPLAY_MODES } from '../core/fretClarity.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
 const STORAGE_KEY = 'string_atlas_prefs_v82';
@@ -34,7 +35,8 @@ function savePrefs(state) {
         refA4Hz: state.refA4Hz,
         completedLessons: state.completedLessons,
         earStats: state.earStats,
-        leftHanded: state.leftHanded
+        leftHanded: state.leftHanded,
+        fretDisplayMode: state.fretDisplayMode
       })
     );
   } catch {
@@ -60,12 +62,18 @@ export function getEffectiveFretZoom(st = state) {
   if (st.fretZoomOverride === 12 || st.fretZoomOverride === 22) {
     return st.fretZoomOverride;
   }
-  return getEffectiveOrientation(st) === 'vertical' ? 12 : 22;
+  if (st.fretDisplayMode === 'full') {
+    return 22;
+  }
+  return 12;
 }
 
 const saved = loadSavedPrefs();
 const initialRefA4 = setReferenceA4(saved.refA4Hz || 440);
 const hashPayload = typeof window !== 'undefined' ? decodeSessionHash(window.location.hash) : null;
+const resolvedDisplayMode = hashPayload
+  ? (hashPayload.fw ? 'position' : 'octave')
+  : 'clean';
 
 const validScaleIds = new Set(DB.scales.map((s) => s.id));
 const initialCustomTunings = loadCustomTunings();
@@ -101,6 +109,7 @@ const state = {
   themeDrawerOpen: false,
   deckCompartment: null, // null | 'setup' | 'neck' | 'input' | 'audio'
   notationOpen: false,
+  studioTrayOpen: false,
   workspaceOpen: false,
   zenMode: false,
   paletteOpen: false,
@@ -128,13 +137,14 @@ const state = {
   labelMode: (hashPayload && ['note', 'degree', 'cents'].includes(hashPayload.l)) ? hashPayload.l : 'note',
   harmonicsOn: hashPayload ? Boolean(hashPayload.h) : false,
 
-  // Phase 5: Closed-Position Fretboard Window Filter
-  fretWindowOn: hashPayload ? Boolean(hashPayload.fw) : false,
+  // Phase 8.9: Fretboard Visual Clarity Mode ('clean' | 'position' | 'octave' | 'full')
+  fretDisplayMode: resolvedDisplayMode,
+  fretWindowOn: resolvedDisplayMode === 'position',
   fretWindowStart: (hashPayload && Number.isInteger(hashPayload.fs)) ? Math.max(0, Math.min(18, hashPayload.fs)) : 0,
   fretWindowSpan: (hashPayload && Number.isInteger(hashPayload.fl)) ? Math.max(4, Math.min(7, hashPayload.fl)) : 5,
   leftHanded: Boolean(saved.leftHanded),
   fretOrientationMode: 'auto', // 'auto' | 'vertical' | 'horizontal'
-  fretZoomOverride: null,      // null (auto: 12 vertical / 22 horizontal) | 12 | 22
+  fretZoomOverride: resolvedDisplayMode === 'full' ? 22 : 12,
   viewportTick: 0,
 
   // Audio state
@@ -439,6 +449,10 @@ const ETUDE_AFFECTING_KEYS = new Set([
 export function setState(patch) {
   if ('activeTab' in patch && !('workspaceOpen' in patch)) {
     state.workspaceOpen = true;
+    state.studioTrayOpen = true;
+  }
+  if (patch.workspaceOpen === true && !('studioTrayOpen' in patch)) {
+    state.studioTrayOpen = true;
   }
   if ('refA4Hz' in patch) {
     patch = { ...patch, refA4Hz: setReferenceA4(patch.refA4Hz) };
@@ -464,7 +478,7 @@ export function setState(patch) {
   if ('customTunings' in patch) {
     saveCustomTunings(state.customTunings);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'refA4Hz' in patch || 'earStats' in patch || 'leftHanded' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'refA4Hz' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretDisplayMode' in patch) {
     savePrefs(state);
   }
 

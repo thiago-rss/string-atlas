@@ -9,6 +9,7 @@
  */
 import { DB } from '../core/database.js';
 import { createCustomTuning, formatStringsSignature, stringsEqual } from '../core/customTunings.js';
+import { resolveFretDisplayPatch } from '../core/fretClarity.js';
 import { getThemeById } from '../core/themes.js';
 import { exportFretboardPlatePng, exportFretboardPlateSvg } from '../core/plateExporter.js';
 import { buildScalaPlayFrequencies, getScalaPresetById, parseSclText } from '../core/scalaEngine.js';
@@ -18,6 +19,7 @@ import {
   formatStepFormula,
   intervalQToLabel,
   mod24,
+  qToFreq,
   qToNoteName
 } from '../core/theory24.js';
 import { t } from '../core/i18n.js';
@@ -168,8 +170,16 @@ export function refreshScaleBrowserInPlace(state) {
 }
 
 export function renderDeckPanel(state) {
+  const shell = document.getElementById('deckShell');
   const panel = document.getElementById('deckPanel');
   if (!panel) return;
+
+  if (!state.deckCompartment) {
+    if (shell) shell.hidden = true;
+    panel.innerHTML = '';
+    return;
+  }
+  if (shell) shell.hidden = false;
 
   const isEn = state.lang === 'en';
   const filteredScales = getFilteredScales(state);
@@ -626,8 +636,9 @@ export function renderDeckPanel(state) {
   const inputLiveDot = state.lineModeRunning ? '<span class="live-pulse-dot" aria-hidden="true"></span>' : '';
 
   panel.innerHTML = `
-    <!-- Symmetric 5-Compartment Studio Rail (Oud Visualizer pattern — Mic/Interface right above Fretboard!) -->
-    <div class="compartment-dock rail-grid-5" role="toolbar" aria-label="Studio Compartments">
+    <!-- On-Demand Unified Controls Drawer Switcher (visible only when user opens Controles) -->
+    <div class="drawer-switcher-head">
+      <div class="compartment-dock rail-grid-5" role="tablist" aria-label="Studio Controls">
       <button type="button" class="dock-btn ${openComp === 'setup' ? 'is-open' : ''}" data-action="toggleCompartment" data-val="setup">
         <span class="dock-btn-main">
           <span class="dock-icon" aria-hidden="true">🎛</span>
@@ -675,6 +686,7 @@ export function renderDeckPanel(state) {
         </span>
         <span class="dock-meta">${state.notationOpen ? 'On' : (state.phraseEvents.length ? `${state.phraseEvents.length}` : 'Off')}</span>
       </button>
+      </div>
     </div>
 
     ${compartmentDrawerHtml}
@@ -686,7 +698,9 @@ export function renderDeckPanel(state) {
     selScale.onchange = (e) => {
       if (!e.target.value) return;
       stopPlaybackIfNeeded();
-      setState({ scaleId: e.target.value, customScaleIntervalsQ: null, scalaOverlayOn: false, inspectedNote: null });
+      const cur = getState();
+      const revealPatch = cur.fretDisplayMode === 'clean' ? resolveFretDisplayPatch('position', cur) : {};
+      setState({ ...revealPatch, scaleId: e.target.value, customScaleIntervalsQ: null, scalaOverlayOn: false, inspectedNote: null });
     };
   }
 
@@ -852,7 +866,9 @@ export function renderDeckPanel(state) {
       });
     } else if (action === 'pickScale') {
       stopPlaybackIfNeeded();
+      const revealPatch = st.fretDisplayMode === 'clean' ? resolveFretDisplayPatch('position', st) : {};
       setState({
+        ...revealPatch,
         scaleId: btn.dataset.id,
         customScaleIntervalsQ: null,
         scalaOverlayOn: false,
@@ -878,13 +894,13 @@ export function renderDeckPanel(state) {
       setState({ fretOrientationMode: btn.dataset.val, fretZoomOverride: null });
     } else if (action === 'toggleZoom') {
       const curZoom = getEffectiveFretZoom(st);
-      const nextZoom = curZoom === 12 ? 22 : 12;
-      const clampedStart = Math.min(st.fretWindowStart, Math.max(0, nextZoom - st.fretWindowSpan));
-      setState({ fretZoomOverride: nextZoom, fretWindowStart: clampedStart });
+      const nextMode = curZoom === 12 ? 'full' : (st.fretWindowOn ? 'position' : 'octave');
+      setState(resolveFretDisplayPatch(nextMode, st));
     } else if (action === 'toggleLeftHand') {
       setState({ leftHanded: !st.leftHanded });
     } else if (action === 'fwToggle') {
-      setState({ fretWindowOn: !st.fretWindowOn });
+      const nextMode = st.fretWindowOn ? 'octave' : 'position';
+      setState(resolveFretDisplayPatch(nextMode, st));
     } else if (action === 'fwShift') {
       const curMax = getEffectiveFretZoom(st);
       const d = Number(btn.dataset.delta);
@@ -998,6 +1014,17 @@ export function stopPlaybackIfNeeded() {
 export function toggleScalePlayback(state) {
   if (state.isPlayingScale) {
     stopPlaybackIfNeeded();
+    return;
+  }
+
+  if (state.fretDisplayMode === 'clean' && !state.scalaOverlayOn) {
+    const openItems = state.customStringsQ.map((sq) => ({ freq: qToFreq(sq), pc: mod24(sq) }));
+    setState({ isPlayingScale: true });
+    synthEngine.playFreqSequence(openItems, {
+      bpm: Math.max(96, state.bpm),
+      onStep: (item) => setState({ playingPcQ: item.pc }),
+      onComplete: () => setState({ isPlayingScale: false, playingPcQ: null })
+    });
     return;
   }
 

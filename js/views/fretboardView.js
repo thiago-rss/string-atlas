@@ -8,6 +8,7 @@
 import { DB } from '../core/database.js';
 import { getThemeById } from '../core/themes.js';
 import { getScalaPresetById, mapScalaToFretboard, parseSclText } from '../core/scalaEngine.js';
+import { computeNoteGeometry, getNoteVisualTier, resolveFretDisplayPatch } from '../core/fretClarity.js';
 import {
   SPECTRAL_HARMONICS,
   mod24,
@@ -19,6 +20,7 @@ import {
 import { t } from '../core/i18n.js';
 import {
   getActiveScale,
+  getActiveTuning,
   getActiveVoicing,
   getEffectiveFretZoom,
   getEffectiveOrientation,
@@ -31,7 +33,7 @@ const SVG_H_W = 1240;
 const NUT_X_H = 86;
 const RIGHT_PAD_H = 24;
 const TOP_Y_H = 44;
-const STRING_GAP_H = 36;
+const STRING_GAP_H = 42;
 
 const NUT_Y_V = 68;
 const BOTTOM_PAD_V = 28;
@@ -62,7 +64,7 @@ function buildFretPositions(startPos, usableSpan, maxFrets) {
 const FRET_XS_H22 = buildFretPositions(NUT_X_H, SVG_H_W - NUT_X_H - RIGHT_PAD_H, 22);
 const FRET_XS_H12 = buildFretPositions(NUT_X_H, SVG_H_W - NUT_X_H - RIGHT_PAD_H, 12);
 const FRET_YS_V22 = buildFretPositions(NUT_Y_V, 980, 22);
-const FRET_YS_V12 = buildFretPositions(NUT_Y_V, 556, 12);
+const FRET_YS_V12 = buildFretPositions(NUT_Y_V, 592, 12);
 
 /**
  * Unified Dual-Orientation Geometry Provider (Horizontal & Vertical)
@@ -73,7 +75,7 @@ function getBoardLayout(state, numStrings) {
   const leftHanded = Boolean(state.leftHanded);
 
   if (isVertical) {
-    const strGap = numStrings <= 6 ? 44 : (numStrings === 7 ? 40 : 36);
+    const strGap = numStrings <= 6 ? 48 : (numStrings === 7 ? 43 : 38);
     const svgW = LEFT_PAD_V + (numStrings - 1) * strGap + RIGHT_PAD_V;
     const fretArr = maxFrets === 12 ? FRET_YS_V12 : FRET_YS_V22;
     const boardLen = fretArr[maxFrets] - NUT_Y_V;
@@ -235,6 +237,22 @@ export function triggerFretboardStringPluck({ strIdx, x, y, color = 'var(--accen
   setTimeout(() => {
     ring.remove();
   }, 520);
+}
+
+function renderFreePlayedMarker({ x, y, q, isMicro = false }) {
+  const layer = document.getElementById('freePlayLayer');
+  if (!layer) return;
+  const col = isMicro ? 'var(--accent-micro)' : 'var(--accent-root)';
+  const ink = isMicro ? 'var(--accent-micro-ink)' : 'var(--accent-root-ink)';
+  const lbl = qToNoteName(q, true);
+  layer.innerHTML = `
+    <g class="sa-free-active-marker">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="15.8" fill="none" stroke="${col}" stroke-width="1.5" stroke-opacity="0.72"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12.2" fill="${col}" stroke="#0d1017" stroke-width="1.2"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11.8" fill="url(#saJewelGloss)"/>
+      <text x="${x.toFixed(1)}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${lbl.length >= 4 ? 7.8 : (lbl.length === 3 ? 8.8 : 9.8)}" font-weight="800">${lbl}</text>
+    </g>
+  `;
 }
 
 function buildFretboardDefs(fbSkin, isVertical) {
@@ -540,32 +558,84 @@ function renderThematicInlays({ fbSkin, layout }) {
   return out.join('');
 }
 
-function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep, microMode, nodeShape }) {
+function renderThemedNoteMarker({
+  cx,
+  y,
+  fill,
+  ink,
+  label,
+  fontSize,
+  isRoot,
+  isChar,
+  isMicroStep,
+  microMode,
+  nodeShape,
+  tier = 'scale',
+  radius = 10.5,
+  scale = 1,
+  lightWood = false
+}) {
   const xStr = cx.toFixed(1);
   const yStr = y.toFixed(1);
+  const r = radius;
+  const fSz = Math.max(7.4, Number((fontSize * (0.86 + 0.14 * scale)).toFixed(1)));
+  const isSkeleton = tier === 'scale';
 
   if (isMicroStep && microMode === 'slide') {
-    const r = 13.4;
+    const dr = r * 1.12;
     return `
-      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${yStr} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${yStr}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
-      <polygon points="${xStr},${(y - r).toFixed(1)} ${(cx + r).toFixed(1)},${yStr} ${xStr},${(y + r).toFixed(1)} ${(cx - r).toFixed(1)},${yStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <polygon points="${xStr},${(y - dr).toFixed(1)} ${(cx + dr).toFixed(1)},${yStr} ${xStr},${(y + dr).toFixed(1)} ${(cx - dr).toFixed(1)},${yStr}" fill="${fill}" stroke="#0d1017" stroke-width="1.15"/>
+      <polygon points="${xStr},${(y - dr).toFixed(1)} ${(cx + dr).toFixed(1)},${yStr} ${xStr},${(y + dr).toFixed(1)} ${(cx - dr).toFixed(1)},${yStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.2).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="700">${label}</text>
     `;
   }
 
   if (isMicroStep && microMode === 'bend') {
-    const rx = nodeShape === 'hex' || nodeShape === 'bauhaus' ? 2 : 7;
+    const hw = Math.max(10.5, r * 1.12);
+    const hh = Math.max(8.8, r * 0.9);
+    const rx = nodeShape === 'hex' || nodeShape === 'bauhaus' ? 2 : 6;
+    const tipY = y - hh - 3.6;
     return `
-      <rect x="${(cx - 14).toFixed(1)}" y="${(y - 12).toFixed(1)}" width="28" height="24" rx="${rx}" fill="${fill}" stroke="#0d1017" stroke-width="1.2"/>
-      <rect x="${(cx - 14).toFixed(1)}" y="${(y - 12).toFixed(1)}" width="28" height="24" rx="${rx}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
-      <rect x="${(cx + 5).toFixed(1)}" y="${(y - 18).toFixed(1)}" width="16" height="11" rx="3" fill="#0d1017" stroke="var(--accent-micro)" stroke-width="0.9"/>
-      <text x="${(cx + 13).toFixed(1)}" y="${(y - 10).toFixed(1)}" text-anchor="middle" fill="var(--accent-micro)" font-size="7.8" font-weight="800">↑¼</text>
+      <polygon points="${xStr},${tipY.toFixed(1)} ${(cx - 3.4).toFixed(1)},${(y - hh + 0.8).toFixed(1)} ${(cx + 3.4).toFixed(1)},${(y - hh + 0.8).toFixed(1)}" fill="${fill}" stroke="#0d1017" stroke-width="0.7"/>
+      <rect x="${(cx - hw).toFixed(1)}" y="${(y - hh).toFixed(1)}" width="${(hw * 2).toFixed(1)}" height="${(hh * 2).toFixed(1)}" rx="${rx}" fill="${fill}" stroke="#0d1017" stroke-width="1.15"/>
+      <rect x="${(cx - hw).toFixed(1)}" y="${(y - hh).toFixed(1)}" width="${(hw * 2).toFixed(1)}" height="${(hh * 2).toFixed(1)}" rx="${rx}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.2).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
+    `;
+  }
+
+  if (isSkeleton) {
+    const coreFill = lightWood ? 'rgba(250, 247, 240, 0.92)' : 'rgba(10, 14, 22, 0.86)';
+    const textInk = lightWood ? '#1f1b18' : '#eef3fa';
+    const skelFont = Math.max(7.2, Number((fSz * 0.92).toFixed(1)));
+
+    if (nodeShape === 'hex') {
+      const pts = [];
+      for (let k = 0; k < 6; k += 1) {
+        const a = (k * Math.PI) / 3 - Math.PI / 6;
+        pts.push(`${(cx + Math.cos(a) * r).toFixed(1)},${(y + Math.sin(a) * r).toFixed(1)}`);
+      }
+      return `
+        <polygon points="${pts.join(' ')}" fill="${coreFill}" stroke="${fill}" stroke-width="1.75"/>
+        <text x="${xStr}" y="${(y + 3.1).toFixed(1)}" text-anchor="middle" fill="${textInk}" font-size="${skelFont}" font-weight="600">${label}</text>
+      `;
+    }
+
+    if (nodeShape === 'hanko' || nodeShape === 'bauhaus') {
+      const s = r * 0.94;
+      const rx = nodeShape === 'hanko' ? 3 : 1;
+      return `
+        <rect x="${(cx - s).toFixed(1)}" y="${(y - s).toFixed(1)}" width="${(s * 2).toFixed(1)}" height="${(s * 2).toFixed(1)}" rx="${rx}" fill="${coreFill}" stroke="${fill}" stroke-width="1.75"/>
+        <text x="${xStr}" y="${(y + 3.1).toFixed(1)}" text-anchor="middle" fill="${textInk}" font-size="${skelFont}" font-weight="600">${label}</text>
+      `;
+    }
+
+    return `
+      <circle cx="${xStr}" cy="${yStr}" r="${r.toFixed(1)}" fill="${coreFill}" stroke="${fill}" stroke-width="1.8"/>
+      <text x="${xStr}" y="${(y + 3.1).toFixed(1)}" text-anchor="middle" fill="${textInk}" font-size="${skelFont}" font-weight="600">${label}</text>
     `;
   }
 
   if (nodeShape === 'hex') {
-    const r = isRoot ? 13.6 : 12.6;
     const pts = [];
     for (let k = 0; k < 6; k += 1) {
       const a = (k * Math.PI) / 3 - Math.PI / 6;
@@ -573,14 +643,13 @@ function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isC
     }
     const pStr = pts.join(' ');
     return `
-      <polygon points="${pStr}" fill="${fill}" stroke="rgba(0,0,0,0.72)" stroke-width="1.3"/>
+      <polygon points="${pStr}" fill="${fill}" stroke="rgba(0,0,0,0.72)" stroke-width="1.25"/>
       <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
     `;
   }
 
   if (nodeShape === 'rune') {
-    const r = isRoot ? 13.5 : 12.4;
     const c = r * 0.44;
     const pStr = [
       `${(cx - c).toFixed(1)},${(y - r).toFixed(1)}`,
@@ -595,72 +664,72 @@ function renderThemedNoteMarker({ cx, y, fill, ink, label, fontSize, isRoot, isC
     return `
       <polygon points="${pStr}" fill="${fill}" stroke="rgba(219,163,66,0.55)" stroke-width="1.2"/>
       <polygon points="${pStr}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="700">${label}</text>
     `;
   }
 
   if (nodeShape === 'bauhaus') {
     if (isRoot) {
       return `
-        <rect x="${(cx - 12.5).toFixed(1)}" y="${(y - 12.5).toFixed(1)}" width="25" height="25" rx="1" fill="${fill}" stroke="#ffffff" stroke-width="1.4"/>
-        <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+        <rect x="${(cx - r).toFixed(1)}" y="${(y - r).toFixed(1)}" width="${(r * 2).toFixed(1)}" height="${(r * 2).toFixed(1)}" rx="1" fill="${fill}" stroke="#ffffff" stroke-width="1.35"/>
+        <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
       `;
     }
     return `
-      <circle cx="${xStr}" cy="${yStr}" r="12.2" fill="${fill}" stroke="${isChar ? '#ffffff' : 'rgba(255,255,255,0.45)'}" stroke-width="${isChar ? 2 : 1.1}"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <circle cx="${xStr}" cy="${yStr}" r="${r.toFixed(1)}" fill="${fill}" stroke="${isChar ? '#ffffff' : 'rgba(255,255,255,0.45)'}" stroke-width="${isChar ? 1.8 : 1.1}"/>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="700">${label}</text>
     `;
   }
 
   if (nodeShape === 'knob') {
     return `
-      <circle cx="${xStr}" cy="${yStr}" r="13" fill="#18100a" stroke="rgba(240,210,150,0.48)" stroke-width="1"/>
-      <circle cx="${xStr}" cy="${yStr}" r="11.2" fill="${fill}"/>
-      <circle cx="${xStr}" cy="${yStr}" r="11.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      ${isRoot ? `<line x1="${xStr}" y1="${(y - 12.5).toFixed(1)}" x2="${xStr}" y2="${(y - 9.2).toFixed(1)}" stroke="#fff4cc" stroke-width="1.8" stroke-linecap="round"/>` : ''}
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r + 0.8).toFixed(1)}" fill="#18100a" stroke="rgba(240,210,150,0.48)" stroke-width="1"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r - 0.8).toFixed(1)}" fill="${fill}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r - 0.8).toFixed(1)}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      ${isRoot ? `<line x1="${xStr}" y1="${(y - r - 0.4).toFixed(1)}" x2="${xStr}" y2="${(y - r + 2.8).toFixed(1)}" stroke="#fff4cc" stroke-width="1.6" stroke-linecap="round"/>` : ''}
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
     `;
   }
 
   if (nodeShape === 'bloom') {
     return `
-      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 15.6 : 14.4}" fill="${fill}" fill-opacity="0.24" style="pointer-events:none"/>
-      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 12.6 : 11.8}" fill="${fill}" stroke="rgba(255,255,255,0.58)" stroke-width="${isRoot ? 1.5 : 1}"/>
-      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 12.2 : 11.4}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r + 2.4).toFixed(1)}" fill="${fill}" fill-opacity="0.22" style="pointer-events:none"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${r.toFixed(1)}" fill="${fill}" stroke="rgba(255,255,255,0.58)" stroke-width="${isRoot ? 1.4 : 1}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r - 0.4).toFixed(1)}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="700">${label}</text>
     `;
   }
 
   if (nodeShape === 'hanko') {
-    const s = isRoot ? 12.6 : 11.8;
+    const s = r * 0.96;
     return `
-      <rect x="${(cx - s).toFixed(1)}" y="${(y - s).toFixed(1)}" width="${(s * 2).toFixed(1)}" height="${(s * 2).toFixed(1)}" rx="4" fill="${fill}" stroke="#221e1a" stroke-width="1.3"/>
-      <rect x="${(cx - s + 2.2).toFixed(1)}" y="${(y - s + 2.2).toFixed(1)}" width="${(s * 2 - 4.4).toFixed(1)}" height="${(s * 2 - 4.4).toFixed(1)}" rx="2.2" fill="none" stroke="${isRoot ? '#f7d886' : 'rgba(255,255,255,0.48)'}" stroke-width="${isRoot ? 1.15 : 0.85}"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      <rect x="${(cx - s).toFixed(1)}" y="${(y - s).toFixed(1)}" width="${(s * 2).toFixed(1)}" height="${(s * 2).toFixed(1)}" rx="3.5" fill="${fill}" stroke="#221e1a" stroke-width="1.25"/>
+      <rect x="${(cx - s + 2).toFixed(1)}" y="${(y - s + 2).toFixed(1)}" width="${(s * 2 - 4).toFixed(1)}" height="${(s * 2 - 4).toFixed(1)}" rx="2" fill="none" stroke="${isRoot ? '#f7d886' : 'rgba(255,255,255,0.48)'}" stroke-width="${isRoot ? 1.1 : 0.8}"/>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
     `;
   }
 
   if (nodeShape === 'brass_ring') {
     return `
-      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 13.4 : 12.5}" fill="#0a0e16" stroke="${fill}" stroke-width="${isRoot ? 2.8 : 2.2}"/>
-      <circle cx="${xStr}" cy="${yStr}" r="${isRoot ? 10.2 : 9.8}" fill="${fill}" fill-opacity="${isRoot ? 0.96 : 0.88}"/>
-      <text x="${xStr}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r + 0.5).toFixed(1)}" fill="#0a0e16" stroke="${fill}" stroke-width="${isRoot ? 2.5 : 2}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r - 2.2).toFixed(1)}" fill="${fill}" fill-opacity="${isRoot ? 0.96 : 0.88}"/>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
     `;
   }
 
   if (nodeShape === 'ceramic') {
     return `
-      <circle cx="${xStr}" cy="${yStr}" r="12.8" fill="${fill}" stroke="#fff4dc" stroke-width="${isRoot ? 2 : 1.2}" stroke-opacity="${isRoot ? 0.9 : 0.65}"/>
-      <circle cx="${xStr}" cy="${yStr}" r="12.2" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-      <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="800">${label}</text>
+      <circle cx="${xStr}" cy="${yStr}" r="${r.toFixed(1)}" fill="${fill}" stroke="#fff4dc" stroke-width="${isRoot ? 1.8 : 1.1}" stroke-opacity="${isRoot ? 0.9 : 0.65}"/>
+      <circle cx="${xStr}" cy="${yStr}" r="${(r - 0.5).toFixed(1)}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+      <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
     `;
   }
 
   return `
-    <circle cx="${xStr}" cy="${yStr}" r="12.4" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.25"/>
-    <circle cx="${xStr}" cy="${yStr}" r="12.1" fill="url(#saJewelGloss)" style="pointer-events:none"/>
-    <circle cx="${xStr}" cy="${yStr}" r="10.9" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.75"/>
-    <text x="${xStr}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fontSize}" font-weight="700">${label}</text>
+    <circle cx="${xStr}" cy="${yStr}" r="${r.toFixed(1)}" fill="${fill}" stroke="rgba(0,0,0,0.62)" stroke-width="1.2"/>
+    <circle cx="${xStr}" cy="${yStr}" r="${(r - 0.4).toFixed(1)}" fill="url(#saJewelGloss)" style="pointer-events:none"/>
+    <circle cx="${xStr}" cy="${yStr}" r="${Math.max(4, r - 1.5).toFixed(1)}" fill="none" stroke="rgba(255,255,255,0.26)" stroke-width="0.7"/>
+    <text x="${xStr}" y="${(y + 3.4).toFixed(1)}" text-anchor="middle" fill="${ink}" font-size="${fSz}" font-weight="800">${label}</text>
   `;
 }
 
@@ -840,28 +909,44 @@ export function renderFretboard(state) {
     : null;
   const scalaActive = Boolean(activeScala && activeScala.ok);
 
+  const displayMode = state.fretDisplayMode || 'position';
+  const isCleanMode = displayMode === 'clean';
+  const activeTuning = getActiveTuning(state);
+  const tunPillEl = document.getElementById('activeTuningPill');
+  if (tunPillEl) {
+    tunPillEl.textContent = `${activeTuning.custom ? '✦ ' : ''}${activeTuning.short}`;
+  }
+
   if (scalaActive) {
     titleEl.textContent = `${rootName} · ${activeScala.description}`;
     formulaEl.textContent = `Scala .scl · ${activeScala.noteCount} ${t(state.lang, 'notesUnit')} · ${activeScala.periodCents.toFixed(1)}¢`;
+  } else if (isCleanMode) {
+    titleEl.textContent = t(state.lang, 'freeModeTitle');
+    formulaEl.textContent = t(state.lang, 'cleanModeFormulaHint');
   } else {
     titleEl.textContent = `${rootName} ${scaleName}`;
     formulaEl.textContent = scale.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · ');
   }
 
   const activeVoicing = state.voicingOverlayOn ? getActiveVoicing() : null;
+  const hasMicrotones = scale.intervalsQ.some((iv) => iv % 2 !== 0);
+  const hasCharNotes = (scale.characteristicQ || []).length > 0;
 
-  legendEl.innerHTML = `
-    ${scalaActive ? `<span class="legend-item" style="color:var(--accent-micro);font-weight:700">✦ SCALA .SCL (${activeScala.periodCents.toFixed(0)}¢)</span>` : ''}
-    <span class="legend-item"><span class="legend-dot" style="background:var(--accent-root)"></span>${t(state.lang, 'legendRoot')}</span>
-    <span class="legend-item"><span class="legend-dot" style="background:var(--accent-char)"></span>${t(state.lang, 'legendChar')}</span>
-    <span class="legend-item"><span class="legend-dot" style="background:var(--accent-scale)"></span>${t(state.lang, 'legendScale')}</span>
-    <span class="legend-item"><span class="legend-diamond" style="background:var(--accent-micro)"></span>${t(state.lang, 'legendMicro')}</span>
-    ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
-    ${state.activeTab === 'etude' ? `<span class="legend-item"><span class="legend-ring etude"></span>${t(state.lang, 'legendEtudeCursor')}</span>` : ''}
-    ${state.lineModeRunning ? `<span class="legend-item"><span class="legend-ring live"></span>${t(state.lang, 'legendLivePitch')}</span>` : ''}
-    ${state.radarOverlayOnNeck && state.radarCompareScaleId ? `<span class="legend-item"><span class="legend-ring radar-b"></span>${t(state.lang, 'legendRadarB')}</span>` : ''}
-    ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
-  `;
+  if (isCleanMode && !scalaActive && !activeVoicing && !state.harmonicsOn) {
+    legendEl.innerHTML = '';
+    legendEl.hidden = true;
+  } else {
+    legendEl.hidden = false;
+    legendEl.innerHTML = `
+      ${scalaActive ? `<span class="legend-item" style="color:var(--accent-micro);font-weight:700">✦ SCALA (${activeScala.periodCents.toFixed(0)}¢)</span>` : ''}
+      ${!isCleanMode ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-root)"></span>${t(state.lang, 'legendRoot')}</span>` : ''}
+      ${!isCleanMode && hasCharNotes ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-char)"></span>${t(state.lang, 'legendChar')}</span>` : ''}
+      ${!isCleanMode && hasMicrotones ? `<span class="legend-item"><span class="legend-diamond" style="background:var(--accent-micro)"></span>${t(state.lang, 'legendMicro')}</span>` : ''}
+      ${!isCleanMode ? `<span class="legend-item"><span class="legend-dot is-skel" style="border-color:var(--accent-scale)"></span>${t(state.lang, 'legendScale')}</span>` : ''}
+      ${activeVoicing ? `<span class="legend-item"><span class="legend-ring"></span>${t(state.lang, 'legendVoicing')}</span>` : ''}
+      ${state.harmonicsOn ? `<span class="legend-item"><span class="legend-dot" style="background:var(--accent-harmonic)"></span>${t(state.lang, 'legendHarm')}</span>` : ''}
+    `;
+  }
 
   renderMinimalStageControls(state);
 
@@ -1138,17 +1223,24 @@ export function renderFretboard(state) {
       const fSize = lbl.length >= 4 ? 7.8 : 9.2;
       const outsideWin = state.fretWindowOn && (m.nearestFret < winMin || m.nearestFret > winMax);
 
+      const scFIdx = Math.max(1, Math.min(maxFrets, m.nearestFret || 1));
+      const scSpan = Math.abs(fretArr[scFIdx] - fretArr[scFIdx - 1]);
+      const scTier = m.isRoot ? 'root' : (m.isPure12 ? 'scale' : 'accent');
+      const scGeom = computeNoteGeometry({ tier: scTier, fretSpanPx: scSpan, strGapPx: layout.strGap });
+      const scLightWood = state.theme === 'kintsugi';
+
       parts.push(`
         <g class="note-node ${outsideWin ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="scala" data-str-idx="${m.strIdx}" data-cx="${pt.x.toFixed(1)}" data-cy="${pt.y.toFixed(1)}" data-freq="${m.freq.toFixed(3)}" data-raw="${m.raw}" data-cents="${m.centsInPeriod.toFixed(1)}" data-dev="${m.devCents.toFixed(1)}" data-deg="${m.degreeIndex + 1}" data-string="${m.guitarStr}" data-fret="${m.nearestFret}">
-          ${m.isRoot ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="15.8" fill="none" stroke="var(--accent-root)" stroke-width="1.4" stroke-opacity="0.78"/>` : ''}
+          ${m.isRoot ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${(scGeom.radius + 3.0).toFixed(1)}" fill="none" stroke="var(--accent-root)" stroke-width="1.35" stroke-opacity="0.65"/>` : ''}
           ${renderThemedNoteMarker({
             cx: pt.x, y: pt.y, fill, ink, label: lbl, fontSize: fSize,
             isRoot: m.isRoot, isChar: false, isMicroStep: false,
-            microMode: 'frets24', nodeShape: fbSkin.nodeShape || 'jewel'
+            microMode: 'frets24', nodeShape: fbSkin.nodeShape || 'jewel',
+            tier: scTier, radius: scGeom.radius, scale: scGeom.scale, lightWood: scLightWood
           })}
-          ${Math.abs(devRound) >= 3 ? `
-            <rect x="${(pt.x + 3).toFixed(1)}" y="${(pt.y - 19).toFixed(1)}" width="24" height="11" rx="3" fill="#0d1017" stroke="${fill}" stroke-width="0.85"/>
-            <text x="${(pt.x + 15).toFixed(1)}" y="${(pt.y - 11).toFixed(1)}" text-anchor="middle" fill="${fill}" font-size="7.3" font-weight="800" font-family="ui-monospace, monospace">${devTxt}</text>
+          ${Math.abs(devRound) >= 3 && !outsideWin ? `
+            <rect x="${(pt.x + 2).toFixed(1)}" y="${(pt.y - scGeom.radius - 7).toFixed(1)}" width="23" height="10.5" rx="3" fill="#0d1017" stroke="${fill}" stroke-width="0.8"/>
+            <text x="${(pt.x + 13.5).toFixed(1)}" y="${(pt.y - scGeom.radius + 0.5).toFixed(1)}" text-anchor="middle" fill="${fill}" font-size="7.0" font-weight="800" font-family="ui-monospace, monospace">${devTxt}</text>
           ` : ''}
         </g>
       `);
@@ -1163,20 +1255,30 @@ export function renderFretboard(state) {
       const isPlayingOpen = state.playingPcQ !== null && state.playingPcQ === openPc;
       const openInVoicing = voicingMap.has(`${strIdx}:0`);
 
-      const openFill = openInScale
-        ? (openIv === 0 ? 'var(--accent-root)' : 'var(--accent-open)')
+      const lightWood = state.theme === 'kintsugi';
+      const showOpenHighlight = !isCleanMode && openInScale;
+      const openIsRoot = showOpenHighlight && openIv === 0;
+      const openFill = openIsRoot
+        ? 'var(--accent-root)'
         : (openInVoicing ? 'var(--accent-voicing)' : 'var(--bg-elevated)');
-      const openInk = (openInScale || openInVoicing) ? 'var(--accent-root-ink)' : 'var(--text-secondary)';
+      const openStroke = openIsRoot
+        ? 'rgba(0,0,0,0.55)'
+        : (openInVoicing ? 'var(--accent-voicing)' : (showOpenHighlight ? 'var(--accent-open)' : 'var(--border-subtle)'));
+      const openInk = (openIsRoot || openInVoicing)
+        ? 'var(--accent-root-ink)'
+        : (showOpenHighlight ? 'var(--accent-open)' : (isCleanMode ? 'var(--text-primary)' : 'var(--text-muted)'));
+      const openR = (openIsRoot || openInVoicing) ? 12.6 : (showOpenHighlight || isCleanMode ? 10.8 : 9.6);
       const openLabel = qToNoteName(openQ, false);
       const openPt = layout.pointFromStepQ(strIdx, 0, state.microMode);
+      const openOutside = state.fretWindowOn && winMin > 0 && !openInVoicing && !isCleanMode;
 
       parts.push(`
-        <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${state.fretWindowOn && winMin > 0 && !openInVoicing ? 'is-outside-win' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${openPc}" data-str-idx="${strIdx}" data-cx="${openPt.x.toFixed(1)}" data-cy="${openPt.y.toFixed(1)}" data-q="${openQ}" data-string="${guitarStrNum}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${strIdx}:0`).intervalQ : -1)}" data-micro="0">
-          ${openInVoicing ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="17.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>` : ''}
-          ${openInScale && openIv === 0 ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="16" fill="none" stroke="var(--accent-root)" stroke-width="1.5" stroke-opacity="0.72"/>` : ''}
-          <circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="13.2" fill="${openFill}" stroke="${openInScale || openInVoicing ? 'rgba(0,0,0,0.55)' : 'var(--border-strong)'}" stroke-width="1.1"/>
-          ${openInScale || openInVoicing ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="13" fill="url(#saJewelGloss)" style="pointer-events:none"/>` : ''}
-          <text x="${openPt.x.toFixed(1)}" y="${(openPt.y + 4).toFixed(1)}" text-anchor="middle" fill="${openInk}" font-size="10.2" font-weight="700">${openLabel}</text>
+        <g class="note-node ${isPlayingOpen ? 'is-playing' : ''} ${openOutside ? 'is-outside-win' : ''} ${!showOpenHighlight && !openInVoicing && !isCleanMode ? 'is-open-quiet' : ''}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${openPc}" data-str-idx="${strIdx}" data-cx="${openPt.x.toFixed(1)}" data-cy="${openPt.y.toFixed(1)}" data-q="${openQ}" data-string="${guitarStrNum}" data-fret="0" data-iv="${openInScale ? openIv : (openInVoicing ? voicingMap.get(`${strIdx}:0`).intervalQ : -1)}" data-micro="0">
+          ${openInVoicing ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="16.4" fill="none" stroke="var(--accent-voicing)" stroke-width="2.4"/>` : ''}
+          ${openIsRoot ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="15.4" fill="none" stroke="var(--accent-root)" stroke-width="1.35" stroke-opacity="0.65"/>` : ''}
+          <circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="${openR.toFixed(1)}" fill="${openFill}" stroke="${openStroke}" stroke-width="${showOpenHighlight && !openIsRoot ? 1.85 : 1.1}"/>
+          ${(openIsRoot || openInVoicing) ? `<circle cx="${openPt.x.toFixed(1)}" cy="${openPt.y.toFixed(1)}" r="${(openR - 0.3).toFixed(1)}" fill="url(#saJewelGloss)" style="pointer-events:none"/>` : ''}
+          <text x="${openPt.x.toFixed(1)}" y="${(openPt.y + 3.4).toFixed(1)}" text-anchor="middle" fill="${openInk}" font-size="${openIsRoot ? 10 : 9.2}" font-weight="${openIsRoot ? 800 : 700}">${openLabel}</text>
         </g>
       `);
 
@@ -1195,6 +1297,38 @@ export function renderFretboard(state) {
         });
       }
 
+      if (isCleanMode) {
+        const halfGap = layout.strGap * 0.46;
+        const stepInc = state.microMode === 'frets24' ? 1 : 2;
+        for (let stepQ = stepInc; stepQ <= maxFrets * 2; stepQ += stepInc) {
+          const isMicroFree = stepQ % 2 !== 0;
+          const fNum = isMicroFree ? Math.floor(stepQ / 2) : stepQ / 2;
+          if (isMicroFree && fNum === 0) continue;
+          const absQ = openQ + stepQ;
+          const pc = mod24(absQ);
+          const pt = layout.pointFromStepQ(strIdx, stepQ, state.microMode);
+          const lbl = qToNoteName(absQ, false);
+          const fIdx = Math.max(1, Math.min(maxFrets, isMicroFree ? fNum + 1 : fNum));
+          const spanPx = Math.abs(fretArr[fIdx] - fretArr[fIdx - 1]);
+          const cellMain = isMicroFree ? Math.max(12, spanPx * 0.44) : Math.max(18, spanPx * 0.88);
+          const rx = isVertical ? (pt.x - halfGap) : (pt.x - cellMain / 2);
+          const ry = isVertical ? (pt.y - cellMain / 2) : (pt.y - halfGap);
+          const rw = isVertical ? (halfGap * 2) : cellMain;
+          const rh = isVertical ? cellMain : (halfGap * 2);
+          const fretLabel = isMicroFree ? `${fNum}+¼` : `${fNum}`;
+
+          parts.push(`
+            <g class="note-node is-free-cell" data-kind="note" data-free="1" data-pc="${pc}" data-str-idx="${strIdx}" data-cx="${pt.x.toFixed(1)}" data-cy="${pt.y.toFixed(1)}" data-q="${absQ}" data-string="${guitarStrNum}" data-fret="${fretLabel}" data-iv="-1" data-micro="${isMicroFree ? 1 : 0}">
+              <rect x="${rx.toFixed(1)}" y="${ry.toFixed(1)}" width="${rw.toFixed(1)}" height="${rh.toFixed(1)}" rx="4" fill="transparent"/>
+              <g class="free-cell-preview" style="pointer-events:none">
+                <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="10.2" fill="${lightWood ? 'rgba(250, 247, 240, 0.94)' : 'rgba(12, 16, 24, 0.88)'}" stroke="${isMicroFree ? 'var(--accent-micro)' : 'var(--accent-root)'}" stroke-width="1.5"/>
+                <text x="${pt.x.toFixed(1)}" y="${(pt.y + 3.2).toFixed(1)}" text-anchor="middle" fill="${lightWood ? '#1f1b18' : '#f4ecdc'}" font-size="${lbl.length >= 3 ? 8.2 : 9.2}" font-weight="700">${lbl}</text>
+              </g>
+            </g>
+          `);
+        }
+      }
+
       const maxStepQ = maxFrets * 2;
       for (let stepQ = 1; stepQ <= maxStepQ; stepQ += 1) {
         const absQ = openQ + stepQ;
@@ -1203,6 +1337,8 @@ export function renderFretboard(state) {
         const voicingHit = voicingMap.get(`${strIdx}:${stepQ}`);
         const inRadarB = radarBMap.has(pc);
         if (!inScale && !voicingHit && !inRadarB) continue;
+
+        if (isCleanMode && !voicingHit && !inRadarB) continue;
 
         const intervalQ = inScale
           ? allowedMap.get(pc)
@@ -1235,29 +1371,60 @@ export function renderFretboard(state) {
           ink = 'var(--accent-char-ink)';
         }
 
-        const label = getMarkerLabel(absQ, intervalQ, state.labelMode);
-        const fontSize = label.length >= 4 ? 8.3 : label.length === 3 ? 9.3 : 10.4;
         const outsideWin = state.fretWindowOn && (fretNum < winMin || fretNum > winMax);
-        const dimClass = outsideWin && !voicingHit ? 'is-outside-win' : (activeVoicing && !voicingHit ? 'is-dimmed' : '');
 
-        parts.push(`<g class="note-node ${isPlaying ? 'is-playing' : ''} ${dimClass}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${pc}" data-str-idx="${strIdx}" data-cx="${pt.x.toFixed(1)}" data-cy="${pt.y.toFixed(1)}" data-q="${absQ}" data-string="${guitarStrNum}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
+        if (outsideWin && !voicingHit && !isPlaying) {
+          const ghostR = isRoot ? 4.8 : 3.4;
+          parts.push(`
+            <g class="note-node is-ghost-node" data-kind="note" data-pc="${pc}" data-str-idx="${strIdx}" data-cx="${pt.x.toFixed(1)}" data-cy="${pt.y.toFixed(1)}" data-q="${absQ}" data-string="${guitarStrNum}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">
+              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="11" fill="transparent"/>
+              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${ghostR}" fill="${fill}" fill-opacity="${isRoot ? 0.45 : 0.28}" stroke="${isRoot ? fill : 'none'}" stroke-opacity="0.55" stroke-width="0.9"/>
+            </g>
+          `);
+          continue;
+        }
+
+        const fIdx = Math.max(1, Math.min(maxFrets, fretNum || 1));
+        const fretSpanPx = Math.abs(fretArr[fIdx] - fretArr[fIdx - 1]);
+        const tier = getNoteVisualTier({
+          isRoot,
+          isChar,
+          isMicroStep,
+          isVoicing: Boolean(voicingHit),
+          isRadarOnly: Boolean(!inScale && inRadarB)
+        });
+        const geom = computeNoteGeometry({ tier, fretSpanPx, strGapPx: layout.strGap });
+
+        const label = getMarkerLabel(absQ, intervalQ, state.labelMode);
+        const fontSize = label.length >= 4 ? 8.1 : label.length === 3 ? 9.1 : (tier === 'root' ? 10.6 : 9.6);
+        const dimClass = activeVoicing && !voicingHit ? 'is-dimmed' : '';
+
+        parts.push(`<g class="note-node is-tier-${tier} ${isPlaying ? 'is-playing' : ''} ${dimClass}" filter="url(#saNoteShadow)" data-kind="note" data-pc="${pc}" data-str-idx="${strIdx}" data-cx="${pt.x.toFixed(1)}" data-cy="${pt.y.toFixed(1)}" data-q="${absQ}" data-string="${guitarStrNum}" data-fret="${isMicroStep ? `${fretNum}+¼` : fretNum}" data-iv="${intervalQ}" data-micro="${isMicroStep ? 1 : 0}">`);
 
         if (voicingHit) {
-          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="16.5" fill="none" stroke="var(--accent-voicing)" stroke-width="2.6"/>`);
+          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${(geom.radius + 3.4).toFixed(1)}" fill="none" stroke="var(--accent-voicing)" stroke-width="2.4"/>`);
         } else if (inScale && inRadarB) {
-          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="16" fill="none" stroke="var(--accent-radar-b)" stroke-width="2.2" stroke-dasharray="4 2"/>`);
+          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${(geom.radius + 3.2).toFixed(1)}" fill="none" stroke="var(--accent-radar-b)" stroke-width="2" stroke-dasharray="4 2"/>`);
         } else if (isRoot) {
-          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="15.8" fill="none" stroke="var(--accent-root)" stroke-width="1.4" stroke-opacity="0.78"/>`);
-          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${(pt.y - 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
-          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${(pt.y + 16).toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
-          parts.push(`<circle cx="${(pt.x - 16).toFixed(1)}" cy="${pt.y.toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
-          parts.push(`<circle cx="${(pt.x + 16).toFixed(1)}" cy="${pt.y.toFixed(1)}" r="1.8" fill="var(--accent-root)"/>`);
+          parts.push(`<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${(geom.radius + 3.0).toFixed(1)}" fill="none" stroke="var(--accent-root)" stroke-width="1.35" stroke-opacity="0.65"/>`);
         }
 
         parts.push(renderThemedNoteMarker({
-          cx: pt.x, y: pt.y, fill, ink, label, fontSize, isRoot, isChar, isMicroStep,
+          cx: pt.x,
+          y: pt.y,
+          fill,
+          ink,
+          label,
+          fontSize,
+          isRoot,
+          isChar,
+          isMicroStep,
           microMode: state.microMode,
-          nodeShape: fbSkin.nodeShape || 'jewel'
+          nodeShape: fbSkin.nodeShape || 'jewel',
+          tier,
+          radius: geom.radius,
+          scale: geom.scale,
+          lightWood
         }));
 
         parts.push('</g>');
@@ -1265,6 +1432,7 @@ export function renderFretboard(state) {
     }
   }
 
+  parts.push('<g id="freePlayLayer" style="pointer-events:none"></g>');
   parts.push('<g id="fxPulseLayer" style="pointer-events:none"></g>');
   parts.push('<g id="etudePlayheadLayer" style="pointer-events:none"></g>');
   parts.push('<g id="livePitchLayer" style="pointer-events:none"></g>');
@@ -1280,13 +1448,13 @@ export function renderFretboard(state) {
   // Delegated zero-thrash hover pitch-class octave resonance highlight
   let hoveredPc = null;
   svgEl.onmouseover = (ev) => {
-    const node = ev.target.closest('.note-node[data-pc]');
+    const node = ev.target.closest('.note-node[data-pc]:not(.is-free-cell)');
     const nextPc = node ? node.dataset.pc : null;
     if (nextPc === hoveredPc) return;
     hoveredPc = nextPc;
     svgEl.querySelectorAll('.note-node.is-same-pc').forEach((el) => el.classList.remove('is-same-pc'));
     if (nextPc !== null) {
-      svgEl.querySelectorAll(`.note-node[data-pc="${nextPc}"]`).forEach((el) => el.classList.add('is-same-pc'));
+      svgEl.querySelectorAll(`.note-node[data-pc="${nextPc}"]:not(.is-free-cell)`).forEach((el) => el.classList.add('is-same-pc'));
     }
   };
   svgEl.onmouseleave = () => {
@@ -1339,13 +1507,17 @@ export function renderFretboard(state) {
     const fret = node.dataset.fret;
     const isMicro = node.dataset.micro === '1';
 
+    const isFreeClick = node.dataset.free === '1' || getState().fretDisplayMode === 'clean';
     synthEngine.pluckQ(q, { duration: 1.7, velocity: 0.36 });
     triggerFretboardStringPluck({
       strIdx,
       x: nx,
       y: ny,
-      color: isMicro ? 'var(--accent-micro)' : (iv === 0 ? 'var(--accent-root)' : 'var(--accent-scale)')
+      color: isMicro ? 'var(--accent-micro)' : (isFreeClick || iv === 0 ? 'var(--accent-root)' : 'var(--accent-scale)')
     });
+    if (isFreeClick) {
+      renderFreePlayedMarker({ x: nx, y: ny, q, isMicro });
+    }
 
     const curState = getState();
     const nextPhrase = [
@@ -1415,11 +1587,17 @@ export function renderInspector(state) {
     microTip = `<span class="soft-tag" style="color:var(--accent-micro);border-color:var(--accent-micro)">${t(state.lang, tipKey)}</span>`;
   }
 
+  const degreeMetaHtml = info.intervalQ >= 0
+    ? `
+      <span class="inspector-kv">${t(state.lang, 'inspDegree')}: <strong>${degreeText}</strong></span>
+      <span class="inspector-kv">${t(state.lang, 'inspCents')}: <strong>${centsText}</strong></span>
+    `
+    : '';
+
   strip.innerHTML = `
     <span class="inspector-kv">${t(state.lang, 'inspNote')}: <strong>${qToNoteName(info.q, true)}</strong></span>
     <span class="inspector-kv">${t(state.lang, 'inspFreq')}: <strong>${info.freq.toFixed(2)} Hz</strong></span>
-    <span class="inspector-kv">${t(state.lang, 'inspDegree')}: <strong>${degreeText}</strong></span>
-    <span class="inspector-kv">${t(state.lang, 'inspCents')}: <strong>${centsText}</strong></span>
+    ${degreeMetaHtml}
     <span class="inspector-kv">${t(state.lang, 'inspPos')}: <strong>${posText}</strong></span>
     ${microTip}
   `;
@@ -1435,18 +1613,35 @@ function renderMinimalStageControls(state) {
   if (!bar) return;
 
   const isVert = getEffectiveOrientation(state) === 'vertical';
+  const mode = state.fretDisplayMode || 'position';
   const maxFrets = getEffectiveFretZoom(state);
   const endFret = Math.min(maxFrets, state.fretWindowStart + state.fretWindowSpan);
 
+  const modes = [
+    { id: 'clean', key: 'clarityClean' },
+    { id: 'position', key: 'clarityPosition' },
+    { id: 'octave', key: 'clarityOctave' },
+    { id: 'full', key: 'clarityFull' }
+  ];
+
   bar.innerHTML = `
     <div class="fret-window-bar">
+      <div class="clarity-seg-group" role="group" aria-label="${t(state.lang, 'clarityLabel')}">
+        ${modes.map((m) => `
+          <button type="button" class="clarity-seg-btn ${mode === m.id ? 'is-active' : ''}" data-fw-action="setClarity" data-val="${m.id}">
+            ${t(state.lang, m.key)}
+          </button>
+        `).join('')}
+      </div>
       ${state.fretWindowOn ? `
-        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''}>◀</button>
-        <span class="mono-tag">${state.fretWindowStart}–${endFret}</span>
-        <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= maxFrets ? 'disabled' : ''}>▶</button>
+        <div class="pos-stepper-group">
+          <button type="button" class="btn-mini" data-fw-action="shift" data-delta="-1" ${state.fretWindowStart <= 0 ? 'disabled' : ''} aria-label="Previous fret position">◀</button>
+          <span class="mono-tag pos-range-lbl">${state.fretWindowStart}–${endFret}</span>
+          <button type="button" class="btn-mini" data-fw-action="shift" data-delta="1" ${state.fretWindowStart + state.fretWindowSpan >= maxFrets ? 'disabled' : ''} aria-label="Next fret position">▶</button>
+        </div>
       ` : ''}
       <button type="button" class="btn-mini ${isVert ? 'active-mini' : ''}" data-fw-action="toggleOrient" title="${t(state.lang, 'orientLabel')}">
-        ${isVert ? '↕' : '↔'} ${isVert ? t(state.lang, 'orientVertShort') : t(state.lang, 'orientHorizShort')}
+        ${isVert ? '↕' : '↔'}
       </button>
     </div>
   `;
@@ -1458,9 +1653,11 @@ function renderMinimalStageControls(state) {
     const st = getState();
     const curMax = getEffectiveFretZoom(st);
 
-    if (act === 'toggleOrient') {
+    if (act === 'setClarity') {
+      setState(resolveFretDisplayPatch(btn.dataset.val, st));
+    } else if (act === 'toggleOrient') {
       const curOrient = getEffectiveOrientation(st);
-      setState({ fretOrientationMode: curOrient === 'vertical' ? 'horizontal' : 'vertical', fretZoomOverride: null });
+      setState({ fretOrientationMode: curOrient === 'vertical' ? 'horizontal' : 'vertical' });
     } else if (act === 'shift') {
       const d = Number(btn.dataset.delta);
       const maxStart = Math.max(0, curMax - st.fretWindowSpan);

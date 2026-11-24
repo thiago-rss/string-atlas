@@ -3738,3 +3738,226 @@ textarea:focus-visible {
 .sa-toast.is-warn .sa-toast-icon {
   color: var(--accent-danger);
 }
+
+/* =========================================================================
+ * Phase 8.9 Additions: Focused First-Screen Architecture & 3-Tier Fretboard Clarity
+ * ========================================================================= */
+
+.topbar-actions .btn-ghost.is-active-top {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+  border-color: var(--accent-root);
+}
+
+.topbar-actions .btn-ghost.is-live-top {
+  border-color: var(--accent-live);
+  color: var(--accent-live);
+  background: rgba(82, 242, 156, 0.14);
+}
+
+.topbar-actions .btn-ghost.is-open {
+  border-color: var(--accent-root);
+  color: var(--accent-root);
+}
+
+.deck-shell[hidden] {
+  display: none !important;
+}
+
+.drawer-switcher-head {
+  margin-bottom: 4px;
+}
+
+/* Intuitive Clickable Scale + Tuning Trigger right on the Fretboard Stage */
+.stage-scale-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  text-align: left;
+}
+
+.stage-scale-trigger:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+}
+
+.stage-tuning-pill {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  color: var(--accent-root);
+  white-space: nowrap;
+}
+
+.stage-picker-caret {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.stage-formula-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* 4-Mode Fretboard Clarity Segmented Switcher (Livre | Posição | 0-12 | 0-22) */
+.clarity-seg-group {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  gap: 2px;
+}
+
+.clarity-seg-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease;
+  white-space: nowrap;
+}
+
+.clarity-seg-btn:hover {
+  color: var(--text-primary);
+}
+
+.clarity-seg-btn.is-active {
+  background: var(--accent-root);
+  color: var(--accent-root-ink);
+}
+
+.pos-stepper-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pos-range-lbl {
+  min-width: 34px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Unified Stage Footer: Inspector on the left, Quiet Micro-Legend on the right */
+.stage-footer-bar {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  min-height: 42px;
+}
+
+.stage-footer-bar .inspector-strip {
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  min-height: auto;
+  flex: 1;
+}
+
+.stage-micro-legend {
+  gap: 10px;
+  font-size: 0.72rem;
+  opacity: 0.88;
+  flex-shrink: 0;
+}
+
+.stage-micro-legend[hidden] {
+  display: none !important;
+}
+
+.legend-dot.is-skel {
+  background: transparent;
+  border: 2px solid var(--accent-scale);
+}
+
+/* Fretboard Ghost Dots (outside active closed position) & Quiet Open Strings */
+.note-node.is-ghost-node {
+  opacity: 0.82;
+}
+
+.note-node.is-ghost-node:hover {
+  opacity: 1;
+  transform: scale(1.35);
+}
+
+.note-node.is-open-quiet {
+  opacity: 0.56;
+}
+
+.note-node.is-open-quiet:hover {
+  opacity: 1;
+}
+
+/* Calm Collapsed Studio Disclosure Bar below the Fretboard */
+.studio-tray-collapsed {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.studio-tray-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+}
+
+.studio-tray-trigger:hover {
+  border-color: var(--accent-root);
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.studio-tray-hint {
+  font-weight: 500;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.studio-tray-caret {
+  font-size: 0.8rem;
+  color: var(--accent-root);
+}
+
+/* Phase 8.9.2: Interactive Free Mode Fret Cells */
+.note-node.is-free-cell { transition: none; }
+.note-node.is-free-cell:hover { transform: none; }
+.note-node.is-free-cell .free-cell-preview { opacity: 0; transition: opacity 0.12s ease; }
+.note-node.is-free-cell:hover .free-cell-preview { opacity: 0.92; }
+.sa-free-active-marker { animation: saFreePop 0.16s ease-out; }
+@keyframes saFreePop { from { opacity: 0.45; } to { opacity: 1; } }

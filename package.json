@@ -1,9 +1,9 @@
 {
   "name": "string-atlas",
-  "version": "8.8.0",
+  "version": "8.9.0",
   "private": true,
   "type": "module",
-  "description": "String Atlas — Modal Guitar Lab (v8.8.0: Configurable A4 Reference 415–446 Hz, Karplus-Strong Physical String Synthesis, Adaptive Bass Stabilizer & Optical Strobe Tuner, Global Toasts & 10-World UX Contrast Polish)",
+  "description": "String Atlas — Modal Guitar Lab (v8.9.0: Focused First-Screen UX, On-Demand Controls Drawer, 4-Mode Fretboard Clarity Switcher & 3-Tier Visual Note Hierarchy)",
   "scripts": {
     "check": "node scripts/check.mjs",
     "serve": "python3 -m http.server 8080"

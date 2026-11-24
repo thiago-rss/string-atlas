@@ -38,6 +38,9 @@
         <span class="pill-badge live-badge" id="lineStatusBadge" hidden>● LIVE: —</span>
         <span class="pill-badge vamp-badge" id="vampStatusBadge" hidden>⟳ VAMP</span>
         <span class="pill-badge" id="rhythmStatusBadge" hidden>♪ —</span>
+        <button type="button" class="btn-ghost top-act-desktop" id="btnTopPlay" aria-label="Play or stop scale">▶ Ouvir</button>
+        <button type="button" class="btn-ghost top-act-desktop" id="btnTopMic" aria-label="Toggle live microphone or audio interface tuner">🎙 Afinar</button>
+        <button type="button" class="btn-ghost" id="btnTopControls" aria-label="Open instrument controls">⚙ Controles</button>
         <button type="button" class="btn-ghost btn-theme-studio" id="btnHeaderMenu" aria-label="Open studio options menu">Opções</button>
       </div>
     </header>
@@ -55,24 +58,26 @@
     <div id="zenPracticeBar" class="zen-practice-bar" hidden></div>
 
     <main class="workspace">
-      <!-- Pure Single-Line Compartment Rail (expands on demand — zero permanent Control Matrix!) -->
-      <div class="ornament-shell deck-shell">
-        <section class="panel deck-panel" id="deckPanel" aria-label="Studio Compartments"></section>
+      <!-- Collapsible Unified Controls Drawer (100% hidden on initial load — zero menus crowding the fretboard!) -->
+      <div class="ornament-shell deck-shell" id="deckShell" hidden>
+        <section class="panel deck-panel" id="deckPanel" aria-label="Studio Controls Drawer"></section>
       </div>
 
-      <!-- Fretboard Stage (Horizontal & Vertical Mobile Orientation) -->
+      <!-- Fretboard Stage (Primary Hero — Clean Clarity Mode & 3-Tier Visual Hierarchy) -->
       <section class="panel fretboard-panel" aria-label="Interactive 24-TET Fretboard">
         <div id="fretboardCrown" class="stage-crown-crest" aria-hidden="true"></div>
         <div class="panel-corners" data-corner-mount="fretboard" aria-hidden="true"></div>
         <div class="fretboard-header">
           <div class="fretboard-title-group">
-            <h2 id="activeScaleTitle" class="stage-title">—</h2>
-            <span id="activeFormulaTag" class="mono-tag">—</span>
+            <button type="button" id="btnStageScalePicker" class="stage-scale-trigger" title="Alterar escala ou afinação">
+              <span id="activeScaleTitle" class="stage-title">—</span>
+              <span id="activeTuningPill" class="stage-tuning-pill">E Std</span>
+              <span class="stage-picker-caret" aria-hidden="true">▾</span>
+            </button>
+            <span id="activeFormulaTag" class="mono-tag stage-formula-sub">—</span>
           </div>
           <div id="fretWindowControls"></div>
         </div>
-
-        <div class="legend-strip fretboard-sub-legend" id="fretboardLegend"></div>
 
         <!-- Live Tuner & Micro-Bend Stage HUD (visible only while Mic/Interface is active) -->
         <div id="liveStageHud" class="live-stage-hud" hidden></div>
@@ -80,8 +85,11 @@
         <div class="mobile-swipe-hint"><span id="mobileSwipeHintText" data-i18n="mobSwipeHint">⇄ Deslize o braço · toque para ouvir</span><span>24-TET / .scl</span></div>
         <div class="fretboard-scroll" id="fretboardContainer"></div>
 
-        <div class="inspector-strip" id="inspectorStrip">
-          <span class="inspector-hint" data-i18n="inspectorHint">Clique em qualquer nota, corda solta ou harmônico no braço para ouvir e inspecionar.</span>
+        <div class="stage-footer-bar">
+          <div class="inspector-strip" id="inspectorStrip">
+            <span class="inspector-hint" data-i18n="inspectorHint">Toque em qualquer nota no braço para ouvir e inspecionar.</span>
+          </div>
+          <div class="legend-strip stage-micro-legend" id="fretboardLegend"></div>
         </div>
       </section>
 
@@ -112,7 +120,7 @@
     <div id="themeFooterOrnament" class="footer-ornament-bar" aria-hidden="true"></div>
     <footer class="app-footer">
       <span data-i18n="footerTip">Atalhos: ⌘K = Busca Rápida · ? = Atalhos · Esc = Parar Tudo · Espaço = Escala · M = Vamp/Sayr · E = Etude · L = Line Mode · T = Design · Z = Zen</span>
-      <span class="mono-tag">v8.8.0 · 24-TET · A4 Calibration · Karplus-Strong · Optical Strobe &amp; UX Polish</span>
+      <span class="mono-tag">v8.9.0 · 24-TET · Focused Stage &amp; 3-Tier Fretboard Clarity</span>
     </footer>
   </div>
 

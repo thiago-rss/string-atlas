@@ -2,6 +2,16 @@
 
 Todas as entregas estruturais do projeto, da fundação 24-TET ao lançamento PWA de produção (`v8.4.0`).
 
+## [8.9.0] — 2026-11-23 · Tela Inicial Limpa & Hierarquia Visual do Braço
+### Melhorado (a partir da rodada de testes com usuários)
+- **Zero Menus Permanentes Acima do Braço (`index.html`, `deckPanelsView.js`, `main.js`):** a gaveta `#deckShell` agora inicia completamente recolhida (`hidden`), liberando o palco do instrumento logo ao abrir o app. O cabeçalho concentra apenas 4 ações claras (`▶ Ouvir`, `🎙 Afinar`, `⚙ Controles` e `Opções`), o nome da escala + pílula de afinação no topo do braço é clicável para trocar escala/afinação, e o estúdio inferior fica recolhido em uma barra discreta (`🧭 Ferramentas do Estúdio ▾`).
+- **Seletor de Clareza do Braço em 4 Modos (`js/core/fretClarity.js`, `fretboardView.js`, `store.js`):** alternância direta no palco entre **`Livre`** (braço limpo para afinar, explorar ou acompanhar ao vivo), **`Posição`** *(novo padrão inicial: `0–12` destacando apenas a janela tocável `0–5` com pontos-fantasma mínimos fora da posição)*, **`0–12`** e **`0–22`**.
+- **Hierarquia Gráfica em 3 Camadas + Escala Adaptativa (`fretboardView.js`):**
+  - **Nível 1 (Tônica):** maior (`13px`), sólida com anel fino único (removidos os 4 pontos satélites que invadiam cordas vizinhas).
+  - **Nível 2 (Grau Característico & Microtom):** médio (`10,9px`), sólido; no modo *Bend +50¢*, a caixa externa `↑¼` foi substituída por cápsula compacta com seta integrada (`▲`) sem invadir a corda de cima.
+  - **Nível 3 (Demais Notas da Escala):** menores (`9,2px`), centro translúcido + anel nítido na cor da escala, fazendo tônicas e graus característicos saltarem aos olhos.
+  - Espaçamento vertical ampliado entre cordas (`36px → 42px`), redução adaptativa automática nas casas agudas (`13–22`), legenda movida para uma micro-legenda contextual no rodapé do braço e `string-atlas-v8.9.0` (56 assets offline).
+
 ## [8.8.0] — 2026-11-23 · Refinamento Acústico & Polimento de UX
 ### Adicionado
 - **Diapasão Global `A4` Configurável (`415–446 Hz` em `theory24.js`, `deckPanelsView.js`, `store.js`):** presets rápidos (`415`, `432`, `440`, `442 Hz`) e slider fino no compartimento `🔊 Áudio & FX`, recalculando em cascata síntese, Drone, Scala `.scl`, calculadora de tensão e afinador YIN com persistência em `localStorage`.

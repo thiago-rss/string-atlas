@@ -3,7 +3,7 @@
 [![Abrir App Online](https://img.shields.io/badge/%E2%96%B6_Abrir_App_Online-String_Atlas_PWA-e5a955?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/)
 [![Manual em PDF](https://img.shields.io/badge/Manual_do_Usu%C3%A1rio-PDF-4cc9b0?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/docs/manual_do_usuario.pdf)
 
-![Version](https://img.shields.io/badge/version-8.8.0-e5a955?style=flat-square)
+![Version](https://img.shields.io/badge/version-8.9.0-e5a955?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Offline--First-4cc9b0?style=flat-square)
 ![Tuning](https://img.shields.io/badge/tuning-24--TET%20%2B%20Scala%20.scl-f08c4b?style=flat-square)
 ![Strings](https://img.shields.io/badge/strings-6%20%7C%207%20%7C%208-89a9c7?style=flat-square)
@@ -25,7 +25,7 @@
 
 | Pilar | O que inclui |
 | :--- | :--- |
-| **Braço Vivo de Luthieria (6, 7 e 8 Cordas)** | **Orientação Dual Automática** (*Horizontal* no desktop · *Vertical* no mobile retrato), vibração física da corda + *ripple*, ressonância de oitavas no *hover*, Zoom `0–12` / `0–22`, Modo Canhoto (`⇄`), Janela Móvel de Formas Fechadas (`4–6` casas), 3 modos microtonais (*Bend +50¢*, *Slide/Fretless*, *Trastes 24-TET*) e **Harmônicos Espectrais** (2º–7º parciais em Entonação Justa). |
+| **Braço Vivo & Hierarquia em 3 Camadas (6/7/8c)** | **Tela inicial focada** (zero menus permanentes sobre o braço), **Seletor de Clareza (`Livre` · `Posição 0–5` · `0–12` · `0–22`)** com pontos-fantasma fora da posição, **hierarquia visual em 3 níveis** (Tônica sólida > Característico/Microtom > Esqueleto em anel) com escala adaptativa por casa, **Orientação Dual Automática** (Vertical no mobile), Modo Canhoto, 3 modos microtonais e **Harmônicos Espectrais**. |
 | **10 Mundos Visuais Esculturais (`T`)** | *Layl · Astrolábio*, *Nahar · Códice*, *70s Analog · Console Valvulado*, *Doom Ritual · Catedral*, *Djent Poly · Lâmina CNC*, *Avant · Partitura Gráfica*, *Brasilidade · Curvas & Cordel*, ***Shoegaze · Névoa & Offset***, ***Kintsugi · Cerâmica & Silêncio*** e ***Blue Note · Vinil & Latão*** — cada um com tipografia própria, 6 camadas vetoriais exclusivas, acabamento de madeira/carbono/kintsugi e geometria própria de inlays e marcadores no braço. |
 | **Áudio Físico, Diapasão `A4` & Mic/Interface Estrobo** | **5 timbres Web Audio** incluindo **Corda Física *Karplus-Strong*** + **Diapasão Global `A4` (`415–446 Hz`)**; compartimento **`🎙 Mic / Interface`** no trilho principal + 1-toque mobile; detector **YIN (34–1480 Hz)** com `PitchStabilizer` para graves (`B1/A1/E1`), **HUD Vivo** (Afinador ↔ **Estrobo ±4¢** ↔ Micro-Bend `+50¢`), Rastro de Notas no braço e `mobileAudioGuard.js`. |
 | **Luthieria Avançada & Scordaturas Salvas** | **Calculadora Física de Tensão** (`T = UW·(2Lf)²/386,09`) com **Comparador A/B lado a lado** (gráfico de barras duplas, `Δ` por corda e **Diagnóstico de Tensor/Truss Rod**), escalas `24″–30″` & *Multi-Scale*, Solver de Calibres Balanceados e **Scordaturas Customizadas Salvas** (6/7/8 cordas em 12/24-TET integradas ao seletor principal, `⌘K` e backups `.json`). |
