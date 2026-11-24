@@ -239,6 +239,7 @@ export function triggerFretboardStringPluck({ strIdx, x, y, color = 'var(--accen
   }, 520);
 }
 
+
 function renderFreePlayedMarker({ x, y, q, isMicro = false }) {
   const layer = document.getElementById('freePlayLayer');
   if (!layer) return;
@@ -920,12 +921,15 @@ export function renderFretboard(state) {
   if (scalaActive) {
     titleEl.textContent = `${rootName} · ${activeScala.description}`;
     formulaEl.textContent = `Scala .scl · ${activeScala.noteCount} ${t(state.lang, 'notesUnit')} · ${activeScala.periodCents.toFixed(1)}¢`;
+    formulaEl.hidden = false;
   } else if (isCleanMode) {
     titleEl.textContent = t(state.lang, 'freeModeTitle');
-    formulaEl.textContent = t(state.lang, 'cleanModeFormulaHint');
+    formulaEl.textContent = '';
+    formulaEl.hidden = true;
   } else {
     titleEl.textContent = `${rootName} ${scaleName}`;
     formulaEl.textContent = scale.intervalsQ.map((iv) => intervalQToLabel(iv)).join(' · ');
+    formulaEl.hidden = false;
   }
 
   const activeVoicing = state.voicingOverlayOn ? getActiveVoicing() : null;
@@ -1297,6 +1301,7 @@ export function renderFretboard(state) {
         });
       }
 
+      // In Modo Livre ('clean'), every string × fret cell is freely playable by click/tap!
       if (isCleanMode) {
         const halfGap = layout.strGap * 0.46;
         const stepInc = state.microMode === 'frets24' ? 1 : 2;

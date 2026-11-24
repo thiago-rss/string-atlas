@@ -1638,7 +1638,11 @@ button:disabled {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.stage-formula-sub[hidden] {
+  display: none !important;
 }
 
 /* Modal Vamp & Sayr Lab */
@@ -3954,10 +3958,29 @@ textarea:focus-visible {
   color: var(--accent-root);
 }
 
-/* Phase 8.9.2: Interactive Free Mode Fret Cells */
-.note-node.is-free-cell { transition: none; }
-.note-node.is-free-cell:hover { transform: none; }
-.note-node.is-free-cell .free-cell-preview { opacity: 0; transition: opacity 0.12s ease; }
-.note-node.is-free-cell:hover .free-cell-preview { opacity: 0.92; }
-.sa-free-active-marker { animation: saFreePop 0.16s ease-out; }
-@keyframes saFreePop { from { opacity: 0.45; } to { opacity: 1; } }
+/* Phase 8.9.2: Interactive Free Mode Fret Cells (clean at rest, tactile on hover/click) */
+.note-node.is-free-cell {
+  transition: none;
+}
+
+.note-node.is-free-cell:hover {
+  transform: none;
+}
+
+.note-node.is-free-cell .free-cell-preview {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.note-node.is-free-cell:hover .free-cell-preview {
+  opacity: 0.92;
+}
+
+.sa-free-active-marker {
+  animation: saFreePop 0.16s ease-out;
+}
+
+@keyframes saFreePop {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}

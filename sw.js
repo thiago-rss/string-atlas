@@ -1,4 +1,4 @@
-const CACHE_NAME = 'string-atlas-v8.10.0';
+const CACHE_NAME = 'string-atlas-v8.10.1';
 
 const CORE_ASSETS = [
   './',
