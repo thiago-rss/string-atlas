@@ -245,11 +245,12 @@ const state = {
   fxOpen: false,
   refA4Hz: initialRefA4,
   tonePreset: ['karplus', 'clean', 'swell', 'crunch', 'fuzz'].includes(saved.tonePreset) ? saved.tonePreset : 'clean',
+  reverbMix: 0.26,
   delayMix: 0.22,
   delayTime: 0.28,
   tremoloDepth: 0.0,
   tremoloRate: 4.2,
-  masterVolume: 0.72,
+  masterVolume: 0.74,
 
   // Phase 6: 24-TET Modal Radar & Pivot Explorer
   radarPivotFilter: 'all',

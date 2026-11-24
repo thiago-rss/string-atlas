@@ -290,7 +290,7 @@ function renderLabTabs(state) {
 
 const SILENT_SLIDER_KEYS = new Set([
   'bpm', 'etudeBpm', 'lineInputGain', 'lineRmsGate',
-  'delayMix', 'delayTime', 'tremoloDepth', 'tremoloRate', 'masterVolume', 'tensionTargetLbs'
+  'reverbMix', 'delayMix', 'delayTime', 'tremoloDepth', 'tremoloRate', 'masterVolume', 'tensionTargetLbs'
 ]);
 
 function renderAll(state, patch = null) {
@@ -638,6 +638,7 @@ function boot() {
   const initial = getState();
   synthEngine.updateToneFx({
     tonePreset: initial.tonePreset,
+    reverbMix: initial.reverbMix,
     delayMix: initial.delayMix,
     delayTime: initial.delayTime,
     tremoloDepth: initial.tremoloDepth,

@@ -112,90 +112,95 @@ class RhythmEngine {
     }
   }
 
-  /** Deep darbuka / frame-drum Dum */
   triggerDum(ctx, time, gainVal) {
+    const out = synthEngine.getPercussionInput();
+    const jitter = 0.99 + Math.random() * 0.02;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(145, time);
-    osc.frequency.exponentialRampToValueAtTime(58, time + 0.16);
-
+    osc.frequency.setValueAtTime(148 * jitter, time);
+    osc.frequency.exponentialRampToValueAtTime(62 * jitter, time + 0.14);
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(gainVal, time + 0.004);
-    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.24);
+    gain.gain.linearRampToValueAtTime(gainVal, time + 0.003);
+    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.28);
+    osc.connect(gain).connect(out);
+    osc.start(time); osc.stop(time + 0.3);
 
-    osc.connect(gain).connect(synthEngine.getMasterOutput());
-    osc.start(time);
-    osc.stop(time + 0.26);
+    const overtone = ctx.createOscillator();
+    const otGain = ctx.createGain();
+    overtone.type = 'triangle';
+    overtone.frequency.setValueAtTime(235 * jitter, time);
+    overtone.frequency.exponentialRampToValueAtTime(108 * jitter, time + 0.08);
+    otGain.gain.setValueAtTime(0.0001, time);
+    otGain.gain.linearRampToValueAtTime(gainVal * 0.24, time + 0.002);
+    otGain.gain.exponentialRampToValueAtTime(0.0005, time + 0.11);
+    overtone.connect(otGain).connect(out);
+    overtone.start(time); overtone.stop(time + 0.13);
+
+    const slap = ctx.createBufferSource();
+    slap.buffer = this.ensureNoiseBuffer(ctx);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 620;
+    const sGain = ctx.createGain();
+    sGain.gain.setValueAtTime(gainVal * 0.22, time);
+    sGain.gain.exponentialRampToValueAtTime(0.0005, time + 0.024);
+    slap.connect(lp).connect(sGain).connect(out);
+    slap.start(time); slap.stop(time + 0.03);
   }
 
-  /** Crisp darbuka rim Tak */
   triggerTak(ctx, time, gainVal) {
+    const out = synthEngine.getPercussionInput();
+    const jitter = 0.985 + Math.random() * 0.03;
     const noise = ctx.createBufferSource();
     noise.buffer = this.ensureNoiseBuffer(ctx);
-
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(2400, time);
-    bp.Q.value = 3.2;
-
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(2550 * jitter, time); bp.Q.value = 3.0;
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(gainVal, time + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.075);
+    gain.gain.linearRampToValueAtTime(gainVal, time + 0.0018);
+    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.08);
+    noise.connect(bp).connect(gain).connect(out);
+    noise.start(time); noise.stop(time + 0.095);
 
-    noise.connect(bp).connect(gain).connect(synthEngine.getMasterOutput());
-    noise.start(time);
-    noise.stop(time + 0.09);
-
-    // Metallic overtone ping
     const ping = ctx.createOscillator();
     const pGain = ctx.createGain();
     ping.type = 'triangle';
-    ping.frequency.setValueAtTime(740, time);
-    ping.frequency.exponentialRampToValueAtTime(420, time + 0.04);
-    pGain.gain.setValueAtTime(gainVal * 0.45, time);
-    pGain.gain.exponentialRampToValueAtTime(0.0008, time + 0.05);
-    ping.connect(pGain).connect(synthEngine.getMasterOutput());
-    ping.start(time);
-    ping.stop(time + 0.06);
+    ping.frequency.setValueAtTime(790 * jitter, time);
+    ping.frequency.exponentialRampToValueAtTime(455 * jitter, time + 0.045);
+    pGain.gain.setValueAtTime(gainVal * 0.42, time);
+    pGain.gain.exponentialRampToValueAtTime(0.0008, time + 0.058);
+    ping.connect(pGain).connect(out);
+    ping.start(time); ping.stop(time + 0.068);
   }
 
-  /** Soft ghost Ka */
   triggerKa(ctx, time, gainVal) {
+    const out = synthEngine.getPercussionInput();
+    const jitter = 0.97 + Math.random() * 0.06;
     const noise = ctx.createBufferSource();
     noise.buffer = this.ensureNoiseBuffer(ctx);
-
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.setValueAtTime(3200, time);
-
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(3400 * jitter, time); bp.Q.value = 1.8;
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(gainVal, time + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.045);
-
-    noise.connect(hp).connect(gain).connect(synthEngine.getMasterOutput());
-    noise.start(time);
-    noise.stop(time + 0.055);
+    gain.gain.linearRampToValueAtTime(gainVal, time + 0.0015);
+    gain.gain.exponentialRampToValueAtTime(0.0008, time + 0.042);
+    noise.connect(bp).connect(gain).connect(out);
+    noise.start(time); noise.stop(time + 0.052);
   }
 
-  /** Polymetric Track B woodblock / clave pulse */
   triggerPoly(ctx, time, isDownbeat) {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    const freq = isDownbeat ? 1180 : 880;
-    osc.frequency.setValueAtTime(freq, time);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.72, time + 0.045);
-
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.linearRampToValueAtTime(isDownbeat ? 0.28 : 0.11, time + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0008, time + (isDownbeat ? 0.075 : 0.035));
-
-    osc.connect(gain).connect(synthEngine.getMasterOutput());
-    osc.start(time);
-    osc.stop(time + 0.09);
+    const out = synthEngine.getPercussionInput();
+    const baseFreq = isDownbeat ? 1340 : 980;
+    const peak = isDownbeat ? 0.26 : 0.11;
+    const dur = isDownbeat ? 0.072 : 0.04;
+    const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator();
+    const g1 = ctx.createGain(); const g2 = ctx.createGain();
+    osc1.type = 'sine'; osc2.type = 'sine';
+    osc1.frequency.setValueAtTime(baseFreq, time);
+    osc1.frequency.exponentialRampToValueAtTime(baseFreq * 0.92, time + dur);
+    osc2.frequency.setValueAtTime(baseFreq * 2.76, time);
+    g1.gain.setValueAtTime(0.0001, time); g1.gain.linearRampToValueAtTime(peak, time + 0.0015); g1.gain.exponentialRampToValueAtTime(0.0006, time + dur);
+    g2.gain.setValueAtTime(0.0001, time); g2.gain.linearRampToValueAtTime(peak * 0.34, time + 0.001); g2.gain.exponentialRampToValueAtTime(0.0005, time + dur * 0.45);
+    osc1.connect(g1).connect(out); osc2.connect(g2).connect(out);
+    osc1.start(time); osc2.start(time);
+    osc1.stop(time + dur + 0.015); osc2.stop(time + dur + 0.015);
   }
 }
 

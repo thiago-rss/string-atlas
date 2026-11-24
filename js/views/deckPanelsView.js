@@ -575,6 +575,12 @@ export function renderDeckPanel(state) {
 
         <div class="fx-sliders-grid" style="margin-top:10px">
           <label class="bpm-control">
+            <span>${t(state.lang, 'fxReverbMix')}</span>
+            <input type="range" id="rngFxReverbMix" min="0" max="0.7" step="0.05" value="${state.reverbMix}" />
+            <strong id="valFxReverbMix">${Math.round(state.reverbMix * 100)}%</strong>
+          </label>
+
+          <label class="bpm-control">
             <span>${t(state.lang, 'fxDelayMix')}</span>
             <input type="range" id="rngFxDelayMix" min="0" max="0.65" step="0.05" value="${state.delayMix}" />
             <strong id="valFxDelayMix">${Math.round(state.delayMix * 100)}%</strong>
@@ -779,6 +785,7 @@ export function renderDeckPanel(state) {
       setState({ [key]: v });
     };
   };
+  bindFxRange('#rngFxReverbMix', '#valFxReverbMix', 'reverbMix', (v) => `${Math.round(v * 100)}%`);
   bindFxRange('#rngFxDelayMix', '#valFxDelayMix', 'delayMix', (v) => `${Math.round(v * 100)}%`);
   bindFxRange('#rngFxDelayTime', '#valFxDelayTime', 'delayTime', (v) => `${Math.round(v * 1000)}ms`);
   bindFxRange('#rngFxTremDepth', '#valFxTremDepth', 'tremoloDepth', (v) => `${Math.round(v * 100)}%`);

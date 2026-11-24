@@ -3,7 +3,7 @@
 [![Abrir App Online](https://img.shields.io/badge/%E2%96%B6_Abrir_App_Online-String_Atlas_PWA-e5a955?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/)
 [![Manual em PDF](https://img.shields.io/badge/Manual_do_Usu%C3%A1rio-PDF-4cc9b0?style=for-the-badge)](https://thiago-rss.github.io/string-atlas/docs/manual_do_usuario.pdf)
 
-![Version](https://img.shields.io/badge/version-8.9.0-e5a955?style=flat-square)
+![Version](https://img.shields.io/badge/version-8.10.0-e5a955?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Offline--First-4cc9b0?style=flat-square)
 ![Tuning](https://img.shields.io/badge/tuning-24--TET%20%2B%20Scala%20.scl-f08c4b?style=flat-square)
 ![Strings](https://img.shields.io/badge/strings-6%20%7C%207%20%7C%208-89a9c7?style=flat-square)

@@ -30,7 +30,7 @@ import { STUDY_LESSONS, STUDY_LEVELS, STUDY_MODULES } from '../js/core/studyGuid
 import { GLOSSARY_CATEGORIES, GLOSSARY_TERMS } from '../js/core/glossary.js';
 import { STUDY_DOSSIERS } from '../js/core/studyDossiers.js';
 import { PitchStabilizer, analyzePitch24, buildConstraintFallbackChain, detectPitchYIN } from '../js/audio/pitchDetector.js';
-import { synthesizeKarplusStrongSamples } from '../js/audio/synthEngine.js';
+import { generateStereoReverbImpulse, synthesizeKarplusStrongSamples } from '../js/audio/synthEngine.js';
 import { isBluetoothDeviceLabel } from '../js/audio/mobileAudioGuard.js';
 
 const ROOT = process.cwd();
@@ -480,6 +480,14 @@ if (!idxHtml.includes('id="deckShell" hidden') || !idxHtml.includes('id="btnTopC
 }
 ok(`Unit-tested v8.9 Focused Stage & 3-Tier Fretboard Clarity (root=${gRootWide.radius}px > accent=${gCharWide.radius}px > scale=${gSkelWide.radius}px; upper-fret shrink=${gRootTight.radius}px)`);
 
+// 5k. Unit-test v8.10 Studio Sound Engine (2nd-Gen Electric Waveguide & Stereo Reverb IR)
+const ksElec = synthesizeKarplusStrongSamples(220.0, 48000, 0.45, { pickPos: 0.19, pickupPos: 0.24, brightness: 0.62 });
+const ksElecDet = detectPitchYIN(ksElec.subarray(4096, 8192), 48000, 0.005);
+if (!ksElecDet.freq || Math.abs(ksElecDet.freq - 220.0) > 0.8) fail(`v8.10 Electric waveguide pitch failed: ${ksElecDet.freq}`);
+const revIr = generateStereoReverbImpulse(48000, 1.4, 2.6);
+if (!(revIr.left instanceof Float32Array) || revIr.left.length !== revIr.right.length || revIr.length < 48000) fail('Invalid stereo reverb IR');
+ok('Unit-tested v8.10 Studio Sound Engine (Electric Waveguide 220Hz YIN lock & Stereo Reverb IR)');
+
 // 6. Validate sw.js CORE_ASSETS (including PNG icons) exist on disk
 const swSrc = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const assetMatches = [...swSrc.matchAll(/'(\.\/[^']+)'/g)].map((m) => m[1]);
@@ -494,4 +502,4 @@ if (errors > 0) {
   console.error(`\nFailed with ${errors} error(s).`);
   process.exit(1);
 }
-console.log('\nAll String Atlas v8.9 integrity checks passed.');
+console.log('\nAll String Atlas v8.10 integrity checks passed.');

@@ -1,6 +1,6 @@
 {
   "name": "string-atlas",
-  "version": "8.9.0",
+  "version": "8.10.0",
   "private": true,
   "type": "module",
   "description": "String Atlas — Modal Guitar Lab (v8.9.0: Focused First-Screen UX, On-Demand Controls Drawer, 4-Mode Fretboard Clarity Switcher & 3-Tier Visual Note Hierarchy)",
