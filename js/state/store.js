@@ -9,7 +9,6 @@ import { generateEtude } from '../core/etudeGenerator.js';
 import { VAMP_PRESETS } from '../core/vampEngine.js';
 import { getDefaultPackForCount } from '../core/tensionEngine.js';
 import { loadCustomTunings, saveCustomTunings } from '../core/customTunings.js';
-import { FRET_DISPLAY_MODES } from '../core/fretClarity.js';
 import { decodeSessionHash, loadSnapshots, saveSnapshots } from '../core/sessionCodec.js';
 
 const STORAGE_KEY = 'string_atlas_prefs_v82';
@@ -35,8 +34,7 @@ function savePrefs(state) {
         refA4Hz: state.refA4Hz,
         completedLessons: state.completedLessons,
         earStats: state.earStats,
-        leftHanded: state.leftHanded,
-        fretDisplayMode: state.fretDisplayMode
+        leftHanded: state.leftHanded
       })
     );
   } catch {
@@ -123,8 +121,8 @@ const state = {
   temperamentFilter: 'all',
   scaleSearch: '',
   atlasOpen: false,
-  scaleId: (hashPayload && validScaleIds.has(hashPayload.s)) ? hashPayload.s : 'maqam_bayati',
-  rootQ: (hashPayload && Number.isInteger(hashPayload.r) && hashPayload.r >= 0 && hashPayload.r <= 23) ? hashPayload.r : 4,
+  scaleId: (hashPayload && validScaleIds.has(hashPayload.s)) ? hashPayload.s : 'pent_minor',
+  rootQ: (hashPayload && Number.isInteger(hashPayload.r) && hashPayload.r >= 0 && hashPayload.r <= 23) ? hashPayload.r : 0,
   customScaleIntervalsQ: null,
 
   // Scordatura & Fretboard state
@@ -479,7 +477,7 @@ export function setState(patch) {
   if ('customTunings' in patch) {
     saveCustomTunings(state.customTunings);
   }
-  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'refA4Hz' in patch || 'earStats' in patch || 'leftHanded' in patch || 'fretDisplayMode' in patch) {
+  if ('lang' in patch || 'theme' in patch || 'tuningId' in patch || 'completedLessons' in patch || 'tonePreset' in patch || 'refA4Hz' in patch || 'earStats' in patch || 'leftHanded' in patch) {
     savePrefs(state);
   }
 

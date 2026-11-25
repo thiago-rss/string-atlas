@@ -48,7 +48,15 @@ function groupScalesBySubfamily(scales, lang) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(s);
   });
-  return groups;
+  // Sort groups by earliest scale study order in `scales` so Western/foundational groups appear first
+  const ordered = new Map();
+  scales.forEach((s) => {
+    const key = isEn ? (s.subfamilyEn || s.category) : (s.subfamilyPt || s.category);
+    if (!ordered.has(key) && groups.has(key)) {
+      ordered.set(key, groups.get(key));
+    }
+  });
+  return ordered;
 }
 
 function buildScaleSelectOptionsHtml(filteredScales, state) {
@@ -912,7 +920,12 @@ export function renderDeckPanel(state) {
       const curMax = getEffectiveFretZoom(st);
       const d = Number(btn.dataset.delta);
       const maxStart = Math.max(0, curMax - st.fretWindowSpan);
-      setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
+      const nextStart = Math.max(0, Math.min(maxStart, st.fretWindowStart + d));
+      const keepClean = st.fretDisplayMode === 'clean';
+      setState({
+        fretWindowStart: nextStart,
+        ...(keepClean ? { fretDisplayMode: 'clean', fretWindowOn: false } : {})
+      });
     } else if (action === 'fwSpan') {
       const curMax = getEffectiveFretZoom(st);
       const sp = Number(btn.dataset.val);

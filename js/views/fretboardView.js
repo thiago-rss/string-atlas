@@ -1666,7 +1666,12 @@ function renderMinimalStageControls(state) {
     } else if (act === 'shift') {
       const d = Number(btn.dataset.delta);
       const maxStart = Math.max(0, curMax - st.fretWindowSpan);
-      setState({ fretWindowStart: Math.max(0, Math.min(maxStart, st.fretWindowStart + d)) });
+      const nextStart = Math.max(0, Math.min(maxStart, st.fretWindowStart + d));
+      const keepClean = st.fretDisplayMode === 'clean';
+      setState({
+        fretWindowStart: nextStart,
+        ...(keepClean ? { fretDisplayMode: 'clean', fretWindowOn: false } : {})
+      });
     }
   };
 }

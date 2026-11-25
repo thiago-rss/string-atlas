@@ -1,6 +1,6 @@
 /**
- * String Atlas Unified Database v7.0
- * - 74 Scales & Modes organized across 7 domains and subfamilies
+ * String Atlas Unified Database v8.10.2
+ * - 74 Scales & Modes ordered from Western familiarity & study complexity to 24-TET Maqamat
  * - 39 Tunings across 6-String, 7-String & 8-String guitars
  * - 12 Experimental chords · 11 Iqa'at & Aksak cycles
  */
@@ -13,9 +13,9 @@ export const DB = {
       "labelEn": "All"
     },
     {
-      "id": "arabic",
-      "labelPt": "Maqamat (24-TET)",
-      "labelEn": "Maqamat (24-TET)"
+      "id": "pentatonic",
+      "labelPt": "Pentatônicas & Blues",
+      "labelEn": "Pentatonics & Blues"
     },
     {
       "id": "greek",
@@ -43,9 +43,9 @@ export const DB = {
       "labelEn": "Pitch Sets & Post-Tonal"
     },
     {
-      "id": "pentatonic",
-      "labelPt": "Pentatônicas & Blues",
-      "labelEn": "Pentatonics & Blues"
+      "id": "arabic",
+      "labelPt": "Maqamat (24-TET)",
+      "labelEn": "Maqamat (24-TET)"
     }
   ],
   "tuningGroups": [
@@ -727,736 +727,118 @@ export const DB = {
   ],
   "scales": [
     {
-      "id": "maqam_bayati",
-      "category": "arabic",
-      "subfamilyPt": "Família Bayati & Saba",
-      "subfamilyEn": "Bayati & Saba Family",
-      "namePt": "Maqam Bayati",
-      "nameEn": "Maqam Bayati",
+      "id": "pent_minor",
+      "category": "pentatonic",
+      "subfamilyPt": "Pentatônicas Essenciais & Blues",
+      "subfamilyEn": "Essential Pentatonics & Blues",
+      "namePt": "Pentatônica Menor",
+      "nameEn": "Minor Pentatonic",
       "intervalsQ": [
         0,
-        3,
         6,
         10,
         14,
-        16,
         20
       ],
       "characteristicQ": [
-        3,
-        6
+        6,
+        20
       ],
       "tagsPt": [
-        "Jins Bayati",
-        "2ª Neutra (150¢)",
-        "Taqsim"
+        "1 · ♭3 · 4 · 5 · ♭7",
+        "Universal",
+        "5 Notas"
       ],
       "tagsEn": [
-        "Jins Bayati",
-        "Neutral 2nd (150¢)",
-        "Taqsim"
+        "1 · ♭3 · 4 · 5 · ♭7",
+        "Universal",
+        "5-Note"
       ],
       "dossier": {
-        "structurePt": "Tetracorde inferior Jins Bayati (¾ · ¾ · 1) seguido de Jins Nahawand ou Rast no 4º grau. A 2ª meio-bemol cria gravidade melódica rumo à tônica.",
-        "structureEn": "Lower tetrachord Jins Bayati (¾ · ¾ · 1) followed by Jins Nahawand or Rast on the 4th degree. The half-flat 2nd creates strong gravity toward the tonic.",
-        "temperamentPt": "Em 24-TET o 2º grau está a +150¢ da tônica; na prática levantina/egípcia costuma soar ligeiramente mais baixo (~135–145¢) em descida.",
-        "temperamentEn": "In 24-TET the 2nd degree sits at +150¢; in Levantine/Egyptian practice it often inflects slightly lower (~135–145¢) when descending.",
-        "articulationPt": "Na guitarra 12-TET, ataque a casa da ♭2 e aplique micro-bend de +50¢ sem vibrato excessivo; em B ou A Standard, explore drones graves na 6ª corda solta.",
-        "articulationEn": "On a 12-TET guitar, fret ♭2 and apply a controlled +50¢ micro-bend without heavy vibrato; in B or A Standard, anchor phrases over the open 6th-string drone.",
-        "repertoire": "Samai Bayati Ibrahim al-Aryan · Munir Bashir Taqsim Bayati"
+        "structurePt": "A pentatônica anhemitônica (sem semitons) mais universal do planeta. Na guitarra experimental, serve como esqueleto limpo para sobreposições quartais e bends microtonais.",
+        "structureEn": "The world’s most universal anhemitonic pentatonic. In experimental guitar, it serves as a clean skeleton for quartal stacks and expressive micro-bends.",
+        "temperamentPt": "12-TET padrão; experimente micro-bends de +50¢ na ♭3 para aproximar a terça neutra do blues e do Maqam Rast.",
+        "temperamentEn": "Standard 12-TET; try +50¢ micro-bends on the ♭3 to approach the neutral third shared by deep blues and Maqam Rast.",
+        "articulationPt": "Use em B ou A Standard com saltos de corda (String Skipping) e acentuação assimétrica em 5 ou 7 notas.",
+        "articulationEn": "Use in B or A Standard with String Skipping and asymmetric 5- or 7-note groupings.",
+        "repertoire": "Rory Gallagher · Jimi Hendrix · Black Sabbath · Sonny Sharrock"
       }
     },
     {
-      "id": "maqam_bayati_shuri",
-      "category": "arabic",
-      "subfamilyPt": "Família Bayati & Saba",
-      "subfamilyEn": "Bayati & Saba Family",
-      "namePt": "Maqam Bayati Shuri",
-      "nameEn": "Maqam Bayati Shuri",
+      "id": "pent_major",
+      "category": "pentatonic",
+      "subfamilyPt": "Pentatônicas Essenciais & Blues",
+      "subfamilyEn": "Essential Pentatonics & Blues",
+      "namePt": "Pentatônica Maior",
+      "nameEn": "Major Pentatonic",
       "intervalsQ": [
         0,
-        3,
-        6,
-        10,
-        12,
-        18,
-        20
+        4,
+        8,
+        14,
+        18
       ],
       "characteristicQ": [
-        3,
-        12,
+        8,
         18
       ],
       "tagsPt": [
-        "Jins Bayati + Hijaz",
-        "2ª Neutra + ♯4",
-        "24-TET"
+        "1 · 2 · 3 · 5 · 6",
+        "Anhemitônica",
+        "5 Notas"
       ],
       "tagsEn": [
-        "Jins Bayati + Hijaz",
-        "Neutral 2nd + ♯4",
-        "24-TET"
+        "1 · 2 · 3 · 5 · 6",
+        "Anhemitonic",
+        "5-Note"
       ],
       "dossier": {
-        "structurePt": "Combina Jins Bayati na base (1 · 2½♭ · ♭3 · 4) com Jins Hijaz no 4º grau (4 · ♭5 · 6 · ♭7), criando um contraste dramático entre neutralidade e 2ª aumentada.",
-        "structureEn": "Pairs Jins Bayati on the tonic with Jins Hijaz on the 4th degree (4 · ♭5 · 6 · ♭7), creating striking contrast between neutral warmth and an upper augmented 2nd.",
-        "temperamentPt": "Reúne microtonalidade (2½♭ a +150¢) no registro inferior com a tensão cromática ♭5→6 no registro superior.",
-        "temperamentEn": "Combines quarter-tone inflection (2½♭ at +150¢) below with the chromatic ♭5→6 leap above.",
-        "articulationPt": "Use o 4º grau como ponto de virada: construa tensão no salto ♭5→6 com palhetada alternada seca e resolva suavemente via micro-bend na 2½♭.",
-        "articulationEn": "Use the 4th degree as a pivot: build tension across the ♭5→6 leap with crisp alternate picking and resolve softly via a 2½♭ micro-bend.",
-        "repertoire": "Samai Bayati Shuri · Umm Kulthum (trechos modulatórios)"
+        "structurePt": "Cinco quintas justas empilhadas (C–G–D–A–E) sem semitons. Base do Raga Bhupali, música folclórica chinesa, blues maior e paisagens abertas.",
+        "structureEn": "Five stacked perfect 5ths with zero semitones. Foundation of Raga Bhupali, Chinese folk traditions, major blues, and open soundscapes.",
+        "temperamentPt": "12-TET padrão; sobrepõe-se facilmente sobre acordes maiores, menores (no ♭III) ou Lídio (no II e V).",
+        "temperamentEn": "Standard 12-TET; superimposes effortlessly over major, minor (off ♭III), or Lydian (off II and V) harmony.",
+        "articulationPt": "Experimente tocar a pentatônica maior um tom acima da tônica (ex.: C♯ sobre B) para coloração Lídia instantânea.",
+        "articulationEn": "Superimpose a major pentatonic one whole step above the root (e.g., C♯ over B) for instant Lydian shimmer.",
+        "repertoire": "Raga Bhupali · Duane Allman · Bill Frisell"
       }
     },
     {
-      "id": "maqam_husayni",
-      "category": "arabic",
-      "subfamilyPt": "Família Bayati & Saba",
-      "subfamilyEn": "Bayati & Saba Family",
-      "namePt": "Maqam Husayni",
-      "nameEn": "Maqam Husayni",
+      "id": "blues_minor",
+      "category": "pentatonic",
+      "subfamilyPt": "Pentatônicas Essenciais & Blues",
+      "subfamilyEn": "Essential Pentatonics & Blues",
+      "namePt": "Escala Blues (Hexatônica)",
+      "nameEn": "Blues Scale (Hexatonic)",
       "intervalsQ": [
         0,
-        3,
         6,
         10,
-        14,
-        17,
-        20
-      ],
-      "characteristicQ": [
-        3,
-        14,
-        17
-      ],
-      "tagsPt": [
-        "Jins Bayati na 1ª e 5ª",
-        "6ª Neutra",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Jins Bayati on 1 & 5",
-        "Neutral 6th",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Parente direto do Bayati que eleva a 6ª para 6½♭ (+850¢) formando um segundo Jins Bayati sobre a 5ª justa — deslocando o centro dramático para o registro agudo.",
-        "structureEn": "Close sibling of Bayati raising the 6th to 6½♭ (+850¢) to form a second Jins Bayati on the 5th — shifting melodic gravity into the upper register.",
-        "temperamentPt": "Possui dois graus neutros simétricos separados por 5ª justa: 2½♭ (150¢) e 6½♭ (850¢).",
-        "temperamentEn": "Features two symmetrical neutral degrees a perfect 5th apart: 2½♭ (150¢) and 6½♭ (850¢).",
-        "articulationPt": "Inicie o fraseado em torno da 5ª justa destacando a 6½♭ com micro-bend ou slide, descendo apenas no fechamento para a tônica.",
-        "articulationEn": "Launch phrases around the 5th emphasizing 6½♭ via micro-bend or slide, descending to the tonic only at cadences.",
-        "repertoire": "Folclore Levantino · Sabah Fakhri · Farid al-Atrash"
-      }
-    },
-    {
-      "id": "maqam_saba",
-      "category": "arabic",
-      "subfamilyPt": "Família Bayati & Saba",
-      "subfamilyEn": "Bayati & Saba Family",
-      "namePt": "Maqam Saba",
-      "nameEn": "Maqam Saba",
-      "intervalsQ": [
-        0,
-        3,
-        6,
-        8,
-        14,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        3,
-        8
-      ],
-      "tagsPt": [
-        "4ª Diminuta",
-        "Tensão Intensa",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Diminished 4th",
-        "High Tension",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Começa com Jins Saba (¾ · ¾ · ½), quebrando a 4ª justa em uma 4ª diminuta (8q) que gera uma sensação melancólica e suspensa inconfundível.",
-        "structureEn": "Opens with Jins Saba (¾ · ¾ · ½), collapsing the perfect 4th into a diminished 4th (8q) for a haunting, unresolved gravity.",
-        "temperamentPt": "A distância entre o 2º grau neutro (150¢) e a 4ª diminuta (400¢) concentra alta densidade intervalar na região grave da oitava.",
-        "temperamentEn": "The tight cluster from neutral 2nd (150¢) to diminished 4th (400¢) concentrates dense emotional gravity in the lower register.",
-        "articulationPt": "Evite acordes fechados ocidentais; use drones graves (ex.: B1 ou A1 em barítono) e bends lentos de ¼ de tom com sustain elétrico.",
-        "articulationEn": "Avoid dense Western triads; lean on low baritone drones (B1/A1) and slow quarter-tone bends with electric sustain.",
-        "repertoire": "Simon Shaheen — Taqsim Saba · Wadih El Safi"
-      }
-    },
-    {
-      "id": "maqam_saba_zamzam",
-      "category": "arabic",
-      "subfamilyPt": "Família Bayati & Saba",
-      "subfamilyEn": "Bayati & Saba Family",
-      "namePt": "Maqam Saba Zamzam",
-      "nameEn": "Maqam Saba Zamzam",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        8,
-        14,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        6,
-        8
-      ],
-      "tagsPt": [
-        "12-TET",
-        "4ª Diminuta",
-        "Sombrio / Doom"
-      ],
-      "tagsEn": [
-        "12-TET",
-        "Diminished 4th",
-        "Dark / Doom"
-      ],
-      "dossier": {
-        "structurePt": "Versão 12-TET do Maqam Saba: substitui a 2ª neutra por ♭2 (½ · 1 · ½) preservando a 4ª diminuta (♭4/3M). Cria uma sonoridade opressiva extraordinária em afinações graves.",
-        "structureEn": "12-TET counterpart to Maqam Saba: replaces the neutral 2nd with ♭2 (H · W · H) while keeping the diminished 4th — devastating in low baritone tunings.",
-        "temperamentPt": "100% compatível com trastes padrão 12-TET, mantendo o choque emocional típico do Saba entre ♭3 e ♭4.",
-        "temperamentEn": "Fully playable on standard 12-TET frets while retaining Saba’s haunting rub between ♭3 and diminished 4th.",
-        "articulationPt": "Em B Standard ou A Standard, explore riffs arrastados (doom/post-metal) alternando tônica, ♭2, ♭3 e a 4ª diminuta sem jamais tocar a 4ª justa.",
-        "articulationEn": "In B or A Standard, craft slow doom/post-metal riffs alternating tonic, ♭2, ♭3, and diminished 4th without ever touching a perfect 4th.",
-        "repertoire": "Umm Kulthum — Fakkaruni · Tradição Egípcia Moderna"
-      }
-    },
-    {
-      "id": "maqam_rast",
-      "category": "arabic",
-      "subfamilyPt": "Família Rast & Sikah",
-      "subfamilyEn": "Rast & Sikah Family",
-      "namePt": "Maqam Rast",
-      "nameEn": "Maqam Rast",
-      "intervalsQ": [
-        0,
-        4,
-        7,
-        10,
-        14,
-        18,
-        21
-      ],
-      "characteristicQ": [
-        7,
-        21
-      ],
-      "tagsPt": [
-        "3ª Neutra (350¢)",
-        "7ª Neutra (1050¢)",
-        "Pilar Árabe"
-      ],
-      "tagsEn": [
-        "Neutral 3rd (350¢)",
-        "Neutral 7th (1050¢)",
-        "Arabic Pillar"
-      ],
-      "dossier": {
-        "structurePt": "Baseado no Jins Rast (1 · ¾ · ¾) sobre a tônica e replicado na 5ª justa. Na descida tradicional, o 7º grau frequentemente desce para ♭7 (1000¢).",
-        "structureEn": "Built on Jins Rast (1 · ¾ · ¾) on the tonic and replicated on the 5th. Traditionally, descending phrases often lower the 7th degree to standard ♭7.",
-        "temperamentPt": "A terça neutra (350¢) habita exatamente o limiar entre o maior e o menor, dissolvendo a dicotomia tonal ocidental.",
-        "temperamentEn": "The neutral 3rd (350¢) sits right between major and minor, dissolving Western major/minor duality.",
-        "articulationPt": "Use bottleneck/slide ou micro-bends curtos saindo da terça menor (♭3) para atingir a neutralidade do Rast. Excelente com timbre limpo e reverb longo.",
-        "articulationEn": "Use slide or short micro-bends up from minor 3rd (♭3) to hit the neutral sweet spot. Shines with clean tone and ambient reverb.",
-        "repertoire": "Umm Kulthum — Al-Atlal · Farid al-Atrash Taqsim Rast"
-      }
-    },
-    {
-      "id": "maqam_suznak",
-      "category": "arabic",
-      "subfamilyPt": "Família Rast & Sikah",
-      "subfamilyEn": "Rast & Sikah Family",
-      "namePt": "Maqam Suznak",
-      "nameEn": "Maqam Suznak",
-      "intervalsQ": [
-        0,
-        4,
-        7,
-        10,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        7,
-        16,
-        22
-      ],
-      "tagsPt": [
-        "Jins Rast + Hijaz",
-        "3ª Neutra + 7M",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Jins Rast + Hijaz",
-        "Neutral 3rd + M7",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Um dos híbridos mais célebres da música árabe: Jins Rast na base (1 · 2 · 3½♭ · 4) coroado por Jins Hijaz sobre a 5ª justa (5 · ♭6 · 7 · 8).",
-        "structureEn": "One of Arabic music’s most celebrated hybrids: Jins Rast below (1 · 2 · 3½♭ · 4) crowned by Jins Hijaz on the 5th (5 · ♭6 · 7 · 8).",
-        "temperamentPt": "Apenas um grau microtonal (3½♭ a 350¢) — fácil de dominar na guitarra 12-TET enquanto oferece todo o drama do Hijaz no agudo.",
-        "temperamentEn": "Just one quarter-tone degree (3½♭ at 350¢) — highly accessible on 12-TET guitar while delivering full Hijaz drama upstairs.",
-        "articulationPt": "Ótima porta de entrada para microtonalidade: toque a parte aguda em palhetada rápida e desacelere sobre a 3ª neutra com micro-bend preciso.",
-        "articulationEn": "Ideal gateway to quarter-tones: pick the upper Hijaz tetrachord crisply and slow down onto the neutral 3rd with a precise micro-bend.",
-        "repertoire": "Samai Suznak · Riyad al-Sunbati · Munir Bashir"
-      }
-    },
-    {
-      "id": "maqam_sikah",
-      "category": "arabic",
-      "subfamilyPt": "Família Rast & Sikah",
-      "subfamilyEn": "Rast & Sikah Family",
-      "namePt": "Maqam Sikah",
-      "nameEn": "Maqam Sikah",
-      "intervalsQ": [
-        0,
-        3,
-        7,
-        11,
-        14,
-        17,
-        21
-      ],
-      "characteristicQ": [
-        3,
-        7,
-        11
-      ],
-      "tagsPt": [
-        "Tricorde Sikah",
-        "Eixo Neutro",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Sikah Trichord",
-        "Neutral Axis",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Construído a partir de um tricorde (¾ · 1) em vez de tetracorde. Tradicionalmente nasce sobre E½♭, fazendo praticamente toda a malha intervalar flutuar em quartos de tom.",
-        "structureEn": "Built on a trichord (¾ · 1) rather than a tetrachord. Traditionally rooted on E½♭, making the scale grid float across quarter-tone intervals.",
-        "temperamentPt": "Ótimo teste de percepção no modo Slide ou Trastes 24-TET: observe como a 5ª justa (14q) ancora um ambiente cercado de graus neutros.",
-        "temperamentEn": "A prime ear-training lab in Slide or 24-TET Frets mode: notice how the perfect 5th (14q) anchors a field of neutral degrees.",
-        "articulationPt": "Ative o modo Slide/Fretless e explore glissandos suaves em uma única corda, repousando na tônica e no 3º grau neutro.",
-        "articulationEn": "Switch to Slide/Fretless mode and explore slow single-string glissandi, resting on the tonic and neutral 3rd.",
-        "repertoire": "Samai Sikah · George Abyad"
-      }
-    },
-    {
-      "id": "maqam_huzam",
-      "category": "arabic",
-      "subfamilyPt": "Família Rast & Sikah",
-      "subfamilyEn": "Rast & Sikah Family",
-      "namePt": "Maqam Huzam",
-      "nameEn": "Maqam Huzam",
-      "intervalsQ": [
-        0,
-        3,
-        7,
-        9,
-        15,
-        17,
-        21
-      ],
-      "characteristicQ": [
-        3,
-        9,
-        15
-      ],
-      "tagsPt": [
-        "Tricorde Sikah + Hijaz",
-        "Microtonal",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Sikah Trichord + Hijaz",
-        "Microtonal",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Funde o tricorde inicial do Sikah (¾ · 1) com Jins Hijaz no 3º grau (7q→9q→15q→17q), criando uma das cores mais hipnóticas da família Sikah.",
-        "structureEn": "Fuses the opening Sikah trichord (¾ · 1) with Jins Hijaz on the 3rd degree (7q→9q→15q→17q), yielding one of the most hypnotic colors in the Sikah family.",
-        "temperamentPt": "Quase todos os graus caem em quartos de tom relativos à tônica — brilhante para exploração com bottleneck/slide ou guitarra microtonal.",
-        "temperamentEn": "Nearly every degree sits on quarter-tone offsets relative to the root — extraordinary for slide/fretless or 24-TET fretboard study.",
-        "articulationPt": "Experimente no modo Trastes 24-TET ou Slide sobre um drone de tônica pura, destacando o salto de 1½ tom entre 4½♭ e 6½♭.",
-        "articulationEn": "Try 24-TET Frets or Slide mode over a pure tonic drone, spotlighting the augmented-2nd leap in the middle register.",
-        "repertoire": "Fairuz · Sabah Fakhri · Samai Huzam"
-      }
-    },
-    {
-      "id": "maqam_hijaz",
-      "category": "arabic",
-      "subfamilyPt": "Família Hijaz & Nawa Athar",
-      "subfamilyEn": "Hijaz & Nawa Athar Family",
-      "namePt": "Maqam Hijaz",
-      "nameEn": "Maqam Hijaz",
-      "intervalsQ": [
-        0,
-        2,
-        8,
-        10,
-        14,
-        17,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        8,
-        17
-      ],
-      "tagsPt": [
-        "2ª Aumentada",
-        "6ª Neutra",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Augmented 2nd",
-        "Neutral 6th",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Tetracorde Jins Hijaz (½ · 1½ · ½) combinado com Jins Rast na 4ª. A 6ª meio-bemol suaviza o contraste dramático do salto de segunda aumentada.",
-        "structureEn": "Jins Hijaz tetrachord (½ · 1½ · ½) paired with Jins Rast on the 4th. The neutral 6th softens the dramatic augmented-second leap.",
-        "temperamentPt": "Na execução tradicional, a ♭2 tende a subir levemente (~120¢) e a 3ª maior a descer (~385¢), comprimindo o salto de 1½ tom.",
-        "temperamentEn": "In traditional phrasing, ♭2 slightly sharpens (~120¢) and major 3rd slightly flattens (~385¢), narrowing the augmented second.",
-        "articulationPt": "Explore fraseados lineares em uma única corda (estilo Oud/Saz) deslizando entre ♭2 e 3 com legato e palhetada alternada seca.",
-        "articulationEn": "Explore single-string linear phrasing (Oud/Saz approach), sliding between ♭2 and 3 with tight legato and crisp picking.",
-        "repertoire": "Anouar Brahem — Astrakan Café · Samai Hijaz"
-      }
-    },
-    {
-      "id": "maqam_hijaz_kar",
-      "category": "arabic",
-      "subfamilyPt": "Família Hijaz & Nawa Athar",
-      "subfamilyEn": "Hijaz & Nawa Athar Family",
-      "namePt": "Maqam Hijaz Kar",
-      "nameEn": "Maqam Hijaz Kar",
-      "intervalsQ": [
-        0,
-        2,
-        8,
-        10,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        2,
-        8,
-        16,
-        22
-      ],
-      "tagsPt": [
-        "Duplo Jins Hijaz",
-        "12-TET",
-        "Simetria Espelhada"
-      ],
-      "tagsEn": [
-        "Double Jins Hijaz",
-        "12-TET",
-        "Mirrored Symmetry"
-      ],
-      "dossier": {
-        "structurePt": "Empilha dois tetracordes Jins Hijaz separados por 1 tom (na tônica e na 5ª justa). Compartilha a malha 12-TET com Raga Bhairav, mas com condução centrada na 5ª.",
-        "structureEn": "Stacks two Jins Hijaz tetrachords separated by a whole step (on tonic and 5th). Shares pitches with Raga Bhairav, pivoting around the 5th (Ghammaz).",
-        "temperamentPt": "Totalmente executável em 12-TET; permite acordes abertos de 5ª justa + ♭2 e 7ª maior em choque controlado.",
-        "temperamentEn": "Fully 12-TET playable; supports open fifth voicings rubbing against ♭2 and major 7th.",
-        "articulationPt": "Em afinações barítono (B/A Standard), explore arpejos híbridos alternando bordão grave com saltos ♭6→7 nas cordas agudas.",
-        "articulationEn": "In baritone tunings (B/A Standard), pair low open pedals with ♭6→7 hybrid-picked leaps on upper strings.",
-        "repertoire": "Samai Hijaz Kar · Sayyid Darwish"
-      }
-    },
-    {
-      "id": "maqam_nawa_athar",
-      "category": "arabic",
-      "subfamilyPt": "Família Hijaz & Nawa Athar",
-      "subfamilyEn": "Hijaz & Nawa Athar Family",
-      "namePt": "Maqam Nawa Athar",
-      "nameEn": "Maqam Nawa Athar",
-      "intervalsQ": [
-        0,
-        4,
-        6,
         12,
         14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        6,
-        12,
-        22
-      ],
-      "tagsPt": [
-        "12-TET",
-        "Dupla 2ª Aumentada",
-        "Escuro / Metal"
-      ],
-      "tagsEn": [
-        "12-TET",
-        "Double Aug 2nd",
-        "Dark / Metal"
-      ],
-      "dossier": {
-        "structurePt": "Equivalente em 12-TET à Menor Húngara: dois saltos de segunda aumentada (♭3→♯4 e ♭6→7) criam simetria sombria e cinematográfica.",
-        "structureEn": "12-TET counterpart to Hungarian Minor: two augmented-second leaps (♭3→♯4 and ♭6→7) create dark, dramatic symmetry.",
-        "temperamentPt": "Não exige microtons obrigatórios — ponte imediata para transferir fraseado árabe e riffs pesados/modais para a guitarra elétrica.",
-        "temperamentEn": "Requires no quarter-tones — an immediate bridge for Arabic phrasing and dark modal riffs on electric guitar.",
-        "articulationPt": "Experimente arpejar díades de trítono (1–♯4) e 7ª maior (1–7) com fuzz/overdrive em B ou A Standard, alternando com tremolo picking.",
-        "articulationEn": "Arpeggiate tritone (1–♯4) and major-7th dyads with fuzz/overdrive in B or A Standard, contrasting with tremolo-picked lines.",
-        "repertoire": "Farid al-Atrash — Nawa Athar · Rabih Abou-Khalil"
-      }
-    },
-    {
-      "id": "maqam_athar_kurd",
-      "category": "arabic",
-      "subfamilyPt": "Família Hijaz & Nawa Athar",
-      "subfamilyEn": "Hijaz & Nawa Athar Family",
-      "namePt": "Maqam Athar Kurd",
-      "nameEn": "Maqam Athar Kurd",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        12,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        2,
-        12,
-        22
-      ],
-      "tagsPt": [
-        "Kurd + ♯4 + 7M",
-        "12-TET",
-        "Dramático"
-      ],
-      "tagsEn": [
-        "Kurd + ♯4 + M7",
-        "12-TET",
-        "Dramatic"
-      ],
-      "dossier": {
-        "structurePt": "Funde o início sombrio do Kurd (♭2, ♭3) com a ♯4 e a 7ª maior do Nawa Athar. Gera uma paleta extremamente expressiva para solos e riffs modais.",
-        "structureEn": "Merges the dark Kurd opening (♭2, ♭3) with Nawa Athar’s ♯4 and major 7th — delivering an intensely dramatic palette for solos and modal riffs.",
-        "temperamentPt": "12-TET nativo com dois saltos de 1½ tom (♭3→♯4 e ♭6→7) e dois semitons adjacentes à tônica (7–1–♭2).",
-        "temperamentEn": "12-TET native featuring two augmented-2nd leaps (♭3→♯4 and ♭6→7) and semitones flanking the tonic (7–1–♭2).",
-        "articulationPt": "Explore o cluster cromático 7–1–♭2 em cordas adjacentes com sustain elétrico ou delay modulante.",
-        "articulationEn": "Exploit the 7–1–♭2 chromatic cluster across adjacent strings with electric sustain or modulated delay.",
-        "repertoire": "Farid al-Atrash · Marcel Khalife"
-      }
-    },
-    {
-      "id": "maqam_nikriz",
-      "category": "arabic",
-      "subfamilyPt": "Família Hijaz & Nawa Athar",
-      "subfamilyEn": "Hijaz & Nawa Athar Family",
-      "namePt": "Maqam Nikriz",
-      "nameEn": "Maqam Nikriz",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        12,
-        14,
-        18,
         20
       ],
       "characteristicQ": [
         6,
-        12,
-        18
-      ],
-      "tagsPt": [
-        "Jins Nikriz",
-        "Dórico ♯4",
-        "12-TET"
-      ],
-      "tagsEn": [
-        "Jins Nikriz",
-        "Dorian ♯4",
-        "12-TET"
-      ],
-      "dossier": {
-        "structurePt": "Pentacorde Jins Nikriz (1 · ½ · 1½ · ½) com salto expressivo entre ♭3 e ♯4, combinado com 6ª maior e ♭7 no registro agudo.",
-        "structureEn": "Jins Nikriz pentachord (W · H · m3 · H) spotlighting the ♭3→♯4 leap, paired with major 6th and ♭7 above.",
-        "temperamentPt": "12-TET nativo (4º modo da menor harmônica / Dórico ♯4), perfeito para fundir linguagem árabe, jazz modal e metal progressivo.",
-        "temperamentEn": "12-TET native (4th mode of harmonic minor / Dorian ♯4), a powerhouse for fusing Arabic phrasing, modal jazz, and progressive metal.",
-        "articulationPt": "Combine riffs sincopados em 10/8 (Sama’i Thaqil) enfatizando o trítono ♯4 resolvendo na 5ª justa.",
-        "articulationEn": "Pair with syncopated 10/8 (Sama’i Thaqil) riffs leaning on the ♯4 tritone resolving into the 5th.",
-        "repertoire": "Rabih Abou-Khalil — Blue Camel · Samai Nikriz"
-      }
-    },
-    {
-      "id": "maqam_nahawand",
-      "category": "arabic",
-      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
-      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
-      "namePt": "Maqam Nahawand",
-      "nameEn": "Maqam Nahawand",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        10,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        6,
-        16,
-        22
-      ],
-      "tagsPt": [
-        "Jins Nahawand",
-        "Jins Hijaz na 5ª",
-        "12-TET"
-      ],
-      "tagsEn": [
-        "Jins Nahawand",
-        "Upper Jins Hijaz",
-        "12-TET"
-      ],
-      "dossier": {
-        "structurePt": "Tetracorde menor Jins Nahawand (1 · ½ · 1) seguido de Jins Hijaz no 5º grau (ou Kurd na descida). Um dos maqamat mais líricos e imediatos na guitarra.",
-        "structureEn": "Minor tetrachord Jins Nahawand (W · H · W) topped by Jins Hijaz on the 5th (shifting to Kurd on descent). One of the most lyrical maqamat on guitar.",
-        "temperamentPt": "Nativo em 12-TET; ótimo laboratório para praticar modulações (Sayr) entre 7ª maior (sensível) e ♭7 descendente.",
-        "temperamentEn": "12-TET native; ideal lab for practicing sayr shifts between leading tone 7 and descending ♭7.",
-        "articulationPt": "Acentue o 5º grau como polo dramático usando vibrato vocal e ornamentos rápidos (mordentes) saindo da ♭6.",
-        "articulationEn": "Treat the 5th as a dramatic pivot using vocal vibrato and crisp mordents from the ♭6.",
-        "repertoire": "Fairuz — Ya Ana Ya Ana · Riyad al-Sunbati"
-      }
-    },
-    {
-      "id": "maqam_kurd",
-      "category": "arabic",
-      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
-      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
-      "namePt": "Maqam Kurd",
-      "nameEn": "Maqam Kurd",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        10,
-        14,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        16
-      ],
-      "tagsPt": [
-        "12-TET",
-        "Jins Kurd",
-        "Frígio Árabe"
-      ],
-      "tagsEn": [
-        "12-TET",
-        "Jins Kurd",
-        "Arabic Phrygian"
-      ],
-      "dossier": {
-        "structurePt": "Compartilha as notas do modo Frígio, mas organiza-se por Jins Kurd (½ · 1 · 1) na base e Jins Nahawand na 4ª justa — mudando completamente os pontos de repouso.",
-        "structureEn": "Shares pitches with Phrygian, but organizes around Jins Kurd (H · W · W) and Jins Nahawand on the 4th — transforming phrasing and resting tones.",
-        "temperamentPt": "Totalmente executável em 12-TET, com micro-inflexões expressivas opcionais na ♭2.",
-        "temperamentEn": "Fully playable in 12-TET, with optional expressive micro-inflections on ♭2.",
-        "articulationPt": "Use a 4ª justa como pivô melódico antes de resolver na tônica via ♭2. Brilha em DADGAD, B Standard ou Drop A.",
-        "articulationEn": "Use the perfect 4th as a melodic pivot before resolving down through ♭2 to the tonic. Shines in DADGAD, B Standard, or Drop A.",
-        "repertoire": "Le Trio Joubran · Fairuz — Habaytak Bissayf"
-      }
-    },
-    {
-      "id": "maqam_lami",
-      "category": "arabic",
-      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
-      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
-      "namePt": "Maqam Lami (Iraque)",
-      "nameEn": "Maqam Lami (Iraq)",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        10,
-        12,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        2,
         12
       ],
       "tagsPt": [
-        "Duplo Jins Kurd",
-        "12-TET",
-        "Iraquiano"
+        "Blue Note (♭5)",
+        "6 Notas",
+        "Expressiva"
       ],
       "tagsEn": [
-        "Double Jins Kurd",
-        "12-TET",
-        "Iraqi"
+        "Blue Note (♭5)",
+        "6-Note",
+        "Expressive"
       ],
       "dossier": {
-        "structurePt": "Maqam iraquiano sem microtons formado por dois Jins Kurd empilhados (na tônica e na 4ª justa). Compartilha notas com o Lócrio, mas com condução melódica estável sobre 1 e 4.",
-        "structureEn": "12-TET Iraqi maqam built from two stacked Jins Kurd tetrachords (on tonic and 4th). Shares pitches with Locrian yet phrases stably around degrees 1 and 4.",
-        "temperamentPt": "12-TET nativo — mostra como a organização por tetracordes (Ajnas) transforma o temido modo Lócrio em uma linguagem melódica cantável.",
-        "temperamentEn": "12-TET native — demonstrates how tetrachordal phrasing (Ajnas) turns Locrian pitches into a deeply lyrical melodic language.",
-        "articulationPt": "Evite power chords na tônica; use a 4ª justa como base de repouso e crie riffs sinuosos com a ♭5 em afinações graves.",
-        "articulationEn": "Skip tonic power chords; treat the perfect 4th as a resting pole and weave sinuous ♭5 lines in baritone tunings.",
-        "repertoire": "Nazem al-Ghazali · Munir Bashir — Maqam Lami"
-      }
-    },
-    {
-      "id": "maqam_ajam",
-      "category": "arabic",
-      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
-      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
-      "namePt": "Maqam Ajam",
-      "nameEn": "Maqam Ajam",
-      "intervalsQ": [
-        0,
-        4,
-        8,
-        10,
-        14,
-        18,
-        22
-      ],
-      "characteristicQ": [
-        8,
-        14
-      ],
-      "tagsPt": [
-        "Jins Ajam",
-        "12-TET",
-        "Solar / Épico"
-      ],
-      "tagsEn": [
-        "Jins Ajam",
-        "12-TET",
-        "Radiant / Epic"
-      ],
-      "dossier": {
-        "structurePt": "Embora coincida em notas com a escala maior ocidental, o Ajam organiza-se por Jins Ajam na base (1 · 1 · ½) e modula frequentemente para Nahawand na 5ª ou Hijaz no 3º grau.",
-        "structureEn": "Though pitch-identical to Western Major, Ajam phrases through Jins Ajam (W · W · H) and frequently modulates to Nahawand on the 5th or Hijaz on the 3rd.",
-        "temperamentPt": "Na execução tradicional do Oud, a 3ª maior tende ligeiramente mais próxima da entonação justa (~386¢) sobre o drone.",
-        "temperamentEn": "In traditional Oud performance, the major 3rd leans slightly toward Just Intonation (~386¢) against a drone.",
-        "articulationPt": "Evite cadências V7–I óbvias: explore linhas horizontais sobre drones graves e voicings quintais abertos.",
-        "articulationEn": "Bypass cliché V7–I cadences: explore horizontal melodies over low drones and open quintal voicings.",
-        "repertoire": "Mohammed Abdel Wahab · Samai Ajam"
+        "structurePt": "Adiciona a ♭5 (blue note) à pentatônica menor, criando o corredor cromático 4–♭5–5 carregado de tensão rítmica e vocal.",
+        "structureEn": "Adds the ♭5 blue note to minor pentatonic, forging the vocal chromatic corridor 4–♭5–5.",
+        "temperamentPt": "Na prática viva do blues, a ♭3 e a ♭5 flutuam microtonalmente em torno de ±25–50¢ — ligue a ponte direta com o 24-TET.",
+        "temperamentEn": "In living blues phrasing, ♭3 and ♭5 float microtonally by ±25–50¢ — bridging directly into 24-TET ear training.",
+        "articulationPt": "Em B ou A Standard, explore riffs pesados centrados no choque 4–♭5–5 com fuzz ou overdrive dinâmico.",
+        "articulationEn": "In B or A Standard, craft heavy riffs centered on the 4–♭5–5 crunch with fuzz or dynamic overdrive.",
+        "repertoire": "Rory Gallagher · Charles Mingus · Boris · Sleep"
       }
     },
     {
@@ -1500,42 +882,82 @@ export const DB = {
       }
     },
     {
-      "id": "std_lydian",
+      "id": "std_aeolian",
       "category": "greek",
-      "subfamilyPt": "Modos Maiores (Brilho)",
-      "subfamilyEn": "Major Modes (Bright)",
-      "namePt": "Lídio",
-      "nameEn": "Lydian",
+      "subfamilyPt": "Modos Menores & Escuros",
+      "subfamilyEn": "Minor & Dark Modes",
+      "namePt": "Eólio (Menor Natural)",
+      "nameEn": "Aeolian (Natural Minor)",
       "intervalsQ": [
         0,
         4,
-        8,
-        12,
+        6,
+        10,
         14,
-        18,
-        22
+        16,
+        20
       ],
       "characteristicQ": [
-        12
+        6,
+        16
       ],
       "tagsPt": [
-        "4ª Aumentada",
-        "Luminoso",
-        "Post-Rock / Jazz"
+        "6ª Menor",
+        "6º Grau",
+        "12-TET"
       ],
       "tagsEn": [
-        "Augmented 4th",
-        "Luminous",
-        "Post-Rock / Jazz"
+        "Minor 6th",
+        "6th Degree",
+        "12-TET"
       ],
       "dossier": {
-        "structurePt": "Empilhamento completo de 7 quintas justas (C–G–D–A–E–B–F♯). A ♯4 elimina a tensão de evitar-nota da 4ª justa sobre acordes maiores.",
-        "structureEn": "Complete stack of 7 perfect fifths. The ♯4 removes the avoid-note rub over major harmony, opening vast shimmering sonorities.",
-        "temperamentPt": "Forte afinidade com a afinação Open Lydian (F–A–C–G–C–E) e com harmônicos naturais.",
-        "temperamentEn": "Strong affinity with Open Lydian tuning (F–A–C–G–C–E) and natural string harmonics.",
-        "articulationPt": "Deixe cordas soltas ressoarem junto com díades de ♯4–5 ou 7–♯4 em volume swells e reverb longo.",
-        "articulationEn": "Let open strings ring sympathetically against ♯4–5 or 7–♯4 dyads using volume swells and lush reverb.",
-        "repertoire": "Deafheaven (shoegaze sections) · Pat Metheny · Joe Satriani"
+        "structurePt": "Base do menor natural ocidental (1 · ½ · 1 · 1 · ½ · 1 · 1). A presença conjunta de ♭3, ♭6 e ♭7 entrega peso dramático sem a sensível artificial da menor harmônica.",
+        "structureEn": "Western natural minor foundation (W · H · W · W · H · W · W). Combining ♭3, ♭6, and ♭7 yields dramatic weight without harmonic-minor leading-tone pull.",
+        "temperamentPt": "Compare diretamente com Nahawand (elevando a 7ª) e com Frígio (rebaixando a 2ª).",
+        "temperamentEn": "Compare directly with Nahawand (raising the 7th) and Phrygian (lowering the 2nd).",
+        "articulationPt": "Em B ou A Standard, use acordes suspensos add9 e quintais abertos deixando a ♭6 gerar tensão melancólica sobre o bordão.",
+        "articulationEn": "In B or A Standard, pair open add9/quintal voicings with lingering ♭6 melodies over low drones.",
+        "repertoire": "Boris · Radiohead · Black Sabbath · Iron Maiden"
+      }
+    },
+    {
+      "id": "std_dorian",
+      "category": "greek",
+      "subfamilyPt": "Modos Menores & Escuros",
+      "subfamilyEn": "Minor & Dark Modes",
+      "namePt": "Dórico",
+      "nameEn": "Dorian",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        10,
+        14,
+        18,
+        20
+      ],
+      "characteristicQ": [
+        18
+      ],
+      "tagsPt": [
+        "6ª Maior",
+        "Palíndromo",
+        "Jazz / Fusion"
+      ],
+      "tagsEn": [
+        "Major 6th",
+        "Palindromic",
+        "Jazz / Fusion"
+      ],
+      "dossier": {
+        "structurePt": "Escala palíndroma (1 · ½ · 1 · 1 · 1 · ½ · 1): idêntica de frente para trás. A 6ª maior sobre base menor traz brilho modal equilibrado.",
+        "structureEn": "Palindromic interval structure (W · H · W · W · W · H · W). The natural 6th over a minor triad creates balanced modal lift.",
+        "temperamentPt": "Referência fundamental para contrastar com Bayati (rebaixando a 2ª em ¼ de tom) ou Kurd/Frígio (rebaixando a 2ª em ½ tom).",
+        "temperamentEn": "Ideal baseline for contrasting with Bayati (lowering the 2nd by a quarter-tone) or Kurd/Phrygian (lowering the 2nd by a semitone).",
+        "articulationPt": "Explore voicings quartais (So What) construídos sobre os graus 1, 2 e 5 para comping modal contemporâneo.",
+        "articulationEn": "Explore quartal (So What) voicings built on degrees 1, 2, and 5 for modern modal comping.",
+        "repertoire": "Miles Davis — So What · Charles Mingus · Grant Green"
       }
     },
     {
@@ -1579,85 +1001,6 @@ export const DB = {
       }
     },
     {
-      "id": "std_dorian",
-      "category": "greek",
-      "subfamilyPt": "Modos Menores & Escuros",
-      "subfamilyEn": "Minor & Dark Modes",
-      "namePt": "Dórico",
-      "nameEn": "Dorian",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        10,
-        14,
-        18,
-        20
-      ],
-      "characteristicQ": [
-        18
-      ],
-      "tagsPt": [
-        "6ª Maior",
-        "Palíndromo",
-        "Jazz / Fusion"
-      ],
-      "tagsEn": [
-        "Major 6th",
-        "Palindromic",
-        "Jazz / Fusion"
-      ],
-      "dossier": {
-        "structurePt": "Escala palíndroma (1 · ½ · 1 · 1 · 1 · ½ · 1): idêntica de frente para trás. A 6ª maior sobre base menor traz brilho modal equilibrado.",
-        "structureEn": "Palindromic interval structure (W · H · W · W · W · H · W). The natural 6th over a minor triad creates balanced modal lift.",
-        "temperamentPt": "Referência fundamental para contrastar com Bayati (rebaixando a 2ª em ¼ de tom) ou Kurd/Frígio (rebaixando a 2ª em ½ tom).",
-        "temperamentEn": "Ideal baseline for contrasting with Bayati (lowering the 2nd by a quarter-tone) or Kurd/Phrygian (lowering the 2nd by a semitone).",
-        "articulationPt": "Explore voicings quartais (So What) construídos sobre os graus 1, 2 e 5 para comping modal contemporâneo.",
-        "articulationEn": "Explore quartal (So What) voicings built on degrees 1, 2, and 5 for modern modal comping.",
-        "repertoire": "Miles Davis — So What · Charles Mingus · Grant Green"
-      }
-    },
-    {
-      "id": "std_aeolian",
-      "category": "greek",
-      "subfamilyPt": "Modos Menores & Escuros",
-      "subfamilyEn": "Minor & Dark Modes",
-      "namePt": "Eólio (Menor Natural)",
-      "nameEn": "Aeolian (Natural Minor)",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        10,
-        14,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        6,
-        16
-      ],
-      "tagsPt": [
-        "6ª Menor",
-        "6º Grau",
-        "12-TET"
-      ],
-      "tagsEn": [
-        "Minor 6th",
-        "6th Degree",
-        "12-TET"
-      ],
-      "dossier": {
-        "structurePt": "Base do menor natural ocidental (1 · ½ · 1 · 1 · ½ · 1 · 1). A presença conjunta de ♭3, ♭6 e ♭7 entrega peso dramático sem a sensível artificial da menor harmônica.",
-        "structureEn": "Western natural minor foundation (W · H · W · W · H · W · W). Combining ♭3, ♭6, and ♭7 yields dramatic weight without harmonic-minor leading-tone pull.",
-        "temperamentPt": "Compare diretamente com Nahawand (elevando a 7ª) e com Frígio (rebaixando a 2ª).",
-        "temperamentEn": "Compare directly with Nahawand (raising the 7th) and Phrygian (lowering the 2nd).",
-        "articulationPt": "Em B ou A Standard, use acordes suspensos add9 e quintais abertos deixando a ♭6 gerar tensão melancólica sobre o bordão.",
-        "articulationEn": "In B or A Standard, pair open add9/quintal voicings with lingering ♭6 melodies over low drones.",
-        "repertoire": "Boris · Radiohead · Black Sabbath · Iron Maiden"
-      }
-    },
-    {
       "id": "std_phrygian",
       "category": "greek",
       "subfamilyPt": "Modos Menores & Escuros",
@@ -1695,6 +1038,45 @@ export const DB = {
         "articulationPt": "Crie riffs rítmicos alternando a 6ª corda solta (tônica) com a casa 1 (♭2) e tríades maiores construídas sobre a ♭2 (acorde napolitano).",
         "articulationEn": "Build rhythmic riffs alternating open 6th-string tonic against fret 1 (♭2) and major triads built on ♭2 (Neapolitan color).",
         "repertoire": "Metallica · Meshuggah · Paco de Lucía · Boris"
+      }
+    },
+    {
+      "id": "std_lydian",
+      "category": "greek",
+      "subfamilyPt": "Modos Maiores (Brilho)",
+      "subfamilyEn": "Major Modes (Bright)",
+      "namePt": "Lídio",
+      "nameEn": "Lydian",
+      "intervalsQ": [
+        0,
+        4,
+        8,
+        12,
+        14,
+        18,
+        22
+      ],
+      "characteristicQ": [
+        12
+      ],
+      "tagsPt": [
+        "4ª Aumentada",
+        "Luminoso",
+        "Post-Rock / Jazz"
+      ],
+      "tagsEn": [
+        "Augmented 4th",
+        "Luminous",
+        "Post-Rock / Jazz"
+      ],
+      "dossier": {
+        "structurePt": "Empilhamento completo de 7 quintas justas (C–G–D–A–E–B–F♯). A ♯4 elimina a tensão de evitar-nota da 4ª justa sobre acordes maiores.",
+        "structureEn": "Complete stack of 7 perfect fifths. The ♯4 removes the avoid-note rub over major harmony, opening vast shimmering sonorities.",
+        "temperamentPt": "Forte afinidade com a afinação Open Lydian (F–A–C–G–C–E) e com harmônicos naturais.",
+        "temperamentEn": "Strong affinity with Open Lydian tuning (F–A–C–G–C–E) and natural string harmonics.",
+        "articulationPt": "Deixe cordas soltas ressoarem junto com díades de ♯4–5 ou 7–♯4 em volume swells e reverb longo.",
+        "articulationEn": "Let open strings ring sympathetically against ♯4–5 or 7–♯4 dyads using volume swells and lush reverb.",
+        "repertoire": "Deafheaven (shoegaze sections) · Pat Metheny · Joe Satriani"
       }
     },
     {
@@ -2224,45 +1606,313 @@ export const DB = {
       }
     },
     {
-      "id": "enigmatic_verdi",
-      "category": "minor_systems",
-      "subfamilyPt": "Sistemas Exóticos & Híbridos",
-      "subfamilyEn": "Exotic & Hybrid Systems",
-      "namePt": "Escala Enigmática (Verdi)",
-      "nameEn": "Enigmatic Scale (Verdi)",
+      "id": "br_armorial_lydian_b7",
+      "category": "global",
+      "subfamilyPt": "Brasil & Ibérico (Modalismo)",
+      "subfamilyEn": "Brazil & Iberian Modalism",
+      "namePt": "Nordestina / Lídio ♭7 (Armorial)",
+      "nameEn": "Northeastern / Lydian ♭7 (Armorial)",
       "intervalsQ": [
         0,
-        2,
+        4,
         8,
         12,
-        16,
-        20,
-        22
+        14,
+        18,
+        20
       ],
       "characteristicQ": [
-        2,
         12,
-        16,
         20
       ],
       "tagsPt": [
-        "Sem 4ª nem 5ª Justa",
-        "Cromática / Tons Inteiros",
-        "Experimental"
+        "Série Harmônica",
+        "Movimento Armorial",
+        "4º Grau Mel. Menor"
       ],
       "tagsEn": [
-        "No P4 or P5",
-        "Chromatic / Whole-Tone",
-        "Experimental"
+        "Acoustic Scale",
+        "Armorial Movement",
+        "4th of Mel. Minor"
       ],
       "dossier": {
-        "structurePt": "Imortalizada por Giuseppe Verdi: não possui 4ª justa NEM 5ª justa! Abre com ♭2 e 3ª maior, atravessa quatro tons inteiros (3–♯4–♯5–♯6) e fecha com semitom na 7ª maior.",
-        "structureEn": "Immortalized by Verdi: contains NEITHER a perfect 4th NOR a perfect 5th! Opens with ♭2→3, glides through four whole steps (3–♯4–♯5–♯6), and closes chromatically via 7.",
-        "temperamentPt": "12-TET nativo; desafia completamente o ouvido tonal pela ausência total de quintas estruturais na tônica.",
-        "temperamentEn": "12-TET native; completely disorients tonal gravity due to the total absence of perfect 4th and 5th above the root.",
-        "articulationPt": "Use sem 5ª no drone (apenas tônica pura) e explore arpejos aumentados e clusters na região média do braço.",
-        "articulationEn": "Disable the drone 5th (pure tonic only) and explore augmented arpeggios and clusters across the mid neck.",
-        "repertoire": "Giuseppe Verdi — Ave Maria · Joe Satriani"
+        "structurePt": "Combina a ♯4 do Lídio com a ♭7 do Mixolídio (escala acústica / 4º modo da menor melódica). Base recorrente na rabeca, pífano e viola nordestina.",
+        "structureEn": "Combines Lydian ♯4 with Mixolydian ♭7 (acoustic scale / 4th mode of melodic minor). Core color of Northeastern Brazilian rabeca, pífano, and viola.",
+        "temperamentPt": "Aproxima-se diretamente dos parciais 7 (♭7 a -31¢) e 11 (♯4 a -49¢) da série harmônica natural.",
+        "temperamentEn": "Closely mirrors partials 7 (♭7 at -31¢) and 11 (♯4 at -49¢) of the natural overtone series.",
+        "articulationPt": "Ative os Harmônicos Espectrais e toque em DADGAD, Orkney ou B Modal usando bordões contínuos e o ciclo Malfuf (3+3+2).",
+        "articulationEn": "Toggle Spectral Harmonics and try DADGAD, Orkney, or Baritone Modal with continuous drones and the Malfuf (3+3+2) cycle.",
+        "repertoire": "Quinteto Armorial · Hermeto Pascoal · Elomar"
+      }
+    },
+    {
+      "id": "flamenco_andaluz",
+      "category": "global",
+      "subfamilyPt": "Brasil & Ibérico (Modalismo)",
+      "subfamilyEn": "Brazil & Iberian Modalism",
+      "namePt": "Escala Flamenca / Andaluza (8 Notas)",
+      "nameEn": "Flamenco / Andalusian Scale (8-Note)",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        8,
+        10,
+        14,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        6,
+        8
+      ],
+      "tagsPt": [
+        "♭3 + 3M (Bimodal)",
+        "8 Notas",
+        "Cadência Andaluza"
+      ],
+      "tagsEn": [
+        "♭3 + M3 (Bimodal)",
+        "8-Note",
+        "Andalusian Cadence"
+      ],
+      "dossier": {
+        "structurePt": "Une simultaneamente a ♭3 (Frígio) e a 3ª maior (Frígio Dominante) em uma malha de 8 notas — capturando o movimento real dos solos flamencos sobre a cadência andaluza.",
+        "structureEn": "Unites both ♭3 (Phrygian) and major 3rd (Phrygian Dominant) inside an 8-note grid — capturing authentic flamenco phrasing over Andalusian cadences.",
+        "temperamentPt": "12-TET nativo; o contraste entre ♭3 descendente e 3ª maior ascendente cria tensão expressiva imediata.",
+        "temperamentEn": "12-TET native; contrasting ascending major 3rd against descending ♭3 generates immediate expressive fire.",
+        "articulationPt": "Alterne rasgueados percussivos em B/A Standard com frases ligadas cruzando ♭2, ♭3 e 3ª maior.",
+        "articulationEn": "Alternate percussive strums in B/A Standard with legato runs crossing ♭2, ♭3, and major 3rd.",
+        "repertoire": "Paco de Lucía · Vicente Amigo · Tomatito"
+      }
+    },
+    {
+      "id": "pent_dominant",
+      "category": "pentatonic",
+      "subfamilyPt": "Pentatônicas Experimentais & Modais",
+      "subfamilyEn": "Experimental & Modal Pentatonics",
+      "namePt": "Pentatônica Dominante / Mixolídia",
+      "nameEn": "Dominant / Mixolydian Pentatonic",
+      "intervalsQ": [
+        0,
+        4,
+        8,
+        14,
+        20
+      ],
+      "characteristicQ": [
+        8,
+        20
+      ],
+      "tagsPt": [
+        "1 · 2 · 3 · 5 · ♭7",
+        "Blues-Jazz",
+        "5 Notas"
+      ],
+      "tagsEn": [
+        "1 · 2 · 3 · 5 · ♭7",
+        "Blues-Jazz",
+        "5-Note"
+      ],
+      "dossier": {
+        "structurePt": "Troca a 6ª da pentatônica maior pela ♭7, delineando diretamente um acorde 9/13 sem a 4ª de evitar-nota.",
+        "structureEn": "Swaps major pentatonic’s 6th for ♭7, outlining dominant 9th harmony cleanly without avoid notes.",
+        "temperamentPt": "12-TET padrão; ótimo filtro melódico sobre vamps Mixolídios e Lídio ♭7.",
+        "temperamentEn": "Standard 12-TET; sleek melodic filter over Mixolydian and Lydian ♭7 vamps.",
+        "articulationPt": "Alterne com a Pentatônica Menor paralela para linhas híbridas de jazz-rock e blues contemporâneo.",
+        "articulationEn": "Alternate with parallel Minor Pentatonic for modern jazz-rock and hybrid blues lines.",
+        "repertoire": "Robben Ford · Scott Henderson · John Scofield"
+      }
+    },
+    {
+      "id": "pent_locrian",
+      "category": "pentatonic",
+      "subfamilyPt": "Pentatônicas Experimentais & Modais",
+      "subfamilyEn": "Experimental & Modal Pentatonics",
+      "namePt": "Pentatônica Lócria / Meio-Diminuta",
+      "nameEn": "Locrian / Half-Diminished Pentatonic",
+      "intervalsQ": [
+        0,
+        6,
+        10,
+        12,
+        20
+      ],
+      "characteristicQ": [
+        10,
+        12
+      ],
+      "tagsPt": [
+        "1 · ♭3 · 4 · ♭5 · ♭7",
+        "Dissonante / Metal",
+        "5 Notas"
+      ],
+      "tagsEn": [
+        "1 · ♭3 · 4 · ♭5 · ♭7",
+        "Dissonant / Metal",
+        "5-Note"
+      ],
+      "dossier": {
+        "structurePt": "Rebaixa a 5ª da pentatônica menor para ♭5 (1 · ♭3 · 4 · ♭5 · ♭7). Uma arma secreta para solos modernos sobre m7♭5, alterados e riffs pesados em barítono.",
+        "structureEn": "Lowers minor pentatonic’s 5th to ♭5 (1 · ♭3 · 4 · ♭5 · ♭7). Secret weapon for modern m7♭5 lines, altered harmony, and heavy baritone riffs.",
+        "temperamentPt": "12-TET nativo; preserva a ergonomia familiar de 2 notas por corda com sabor totalmente sombrio.",
+        "temperamentEn": "12-TET native; preserves effortless 2-notes-per-string ergonomics with an unmistakably dark edge.",
+        "articulationPt": "Toque seus padrões favoritos de pentatônica menor com a 5ª sempre 1 casa abaixo em B ou A Standard.",
+        "articulationEn": "Play your favorite minor-pentatonic patterns with every 5th shifted 1 fret down in B or A Standard.",
+        "repertoire": "Allan Holdsworth · Meshuggah · Kurt Rosenwinkel"
+      }
+    },
+    {
+      "id": "jp_insen",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Escala In-Sen (Japão)",
+      "nameEn": "In-Sen Scale (Japan)",
+      "intervalsQ": [
+        0,
+        2,
+        10,
+        14,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        10
+      ],
+      "tagsPt": [
+        "Pentatônica",
+        "Koto / Shakuhachi",
+        "Quartal"
+      ],
+      "tagsEn": [
+        "Pentatonic",
+        "Koto / Shakuhachi",
+        "Quartal"
+      ],
+      "dossier": {
+        "structurePt": "Pentatônica semitonal (1 · ♭2 · 4 · 5 · ♭7). Gera automaticamente acordes suspensos, quartais e sonoridades de koto.",
+        "structureEn": "Hemitonic pentatonic (1 · ♭2 · 4 · 5 · ♭7). Naturally yields suspended voicings, quartal stacks, and koto-like phrasing.",
+        "temperamentPt": "Compatível com 12-TET, mas responde muito bem a micro-bends expressivos sobre a ♭2 e a ♭7 (estilo shakuhachi).",
+        "temperamentEn": "12-TET native, yet responds wonderfully to subtle shakuhachi-style pitch bends on ♭2 and ♭7.",
+        "articulationPt": "Experimente arpejar shapes abertos misturando cordas soltas e harmônicos naturais na 5ª, 7ª e 12ª casas.",
+        "articulationEn": "Arpeggiate open shapes blending open strings with natural harmonics at the 5th, 7th, and 12th frets.",
+        "repertoire": "Toru Takemitsu · Allan Holdsworth · Boris"
+      }
+    },
+    {
+      "id": "jp_hirajoshi",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Escala Hirajoshi (Japão)",
+      "nameEn": "Hirajoshi Scale (Japan)",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        14,
+        16
+      ],
+      "characteristicQ": [
+        6,
+        16
+      ],
+      "tagsPt": [
+        "1 · 2 · ♭3 · 5 · ♭6",
+        "Koto",
+        "5 Notas"
+      ],
+      "tagsEn": [
+        "1 · 2 · ♭3 · 5 · ♭6",
+        "Koto",
+        "5-Note"
+      ],
+      "dossier": {
+        "structurePt": "Clássica afinação de koto (1 · 2 · ♭3 · 5 · ♭6): dois grandes saltos de terça maior (♭3→5 e ♭6→1) dão contornos melódicos amplos e elegantes.",
+        "structureEn": "Classic koto tuning (1 · 2 · ♭3 · 5 · ♭6): two wide major-3rd leaps (♭3→5 and ♭6→1) carve expansive, elegant melodic contours.",
+        "temperamentPt": "12-TET nativo; funciona perfeitamente em afinações graves para riffs atmosféricos e solos de metal/fusion.",
+        "temperamentEn": "12-TET native; works effortlessly in low baritone tunings for atmospheric riffs and metal/fusion solos.",
+        "articulationPt": "Use o Etude de Sequências Intervalares para destacar os saltos abertos de ♭3→5 e ♭6→1 com legato.",
+        "articulationEn": "Use the Intervallic Sequence Etude to spotlight the wide ♭3→5 and ♭6→1 leaps with fluid legato.",
+        "repertoire": "Marty Friedman · Jason Becker · Toru Takemitsu"
+      }
+    },
+    {
+      "id": "jp_kumoi",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Escala Kumoi (Japão)",
+      "nameEn": "Kumoi Scale (Japan)",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        14,
+        18
+      ],
+      "characteristicQ": [
+        6,
+        18
+      ],
+      "tagsPt": [
+        "1 · 2 · ♭3 · 5 · 6",
+        "Dórica Pentatônica",
+        "5 Notas"
+      ],
+      "tagsEn": [
+        "1 · 2 · ♭3 · 5 · 6",
+        "Dorian Pentatonic",
+        "5-Note"
+      ],
+      "dossier": {
+        "structurePt": "Versão luminosa da Hirajoshi com 6ª maior em vez de ♭6 — cria uma cor dórica cristalina e minimalista muito expressiva em acordes m6/9.",
+        "structureEn": "Luminous sibling of Hirajoshi using a natural 6th instead of ♭6 — yields a crystalline, minimalist Dorian color over m6/9 harmony.",
+        "temperamentPt": "12-TET nativo; perfeita sobre drones menores sem a previsibilidade da pentatônica menor comum.",
+        "temperamentEn": "12-TET native; floats gracefully over minor drones without standard minor-pentatonic clichés.",
+        "articulationPt": "Combine com harmônicos naturais na 12ª e 7ª casas para texturas espaciais e post-rock.",
+        "articulationEn": "Blend with 12th- and 7th-fret natural harmonics for spacious post-rock textures.",
+        "repertoire": "Bill Frisell · Ryuichi Sakamoto"
+      }
+    },
+    {
+      "id": "jp_iwato",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Escala Iwato (Japão)",
+      "nameEn": "Iwato Scale (Japan)",
+      "intervalsQ": [
+        0,
+        2,
+        10,
+        12,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        12
+      ],
+      "tagsPt": [
+        "1 · ♭2 · 4 · ♭5 · ♭7",
+        "Sombria / Sem 5ª",
+        "5 Notas"
+      ],
+      "tagsEn": [
+        "1 · ♭2 · 4 · ♭5 · ♭7",
+        "Dark / No P5",
+        "5-Note"
+      ],
+      "dossier": {
+        "structurePt": "Pentatônica obscura que combina ♭2, 4ª justa e trítono (♭5) sem 5ª justa. Sonoridade cortante, ritualística e ideal para riffs dissonantes.",
+        "structureEn": "Dark pentatonic pairing ♭2, perfect 4th, and tritone (♭5) with no perfect 5th. Sharp, ritualistic, and devastating for dissonant riffs.",
+        "temperamentPt": "12-TET nativo; contém o Tricorde Vienense [0,1,6] embutido na tônica.",
+        "temperamentEn": "12-TET native; embeds the Viennese Trichord [0,1,6] straight off the tonic.",
+        "articulationPt": "Em B ou A Standard, explore a frição entre 4ª justa e ♭5 com palm muting pesado ou fuzz de alta saturação.",
+        "articulationEn": "In B or A Standard, exploit the 4th-vs-♭5 rub with heavy palm muting or saturated fuzz.",
+        "repertoire": "Musica Tradicional Koto · Sunn O))) · Boris"
       }
     },
     {
@@ -2346,47 +1996,6 @@ export const DB = {
       }
     },
     {
-      "id": "raga_todi",
-      "category": "global",
-      "subfamilyPt": "Ragas Indianos (Hindustani / Carnático)",
-      "subfamilyEn": "Indian Ragas (Hindustani / Carnatic)",
-      "namePt": "Raga Todi (Miyan Ki Todi)",
-      "nameEn": "Raga Todi (Miyan Ki Todi)",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        12,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        2,
-        6,
-        12
-      ],
-      "tagsPt": [
-        "♭2 · ♭3 · ♯4 · ♭6 · 7",
-        "Raga da Manhã",
-        "Profundo"
-      ],
-      "tagsEn": [
-        "♭2 · ♭3 · ♯4 · ♭6 · 7",
-        "Morning Raga",
-        "Profound"
-      ],
-      "dossier": {
-        "structurePt": "Um dos ragas mais venerados do norte da Índia: reúne ♭2, ♭3, Tivra Ma (♯4), ♭6 e 7ª maior. Compartilha o conjunto 12-TET do Maqam Athar Kurd.",
-        "structureEn": "One of North India’s most revered ragas: unites ♭2, ♭3, Tivra Ma (♯4), ♭6, and major 7th. Shares the 12-TET pitch set of Maqam Athar Kurd.",
-        "temperamentPt": "Na execução tradicional, Komal Ga (♭3) e Komal Re (♭2) são entoados bem baixos (ati-komal), puxando em direção à tônica.",
-        "temperamentEn": "Traditionally, Komal Ga (♭3) and Komal Re (♭2) are intoned extra-low (ati-komal), pulling gently toward the tonic.",
-        "articulationPt": "Use o Etude Linear em Corda Única com glissandos suaves do ♯4 descendo até a ♭2 com sustain limpo ou overdrive cremoso.",
-        "articulationEn": "Use the Single-String Linear Etude with smooth glissandi descending from ♯4 through ♭3 to ♭2 with clean sustain.",
-        "repertoire": "Vilayat Khan — Raga Todi · Hariprasad Chaurasia"
-      }
-    },
-    {
       "id": "raga_purvi",
       "category": "global",
       "subfamilyPt": "Ragas Indianos (Hindustani / Carnático)",
@@ -2428,6 +2037,47 @@ export const DB = {
       }
     },
     {
+      "id": "raga_todi",
+      "category": "global",
+      "subfamilyPt": "Ragas Indianos (Hindustani / Carnático)",
+      "subfamilyEn": "Indian Ragas (Hindustani / Carnatic)",
+      "namePt": "Raga Todi (Miyan Ki Todi)",
+      "nameEn": "Raga Todi (Miyan Ki Todi)",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        12,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        2,
+        6,
+        12
+      ],
+      "tagsPt": [
+        "♭2 · ♭3 · ♯4 · ♭6 · 7",
+        "Raga da Manhã",
+        "Profundo"
+      ],
+      "tagsEn": [
+        "♭2 · ♭3 · ♯4 · ♭6 · 7",
+        "Morning Raga",
+        "Profound"
+      ],
+      "dossier": {
+        "structurePt": "Um dos ragas mais venerados do norte da Índia: reúne ♭2, ♭3, Tivra Ma (♯4), ♭6 e 7ª maior. Compartilha o conjunto 12-TET do Maqam Athar Kurd.",
+        "structureEn": "One of North India’s most revered ragas: unites ♭2, ♭3, Tivra Ma (♯4), ♭6, and major 7th. Shares the 12-TET pitch set of Maqam Athar Kurd.",
+        "temperamentPt": "Na execução tradicional, Komal Ga (♭3) e Komal Re (♭2) são entoados bem baixos (ati-komal), puxando em direção à tônica.",
+        "temperamentEn": "Traditionally, Komal Ga (♭3) and Komal Re (♭2) are intoned extra-low (ati-komal), pulling gently toward the tonic.",
+        "articulationPt": "Use o Etude Linear em Corda Única com glissandos suaves do ♯4 descendo até a ♭2 com sustain limpo ou overdrive cremoso.",
+        "articulationEn": "Use the Single-String Linear Etude with smooth glissandi descending from ♯4 through ♭3 to ♭2 with clean sustain.",
+        "repertoire": "Vilayat Khan — Raga Todi · Hariprasad Chaurasia"
+      }
+    },
+    {
       "id": "raga_hansadhwani",
       "category": "global",
       "subfamilyPt": "Ragas Indianos (Hindustani / Carnático)",
@@ -2463,319 +2113,6 @@ export const DB = {
         "articulationPt": "Excelente para tapping, string skipping e passagens limpas/ambient com delay rítmico.",
         "articulationEn": "Outstanding for tapping, string skipping, and clean ambient passages with rhythmic delay.",
         "repertoire": "L. Subramaniam · Rashid Khan · Allan Holdsworth"
-      }
-    },
-    {
-      "id": "jp_insen",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Escala In-Sen (Japão)",
-      "nameEn": "In-Sen Scale (Japan)",
-      "intervalsQ": [
-        0,
-        2,
-        10,
-        14,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        10
-      ],
-      "tagsPt": [
-        "Pentatônica",
-        "Koto / Shakuhachi",
-        "Quartal"
-      ],
-      "tagsEn": [
-        "Pentatonic",
-        "Koto / Shakuhachi",
-        "Quartal"
-      ],
-      "dossier": {
-        "structurePt": "Pentatônica semitonal (1 · ♭2 · 4 · 5 · ♭7). Gera automaticamente acordes suspensos, quartais e sonoridades de koto.",
-        "structureEn": "Hemitonic pentatonic (1 · ♭2 · 4 · 5 · ♭7). Naturally yields suspended voicings, quartal stacks, and koto-like phrasing.",
-        "temperamentPt": "Compatível com 12-TET, mas responde muito bem a micro-bends expressivos sobre a ♭2 e a ♭7 (estilo shakuhachi).",
-        "temperamentEn": "12-TET native, yet responds wonderfully to subtle shakuhachi-style pitch bends on ♭2 and ♭7.",
-        "articulationPt": "Experimente arpejar shapes abertos misturando cordas soltas e harmônicos naturais na 5ª, 7ª e 12ª casas.",
-        "articulationEn": "Arpeggiate open shapes blending open strings with natural harmonics at the 5th, 7th, and 12th frets.",
-        "repertoire": "Toru Takemitsu · Allan Holdsworth · Boris"
-      }
-    },
-    {
-      "id": "jp_hirajoshi",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Escala Hirajoshi (Japão)",
-      "nameEn": "Hirajoshi Scale (Japan)",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        14,
-        16
-      ],
-      "characteristicQ": [
-        6,
-        16
-      ],
-      "tagsPt": [
-        "1 · 2 · ♭3 · 5 · ♭6",
-        "Koto",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · 2 · ♭3 · 5 · ♭6",
-        "Koto",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Clássica afinação de koto (1 · 2 · ♭3 · 5 · ♭6): dois grandes saltos de terça maior (♭3→5 e ♭6→1) dão contornos melódicos amplos e elegantes.",
-        "structureEn": "Classic koto tuning (1 · 2 · ♭3 · 5 · ♭6): two wide major-3rd leaps (♭3→5 and ♭6→1) carve expansive, elegant melodic contours.",
-        "temperamentPt": "12-TET nativo; funciona perfeitamente em afinações graves para riffs atmosféricos e solos de metal/fusion.",
-        "temperamentEn": "12-TET native; works effortlessly in low baritone tunings for atmospheric riffs and metal/fusion solos.",
-        "articulationPt": "Use o Etude de Sequências Intervalares para destacar os saltos abertos de ♭3→5 e ♭6→1 com legato.",
-        "articulationEn": "Use the Intervallic Sequence Etude to spotlight the wide ♭3→5 and ♭6→1 leaps with fluid legato.",
-        "repertoire": "Marty Friedman · Jason Becker · Toru Takemitsu"
-      }
-    },
-    {
-      "id": "jp_iwato",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Escala Iwato (Japão)",
-      "nameEn": "Iwato Scale (Japan)",
-      "intervalsQ": [
-        0,
-        2,
-        10,
-        12,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        12
-      ],
-      "tagsPt": [
-        "1 · ♭2 · 4 · ♭5 · ♭7",
-        "Sombria / Sem 5ª",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · ♭2 · 4 · ♭5 · ♭7",
-        "Dark / No P5",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Pentatônica obscura que combina ♭2, 4ª justa e trítono (♭5) sem 5ª justa. Sonoridade cortante, ritualística e ideal para riffs dissonantes.",
-        "structureEn": "Dark pentatonic pairing ♭2, perfect 4th, and tritone (♭5) with no perfect 5th. Sharp, ritualistic, and devastating for dissonant riffs.",
-        "temperamentPt": "12-TET nativo; contém o Tricorde Vienense [0,1,6] embutido na tônica.",
-        "temperamentEn": "12-TET native; embeds the Viennese Trichord [0,1,6] straight off the tonic.",
-        "articulationPt": "Em B ou A Standard, explore a frição entre 4ª justa e ♭5 com palm muting pesado ou fuzz de alta saturação.",
-        "articulationEn": "In B or A Standard, exploit the 4th-vs-♭5 rub with heavy palm muting or saturated fuzz.",
-        "repertoire": "Musica Tradicional Koto · Sunn O))) · Boris"
-      }
-    },
-    {
-      "id": "jp_kumoi",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Escala Kumoi (Japão)",
-      "nameEn": "Kumoi Scale (Japan)",
-      "intervalsQ": [
-        0,
-        4,
-        6,
-        14,
-        18
-      ],
-      "characteristicQ": [
-        6,
-        18
-      ],
-      "tagsPt": [
-        "1 · 2 · ♭3 · 5 · 6",
-        "Dórica Pentatônica",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · 2 · ♭3 · 5 · 6",
-        "Dorian Pentatonic",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Versão luminosa da Hirajoshi com 6ª maior em vez de ♭6 — cria uma cor dórica cristalina e minimalista muito expressiva em acordes m6/9.",
-        "structureEn": "Luminous sibling of Hirajoshi using a natural 6th instead of ♭6 — yields a crystalline, minimalist Dorian color over m6/9 harmony.",
-        "temperamentPt": "12-TET nativo; perfeita sobre drones menores sem a previsibilidade da pentatônica menor comum.",
-        "temperamentEn": "12-TET native; floats gracefully over minor drones without standard minor-pentatonic clichés.",
-        "articulationPt": "Combine com harmônicos naturais na 12ª e 7ª casas para texturas espaciais e post-rock.",
-        "articulationEn": "Blend with 12th- and 7th-fret natural harmonics for spacious post-rock textures.",
-        "repertoire": "Bill Frisell · Ryuichi Sakamoto"
-      }
-    },
-    {
-      "id": "gamelan_pelog_24",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Gamelan Pelog (Aprox. 24-TET)",
-      "nameEn": "Gamelan Pelog (24-TET Approx.)",
-      "intervalsQ": [
-        0,
-        3,
-        6,
-        11,
-        14,
-        16,
-        21
-      ],
-      "characteristicQ": [
-        3,
-        11,
-        21
-      ],
-      "tagsPt": [
-        "Java / Bali",
-        "Microtonal",
-        "24-TET"
-      ],
-      "tagsEn": [
-        "Java / Bali",
-        "Microtonal",
-        "24-TET"
-      ],
-      "dossier": {
-        "structurePt": "Aproximação em 24-TET da escala heptatônica indonésia Pelog (praticada frequentemente em subconjuntos pentatônicos como Pelog Bem ou Pelog Barang).",
-        "structureEn": "24-TET approximation of the Indonesian 7-tone Pelog system (often performed in 5-tone subsets like Pelog Bem or Pelog Barang).",
-        "temperamentPt": "Cada conjunto de Gamelan possui sua afinação única (embat); os graus em 150¢, 550¢ e 1050¢ capturam o contraste entre passos estreitos e amplos.",
-        "temperamentEn": "Every Gamelan ensemble has a unique tuning (embat); degrees at 150¢, 550¢, and 1050¢ capture its stark contrast of narrow and wide steps.",
-        "articulationPt": "Ative o modo Trastes 24-TET ou Slide e crie padrões entrelaçados (kotekan) com delay rítmico e o motor polimétrico em 7 ou 5.",
-        "articulationEn": "Enable 24-TET Frets or Slide mode and build interlocking kotekan ostinatos with rhythmic delay and polymetric Track B.",
-        "repertoire": "Gamelan Gong Kebyar · Lou Harrison · King Gizzard"
-      }
-    },
-    {
-      "id": "gamelan_slendro_24",
-      "category": "global",
-      "subfamilyPt": "Japão & Gamelan (Ásia)",
-      "subfamilyEn": "Japan & Gamelan (Asia)",
-      "namePt": "Gamelan Slendro (Aprox. 24-TET)",
-      "nameEn": "Gamelan Slendro (24-TET Approx.)",
-      "intervalsQ": [
-        0,
-        5,
-        10,
-        14,
-        19
-      ],
-      "characteristicQ": [
-        5,
-        19
-      ],
-      "tagsPt": [
-        "Pentatônica Quase-Equidistante",
-        "24-TET",
-        "Java / Bali"
-      ],
-      "tagsEn": [
-        "Near-Equidistant Pentatonic",
-        "24-TET",
-        "Java / Bali"
-      ],
-      "dossier": {
-        "structurePt": "Aproximação 24-TET da pentatônica Slendro (passos largos próximos de 240¢: 0, 250¢, 500¢, 700¢, 950¢), dissolvendo a sensação de terças maiores ou menores.",
-        "structureEn": "24-TET approximation of the Slendro pentatonic (wide steps near 240¢: 0, 250¢, 500¢, 700¢, 950¢), dissolving traditional major/minor thirds.",
-        "temperamentPt": "Os graus 5q (+250¢) e 19q (+950¢) criam batimentos acústicos fascinantes quando combinados com 4ª e 5ª justas.",
-        "temperamentEn": "Degrees at 5q (+250¢) and 19q (+950¢) produce mesmerizing acoustic shimmer alongside the perfect 4th and 5th.",
-        "articulationPt": "Explore em modo Slide ou Trastes 24-TET sobre polimetria 5×4 para texturas hipnóticas.",
-        "articulationEn": "Explore in Slide or 24-TET Frets mode over a 5×4 polymeter for hypnotic textures.",
-        "repertoire": "Gamelan Degung · Claude Debussy (influências) · Lou Harrison"
-      }
-    },
-    {
-      "id": "br_armorial_lydian_b7",
-      "category": "global",
-      "subfamilyPt": "Brasil & Ibérico (Modalismo)",
-      "subfamilyEn": "Brazil & Iberian Modalism",
-      "namePt": "Nordestina / Lídio ♭7 (Armorial)",
-      "nameEn": "Northeastern / Lydian ♭7 (Armorial)",
-      "intervalsQ": [
-        0,
-        4,
-        8,
-        12,
-        14,
-        18,
-        20
-      ],
-      "characteristicQ": [
-        12,
-        20
-      ],
-      "tagsPt": [
-        "Série Harmônica",
-        "Movimento Armorial",
-        "4º Grau Mel. Menor"
-      ],
-      "tagsEn": [
-        "Acoustic Scale",
-        "Armorial Movement",
-        "4th of Mel. Minor"
-      ],
-      "dossier": {
-        "structurePt": "Combina a ♯4 do Lídio com a ♭7 do Mixolídio (escala acústica / 4º modo da menor melódica). Base recorrente na rabeca, pífano e viola nordestina.",
-        "structureEn": "Combines Lydian ♯4 with Mixolydian ♭7 (acoustic scale / 4th mode of melodic minor). Core color of Northeastern Brazilian rabeca, pífano, and viola.",
-        "temperamentPt": "Aproxima-se diretamente dos parciais 7 (♭7 a -31¢) e 11 (♯4 a -49¢) da série harmônica natural.",
-        "temperamentEn": "Closely mirrors partials 7 (♭7 at -31¢) and 11 (♯4 at -49¢) of the natural overtone series.",
-        "articulationPt": "Ative os Harmônicos Espectrais e toque em DADGAD, Orkney ou B Modal usando bordões contínuos e o ciclo Malfuf (3+3+2).",
-        "articulationEn": "Toggle Spectral Harmonics and try DADGAD, Orkney, or Baritone Modal with continuous drones and the Malfuf (3+3+2) cycle.",
-        "repertoire": "Quinteto Armorial · Hermeto Pascoal · Elomar"
-      }
-    },
-    {
-      "id": "flamenco_andaluz",
-      "category": "global",
-      "subfamilyPt": "Brasil & Ibérico (Modalismo)",
-      "subfamilyEn": "Brazil & Iberian Modalism",
-      "namePt": "Escala Flamenca / Andaluza (8 Notas)",
-      "nameEn": "Flamenco / Andalusian Scale (8-Note)",
-      "intervalsQ": [
-        0,
-        2,
-        6,
-        8,
-        10,
-        14,
-        16,
-        20
-      ],
-      "characteristicQ": [
-        2,
-        6,
-        8
-      ],
-      "tagsPt": [
-        "♭3 + 3M (Bimodal)",
-        "8 Notas",
-        "Cadência Andaluza"
-      ],
-      "tagsEn": [
-        "♭3 + M3 (Bimodal)",
-        "8-Note",
-        "Andalusian Cadence"
-      ],
-      "dossier": {
-        "structurePt": "Une simultaneamente a ♭3 (Frígio) e a 3ª maior (Frígio Dominante) em uma malha de 8 notas — capturando o movimento real dos solos flamencos sobre a cadência andaluza.",
-        "structureEn": "Unites both ♭3 (Phrygian) and major 3rd (Phrygian Dominant) inside an 8-note grid — capturing authentic flamenco phrasing over Andalusian cadences.",
-        "temperamentPt": "12-TET nativo; o contraste entre ♭3 descendente e 3ª maior ascendente cria tensão expressiva imediata.",
-        "temperamentEn": "12-TET native; contrasting ascending major 3rd against descending ♭3 generates immediate expressive fire.",
-        "articulationPt": "Alterne rasgueados percussivos em B/A Standard com frases ligadas cruzando ♭2, ♭3 e 3ª maior.",
-        "articulationEn": "Alternate percussive strums in B/A Standard with legato runs crossing ♭2, ♭3, and major 3rd.",
-        "repertoire": "Paco de Lucía · Vicente Amigo · Tomatito"
       }
     },
     {
@@ -2899,6 +2236,127 @@ export const DB = {
         "articulationPt": "Use o Etude de String Skipping em All Fourths ou B Standard movendo a mesma célula 3 casas por compasso.",
         "articulationEn": "Run the String Skipping Etude in All Fourths or B Standard, shifting the exact cell +3 frets per bar.",
         "repertoire": "Béla Bartók · Igor Stravinsky · Allan Holdsworth"
+      }
+    },
+    {
+      "id": "sym_augmented",
+      "category": "messiaen",
+      "subfamilyPt": "Slonimsky & Outras Simetrias",
+      "subfamilyEn": "Slonimsky & Other Symmetries",
+      "namePt": "Escala Aumentada (Hexatônica 1½–½)",
+      "nameEn": "Augmented Scale (Hexatonic m3–H)",
+      "intervalsQ": [
+        0,
+        6,
+        8,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        6,
+        16
+      ],
+      "tagsPt": [
+        "4 Transposições",
+        "Dupla Tríade Aumentada",
+        "Coltrane"
+      ],
+      "tagsEn": [
+        "4 Transpositions",
+        "Dual Augmented Triads",
+        "Coltrane"
+      ],
+      "dossier": {
+        "structurePt": "Alternância estrita 1½ · ½ (duas tríades aumentadas a distância de semitom: ex. C+ e B+). Base do ciclo harmônico de terças maiores (Coltrane Changes).",
+        "structureEn": "Strict m3 · H alternation (two augmented triads a semitone apart: e.g., C+ and B+). Core engine behind major-third harmonic cycles (Coltrane Changes).",
+        "temperamentPt": "Repete-se identicamente a cada 4 casas; riquíssima em tríades maiores e menores escondidas (C, E, A♭).",
+        "temperamentEn": "Repeats identically every 4 frets; conceals major and minor triads on C, E, and A♭.",
+        "articulationPt": "Crie arpejos quebrados saltando entre as duas tríades aumentadas com palhetada híbrida ou string skipping.",
+        "articulationEn": "Weave broken arpeggios leaping between the two augmented triads using hybrid picking or string skipping.",
+        "repertoire": "John Coltrane — Giant Steps · Oliver Nelson · Michael Brecker"
+      }
+    },
+    {
+      "id": "scriabin_prometheus",
+      "category": "messiaen",
+      "subfamilyPt": "Slonimsky & Outras Simetrias",
+      "subfamilyEn": "Slonimsky & Other Symmetries",
+      "namePt": "Escala Prometeu / Acorde Místico (Scriabin)",
+      "nameEn": "Prometheus / Mystic Scale (Scriabin)",
+      "intervalsQ": [
+        0,
+        4,
+        8,
+        12,
+        18,
+        20
+      ],
+      "characteristicQ": [
+        12,
+        18,
+        20
+      ],
+      "tagsPt": [
+        "Acorde Místico",
+        "Quartal Alterado",
+        "6 Notas"
+      ],
+      "tagsEn": [
+        "Mystic Chord",
+        "Altered Quartal",
+        "6-Note"
+      ],
+      "dossier": {
+        "structurePt": "Baseada no Acorde Místico de Alexander Scriabin (pilha de quartas aumentadas, diminutas e justas: C–F♯–B♭–E–A–D). Omite a 5ª justa e brilha em cores impressionistas.",
+        "structureEn": "Derived from Scriabin’s Mystic Chord (stacked augmented, diminished, and perfect 4ths: C–F♯–B♭–E–A–D). Fifth-less, iridescent, and impressionistic.",
+        "temperamentPt": "12-TET nativo; equivale ao Lídio ♭7 sem a 5ª justa.",
+        "temperamentEn": "12-TET native; effectively Lydian ♭7 stripped of its perfect 5th.",
+        "articulationPt": "Use o Construtor de Voicings em All Fourths ou B Standard para montar acordes quartais brilhantes com ♯4 e ♭7.",
+        "articulationEn": "Use the Voicing Solver in All Fourths or B Standard to build shimmering quartal chords with ♯4 and ♭7.",
+        "repertoire": "Alexander Scriabin — Prometheus · Allan Holdsworth"
+      }
+    },
+    {
+      "id": "enigmatic_verdi",
+      "category": "minor_systems",
+      "subfamilyPt": "Sistemas Exóticos & Híbridos",
+      "subfamilyEn": "Exotic & Hybrid Systems",
+      "namePt": "Escala Enigmática (Verdi)",
+      "nameEn": "Enigmatic Scale (Verdi)",
+      "intervalsQ": [
+        0,
+        2,
+        8,
+        12,
+        16,
+        20,
+        22
+      ],
+      "characteristicQ": [
+        2,
+        12,
+        16,
+        20
+      ],
+      "tagsPt": [
+        "Sem 4ª nem 5ª Justa",
+        "Cromática / Tons Inteiros",
+        "Experimental"
+      ],
+      "tagsEn": [
+        "No P4 or P5",
+        "Chromatic / Whole-Tone",
+        "Experimental"
+      ],
+      "dossier": {
+        "structurePt": "Imortalizada por Giuseppe Verdi: não possui 4ª justa NEM 5ª justa! Abre com ♭2 e 3ª maior, atravessa quatro tons inteiros (3–♯4–♯5–♯6) e fecha com semitom na 7ª maior.",
+        "structureEn": "Immortalized by Verdi: contains NEITHER a perfect 4th NOR a perfect 5th! Opens with ♭2→3, glides through four whole steps (3–♯4–♯5–♯6), and closes chromatically via 7.",
+        "temperamentPt": "12-TET nativo; desafia completamente o ouvido tonal pela ausência total de quintas estruturais na tônica.",
+        "temperamentEn": "12-TET native; completely disorients tonal gravity due to the total absence of perfect 4th and 5th above the root.",
+        "articulationPt": "Use sem 5ª no drone (apenas tônica pura) e explore arpejos aumentados e clusters na região média do braço.",
+        "articulationEn": "Disable the drone 5th (pure tonic only) and explore augmented arpeggios and clusters across the mid neck.",
+        "repertoire": "Giuseppe Verdi — Ave Maria · Joe Satriani"
       }
     },
     {
@@ -3111,45 +2569,6 @@ export const DB = {
       }
     },
     {
-      "id": "sym_augmented",
-      "category": "messiaen",
-      "subfamilyPt": "Slonimsky & Outras Simetrias",
-      "subfamilyEn": "Slonimsky & Other Symmetries",
-      "namePt": "Escala Aumentada (Hexatônica 1½–½)",
-      "nameEn": "Augmented Scale (Hexatonic m3–H)",
-      "intervalsQ": [
-        0,
-        6,
-        8,
-        14,
-        16,
-        22
-      ],
-      "characteristicQ": [
-        6,
-        16
-      ],
-      "tagsPt": [
-        "4 Transposições",
-        "Dupla Tríade Aumentada",
-        "Coltrane"
-      ],
-      "tagsEn": [
-        "4 Transpositions",
-        "Dual Augmented Triads",
-        "Coltrane"
-      ],
-      "dossier": {
-        "structurePt": "Alternância estrita 1½ · ½ (duas tríades aumentadas a distância de semitom: ex. C+ e B+). Base do ciclo harmônico de terças maiores (Coltrane Changes).",
-        "structureEn": "Strict m3 · H alternation (two augmented triads a semitone apart: e.g., C+ and B+). Core engine behind major-third harmonic cycles (Coltrane Changes).",
-        "temperamentPt": "Repete-se identicamente a cada 4 casas; riquíssima em tríades maiores e menores escondidas (C, E, A♭).",
-        "temperamentEn": "Repeats identically every 4 frets; conceals major and minor triads on C, E, and A♭.",
-        "articulationPt": "Crie arpejos quebrados saltando entre as duas tríades aumentadas com palhetada híbrida ou string skipping.",
-        "articulationEn": "Weave broken arpeggios leaping between the two augmented triads using hybrid picking or string skipping.",
-        "repertoire": "John Coltrane — Giant Steps · Oliver Nelson · Michael Brecker"
-      }
-    },
-    {
       "id": "slonimsky_tritone_interp",
       "category": "messiaen",
       "subfamilyPt": "Slonimsky & Outras Simetrias",
@@ -3189,43 +2608,41 @@ export const DB = {
       }
     },
     {
-      "id": "scriabin_prometheus",
-      "category": "messiaen",
-      "subfamilyPt": "Slonimsky & Outras Simetrias",
-      "subfamilyEn": "Slonimsky & Other Symmetries",
-      "namePt": "Escala Prometeu / Acorde Místico (Scriabin)",
-      "nameEn": "Prometheus / Mystic Scale (Scriabin)",
+      "id": "set_quartal_pent",
+      "category": "postTonal",
+      "subfamilyPt": "Estruturas Quartais & Hexacordes",
+      "subfamilyEn": "Quartal & Hexachord Structures",
+      "namePt": "Pilha Quartal Aberta [0, 2, 5, 7, 10]",
+      "nameEn": "Open Quartal Stack [0, 2, 5, 7, 10]",
       "intervalsQ": [
         0,
         4,
-        8,
-        12,
-        18,
+        10,
+        14,
         20
       ],
       "characteristicQ": [
-        12,
-        18,
+        10,
         20
       ],
       "tagsPt": [
-        "Acorde Místico",
-        "Quartal Alterado",
-        "6 Notas"
+        "Harmonia Quartal",
+        "McCoy Tyner",
+        "Aberto"
       ],
       "tagsEn": [
-        "Mystic Chord",
-        "Altered Quartal",
-        "6-Note"
+        "Quartal Harmony",
+        "McCoy Tyner",
+        "Open"
       ],
       "dossier": {
-        "structurePt": "Baseada no Acorde Místico de Alexander Scriabin (pilha de quartas aumentadas, diminutas e justas: C–F♯–B♭–E–A–D). Omite a 5ª justa e brilha em cores impressionistas.",
-        "structureEn": "Derived from Scriabin’s Mystic Chord (stacked augmented, diminished, and perfect 4ths: C–F♯–B♭–E–A–D). Fifth-less, iridescent, and impressionistic.",
-        "temperamentPt": "12-TET nativo; equivale ao Lídio ♭7 sem a 5ª justa.",
-        "temperamentEn": "12-TET native; effectively Lydian ♭7 stripped of its perfect 5th.",
-        "articulationPt": "Use o Construtor de Voicings em All Fourths ou B Standard para montar acordes quartais brilhantes com ♯4 e ♭7.",
-        "articulationEn": "Use the Voicing Solver in All Fourths or B Standard to build shimmering quartal chords with ♯4 and ♭7.",
-        "repertoire": "Alexander Scriabin — Prometheus · Allan Holdsworth"
+        "structurePt": "Equivalente ao empilhamento de 5 quartas consecutivas, produzindo um campo harmônico aberto sem centro tonal rígido.",
+        "structureEn": "Generated by stacking consecutive 4ths, creating an open, non-functional harmonic field free from tonic-dominant gravity.",
+        "temperamentPt": "Na afinação All Fourths (EADGCF ou B/A 4ths), acordes quartais viram pestanas verticais puras em qualquer casa.",
+        "temperamentEn": "In All Fourths tuning (EADGCF or B/A 4ths), quartal voicings collapse into pure vertical barres anywhere on the neck.",
+        "articulationPt": "Deslize blocos paralelos de 3 ou 4 cordas (planing) sobre um drone contínuo na tônica.",
+        "articulationEn": "Slide parallel 3- or 4-string quartal blocks (planing) over a sustained tonic drone.",
+        "repertoire": "McCoy Tyner · Bill Frisell · Julian Lage"
       }
     },
     {
@@ -3377,44 +2794,6 @@ export const DB = {
       }
     },
     {
-      "id": "set_quartal_pent",
-      "category": "postTonal",
-      "subfamilyPt": "Estruturas Quartais & Hexacordes",
-      "subfamilyEn": "Quartal & Hexachord Structures",
-      "namePt": "Pilha Quartal Aberta [0, 2, 5, 7, 10]",
-      "nameEn": "Open Quartal Stack [0, 2, 5, 7, 10]",
-      "intervalsQ": [
-        0,
-        4,
-        10,
-        14,
-        20
-      ],
-      "characteristicQ": [
-        10,
-        20
-      ],
-      "tagsPt": [
-        "Harmonia Quartal",
-        "McCoy Tyner",
-        "Aberto"
-      ],
-      "tagsEn": [
-        "Quartal Harmony",
-        "McCoy Tyner",
-        "Open"
-      ],
-      "dossier": {
-        "structurePt": "Equivalente ao empilhamento de 5 quartas consecutivas, produzindo um campo harmônico aberto sem centro tonal rígido.",
-        "structureEn": "Generated by stacking consecutive 4ths, creating an open, non-functional harmonic field free from tonic-dominant gravity.",
-        "temperamentPt": "Na afinação All Fourths (EADGCF ou B/A 4ths), acordes quartais viram pestanas verticais puras em qualquer casa.",
-        "temperamentEn": "In All Fourths tuning (EADGCF or B/A 4ths), quartal voicings collapse into pure vertical barres anywhere on the neck.",
-        "articulationPt": "Deslize blocos paralelos de 3 ou 4 cordas (planing) sobre um drone contínuo na tônica.",
-        "articulationEn": "Slide parallel 3- or 4-string quartal blocks (planing) over a sustained tonic drone.",
-        "repertoire": "McCoy Tyner · Bill Frisell · Julian Lage"
-      }
-    },
-    {
       "id": "set_schoenberg_hex",
       "category": "postTonal",
       "subfamilyPt": "Estruturas Quartais & Hexacordes",
@@ -3455,197 +2834,6 @@ export const DB = {
       }
     },
     {
-      "id": "pent_minor",
-      "category": "pentatonic",
-      "subfamilyPt": "Pentatônicas Essenciais & Blues",
-      "subfamilyEn": "Essential Pentatonics & Blues",
-      "namePt": "Pentatônica Menor",
-      "nameEn": "Minor Pentatonic",
-      "intervalsQ": [
-        0,
-        6,
-        10,
-        14,
-        20
-      ],
-      "characteristicQ": [
-        6,
-        20
-      ],
-      "tagsPt": [
-        "1 · ♭3 · 4 · 5 · ♭7",
-        "Universal",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · ♭3 · 4 · 5 · ♭7",
-        "Universal",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "A pentatônica anhemitônica (sem semitons) mais universal do planeta. Na guitarra experimental, serve como esqueleto limpo para sobreposições quartais e bends microtonais.",
-        "structureEn": "The world’s most universal anhemitonic pentatonic. In experimental guitar, it serves as a clean skeleton for quartal stacks and expressive micro-bends.",
-        "temperamentPt": "12-TET padrão; experimente micro-bends de +50¢ na ♭3 para aproximar a terça neutra do blues e do Maqam Rast.",
-        "temperamentEn": "Standard 12-TET; try +50¢ micro-bends on the ♭3 to approach the neutral third shared by deep blues and Maqam Rast.",
-        "articulationPt": "Use em B ou A Standard com saltos de corda (String Skipping) e acentuação assimétrica em 5 ou 7 notas.",
-        "articulationEn": "Use in B or A Standard with String Skipping and asymmetric 5- or 7-note groupings.",
-        "repertoire": "Rory Gallagher · Jimi Hendrix · Black Sabbath · Sonny Sharrock"
-      }
-    },
-    {
-      "id": "pent_major",
-      "category": "pentatonic",
-      "subfamilyPt": "Pentatônicas Essenciais & Blues",
-      "subfamilyEn": "Essential Pentatonics & Blues",
-      "namePt": "Pentatônica Maior",
-      "nameEn": "Major Pentatonic",
-      "intervalsQ": [
-        0,
-        4,
-        8,
-        14,
-        18
-      ],
-      "characteristicQ": [
-        8,
-        18
-      ],
-      "tagsPt": [
-        "1 · 2 · 3 · 5 · 6",
-        "Anhemitônica",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · 2 · 3 · 5 · 6",
-        "Anhemitonic",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Cinco quintas justas empilhadas (C–G–D–A–E) sem semitons. Base do Raga Bhupali, música folclórica chinesa, blues maior e paisagens abertas.",
-        "structureEn": "Five stacked perfect 5ths with zero semitones. Foundation of Raga Bhupali, Chinese folk traditions, major blues, and open soundscapes.",
-        "temperamentPt": "12-TET padrão; sobrepõe-se facilmente sobre acordes maiores, menores (no ♭III) ou Lídio (no II e V).",
-        "temperamentEn": "Standard 12-TET; superimposes effortlessly over major, minor (off ♭III), or Lydian (off II and V) harmony.",
-        "articulationPt": "Experimente tocar a pentatônica maior um tom acima da tônica (ex.: C♯ sobre B) para coloração Lídia instantânea.",
-        "articulationEn": "Superimpose a major pentatonic one whole step above the root (e.g., C♯ over B) for instant Lydian shimmer.",
-        "repertoire": "Raga Bhupali · Duane Allman · Bill Frisell"
-      }
-    },
-    {
-      "id": "blues_minor",
-      "category": "pentatonic",
-      "subfamilyPt": "Pentatônicas Essenciais & Blues",
-      "subfamilyEn": "Essential Pentatonics & Blues",
-      "namePt": "Escala Blues (Hexatônica)",
-      "nameEn": "Blues Scale (Hexatonic)",
-      "intervalsQ": [
-        0,
-        6,
-        10,
-        12,
-        14,
-        20
-      ],
-      "characteristicQ": [
-        6,
-        12
-      ],
-      "tagsPt": [
-        "Blue Note (♭5)",
-        "6 Notas",
-        "Expressiva"
-      ],
-      "tagsEn": [
-        "Blue Note (♭5)",
-        "6-Note",
-        "Expressive"
-      ],
-      "dossier": {
-        "structurePt": "Adiciona a ♭5 (blue note) à pentatônica menor, criando o corredor cromático 4–♭5–5 carregado de tensão rítmica e vocal.",
-        "structureEn": "Adds the ♭5 blue note to minor pentatonic, forging the vocal chromatic corridor 4–♭5–5.",
-        "temperamentPt": "Na prática viva do blues, a ♭3 e a ♭5 flutuam microtonalmente em torno de ±25–50¢ — ligue a ponte direta com o 24-TET.",
-        "temperamentEn": "In living blues phrasing, ♭3 and ♭5 float microtonally by ±25–50¢ — bridging directly into 24-TET ear training.",
-        "articulationPt": "Em B ou A Standard, explore riffs pesados centrados no choque 4–♭5–5 com fuzz ou overdrive dinâmico.",
-        "articulationEn": "In B or A Standard, craft heavy riffs centered on the 4–♭5–5 crunch with fuzz or dynamic overdrive.",
-        "repertoire": "Rory Gallagher · Charles Mingus · Boris · Sleep"
-      }
-    },
-    {
-      "id": "pent_dominant",
-      "category": "pentatonic",
-      "subfamilyPt": "Pentatônicas Experimentais & Modais",
-      "subfamilyEn": "Experimental & Modal Pentatonics",
-      "namePt": "Pentatônica Dominante / Mixolídia",
-      "nameEn": "Dominant / Mixolydian Pentatonic",
-      "intervalsQ": [
-        0,
-        4,
-        8,
-        14,
-        20
-      ],
-      "characteristicQ": [
-        8,
-        20
-      ],
-      "tagsPt": [
-        "1 · 2 · 3 · 5 · ♭7",
-        "Blues-Jazz",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · 2 · 3 · 5 · ♭7",
-        "Blues-Jazz",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Troca a 6ª da pentatônica maior pela ♭7, delineando diretamente um acorde 9/13 sem a 4ª de evitar-nota.",
-        "structureEn": "Swaps major pentatonic’s 6th for ♭7, outlining dominant 9th harmony cleanly without avoid notes.",
-        "temperamentPt": "12-TET padrão; ótimo filtro melódico sobre vamps Mixolídios e Lídio ♭7.",
-        "temperamentEn": "Standard 12-TET; sleek melodic filter over Mixolydian and Lydian ♭7 vamps.",
-        "articulationPt": "Alterne com a Pentatônica Menor paralela para linhas híbridas de jazz-rock e blues contemporâneo.",
-        "articulationEn": "Alternate with parallel Minor Pentatonic for modern jazz-rock and hybrid blues lines.",
-        "repertoire": "Robben Ford · Scott Henderson · John Scofield"
-      }
-    },
-    {
-      "id": "pent_locrian",
-      "category": "pentatonic",
-      "subfamilyPt": "Pentatônicas Experimentais & Modais",
-      "subfamilyEn": "Experimental & Modal Pentatonics",
-      "namePt": "Pentatônica Lócria / Meio-Diminuta",
-      "nameEn": "Locrian / Half-Diminished Pentatonic",
-      "intervalsQ": [
-        0,
-        6,
-        10,
-        12,
-        20
-      ],
-      "characteristicQ": [
-        10,
-        12
-      ],
-      "tagsPt": [
-        "1 · ♭3 · 4 · ♭5 · ♭7",
-        "Dissonante / Metal",
-        "5 Notas"
-      ],
-      "tagsEn": [
-        "1 · ♭3 · 4 · ♭5 · ♭7",
-        "Dissonant / Metal",
-        "5-Note"
-      ],
-      "dossier": {
-        "structurePt": "Rebaixa a 5ª da pentatônica menor para ♭5 (1 · ♭3 · 4 · ♭5 · ♭7). Uma arma secreta para solos modernos sobre m7♭5, alterados e riffs pesados em barítono.",
-        "structureEn": "Lowers minor pentatonic’s 5th to ♭5 (1 · ♭3 · 4 · ♭5 · ♭7). Secret weapon for modern m7♭5 lines, altered harmony, and heavy baritone riffs.",
-        "temperamentPt": "12-TET nativo; preserva a ergonomia familiar de 2 notas por corda com sabor totalmente sombrio.",
-        "temperamentEn": "12-TET native; preserves effortless 2-notes-per-string ergonomics with an unmistakably dark edge.",
-        "articulationPt": "Toque seus padrões favoritos de pentatônica menor com a 5ª sempre 1 casa abaixo em B ou A Standard.",
-        "articulationEn": "Play your favorite minor-pentatonic patterns with every 5th shifted 1 fret down in B or A Standard.",
-        "repertoire": "Allan Holdsworth · Meshuggah · Kurt Rosenwinkel"
-      }
-    },
-    {
       "id": "pent_rast_neutral",
       "category": "pentatonic",
       "subfamilyPt": "Pentatônicas Experimentais & Modais",
@@ -3681,6 +2869,818 @@ export const DB = {
         "articulationPt": "Ative o Etude Laboratório de Micro-Bends (+50¢) com esta escala e sinta a diferença imediata entre ♭3, 3½♭ e 3M.",
         "articulationEn": "Run the Micro-Bend (+50¢) Etude with this scale and lock in the sweet spot between ♭3, 3½♭, and major 3rd.",
         "repertoire": "String Atlas 24-TET Lab · Maqam Rast / Deep Blues Bridge"
+      }
+    },
+    {
+      "id": "maqam_nahawand",
+      "category": "arabic",
+      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
+      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
+      "namePt": "Maqam Nahawand",
+      "nameEn": "Maqam Nahawand",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        10,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        6,
+        16,
+        22
+      ],
+      "tagsPt": [
+        "Jins Nahawand",
+        "Jins Hijaz na 5ª",
+        "12-TET"
+      ],
+      "tagsEn": [
+        "Jins Nahawand",
+        "Upper Jins Hijaz",
+        "12-TET"
+      ],
+      "dossier": {
+        "structurePt": "Tetracorde menor Jins Nahawand (1 · ½ · 1) seguido de Jins Hijaz no 5º grau (ou Kurd na descida). Um dos maqamat mais líricos e imediatos na guitarra.",
+        "structureEn": "Minor tetrachord Jins Nahawand (W · H · W) topped by Jins Hijaz on the 5th (shifting to Kurd on descent). One of the most lyrical maqamat on guitar.",
+        "temperamentPt": "Nativo em 12-TET; ótimo laboratório para praticar modulações (Sayr) entre 7ª maior (sensível) e ♭7 descendente.",
+        "temperamentEn": "12-TET native; ideal lab for practicing sayr shifts between leading tone 7 and descending ♭7.",
+        "articulationPt": "Acentue o 5º grau como polo dramático usando vibrato vocal e ornamentos rápidos (mordentes) saindo da ♭6.",
+        "articulationEn": "Treat the 5th as a dramatic pivot using vocal vibrato and crisp mordents from the ♭6.",
+        "repertoire": "Fairuz — Ya Ana Ya Ana · Riyad al-Sunbati"
+      }
+    },
+    {
+      "id": "maqam_kurd",
+      "category": "arabic",
+      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
+      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
+      "namePt": "Maqam Kurd",
+      "nameEn": "Maqam Kurd",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        10,
+        14,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        16
+      ],
+      "tagsPt": [
+        "12-TET",
+        "Jins Kurd",
+        "Frígio Árabe"
+      ],
+      "tagsEn": [
+        "12-TET",
+        "Jins Kurd",
+        "Arabic Phrygian"
+      ],
+      "dossier": {
+        "structurePt": "Compartilha as notas do modo Frígio, mas organiza-se por Jins Kurd (½ · 1 · 1) na base e Jins Nahawand na 4ª justa — mudando completamente os pontos de repouso.",
+        "structureEn": "Shares pitches with Phrygian, but organizes around Jins Kurd (H · W · W) and Jins Nahawand on the 4th — transforming phrasing and resting tones.",
+        "temperamentPt": "Totalmente executável em 12-TET, com micro-inflexões expressivas opcionais na ♭2.",
+        "temperamentEn": "Fully playable in 12-TET, with optional expressive micro-inflections on ♭2.",
+        "articulationPt": "Use a 4ª justa como pivô melódico antes de resolver na tônica via ♭2. Brilha em DADGAD, B Standard ou Drop A.",
+        "articulationEn": "Use the perfect 4th as a melodic pivot before resolving down through ♭2 to the tonic. Shines in DADGAD, B Standard, or Drop A.",
+        "repertoire": "Le Trio Joubran · Fairuz — Habaytak Bissayf"
+      }
+    },
+    {
+      "id": "maqam_lami",
+      "category": "arabic",
+      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
+      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
+      "namePt": "Maqam Lami (Iraque)",
+      "nameEn": "Maqam Lami (Iraq)",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        10,
+        12,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        12
+      ],
+      "tagsPt": [
+        "Duplo Jins Kurd",
+        "12-TET",
+        "Iraquiano"
+      ],
+      "tagsEn": [
+        "Double Jins Kurd",
+        "12-TET",
+        "Iraqi"
+      ],
+      "dossier": {
+        "structurePt": "Maqam iraquiano sem microtons formado por dois Jins Kurd empilhados (na tônica e na 4ª justa). Compartilha notas com o Lócrio, mas com condução melódica estável sobre 1 e 4.",
+        "structureEn": "12-TET Iraqi maqam built from two stacked Jins Kurd tetrachords (on tonic and 4th). Shares pitches with Locrian yet phrases stably around degrees 1 and 4.",
+        "temperamentPt": "12-TET nativo — mostra como a organização por tetracordes (Ajnas) transforma o temido modo Lócrio em uma linguagem melódica cantável.",
+        "temperamentEn": "12-TET native — demonstrates how tetrachordal phrasing (Ajnas) turns Locrian pitches into a deeply lyrical melodic language.",
+        "articulationPt": "Evite power chords na tônica; use a 4ª justa como base de repouso e crie riffs sinuosos com a ♭5 em afinações graves.",
+        "articulationEn": "Skip tonic power chords; treat the perfect 4th as a resting pole and weave sinuous ♭5 lines in baritone tunings.",
+        "repertoire": "Nazem al-Ghazali · Munir Bashir — Maqam Lami"
+      }
+    },
+    {
+      "id": "maqam_ajam",
+      "category": "arabic",
+      "subfamilyPt": "Família Nahawand, Kurd & Ajam",
+      "subfamilyEn": "Nahawand, Kurd & Ajam Family",
+      "namePt": "Maqam Ajam",
+      "nameEn": "Maqam Ajam",
+      "intervalsQ": [
+        0,
+        4,
+        8,
+        10,
+        14,
+        18,
+        22
+      ],
+      "characteristicQ": [
+        8,
+        14
+      ],
+      "tagsPt": [
+        "Jins Ajam",
+        "12-TET",
+        "Solar / Épico"
+      ],
+      "tagsEn": [
+        "Jins Ajam",
+        "12-TET",
+        "Radiant / Epic"
+      ],
+      "dossier": {
+        "structurePt": "Embora coincida em notas com a escala maior ocidental, o Ajam organiza-se por Jins Ajam na base (1 · 1 · ½) e modula frequentemente para Nahawand na 5ª ou Hijaz no 3º grau.",
+        "structureEn": "Though pitch-identical to Western Major, Ajam phrases through Jins Ajam (W · W · H) and frequently modulates to Nahawand on the 5th or Hijaz on the 3rd.",
+        "temperamentPt": "Na execução tradicional do Oud, a 3ª maior tende ligeiramente mais próxima da entonação justa (~386¢) sobre o drone.",
+        "temperamentEn": "In traditional Oud performance, the major 3rd leans slightly toward Just Intonation (~386¢) against a drone.",
+        "articulationPt": "Evite cadências V7–I óbvias: explore linhas horizontais sobre drones graves e voicings quintais abertos.",
+        "articulationEn": "Bypass cliché V7–I cadences: explore horizontal melodies over low drones and open quintal voicings.",
+        "repertoire": "Mohammed Abdel Wahab · Samai Ajam"
+      }
+    },
+    {
+      "id": "maqam_hijaz",
+      "category": "arabic",
+      "subfamilyPt": "Família Hijaz & Nawa Athar",
+      "subfamilyEn": "Hijaz & Nawa Athar Family",
+      "namePt": "Maqam Hijaz",
+      "nameEn": "Maqam Hijaz",
+      "intervalsQ": [
+        0,
+        2,
+        8,
+        10,
+        14,
+        17,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        8,
+        17
+      ],
+      "tagsPt": [
+        "2ª Aumentada",
+        "6ª Neutra",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Augmented 2nd",
+        "Neutral 6th",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Tetracorde Jins Hijaz (½ · 1½ · ½) combinado com Jins Rast na 4ª. A 6ª meio-bemol suaviza o contraste dramático do salto de segunda aumentada.",
+        "structureEn": "Jins Hijaz tetrachord (½ · 1½ · ½) paired with Jins Rast on the 4th. The neutral 6th softens the dramatic augmented-second leap.",
+        "temperamentPt": "Na execução tradicional, a ♭2 tende a subir levemente (~120¢) e a 3ª maior a descer (~385¢), comprimindo o salto de 1½ tom.",
+        "temperamentEn": "In traditional phrasing, ♭2 slightly sharpens (~120¢) and major 3rd slightly flattens (~385¢), narrowing the augmented second.",
+        "articulationPt": "Explore fraseados lineares em uma única corda (estilo Oud/Saz) deslizando entre ♭2 e 3 com legato e palhetada alternada seca.",
+        "articulationEn": "Explore single-string linear phrasing (Oud/Saz approach), sliding between ♭2 and 3 with tight legato and crisp picking.",
+        "repertoire": "Anouar Brahem — Astrakan Café · Samai Hijaz"
+      }
+    },
+    {
+      "id": "maqam_hijaz_kar",
+      "category": "arabic",
+      "subfamilyPt": "Família Hijaz & Nawa Athar",
+      "subfamilyEn": "Hijaz & Nawa Athar Family",
+      "namePt": "Maqam Hijaz Kar",
+      "nameEn": "Maqam Hijaz Kar",
+      "intervalsQ": [
+        0,
+        2,
+        8,
+        10,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        2,
+        8,
+        16,
+        22
+      ],
+      "tagsPt": [
+        "Duplo Jins Hijaz",
+        "12-TET",
+        "Simetria Espelhada"
+      ],
+      "tagsEn": [
+        "Double Jins Hijaz",
+        "12-TET",
+        "Mirrored Symmetry"
+      ],
+      "dossier": {
+        "structurePt": "Empilha dois tetracordes Jins Hijaz separados por 1 tom (na tônica e na 5ª justa). Compartilha a malha 12-TET com Raga Bhairav, mas com condução centrada na 5ª.",
+        "structureEn": "Stacks two Jins Hijaz tetrachords separated by a whole step (on tonic and 5th). Shares pitches with Raga Bhairav, pivoting around the 5th (Ghammaz).",
+        "temperamentPt": "Totalmente executável em 12-TET; permite acordes abertos de 5ª justa + ♭2 e 7ª maior em choque controlado.",
+        "temperamentEn": "Fully 12-TET playable; supports open fifth voicings rubbing against ♭2 and major 7th.",
+        "articulationPt": "Em afinações barítono (B/A Standard), explore arpejos híbridos alternando bordão grave com saltos ♭6→7 nas cordas agudas.",
+        "articulationEn": "In baritone tunings (B/A Standard), pair low open pedals with ♭6→7 hybrid-picked leaps on upper strings.",
+        "repertoire": "Samai Hijaz Kar · Sayyid Darwish"
+      }
+    },
+    {
+      "id": "maqam_nawa_athar",
+      "category": "arabic",
+      "subfamilyPt": "Família Hijaz & Nawa Athar",
+      "subfamilyEn": "Hijaz & Nawa Athar Family",
+      "namePt": "Maqam Nawa Athar",
+      "nameEn": "Maqam Nawa Athar",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        12,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        6,
+        12,
+        22
+      ],
+      "tagsPt": [
+        "12-TET",
+        "Dupla 2ª Aumentada",
+        "Escuro / Metal"
+      ],
+      "tagsEn": [
+        "12-TET",
+        "Double Aug 2nd",
+        "Dark / Metal"
+      ],
+      "dossier": {
+        "structurePt": "Equivalente em 12-TET à Menor Húngara: dois saltos de segunda aumentada (♭3→♯4 e ♭6→7) criam simetria sombria e cinematográfica.",
+        "structureEn": "12-TET counterpart to Hungarian Minor: two augmented-second leaps (♭3→♯4 and ♭6→7) create dark, dramatic symmetry.",
+        "temperamentPt": "Não exige microtons obrigatórios — ponte imediata para transferir fraseado árabe e riffs pesados/modais para a guitarra elétrica.",
+        "temperamentEn": "Requires no quarter-tones — an immediate bridge for Arabic phrasing and dark modal riffs on electric guitar.",
+        "articulationPt": "Experimente arpejar díades de trítono (1–♯4) e 7ª maior (1–7) com fuzz/overdrive em B ou A Standard, alternando com tremolo picking.",
+        "articulationEn": "Arpeggiate tritone (1–♯4) and major-7th dyads with fuzz/overdrive in B or A Standard, contrasting with tremolo-picked lines.",
+        "repertoire": "Farid al-Atrash — Nawa Athar · Rabih Abou-Khalil"
+      }
+    },
+    {
+      "id": "maqam_athar_kurd",
+      "category": "arabic",
+      "subfamilyPt": "Família Hijaz & Nawa Athar",
+      "subfamilyEn": "Hijaz & Nawa Athar Family",
+      "namePt": "Maqam Athar Kurd",
+      "nameEn": "Maqam Athar Kurd",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        12,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        2,
+        12,
+        22
+      ],
+      "tagsPt": [
+        "Kurd + ♯4 + 7M",
+        "12-TET",
+        "Dramático"
+      ],
+      "tagsEn": [
+        "Kurd + ♯4 + M7",
+        "12-TET",
+        "Dramatic"
+      ],
+      "dossier": {
+        "structurePt": "Funde o início sombrio do Kurd (♭2, ♭3) com a ♯4 e a 7ª maior do Nawa Athar. Gera uma paleta extremamente expressiva para solos e riffs modais.",
+        "structureEn": "Merges the dark Kurd opening (♭2, ♭3) with Nawa Athar’s ♯4 and major 7th — delivering an intensely dramatic palette for solos and modal riffs.",
+        "temperamentPt": "12-TET nativo com dois saltos de 1½ tom (♭3→♯4 e ♭6→7) e dois semitons adjacentes à tônica (7–1–♭2).",
+        "temperamentEn": "12-TET native featuring two augmented-2nd leaps (♭3→♯4 and ♭6→7) and semitones flanking the tonic (7–1–♭2).",
+        "articulationPt": "Explore o cluster cromático 7–1–♭2 em cordas adjacentes com sustain elétrico ou delay modulante.",
+        "articulationEn": "Exploit the 7–1–♭2 chromatic cluster across adjacent strings with electric sustain or modulated delay.",
+        "repertoire": "Farid al-Atrash · Marcel Khalife"
+      }
+    },
+    {
+      "id": "maqam_nikriz",
+      "category": "arabic",
+      "subfamilyPt": "Família Hijaz & Nawa Athar",
+      "subfamilyEn": "Hijaz & Nawa Athar Family",
+      "namePt": "Maqam Nikriz",
+      "nameEn": "Maqam Nikriz",
+      "intervalsQ": [
+        0,
+        4,
+        6,
+        12,
+        14,
+        18,
+        20
+      ],
+      "characteristicQ": [
+        6,
+        12,
+        18
+      ],
+      "tagsPt": [
+        "Jins Nikriz",
+        "Dórico ♯4",
+        "12-TET"
+      ],
+      "tagsEn": [
+        "Jins Nikriz",
+        "Dorian ♯4",
+        "12-TET"
+      ],
+      "dossier": {
+        "structurePt": "Pentacorde Jins Nikriz (1 · ½ · 1½ · ½) com salto expressivo entre ♭3 e ♯4, combinado com 6ª maior e ♭7 no registro agudo.",
+        "structureEn": "Jins Nikriz pentachord (W · H · m3 · H) spotlighting the ♭3→♯4 leap, paired with major 6th and ♭7 above.",
+        "temperamentPt": "12-TET nativo (4º modo da menor harmônica / Dórico ♯4), perfeito para fundir linguagem árabe, jazz modal e metal progressivo.",
+        "temperamentEn": "12-TET native (4th mode of harmonic minor / Dorian ♯4), a powerhouse for fusing Arabic phrasing, modal jazz, and progressive metal.",
+        "articulationPt": "Combine riffs sincopados em 10/8 (Sama’i Thaqil) enfatizando o trítono ♯4 resolvendo na 5ª justa.",
+        "articulationEn": "Pair with syncopated 10/8 (Sama’i Thaqil) riffs leaning on the ♯4 tritone resolving into the 5th.",
+        "repertoire": "Rabih Abou-Khalil — Blue Camel · Samai Nikriz"
+      }
+    },
+    {
+      "id": "maqam_bayati",
+      "category": "arabic",
+      "subfamilyPt": "Família Bayati & Saba",
+      "subfamilyEn": "Bayati & Saba Family",
+      "namePt": "Maqam Bayati",
+      "nameEn": "Maqam Bayati",
+      "intervalsQ": [
+        0,
+        3,
+        6,
+        10,
+        14,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        3,
+        6
+      ],
+      "tagsPt": [
+        "Jins Bayati",
+        "2ª Neutra (150¢)",
+        "Taqsim"
+      ],
+      "tagsEn": [
+        "Jins Bayati",
+        "Neutral 2nd (150¢)",
+        "Taqsim"
+      ],
+      "dossier": {
+        "structurePt": "Tetracorde inferior Jins Bayati (¾ · ¾ · 1) seguido de Jins Nahawand ou Rast no 4º grau. A 2ª meio-bemol cria gravidade melódica rumo à tônica.",
+        "structureEn": "Lower tetrachord Jins Bayati (¾ · ¾ · 1) followed by Jins Nahawand or Rast on the 4th degree. The half-flat 2nd creates strong gravity toward the tonic.",
+        "temperamentPt": "Em 24-TET o 2º grau está a +150¢ da tônica; na prática levantina/egípcia costuma soar ligeiramente mais baixo (~135–145¢) em descida.",
+        "temperamentEn": "In 24-TET the 2nd degree sits at +150¢; in Levantine/Egyptian practice it often inflects slightly lower (~135–145¢) when descending.",
+        "articulationPt": "Na guitarra 12-TET, ataque a casa da ♭2 e aplique micro-bend de +50¢ sem vibrato excessivo; em B ou A Standard, explore drones graves na 6ª corda solta.",
+        "articulationEn": "On a 12-TET guitar, fret ♭2 and apply a controlled +50¢ micro-bend without heavy vibrato; in B or A Standard, anchor phrases over the open 6th-string drone.",
+        "repertoire": "Samai Bayati Ibrahim al-Aryan · Munir Bashir Taqsim Bayati"
+      }
+    },
+    {
+      "id": "maqam_bayati_shuri",
+      "category": "arabic",
+      "subfamilyPt": "Família Bayati & Saba",
+      "subfamilyEn": "Bayati & Saba Family",
+      "namePt": "Maqam Bayati Shuri",
+      "nameEn": "Maqam Bayati Shuri",
+      "intervalsQ": [
+        0,
+        3,
+        6,
+        10,
+        12,
+        18,
+        20
+      ],
+      "characteristicQ": [
+        3,
+        12,
+        18
+      ],
+      "tagsPt": [
+        "Jins Bayati + Hijaz",
+        "2ª Neutra + ♯4",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Jins Bayati + Hijaz",
+        "Neutral 2nd + ♯4",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Combina Jins Bayati na base (1 · 2½♭ · ♭3 · 4) com Jins Hijaz no 4º grau (4 · ♭5 · 6 · ♭7), criando um contraste dramático entre neutralidade e 2ª aumentada.",
+        "structureEn": "Pairs Jins Bayati on the tonic with Jins Hijaz on the 4th degree (4 · ♭5 · 6 · ♭7), creating striking contrast between neutral warmth and an upper augmented 2nd.",
+        "temperamentPt": "Reúne microtonalidade (2½♭ a +150¢) no registro inferior com a tensão cromática ♭5→6 no registro superior.",
+        "temperamentEn": "Combines quarter-tone inflection (2½♭ at +150¢) below with the chromatic ♭5→6 leap above.",
+        "articulationPt": "Use o 4º grau como ponto de virada: construa tensão no salto ♭5→6 com palhetada alternada seca e resolva suavemente via micro-bend na 2½♭.",
+        "articulationEn": "Use the 4th degree as a pivot: build tension across the ♭5→6 leap with crisp alternate picking and resolve softly via a 2½♭ micro-bend.",
+        "repertoire": "Samai Bayati Shuri · Umm Kulthum (trechos modulatórios)"
+      }
+    },
+    {
+      "id": "maqam_husayni",
+      "category": "arabic",
+      "subfamilyPt": "Família Bayati & Saba",
+      "subfamilyEn": "Bayati & Saba Family",
+      "namePt": "Maqam Husayni",
+      "nameEn": "Maqam Husayni",
+      "intervalsQ": [
+        0,
+        3,
+        6,
+        10,
+        14,
+        17,
+        20
+      ],
+      "characteristicQ": [
+        3,
+        14,
+        17
+      ],
+      "tagsPt": [
+        "Jins Bayati na 1ª e 5ª",
+        "6ª Neutra",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Jins Bayati on 1 & 5",
+        "Neutral 6th",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Parente direto do Bayati que eleva a 6ª para 6½♭ (+850¢) formando um segundo Jins Bayati sobre a 5ª justa — deslocando o centro dramático para o registro agudo.",
+        "structureEn": "Close sibling of Bayati raising the 6th to 6½♭ (+850¢) to form a second Jins Bayati on the 5th — shifting melodic gravity into the upper register.",
+        "temperamentPt": "Possui dois graus neutros simétricos separados por 5ª justa: 2½♭ (150¢) e 6½♭ (850¢).",
+        "temperamentEn": "Features two symmetrical neutral degrees a perfect 5th apart: 2½♭ (150¢) and 6½♭ (850¢).",
+        "articulationPt": "Inicie o fraseado em torno da 5ª justa destacando a 6½♭ com micro-bend ou slide, descendo apenas no fechamento para a tônica.",
+        "articulationEn": "Launch phrases around the 5th emphasizing 6½♭ via micro-bend or slide, descending to the tonic only at cadences.",
+        "repertoire": "Folclore Levantino · Sabah Fakhri · Farid al-Atrash"
+      }
+    },
+    {
+      "id": "maqam_saba",
+      "category": "arabic",
+      "subfamilyPt": "Família Bayati & Saba",
+      "subfamilyEn": "Bayati & Saba Family",
+      "namePt": "Maqam Saba",
+      "nameEn": "Maqam Saba",
+      "intervalsQ": [
+        0,
+        3,
+        6,
+        8,
+        14,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        3,
+        8
+      ],
+      "tagsPt": [
+        "4ª Diminuta",
+        "Tensão Intensa",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Diminished 4th",
+        "High Tension",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Começa com Jins Saba (¾ · ¾ · ½), quebrando a 4ª justa em uma 4ª diminuta (8q) que gera uma sensação melancólica e suspensa inconfundível.",
+        "structureEn": "Opens with Jins Saba (¾ · ¾ · ½), collapsing the perfect 4th into a diminished 4th (8q) for a haunting, unresolved gravity.",
+        "temperamentPt": "A distância entre o 2º grau neutro (150¢) e a 4ª diminuta (400¢) concentra alta densidade intervalar na região grave da oitava.",
+        "temperamentEn": "The tight cluster from neutral 2nd (150¢) to diminished 4th (400¢) concentrates dense emotional gravity in the lower register.",
+        "articulationPt": "Evite acordes fechados ocidentais; use drones graves (ex.: B1 ou A1 em barítono) e bends lentos de ¼ de tom com sustain elétrico.",
+        "articulationEn": "Avoid dense Western triads; lean on low baritone drones (B1/A1) and slow quarter-tone bends with electric sustain.",
+        "repertoire": "Simon Shaheen — Taqsim Saba · Wadih El Safi"
+      }
+    },
+    {
+      "id": "maqam_saba_zamzam",
+      "category": "arabic",
+      "subfamilyPt": "Família Bayati & Saba",
+      "subfamilyEn": "Bayati & Saba Family",
+      "namePt": "Maqam Saba Zamzam",
+      "nameEn": "Maqam Saba Zamzam",
+      "intervalsQ": [
+        0,
+        2,
+        6,
+        8,
+        14,
+        16,
+        20
+      ],
+      "characteristicQ": [
+        2,
+        6,
+        8
+      ],
+      "tagsPt": [
+        "12-TET",
+        "4ª Diminuta",
+        "Sombrio / Doom"
+      ],
+      "tagsEn": [
+        "12-TET",
+        "Diminished 4th",
+        "Dark / Doom"
+      ],
+      "dossier": {
+        "structurePt": "Versão 12-TET do Maqam Saba: substitui a 2ª neutra por ♭2 (½ · 1 · ½) preservando a 4ª diminuta (♭4/3M). Cria uma sonoridade opressiva extraordinária em afinações graves.",
+        "structureEn": "12-TET counterpart to Maqam Saba: replaces the neutral 2nd with ♭2 (H · W · H) while keeping the diminished 4th — devastating in low baritone tunings.",
+        "temperamentPt": "100% compatível com trastes padrão 12-TET, mantendo o choque emocional típico do Saba entre ♭3 e ♭4.",
+        "temperamentEn": "Fully playable on standard 12-TET frets while retaining Saba’s haunting rub between ♭3 and diminished 4th.",
+        "articulationPt": "Em B Standard ou A Standard, explore riffs arrastados (doom/post-metal) alternando tônica, ♭2, ♭3 e a 4ª diminuta sem jamais tocar a 4ª justa.",
+        "articulationEn": "In B or A Standard, craft slow doom/post-metal riffs alternating tonic, ♭2, ♭3, and diminished 4th without ever touching a perfect 4th.",
+        "repertoire": "Umm Kulthum — Fakkaruni · Tradição Egípcia Moderna"
+      }
+    },
+    {
+      "id": "maqam_rast",
+      "category": "arabic",
+      "subfamilyPt": "Família Rast & Sikah",
+      "subfamilyEn": "Rast & Sikah Family",
+      "namePt": "Maqam Rast",
+      "nameEn": "Maqam Rast",
+      "intervalsQ": [
+        0,
+        4,
+        7,
+        10,
+        14,
+        18,
+        21
+      ],
+      "characteristicQ": [
+        7,
+        21
+      ],
+      "tagsPt": [
+        "3ª Neutra (350¢)",
+        "7ª Neutra (1050¢)",
+        "Pilar Árabe"
+      ],
+      "tagsEn": [
+        "Neutral 3rd (350¢)",
+        "Neutral 7th (1050¢)",
+        "Arabic Pillar"
+      ],
+      "dossier": {
+        "structurePt": "Baseado no Jins Rast (1 · ¾ · ¾) sobre a tônica e replicado na 5ª justa. Na descida tradicional, o 7º grau frequentemente desce para ♭7 (1000¢).",
+        "structureEn": "Built on Jins Rast (1 · ¾ · ¾) on the tonic and replicated on the 5th. Traditionally, descending phrases often lower the 7th degree to standard ♭7.",
+        "temperamentPt": "A terça neutra (350¢) habita exatamente o limiar entre o maior e o menor, dissolvendo a dicotomia tonal ocidental.",
+        "temperamentEn": "The neutral 3rd (350¢) sits right between major and minor, dissolving Western major/minor duality.",
+        "articulationPt": "Use bottleneck/slide ou micro-bends curtos saindo da terça menor (♭3) para atingir a neutralidade do Rast. Excelente com timbre limpo e reverb longo.",
+        "articulationEn": "Use slide or short micro-bends up from minor 3rd (♭3) to hit the neutral sweet spot. Shines with clean tone and ambient reverb.",
+        "repertoire": "Umm Kulthum — Al-Atlal · Farid al-Atrash Taqsim Rast"
+      }
+    },
+    {
+      "id": "maqam_suznak",
+      "category": "arabic",
+      "subfamilyPt": "Família Rast & Sikah",
+      "subfamilyEn": "Rast & Sikah Family",
+      "namePt": "Maqam Suznak",
+      "nameEn": "Maqam Suznak",
+      "intervalsQ": [
+        0,
+        4,
+        7,
+        10,
+        14,
+        16,
+        22
+      ],
+      "characteristicQ": [
+        7,
+        16,
+        22
+      ],
+      "tagsPt": [
+        "Jins Rast + Hijaz",
+        "3ª Neutra + 7M",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Jins Rast + Hijaz",
+        "Neutral 3rd + M7",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Um dos híbridos mais célebres da música árabe: Jins Rast na base (1 · 2 · 3½♭ · 4) coroado por Jins Hijaz sobre a 5ª justa (5 · ♭6 · 7 · 8).",
+        "structureEn": "One of Arabic music’s most celebrated hybrids: Jins Rast below (1 · 2 · 3½♭ · 4) crowned by Jins Hijaz on the 5th (5 · ♭6 · 7 · 8).",
+        "temperamentPt": "Apenas um grau microtonal (3½♭ a 350¢) — fácil de dominar na guitarra 12-TET enquanto oferece todo o drama do Hijaz no agudo.",
+        "temperamentEn": "Just one quarter-tone degree (3½♭ at 350¢) — highly accessible on 12-TET guitar while delivering full Hijaz drama upstairs.",
+        "articulationPt": "Ótima porta de entrada para microtonalidade: toque a parte aguda em palhetada rápida e desacelere sobre a 3ª neutra com micro-bend preciso.",
+        "articulationEn": "Ideal gateway to quarter-tones: pick the upper Hijaz tetrachord crisply and slow down onto the neutral 3rd with a precise micro-bend.",
+        "repertoire": "Samai Suznak · Riyad al-Sunbati · Munir Bashir"
+      }
+    },
+    {
+      "id": "maqam_sikah",
+      "category": "arabic",
+      "subfamilyPt": "Família Rast & Sikah",
+      "subfamilyEn": "Rast & Sikah Family",
+      "namePt": "Maqam Sikah",
+      "nameEn": "Maqam Sikah",
+      "intervalsQ": [
+        0,
+        3,
+        7,
+        11,
+        14,
+        17,
+        21
+      ],
+      "characteristicQ": [
+        3,
+        7,
+        11
+      ],
+      "tagsPt": [
+        "Tricorde Sikah",
+        "Eixo Neutro",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Sikah Trichord",
+        "Neutral Axis",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Construído a partir de um tricorde (¾ · 1) em vez de tetracorde. Tradicionalmente nasce sobre E½♭, fazendo praticamente toda a malha intervalar flutuar em quartos de tom.",
+        "structureEn": "Built on a trichord (¾ · 1) rather than a tetrachord. Traditionally rooted on E½♭, making the scale grid float across quarter-tone intervals.",
+        "temperamentPt": "Ótimo teste de percepção no modo Slide ou Trastes 24-TET: observe como a 5ª justa (14q) ancora um ambiente cercado de graus neutros.",
+        "temperamentEn": "A prime ear-training lab in Slide or 24-TET Frets mode: notice how the perfect 5th (14q) anchors a field of neutral degrees.",
+        "articulationPt": "Ative o modo Slide/Fretless e explore glissandos suaves em uma única corda, repousando na tônica e no 3º grau neutro.",
+        "articulationEn": "Switch to Slide/Fretless mode and explore slow single-string glissandi, resting on the tonic and neutral 3rd.",
+        "repertoire": "Samai Sikah · George Abyad"
+      }
+    },
+    {
+      "id": "maqam_huzam",
+      "category": "arabic",
+      "subfamilyPt": "Família Rast & Sikah",
+      "subfamilyEn": "Rast & Sikah Family",
+      "namePt": "Maqam Huzam",
+      "nameEn": "Maqam Huzam",
+      "intervalsQ": [
+        0,
+        3,
+        7,
+        9,
+        15,
+        17,
+        21
+      ],
+      "characteristicQ": [
+        3,
+        9,
+        15
+      ],
+      "tagsPt": [
+        "Tricorde Sikah + Hijaz",
+        "Microtonal",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Sikah Trichord + Hijaz",
+        "Microtonal",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Funde o tricorde inicial do Sikah (¾ · 1) com Jins Hijaz no 3º grau (7q→9q→15q→17q), criando uma das cores mais hipnóticas da família Sikah.",
+        "structureEn": "Fuses the opening Sikah trichord (¾ · 1) with Jins Hijaz on the 3rd degree (7q→9q→15q→17q), yielding one of the most hypnotic colors in the Sikah family.",
+        "temperamentPt": "Quase todos os graus caem em quartos de tom relativos à tônica — brilhante para exploração com bottleneck/slide ou guitarra microtonal.",
+        "temperamentEn": "Nearly every degree sits on quarter-tone offsets relative to the root — extraordinary for slide/fretless or 24-TET fretboard study.",
+        "articulationPt": "Experimente no modo Trastes 24-TET ou Slide sobre um drone de tônica pura, destacando o salto de 1½ tom entre 4½♭ e 6½♭.",
+        "articulationEn": "Try 24-TET Frets or Slide mode over a pure tonic drone, spotlighting the augmented-2nd leap in the middle register.",
+        "repertoire": "Fairuz · Sabah Fakhri · Samai Huzam"
+      }
+    },
+    {
+      "id": "gamelan_slendro_24",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Gamelan Slendro (Aprox. 24-TET)",
+      "nameEn": "Gamelan Slendro (24-TET Approx.)",
+      "intervalsQ": [
+        0,
+        5,
+        10,
+        14,
+        19
+      ],
+      "characteristicQ": [
+        5,
+        19
+      ],
+      "tagsPt": [
+        "Pentatônica Quase-Equidistante",
+        "24-TET",
+        "Java / Bali"
+      ],
+      "tagsEn": [
+        "Near-Equidistant Pentatonic",
+        "24-TET",
+        "Java / Bali"
+      ],
+      "dossier": {
+        "structurePt": "Aproximação 24-TET da pentatônica Slendro (passos largos próximos de 240¢: 0, 250¢, 500¢, 700¢, 950¢), dissolvendo a sensação de terças maiores ou menores.",
+        "structureEn": "24-TET approximation of the Slendro pentatonic (wide steps near 240¢: 0, 250¢, 500¢, 700¢, 950¢), dissolving traditional major/minor thirds.",
+        "temperamentPt": "Os graus 5q (+250¢) e 19q (+950¢) criam batimentos acústicos fascinantes quando combinados com 4ª e 5ª justas.",
+        "temperamentEn": "Degrees at 5q (+250¢) and 19q (+950¢) produce mesmerizing acoustic shimmer alongside the perfect 4th and 5th.",
+        "articulationPt": "Explore em modo Slide ou Trastes 24-TET sobre polimetria 5×4 para texturas hipnóticas.",
+        "articulationEn": "Explore in Slide or 24-TET Frets mode over a 5×4 polymeter for hypnotic textures.",
+        "repertoire": "Gamelan Degung · Claude Debussy (influências) · Lou Harrison"
+      }
+    },
+    {
+      "id": "gamelan_pelog_24",
+      "category": "global",
+      "subfamilyPt": "Japão & Gamelan (Ásia)",
+      "subfamilyEn": "Japan & Gamelan (Asia)",
+      "namePt": "Gamelan Pelog (Aprox. 24-TET)",
+      "nameEn": "Gamelan Pelog (24-TET Approx.)",
+      "intervalsQ": [
+        0,
+        3,
+        6,
+        11,
+        14,
+        16,
+        21
+      ],
+      "characteristicQ": [
+        3,
+        11,
+        21
+      ],
+      "tagsPt": [
+        "Java / Bali",
+        "Microtonal",
+        "24-TET"
+      ],
+      "tagsEn": [
+        "Java / Bali",
+        "Microtonal",
+        "24-TET"
+      ],
+      "dossier": {
+        "structurePt": "Aproximação em 24-TET da escala heptatônica indonésia Pelog (praticada frequentemente em subconjuntos pentatônicos como Pelog Bem ou Pelog Barang).",
+        "structureEn": "24-TET approximation of the Indonesian 7-tone Pelog system (often performed in 5-tone subsets like Pelog Bem or Pelog Barang).",
+        "temperamentPt": "Cada conjunto de Gamelan possui sua afinação única (embat); os graus em 150¢, 550¢ e 1050¢ capturam o contraste entre passos estreitos e amplos.",
+        "temperamentEn": "Every Gamelan ensemble has a unique tuning (embat); degrees at 150¢, 550¢, and 1050¢ capture its stark contrast of narrow and wide steps.",
+        "articulationPt": "Ative o modo Trastes 24-TET ou Slide e crie padrões entrelaçados (kotekan) com delay rítmico e o motor polimétrico em 7 ou 5.",
+        "articulationEn": "Enable 24-TET Frets or Slide mode and build interlocking kotekan ostinatos with rhythmic delay and polymetric Track B.",
+        "repertoire": "Gamelan Gong Kebyar · Lou Harrison · King Gizzard"
       }
     }
   ],
