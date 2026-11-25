@@ -129,6 +129,27 @@ export function detectPitchYIN(buf, sampleRate, rmsGate = 0.012) {
 /**
  * Converts a detected frequency (Hz) into rich 24-TET & 12-TET micro-bend telemetry.
  */
+
+/**
+ * Computes recommended RMS gate & gain calibration for the active tuning's lowest string
+ * so deep 7/8-string or dropped tunings sustain cleanly without premature gate cutoff.
+ */
+export function computeTuningInputCalibration(stringsQ = [], a4Hz = getReferenceA4()) {
+  const lowestQ = Array.isArray(stringsQ) && stringsQ.length
+    ? Math.min(...stringsQ)
+    : 80;
+  const lowestHz = qToFreq(lowestQ, a4Hz);
+  const isSubBass = lowestHz < 68;
+  const isBaritone = lowestHz < 85;
+
+  return {
+    lowestQ,
+    lowestHz: Number(lowestHz.toFixed(1)),
+    rmsGate: isSubBass ? 0.008 : (isBaritone ? 0.01 : 0.012),
+    inputGain: isSubBass ? 1.35 : (isBaritone ? 1.2 : 1.0)
+  };
+}
+
 export function analyzePitch24(freq, a4Hz = getReferenceA4()) {
   const exactQ = A4_Q + 24 * Math.log2(freq / a4Hz);
   const nearestQ = Math.round(exactQ);

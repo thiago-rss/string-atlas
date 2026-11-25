@@ -36,7 +36,7 @@ import {
   setState
 } from '../state/store.js';
 import { synthEngine } from '../audio/synthEngine.js';
-import { pitchDetector } from '../audio/pitchDetector.js';
+import { computeTuningInputCalibration, pitchDetector } from '../audio/pitchDetector.js';
 import { refreshAudioDevices, startLineMode, stopLineMode } from './lineModeView.js';
 import { showToast } from './toastView.js';
 
@@ -452,6 +452,9 @@ export function renderDeckPanel(state) {
         <div class="compartment-head">
           <span class="control-label">${t(state.lang, 'compInputTitle')}</span>
           <div class="pill-row">
+            <button type="button" class="btn-mini" data-action="autoCalibrateInput" title="${t(state.lang, 'calibTuningHint')}">
+              ⚡ ${t(state.lang, 'calibTuningBtn')} (${activeTuning.short})
+            </button>
             <button type="button" class="btn-mini" data-action="openFullLineTab">${t(state.lang, 'compInputFullBtn')} →</button>
             <button type="button" class="btn-mini" data-action="closeCompartment">${t(state.lang, 'compClose')}</button>
           </div>
@@ -833,6 +836,17 @@ export function renderDeckPanel(state) {
       if (opening && target === 'input' && !st.audioInputDevices.length) {
         refreshAudioDevices();
       }
+    } else if (action === 'autoCalibrateInput') {
+      const cal = computeTuningInputCalibration(st.customStringsQ, st.refA4Hz);
+      pitchDetector.setInputGain(cal.inputGain);
+      pitchDetector.setGate(cal.rmsGate);
+      setState({ lineInputGain: cal.inputGain, lineRmsGate: cal.rmsGate });
+      showToast(
+        st.lang === 'en'
+          ? `Calibrated for ${activeTuning.short} (${cal.lowestHz} Hz): Gain ${cal.inputGain.toFixed(1)}× · Gate ${Math.round(cal.rmsGate * 1000)}`
+          : `Calibrado para ${activeTuning.short} (${cal.lowestHz} Hz): Ganho ${cal.inputGain.toFixed(1)}× · Gate ${Math.round(cal.rmsGate * 1000)}`,
+        'ok'
+      );
     } else if (action === 'toggleLineListening') {
       if (st.lineModeRunning) stopLineMode();
       else startLineMode();

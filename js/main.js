@@ -554,6 +554,29 @@ function bindGlobalControls() {
     });
   });
 
+  if (!window.__saClickOutsideBound) {
+    window.__saClickOutsideBound = true;
+    document.addEventListener('click', (ev) => {
+      const st = getState();
+      const hasOpenDrawer = Boolean(
+        st.deckCompartment || st.headerMenuOpen || st.themeDrawerOpen || st.snapshotsOpen
+      );
+      if (!hasOpenDrawer) return;
+      const target = ev.target;
+      if (!(target instanceof Element)) return;
+      const insideDrawerOrTrigger = target.closest(
+        '#deckShell, #headerMenuDrawer, #themeDrawer, #snapshotsDrawer, #btnTopControls, #btnStageScalePicker, #btnHeaderMenu, [data-mob-nav]'
+      );
+      if (insideDrawerOrTrigger) return;
+      setState({
+        deckCompartment: null,
+        headerMenuOpen: false,
+        themeDrawerOpen: false,
+        snapshotsOpen: false
+      });
+    });
+  }
+
   window.addEventListener('keydown', (ev) => {
     const st = getState();
 
