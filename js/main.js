@@ -512,43 +512,53 @@ function bindResponsiveViewportListener() {
 }
 
 function bindGlobalControls() {
-  document.getElementById('btnTopPlay')?.addEventListener('click', () => {
-    const st = getState();
-    if (st.etudePlaying) stopEtudePlayback();
-    toggleScalePlayback(st);
-  });
+  const topbarEl = document.querySelector('.topbar');
+  if (topbarEl && !topbarEl.dataset.saTopbarBound) {
+    topbarEl.dataset.saTopbarBound = '1';
+    let lastTopToggleMs = 0;
+    topbarEl.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('#btnTopPlay, #btnTopMic, #btnTopControls, #btnHeaderMenu');
+      if (!btn || !topbarEl.contains(btn)) return;
+      ev.stopPropagation();
 
-  document.getElementById('btnTopMic')?.addEventListener('click', () => {
-    const st = getState();
-    if (st.lineModeRunning) stopLineMode();
-    else startLineMode();
-  });
+      const now = performance.now();
+      if ((btn.id === 'btnTopControls' || btn.id === 'btnHeaderMenu') && now - lastTopToggleMs < 75) {
+        return;
+      }
+      if (btn.id === 'btnTopControls' || btn.id === 'btnHeaderMenu') {
+        lastTopToggleMs = now;
+      }
 
-  document.getElementById('btnTopControls')?.addEventListener('click', () => {
-    const st = getState();
-    setState({
-      deckCompartment: st.deckCompartment ? null : 'setup',
-      headerMenuOpen: false,
-      themeDrawerOpen: false,
-      snapshotsOpen: false
+      const st = getState();
+      if (btn.id === 'btnTopPlay') {
+        if (st.etudePlaying) stopEtudePlayback();
+        toggleScalePlayback(st);
+      } else if (btn.id === 'btnTopMic') {
+        if (st.lineModeRunning) stopLineMode();
+        else startLineMode();
+      } else if (btn.id === 'btnTopControls') {
+        setState({
+          deckCompartment: st.deckCompartment === 'setup' ? null : 'setup',
+          headerMenuOpen: false,
+          themeDrawerOpen: false,
+          snapshotsOpen: false
+        });
+      } else if (btn.id === 'btnHeaderMenu') {
+        setState({
+          headerMenuOpen: !st.headerMenuOpen,
+          deckCompartment: null,
+          themeDrawerOpen: false,
+          snapshotsOpen: false
+        });
+      }
     });
-  });
+  }
 
   document.getElementById('btnStageScalePicker')?.addEventListener('click', () => {
     const st = getState();
     setState({
       deckCompartment: st.deckCompartment === 'setup' ? null : 'setup',
       headerMenuOpen: false,
-      themeDrawerOpen: false,
-      snapshotsOpen: false
-    });
-  });
-
-  document.getElementById('btnHeaderMenu')?.addEventListener('click', () => {
-    const st = getState();
-    setState({
-      headerMenuOpen: !st.headerMenuOpen,
-      deckCompartment: null,
       themeDrawerOpen: false,
       snapshotsOpen: false
     });
